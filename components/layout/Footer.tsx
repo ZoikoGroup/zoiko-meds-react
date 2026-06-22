@@ -100,9 +100,9 @@ export default function Footer() {
     <footer className="bg-[#0a1733] text-slate-200">
       {/* Top section */}
       <div className="mx-auto max-w-7xl px-6 py-10 sm:px-8 lg:px-12">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-          {/* Logo + tagline */}
-          <div className="flex  flex-col gap-4 lg:max-w-md">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          {/* Logo column */}
+          <div className="flex-shrink-0 lg:w-auto">
             <Link href="/" className="inline-block w-fit">
               {/* Replace src below with your logo image URL */}
               <Image
@@ -114,33 +114,33 @@ export default function Footer() {
                 priority
               />
             </Link>
-            
           </div>
 
-
-   <div className="flex flex-wrap gap-3 lg:justify-end">
-          <p className="text-sm leading-relaxed text-slate-400">
+          {/* Tagline + status pills column (left aligned together) */}
+          <div className="flex flex-col items-start gap-4 lg:flex-1 lg:px-4">
+            <p className="max-w-md text-sm leading-relaxed text-slate-400">
               Global medicine availability infrastructure — search, signal,
               verify. Not a pharmacy. No prescribing, dispensing, or medical
               advice.
             </p>
-             {/* Status pills */}
 
-          <span className="flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/30">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Infrastructure monitoring active
-          </span>
-          <span className="flex items-center gap-2 rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-400 ring-1 ring-amber-500/30">
-            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-amber-950">
-              !
-            </span>
-            47+ Planned Market Framework
-          </span>
+            {/* Status pills */}
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/30">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Infrastructure monitoring active
+              </span>
+              <span className="flex items-center gap-2 rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-400 ring-1 ring-amber-500/30">
+                <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-amber-950">
+                  !
+                </span>
+                47+ Planned Market Framework
+              </span>
+            </div>
           </div>
 
-
-          {/* Badges */}
-          <div className="flex flex-wrap items-start gap-3 lg:justify-end">
+          {/* Badges column */}
+          <div className="flex flex-shrink-0 flex-wrap items-start gap-3 lg:justify-end">
             <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
               <Shield className="h-3.5 w-3.5 text-slate-400" />
               Privacy-led
@@ -155,8 +155,6 @@ export default function Footer() {
             </span>
           </div>
         </div>
-
-       
       </div>
 
       <div className="border-t border-slate-700/60" />
