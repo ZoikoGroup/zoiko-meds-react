@@ -1,0 +1,6 @@
+export { default as PlatformHero } from './PlatformHero'
+export { default as PlatformFeatures } from './PlatformFeatures'
+export { default as PlatformProtocol } from './PlatformProtocol'
+export { default as PlatformManifesto } from './PlatformManifesto'
+export { default as PlatformEngage } from './PlatformEngage'
+export {default as PlatformStats} from './PlatformStats'
