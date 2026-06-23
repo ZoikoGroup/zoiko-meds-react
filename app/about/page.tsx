@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 
-import { 
+import {
 
-AboutHero,
-AboutStatsSection,
-AboutWhyZoikomeds,
-AboutPlatformCapabilities
+  AboutHero,
+  AboutStatsSection,
+  AboutWhyZoikomeds,
+  AboutPlatformCapabilities,
+  AboutGovernance,
+  AboutThreeEngines,
+  AboutMedicineAccessChain,
+  AboutWhatZoikomedsDoesNot,
+  AboutGlobalReachAndCta
 
- } from "@/components/about/";
+} from "@/components/about/";
 
 
 
@@ -24,6 +29,11 @@ export default function AboutPage() {
       <AboutStatsSection />
       <AboutWhyZoikomeds />
       <AboutPlatformCapabilities />
+      <AboutGovernance />
+      <AboutThreeEngines />
+      <AboutMedicineAccessChain />
+      <AboutWhatZoikomedsDoesNot />
+      <AboutGlobalReachAndCta />
     </main>
   );
 }
