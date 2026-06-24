@@ -9,13 +9,13 @@ interface DropdownItem { label: string; href: string; description?: string; }
 interface NavItem { label: string; href?: string; dropdown?: DropdownItem[]; }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Platform", dropdown: [
+  { label: "Platform", href: "/platform/", dropdown: [
     { label: "Overview", href: "/platform", description: "See the full platform" },
     { label: "Features", href: "/platform/features", description: "Core capabilities" },
     { label: "Security", href: "/platform/security", description: "Enterprise-grade security" },
     { label: "Integrations", href: "/platform/integrations", description: "Connect your tools" },
   ]},
-  { label: "Patients", dropdown: [
+  { label: "Patients", href: "/patient/", dropdown: [
     { label: "Patient Portal", href: "/patients/portal", description: "Access health records" },
     { label: "Prescriptions", href: "/patients/prescriptions", description: "Manage medications" },
     { label: "Appointments", href: "/patients/appointments", description: "Schedule & track visits" },
