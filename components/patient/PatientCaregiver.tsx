@@ -30,7 +30,7 @@ export default function PatientCaregiver() {
 
         {/* Content */}
         <div>
-          <p className="text-sm  text-[#151C27] mb-3">
+          <p className="text-3xl font-semibold text-[#151C27] mb-3">
             Built for Caregivers Too.
           </p>
           <p className="text-[16px] text-[#44474D] leading-relaxed mb-8">

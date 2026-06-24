@@ -1,1 +1,6 @@
-export {default as PatientHero} from './PatientHero'
+export { default as PatientHero } from './PatientHero'
+export { default as PatientCaregiver } from './PatientCaregiver'
+export { default as PatientCta } from './PatientCta'
+export { default as PatientFeatures } from './PatientFeatures'
+export { default as PatientSignal } from './PatientSignal'
+export { default as PatientTrust } from './PatientTrust'

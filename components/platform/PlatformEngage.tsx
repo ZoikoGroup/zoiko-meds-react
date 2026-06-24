@@ -31,19 +31,19 @@ export default function PlatformEngage() {
             <div className="max-w-6xl mx-auto px-6">
 
                 {/* Heading */}
-                <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-[#081A13] mb-10">
+                <h2 className="text-3xl lg:text-4xl font-extrabold text-center tracking-tight text-[#081A13]">
                     Two ways to engage.
                 </h2>
 
                 {/* Cards grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:p-16 lg:grid-cols-2 gap-6">
                     {plans.map((plan) => (
                         <div
                             key={plan.tag}
-                            className="bg-white rounded-2xl border border-[#E2E5F0] p-8 lg:p-10 flex flex-col gap-6"
+                            className="bg-white border border-[#E2E5F0] p-16 flex flex-col gap-6"
                         >
                             {/* Tag */}
-                            <p className="text-[10.5px] font-bold tracking-[0.14em] uppercase text-[#005C55]">
+                            <p className="text-[24px] font-bold uppercase text-[#005C55]">
                                 {plan.tag}
                             </p>
 

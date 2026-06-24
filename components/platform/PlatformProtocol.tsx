@@ -33,12 +33,14 @@ export default function PlatformProtocol() {
       <div className="max-w-6xl mx-auto px-6">
 
         {/* Heading */}
-        <div className="mb-14">
+        <div className="mb-14 flex flex-col items-center">
           <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-[#081A13] mb-4">
-            Protocol Execution Cycle
+            <span className="relative inline-block">
+              Pro
+              <div className="absolute left-0 bottom-[-6px] w-full h-[3px] bg-[#006A65] rounded-full" />
+            </span>
+            tocol Execution Cycle
           </h2>
-          {/* Teal underline bar */}
-          <div className="w-14 h-[3px] bg-[#1D9E75] rounded-full" />
         </div>
 
         {/* Steps grid */}

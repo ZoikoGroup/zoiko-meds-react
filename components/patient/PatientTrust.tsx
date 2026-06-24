@@ -8,11 +8,11 @@ export default function PatientTrust() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Image
-              src='/patient/privacy.png' alt='privacy' height={12} width={12}
+              src='/patient/privacy.png' alt='privacy' height={16} width={20}
             />
-            <h2 className="text-sm text-[#151C27] font-Inter">Your Privacy</h2>
+            <h2 className="text-xl font-semibold text-[#151C27]">Your Privacy</h2>
           </div>
-          <p className="text-[13.5px] text-[#151C27] leading-relaxed mb-6">
+          <p className="text-[16px] text-[#44474D] leading-relaxed mb-6">
             We prioritize your data security and anonymity above all else. Our platform is designed to be helpful without being intrusive.
           </p>
           <ul className="flex flex-col gap-3">
@@ -21,7 +21,7 @@ export default function PatientTrust() {
               "We never ask for or store prescription numbers",
               "Your search history is never sold to third parties",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2 text-[13px] text-[#151C27]">
+              <li key={item} className="flex items-start gap-2 text[16px] text[#151C27]">
                 {item}
               </li>
             ))}
@@ -32,11 +32,11 @@ export default function PatientTrust() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Image
-              src='/patient/boundary.png' alt='privacy' height={12} width={12}
+              src='/patient/boundary.png' alt='privacy' height={18} width={19}
             />
-            <h2 className="text-sm text-[#151C27] font-Inter">Our Boundaries</h2>
+            <h2 className="text-xl font-semibold text-[#151C27] font-Inter">Our Boundaries</h2>
           </div>
-          <p className="text-[13.5px] text-[#151C27] leading-relaxed mb-6">
+          <p className="text-[16px] text-[#44474D] leading-relaxed mb-6">
             ZoikoMeds is an information platform, not a healthcare provider. It is important to understand our role in your care journey.
           </p>
           <ul className="flex flex-col gap-3">
@@ -45,7 +45,7 @@ export default function PatientTrust() {
               "We cannot issue or verify prescriptions",
               "Availability signals are estimates and can change quickly",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2 text-[13px] text-[#151C27]">
+              <li key={item} className="flex items-start gap-2 text[16px] text[#151C27]">
                 {item}
               </li>
             ))}

@@ -1,9 +1,4 @@
-import { PatientHero } from "@/components/patient";
-import PatientCaregiver from "@/components/patient/PatientCaregiver";
-import PatientCta from "@/components/patient/PatientCta";
-import PatientFeatures from "@/components/patient/PatientFeatures";
-import PatientSignal from "@/components/patient/PatientSignal";
-import PatientTrust from "@/components/patient/PatientTrust";
+import { PatientHero, PatientCaregiver, PatientCta, PatientFeatures, PatientSignal, PatientTrust } from "@/components/patient";
 
 export default function PatientPage() {
     return (

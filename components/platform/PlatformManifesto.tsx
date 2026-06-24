@@ -63,18 +63,18 @@ export default function PlatformManifesto() {
           {/* Teal vertical bar */}
           <div className="flex-shrink-0 w-[3px] self-stretch bg-[#006A65] rounded-full min-h-[248px]" />
 
-          <div>
-            <blockquote className="text-2xl sm:text-3xl lg:text-3xl font-bold text-white leading-snug tracking-tight mb-0">
+          <div className='md:min-w-[1097px]'>
+            <blockquote className="text-2xl md:text-4xl font-bold text-white leading-snug tracking-tight mb-0">
               "ZoikoMeds is medicine availability infrastructure. We provide the protocol and the substrate; we do not manufacture, we enable."
             </blockquote>
             {/* Pillars row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-10">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-10 md:max-w-[718px]">
               {pillars.map((p) => (
                 <div key={p.label} className="flex flex-col gap-2">
                   <span className="text-[10.5px] font-bold tracking-[0.14em] uppercase text-[#7AF6EE]">
                     {p.label}
                   </span>
-                  <p className="text-[13.5px] text-[#7587A7] leading-relaxed">
+                  <p className="text-[12px] text-[#7587A7]">
                     {p.desc}
                   </p>
                 </div>

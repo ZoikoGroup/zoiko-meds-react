@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-
+import Image from 'next/image';
 const platformLayers = [
     {
         id: "experience",
@@ -47,13 +47,13 @@ export default function PlatformHero() {
                 {/* ── Left column ── */}
                 <div className="flex flex-col">
 
-                    <p className="text-[13px] font-JetBrains Mono tracking-[0.13em] uppercase text-[#005C55] mb-4">
+                    <p className="text-[13px] font-JetBrains Mono tracking-[.06em] uppercase text-[#005C55] mb-4">
                         The ZoikoMeds Platform
                     </p>
 
                     <h1 className="text-4xl lg:text-4xl font-extrabold leading-tight tracking-tight text-[#081A13] mb-5">
                         The infrastructure layer{" "}
-                        <span className="block">for medicine availability.</span>
+                        <span className="block">for <span className="text-[#0FAA87]">medicine availability.</span></span>
                     </h1>
 
                     <p className="text-base lg:text-[17px] leading-relaxed text-[#3A5248] mb-8 max-w-[470px]">
@@ -66,7 +66,7 @@ export default function PlatformHero() {
                     <div className="flex flex-wrap gap-3 mb-10">
                         <a
                             href="#"
-                            className="inline-flex items-center gap-2 bg-[#0F6E56] hover:bg-[#0a5241] text-white font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors duration-150 whitespace-nowrap"
+                            className="inline-flex items-center gap-2 bg-[#005C55] hover:bg-[#0a5241] text-white font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors duration-150 whitespace-nowrap"
                         >
                             Check Medicine Availability
                             <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -75,7 +75,7 @@ export default function PlatformHero() {
                         </a>
                         <a
                             href="#"
-                            className="inline-flex items-center border border-[black] text-black hover:bg-[#0F6E56]/5 font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors duration-150 whitespace-nowrap"
+                            className="inline-flex items-center border border-[#6E7977] text-[#131B2E] hover:bg-[#0F6E56]/5 font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors duration-150 whitespace-nowrap"
                         >
                             Request a Briefing
                         </a>
@@ -85,55 +85,8 @@ export default function PlatformHero() {
 
                 {/* ── Right column — Platform card ── */}
                 <div>
-                    <div className="bg-[#F0F3FF] w-full rounded-2xl p-6 lg:p-7 border border-[#C4C6CE] flex justify-center">
-
-                        {/* Layer buttons */}
-                        <div className="flex flex-col gap-4 mb-5">
-                            {platformLayers.map((layer) => {
-                                const isActive = activeLayer === layer.id;
-
-                                /* Compute dynamic classes */
-                                const base =
-                                    "flex items-center gap-3 md:w-[462px] px-4 py-3 rounded border cursor-pointer transition-all duration-150 outline-none";
-
-                                const variant = layer.dark
-                                    ? isActive
-                                        ? "bg-[#0A1F18] border-[#0A1F18]"
-                                        : "bg-[#0A1F18] border-[#0A1F18]"
-                                    : isActive
-                                        ? "bg-[#0F6E56] border-[#0F6E56]"
-                                        : "bg-[#ffffff] border-[#DFF0E9] hover:border-[#9BCFC0]";
-
-                                const labelColor = layer.dark
-                                    ? "#7587A7"
-                                    : isActive
-                                        ? "#ffffff"
-                                        : "#0A1F18";
-
-                                return (
-                                    <button
-                                        key={layer.id}
-                                        onClick={() => setActiveLayer(layer.id)}
-                                        className={`${base} ${variant} ${layer.id === "governance" ? "mt-6 h-[32px] rounded-md" : ""}`}
-                                    >
-                                        <span
-                                            className={`flex-1 text-sm font-semibold leading-snug text-center`}
-                                            style={{ color: labelColor }}
-                                        >
-                                            {layer.label}
-                                        </span>
-                                        {
-                                            isActive && (
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg"
-                                                />
-                                            )
-                                        }
-                                    </button>
-                                );
-                            })}
-                        </div>
+                    <div className="w-full">
+                        <Image src='/platform/hero.png' alt="hero" width={560} height={420} />           
                     </div>
                 </div>
 
