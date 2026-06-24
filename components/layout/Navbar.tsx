@@ -20,12 +20,12 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Prescriptions", href: "/patients/prescriptions", description: "Manage medications" },
     { label: "Appointments", href: "/patients/appointments", description: "Schedule & track visits" },
   ]},
-  { label: "Pharmacies", dropdown: [
+  { label: "Pharmacies", href: "/pharmacy/", dropdown: [
     { label: "Pharmacy Dashboard", href: "/pharmacies/dashboard", description: "Manage your pharmacy" },
     { label: "Inventory", href: "/pharmacies/inventory", description: "Real-time stock management" },
     { label: "Dispensing", href: "/pharmacies/dispensing", description: "Streamlined dispensing" },
   ]},
-  { label: "Enterprise", dropdown: [
+  { label: "Enterprise", href: "/enterprise/", dropdown: [
     { label: "Hospital Systems", href: "/enterprise/hospitals", description: "Large-scale deployments" },
     { label: "Clinic Networks", href: "/enterprise/clinics", description: "Multi-location management" },
     { label: "API Access", href: "/enterprise/api", description: "Custom integrations" },
@@ -236,8 +236,22 @@ export default function Navbar() {
                     >
                       {item.label}
                     </Link>
+                  ) : item.href ? (
+                    /* Clickable link that also has a dropdown */
+                    <Link href={item.href} style={{
+                      display: "flex", alignItems: "center", gap: "4px",
+                      padding: "8px 12px", borderRadius: "8px",
+                      fontSize: "14px", fontWeight: 500, textDecoration: "none", cursor: "pointer",
+                      fontFamily: "var(--font-jakarta), sans-serif",
+                      backgroundColor: activeDropdown === item.label ? "#f0f4ff" : "transparent",
+                      color: activeDropdown === item.label ? "#263D88" : "#374151",
+                      transition: "all 0.15s ease",
+                    }}>
+                      {item.label}
+                      <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: activeDropdown === item.label ? "rotate(180deg)" : "rotate(0deg)" }} />
+                    </Link>
                   ) : (
-                    /* Button with dropdown */
+                    /* Button with dropdown, no direct link */
                     <button style={{
                       display: "flex", alignItems: "center", gap: "4px",
                       padding: "8px 12px", borderRadius: "8px", border: "none",
@@ -305,7 +319,7 @@ export default function Navbar() {
           <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 16px 16px", overflowY: "auto", maxHeight: "70vh" }}>
             {NAV_ITEMS.map((item) => (
               <div key={item.label} style={{ borderBottom: "1px solid #f7f7f7" }}>
-                {/* Mobile: plain link for About, accordion for others */}
+                {/* Mobile: plain link for items without dropdown, accordion for others */}
                 {!item.dropdown ? (
                   <Link href={item.href!}
                     style={{ display: "block", padding: "14px 0", fontSize: "14px", fontWeight: 600, color: "#1f2937", textDecoration: "none" }}
@@ -315,12 +329,26 @@ export default function Navbar() {
                   </Link>
                 ) : (
                   <>
-                    <button onClick={() => setMobileExpanded(mobileExpanded === item.label ? null : item.label)}
-                      style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", fontSize: "14px", fontWeight: 600, color: "#1f2937", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-jakarta), sans-serif" }}
-                    >
-                      {item.label}
-                      <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: mobileExpanded === item.label ? "rotate(180deg)" : "rotate(0deg)" }} />
-                    </button>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      {item.href ? (
+                        <Link href={item.href}
+                          style={{ flex: 1, padding: "14px 0", fontSize: "14px", fontWeight: 600, color: "#1f2937", textDecoration: "none", fontFamily: "var(--font-jakarta), sans-serif" }}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <span style={{ flex: 1, padding: "14px 0", fontSize: "14px", fontWeight: 600, color: "#1f2937", fontFamily: "var(--font-jakarta), sans-serif" }}>
+                          {item.label}
+                        </span>
+                      )}
+                      <button onClick={() => setMobileExpanded(mobileExpanded === item.label ? null : item.label)}
+                        aria-label={`Toggle ${item.label} submenu`}
+                        style={{ padding: "14px 4px", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}
+                      >
+                        <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: mobileExpanded === item.label ? "rotate(180deg)" : "rotate(0deg)" }} />
+                      </button>
+                    </div>
                     <div style={{ maxHeight: mobileExpanded === item.label ? "400px" : "0px", overflow: "hidden", transition: "max-height 0.25s ease" }}>
                       <div style={{ paddingBottom: "8px", paddingLeft: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
                         {item.dropdown.map((sub) => (
