@@ -150,7 +150,17 @@ export default function PharmacyPortalVerificationStatusSection() {
         <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-2">
           {mounted
             ? STATUSES.map((s, i) => (
-                <StatusCard key={s.badge} {...s} index={i} />
+                <StatusCard
+  key={s.badge}
+  tone={s.tone}
+  icon={s.icon as "lock" | "clock" | "shield" | "check" | "warning"}
+  badge={s.badge}
+  description={s.description}
+  visibility={s.visibility}
+  action={s.action}
+  cta={s.cta}
+  index={i}
+/>
               ))
             : STATUSES.map((_, i) => <StatusCardSkeleton key={i} />)}
         </div>
