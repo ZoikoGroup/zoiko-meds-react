@@ -68,7 +68,7 @@ export default function ControlsSection() {
 
         <div className="pt-6 border-t border-gray-100 flex justify-center md:justify-start items-center gap-3">
           <button
-            className="text-[15px] py-3 px-5 bg-white border border-[#CDD7E3] rounded-xl font-semibold text-[#0D1B2E] hover:underline"
+            className="text-[15px] py-3 px-5 bg-white border border-[#CDD7E3] rounded-xl font-semibold text-[#0D1B2E] hover:bg-gray-50 cursor-pointer"
           >
             View Privacy Center
           </button>

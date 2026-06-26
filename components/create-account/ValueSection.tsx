@@ -67,7 +67,7 @@ export default function ValueSection() {
           {cards.map((card, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:shadow-md transition-shadow flex flex-col"
+              className="bg-white rounded-2xl border border-[#E2E8F0] p-6 transition-shadow flex flex-col"
             >
               <span className="flex-shrink-0 w-9 h-9 rounded-xl p-[7px] bg-[#13A5941A] mb-4 text-[#13A594] flex items-center justify-center">
                 {card.icon}
@@ -75,7 +75,7 @@ export default function ValueSection() {
               <h3 className="text-sm font-bold text-gray-900 mb-2">{card.title}</h3>
               <p className="text-[14px] md:max-w-[290px] text-[#566476] leading-relaxed mb-5">{card.desc}</p>
               <button
-                className={`text-[15px] font-semibold border rounded-xl px-5 py-3 transition-colors inline-block ${card.primary ? "border-[#13A594] bg-[#13A594] text-white" : "text-black bg-white border-[#CDD7E3]"}`}
+                className={`text-[15px] font-semibold border cursor-pointer rounded-xl px-5 py-3 transition-colors inline-block ${card.primary ? "border-[#13A594] bg-[#13A594] text-white hover:bg-[#118e80]" : "text-black bg-white border-[#CDD7E3] hover:bg-gray-50"}`}
               >
                 {card.cta}
               </button>

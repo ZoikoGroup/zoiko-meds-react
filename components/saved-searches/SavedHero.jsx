@@ -105,7 +105,7 @@ export default function SavedHero() {
                                 {actions.map((action) => (
                                     <button
                                         key={action.label}
-                                        className={`rounded-xl min-h-[40px] cursor-pointer px-4 py-2 text-sm font-medium transition ${action.primary
+                                        className={`rounded-xl min-h-[40px] cursor-pointer px-4 py-2 text-sm font-semibold transition ${action.primary
                                             ? "bg-[#13A594] text-white hover:bg-[#119485]"
                                             : "border border-[#CDD7E3] bg-white text-[#0D1B2E] hover:bg-gray-50"
                                             }`}

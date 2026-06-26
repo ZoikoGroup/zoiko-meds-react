@@ -1,2 +1,6 @@
 export { default as SavedSearch } from './SavedSearch'
-export {default as SavedHero} from './SavedHero'
+export { default as SavedHero } from './SavedHero'
+export { default as SavedWork } from './SavedWork'
+export { default as SavedManage } from './SavedManage'
+export { default as SavedControls } from './SavedControls'
+export { default as SavedCreate } from './SavedCreate'
