@@ -56,7 +56,7 @@ export default function CaregiverHero() {
                     </p>
 
                     <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                        <button className="rounded-xl flex gap-2 cursor-pointer items-center bg-[#081B33] px-12 py-4 font text-white transition active:bg-[#15253D] hover:bg-[#15253D]">
+                        <button className="rounded-xl flex gap-2 cursor-pointer justify-center items-center bg-[#081B33] px-12 py-4 font text-white transition active:bg-[#15253D] hover:bg-[#15253D]">
                             <span>Create Free Account</span>
                             <img src="/caregiver-access/arrow.png" alt="Image" width={16} height={16} />
                         </button>

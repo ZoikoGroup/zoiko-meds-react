@@ -30,7 +30,7 @@ export default function CaregiverFeatures() {
             <div className="mx-auto max-w-6xl">
                 {/* Heading */}
                 <div className="text-center">
-                    <h2 className="text-3xl sm:text-[38px] leading-6 font-semibold text-[#081B33]">
+                    <h2 className="text-3xl sm:text-[38px] leading-10 font-semibold text-[#081B33]">
                         Three simple ways to{" "}
                         <span className="text-[#0FAA87]">
                             help someone you support.
@@ -39,7 +39,7 @@ export default function CaregiverFeatures() {
                 </div>
 
                 {/* Cards */}
-                <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {features.map((item) => (
                         <div
                             key={item.title}

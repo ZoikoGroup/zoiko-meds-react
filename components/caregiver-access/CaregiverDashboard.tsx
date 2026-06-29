@@ -73,6 +73,7 @@ interface SearchCard {
     expiredDate?: string;
     note?: string;
     primary: boolean;
+    src: string;
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -88,36 +89,39 @@ const cards: SearchCard[] = [
         id: "1",
         labelId: "mom",
         icon: "person",
-        iconBg: "bg-teal-500",
+        iconBg: "bg-[#00B7A8]",
         labelName: "Mom",
         alertStatus: "active",
         medicine: "Metformin 500mg",
         radius: "Downtown (10mi)",
-        primary: true
+        primary: true,
+        src: "/caregiver-access/mom.png"
     },
     {
         id: "2",
         labelId: "child",
         icon: "child",
-        iconBg: "bg-amber-400",
+        iconBg: "bg-[#F4B942]",
         labelName: "Child",
         alertStatus: "paused",
         medicine: "Amoxicillin Susp.",
         primaryAction: "Resume Monitoring",
-        primary: false
+        primary: false,
+        src: "/caregiver-access/child.png"
     },
     {
         id: "3",
         labelId: "travel",
         icon: "plane",
-        iconBg: "bg-slate-700",
+        iconBg: "bg-[#081B33]",
         labelName: "Travel Search (San Francisco)",
         alertStatus: "expired",
         medicine: "",
         note: "Created for temporary trip monitoring",
         expiredDate: "Dec 15, 2023",
         isTemporary: true,
-        primary: false
+        primary: false,
+        src: "/caregiver-access/plane.png"
     },
 ];
 
@@ -191,7 +195,7 @@ export default function CaregiverDashboard() {
                     {/* ── Left column ── */}
                     <div className="flex flex-col gap-4">
                         {/* Caregiver Labels */}
-                        <div className="bg-white border border-[#C4C6CE] rounded-2xl shadow-sm p-4">
+                        <div className="bg-white border w-[360px] border-[#C4C6CE] rounded-2xl shadow-sm p-4">
                             <h2 className="flex items-center gap-2 text-[16px] font-bold text-[#081B33] mb-3">
                                 <img src="/caregiver-access/label.png" alt="label" width={10} height={10} />
                                 <span>Caregiver Labels</span>
@@ -224,7 +228,7 @@ export default function CaregiverDashboard() {
                         </div>
 
                         {/* Preferred Locations */}
-                        <div className="bg-white border border-[#C4C6CE] rounded-2xl shadow-sm p-4">
+                        <div className="bg-white border w-[360px] border-[#C4C6CE] rounded-2xl shadow-sm p-4">
                             <h2 className="text-sm font-semibold text-[#081B33] mb-3">Preferred Locations</h2>
                             <ul className="space-y-2">
                                 {[
@@ -246,7 +250,7 @@ export default function CaregiverDashboard() {
                         </div>
 
                         {/* Privacy Controls */}
-                        <div className="bg-[#E7EEFE] border border-[#00B7A833] rounded-2xl p-4">
+                        <div className="bg-[#E7EEFE] w-[360px] border border-[#00B7A833] rounded-2xl p-4">
                             <h2 className="flex items-center gap-2 text-sm font-bold text-[#081B33] mb-2">
                                 <img src="/caregiver-access/control.png" alt="Image" width={16} height={20} />
                                 <span>Privacy Controls</span>
@@ -257,7 +261,7 @@ export default function CaregiverDashboard() {
                             <ul className="space-y-2">
                                 {["Delete All Labels", "Export Search History", "Manage Notification Opt-out"].map((action) => (
                                     <li key={action}>
-                                        <button className="text-sm text-[#081B33] mt-3 font-medium hover:text-slate-900 hover:underline transition-colors text-left">
+                                        <button className="text-sm text-[#081B33] mt-3 font-semibold hover:text-slate-900 hover:underline transition-colors text-left">
                                             {action}
                                         </button>
                                     </li>
@@ -267,18 +271,20 @@ export default function CaregiverDashboard() {
                     </div>
 
                     {/* ── Right column ── */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col ml-22 gap-4">
 
                         {/* Active search cards */}
                         <div className="grid grid-cols-2 gap-4">
                             {activeCards.map((card) => (
-                                <div key={card.id} className="bg-white min-h-[320px] rounded-2xl shadow-sm p-5 flex flex-col gap-4 relative overflow-hidden">
+                                <div key={card.id} className="bg-white min-h-[320px] rounded-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] p-5 flex flex-col gap-4 relative overflow-hidden">
                                     {/* Decorative circle */}
-                                    <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-bl-full opacity-60 ${card.primary && "bg-[#00B7A80D]"}`} />
+                                    <div className={`absolute -top-6 -right-6 w-30 h-30 rounded-bl-full opacity-60 ${card.primary && "bg-[#00B7A80D]"}`} />
 
                                     <div className="flex items-start justify-between relative">
                                         <div className="flex items-center gap-3">
-                                            <AvatarIcon type={card.icon} bg={card.iconBg} />
+                                            <div className={`h-11.5 w-10 ${card.iconBg} rounded-2xl p-3 pb-5`}>
+                                                <img src={card.src} alt="Image" height={18} width={18} />
+                                            </div>
                                             <div>
                                                 <p className="text-sm font-semibold text-slate-800">{card.labelName}</p>
                                                 <StatusBadge status={card.alertStatus} />
@@ -336,7 +342,9 @@ export default function CaregiverDashboard() {
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <AvatarIcon type={card.icon} bg={card.iconBg} />
+                                        <div className={`h-11.5 w-10 ${card.iconBg} rounded-2xl p-3 pb-5`}>
+                                            <img src={card.src} alt="Image" height={18} width={18} />
+                                        </div>
                                         <div>
                                             <p className="text-base text-[#081B33">{card.labelName}</p>
                                             {card.note && (
