@@ -9,7 +9,7 @@ const platformLinks = [
   { label: "Create account", href: "/create-account/" },
   { label: "Saved searches", href: "/saved-searches/" },
   { label: "Availability alerts", href: "#" },
-  { label: "Caregiver access", href: "#" },
+  { label: "Caregiver access", href: "/caregiver-access/" },
   { label: "Availability confidence", href: "/availability-confidence/" },
 ];
 
@@ -35,7 +35,7 @@ const enterpriseLinks = [
   { label: "Enterprise solutions", href: "/enterprise-solutions/" },
   { label: "ZoikoSignal™ intelligence", href: "/zoikosignal-intelligence/" },
   { label: "ZoikoAvail™ API", href: "/zoiko-avail-api/" },
-  { label: "MediBase™ data", href: "#" },
+  { label: "MediBase™ data", href: "/medibase-data/" },
   { label: "Health systems", href: "#" },
   { label: "Government & public health", href: "#" },
 ];
@@ -76,7 +76,7 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-[#0FAA87]">
         {title}
       </h4>
       <ul className="space-y-3">

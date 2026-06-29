@@ -1,11 +1,25 @@
-// app/zoiko-avail-api/page.tsx
-import { ZoikoAvailApiHeroSection, ZoikoAvailApiCapabilityModelSection } from "@/components/zoiko-avail-api";
+import { 
+  ZoikoAvailApiHeroSection, 
+  ZoikoAvailApiCapabilityModelSection,
+  ZoikoAvailApiUseCasesSection,
+  ZoikoAvailApiGovernanceSection,
+  ZoikoAvailApiEvaluationSection,
+  ZoikoAvailApiFaqSection,
+  ZoikoAvailApiAccessPathwaysSection,
+  ZoikoAvailApiRequestAccessSection
+ } from "@/components/zoiko-avail-api";
 
 export default function ZoikoAvailApiPage() {
   return (
     <main>
       <ZoikoAvailApiHeroSection />
       <ZoikoAvailApiCapabilityModelSection />
+      <ZoikoAvailApiUseCasesSection />
+      <ZoikoAvailApiGovernanceSection />
+      <ZoikoAvailApiEvaluationSection />
+      <ZoikoAvailApiFaqSection />
+      <ZoikoAvailApiAccessPathwaysSection />
+      <ZoikoAvailApiRequestAccessSection />
     </main>
   );
 }

@@ -38,7 +38,7 @@ export default function ZoikoAvailApiHeroSection() {
 
     return (
         <section ref={ref} className="relative w-full bg-[#F4F6FA] py-16 sm:py-20">
-            <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 {/* ---------------- Breadcrumb ---------------- */}
                 <div className="mb-8">
                     {mounted ? (

@@ -2,16 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/**
- * ZoikoAvailApiCapabilityModelSection
- * "A governed API layer for availability-aware products" section —
- * left-aligned step counter + heading + copy, a 3-col grid of 6
- * capability cards (icon, title, copy, "Value:" line, CTA), and a
- * closing disclaimer bar with a dark left accent border.
- *
- * Brand accent for this page: #0FAA87
- */
-
 const ACCENT = "#0FAA87";
 
 const CAPABILITIES = [
@@ -104,9 +94,10 @@ export default function ZoikoAvailApiCapabilityModelSection() {
               </Reveal>
 
               <Reveal index={1}>
-                <h2 className="font-[var(--font-plus-jakarta-sans)] mt-2 text-3xl font-bold leading-tight text-[#0F1F4E] sm:text-[2.1rem]">
-                  A governed API layer for availability-aware products.
-                </h2>
+                <h2 className="mt-3 font-[var(--font-plus-jakarta-sans)] text-3xl font-bold leading-[1.2] text-[#0F1F4E] sm:text-[2.35rem]">
+                 A governed API layer for{" "}
+                <span style={{ color: ACCENT }}>availability-aware products.</span>
+              </h2>
               </Reveal>
 
               <Reveal index={2}>
