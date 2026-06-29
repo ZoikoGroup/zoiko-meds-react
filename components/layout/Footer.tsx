@@ -76,7 +76,7 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-[#0FAA87]">
+      <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-[#00d5be]">
         {title}
       </h4>
       <ul className="space-y-3">
