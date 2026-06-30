@@ -81,7 +81,7 @@ export default function HomeEnginesSection() {
 
   return (
     <section ref={sectionRef} className="w-full bg-[#0A1224] px-6 py-20 lg:px-12">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-6xl">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div
             className={`transition-all duration-700 ease-out ${

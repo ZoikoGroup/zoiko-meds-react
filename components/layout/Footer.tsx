@@ -36,8 +36,8 @@ const enterpriseLinks = [
   { label: "ZoikoSignal™ intelligence", href: "/zoikosignal-intelligence/" },
   { label: "ZoikoAvail™ API", href: "/zoiko-avail-api/" },
   { label: "MediBase™ data", href: "/medibase-data/" },
-  { label: "Health systems", href: "#" },
-  { label: "Government & public health", href: "#" },
+  { label: "Health systems", href: "/health-systems/" },
+  { label: "Government & public health", href: "/government-public-health/" },
 ];
 
 const trustLinks = [

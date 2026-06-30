@@ -57,7 +57,7 @@ export default function HomeFreeAccountSection() {
 
   return (
     <section ref={sectionRef} className="w-full bg-white py-20 px-6 lg:px-12">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
         {/* LEFT: single complete image (photo + floating cards baked in) */}
         <div
           className={`relative transition-all duration-700 ease-out ${

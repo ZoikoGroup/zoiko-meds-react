@@ -91,7 +91,7 @@ export default function HomeStakeholdersSection() {
 
   return (
     <section ref={sectionRef} className="w-full bg-[#F7F9FC] px-6 py-20 lg:px-12">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-6xl">
         <div
           className={`mx-auto max-w-2xl text-center transition-all duration-700 ease-out ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
