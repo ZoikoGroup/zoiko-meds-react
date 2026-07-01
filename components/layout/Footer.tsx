@@ -57,7 +57,7 @@ const legalLinks = [
   { label: "Cookie Settings", href: "#" },
   { label: "Medical Disclaimer", href: "/medical-disclaimer/" },
   { label: "Controlled Medicine Policy", href: "/controlled-medicine-policy/" },
-  { label: "Accessibility", href: "#" },
+  { label: "Accessibility", href: "/accessibility/" },
 ];
 
 const bottomLinks = [
