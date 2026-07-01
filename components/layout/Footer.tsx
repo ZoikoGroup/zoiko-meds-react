@@ -50,11 +50,11 @@ const trustLinks = [
 ];
 
 const legalLinks = [
-  { label: "Trust Center", href: "#" },
-  { label: "Privacy Center", href: "#" },
+  { label: "Trust Center", href: "trust-center" },
+  { label: "Privacy Center", href: "/privacy-center/" },
   { label: "Terms of Use", href: "#" },
   { label: "Cookie Settings", href: "#" },
-  { label: "Medical Disclaimer", href: "#" },
+  { label: "Medical Disclaimer", href: "/medical-disclaimer/" },
   { label: "Controlled Medicine Policy", href: "#" },
   { label: "Accessibility", href: "#" },
 ];
