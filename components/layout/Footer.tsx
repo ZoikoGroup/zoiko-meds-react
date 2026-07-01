@@ -51,7 +51,7 @@ const trustLinks = [
 
 const legalLinks = [
 
-  { label: "Trust Center", href: "trust-center" },
+  { label: "Trust Center", href: "/trust-center/" },
   { label: "Privacy Center", href: "/privacy-center/" },
   { label: "Terms of Use", href: "#" },
   { label: "Cookie Settings", href: "#" },
