@@ -8,7 +8,7 @@ const platformLinks = [
   { label: "Search medicines", href: "/searchmed/" },
   { label: "Create account", href: "/create-account/" },
   { label: "Saved searches", href: "/saved-searches/" },
-  { label: "Availability alerts", href: "#" },
+  { label: "Availability alerts", href: "/availability-alert/" },
   { label: "Caregiver access", href: "/caregiver-access/" },
   { label: "Availability confidence", href: "/availability-confidence/" },
 ];

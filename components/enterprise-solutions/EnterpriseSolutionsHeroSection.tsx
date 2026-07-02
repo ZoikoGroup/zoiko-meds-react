@@ -117,122 +117,15 @@ export default function EnterpriseSolutionsHeroSection() {
             </Reveal>
           </div>
 
-          {/* ── Right column: enterprise console card ── */}
-          <Reveal index={3} active={mounted}>
-            <div className="rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_40px_-16px_rgba(15,31,78,0.12)]">
-
-              {/* Card header */}
-              <div className="mb-5 flex items-center justify-between">
-                <span className="text-[14.5px] font-bold text-[#0F1F4E]">Enterprise console</span>
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-semibold"
-                  style={{ backgroundColor: "#DCF5EE", color: "#0B7A62" }}
-                >
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  Governed
-                </span>
-              </div>
-
-              {/* Two-column mini header row */}
-              <div className="mb-3 grid grid-cols-2 gap-3">
-                {/* Regional Access Risk heatmap */}
-                <div>
-                  <p className="mb-2 text-[9.5px] font-semibold uppercase tracking-[0.13em] text-[#9AA3B5]">
-                    Regional Access Risk
-                  </p>
-                  {/* Gradient heatmap bar */}
-                  <div
-                    className="h-9 w-full rounded-lg"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, #5ED8C0 0%, #A8E6DA 20%, #D4EFE5 35%, #E8D5A3 55%, #D4A96A 75%, #C8956A 90%, #BF8560 100%)",
-                      filter: "blur(2px) saturate(0.85)",
-                      opacity: 0.85,
-                    }}
-                  />
-                </div>
-
-                {/* Availability Confidence */}
-                <div>
-                  <p className="mb-1 text-[9.5px] font-semibold uppercase tracking-[0.13em] text-[#9AA3B5]">
-                    Availability Confidence
-                  </p>
-                  <p className="mb-2 text-[1.25rem] font-extrabold text-[#0F1F4E]">High</p>
-                  {/* Bar chart */}
-                  <div className="flex items-end gap-1" style={{ height: 28 }}>
-                    {BAR_HEIGHTS.map((h, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 rounded-sm"
-                        style={{
-                          height: `${h}%`,
-                          backgroundColor: i === BAR_HEIGHTS.length - 1 ? ACCENT : "#9FE3D3",
-                          opacity: i === BAR_HEIGHTS.length - 1 ? 1 : 0.55 + i * 0.1,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="mb-1 h-px bg-[#F0F2F7]" />
-
-              {/* Data rows */}
-              <div className="divide-y divide-[#F0F2F7]">
-                {CONSOLE_ROWS.map((row) => (
-                  <div key={row.label} className="flex items-center justify-between py-3">
-                    <span className="text-[13px] text-[#5B6478]">{row.label}</span>
-                    <ConsolePill value={row.value} variant={row.variant} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Footnote */}
-              <p className="mt-4 text-center text-[11px] leading-relaxed text-[#9AA3B5]">
-                Illustrative example. Enterprise outputs are governed by
-                contract, jurisdiction, access controls, and approved data
-                scope.
-              </p>
-            </div>
-          </Reveal>
+          {/* ── Right column: Image card ── */}
+          <div>
+            <img src="/enterprise-solutions/hero.png" alt="Image" />
+          </div>
 
         </div>
       </div>
     </section>
   );
-}
-
-/* ------------------------------------------------------------------ */
-/*  ConsolePill                                                          */
-/* ------------------------------------------------------------------ */
-function ConsolePill({ value, variant }: { value: string; variant: ConsolePillVariant }) {
-  const base = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium whitespace-nowrap";
-  switch (variant) {
-    case "teal-check":
-      return (
-        <span className={base} style={{ backgroundColor: "#DCF5EE", color: "#0B7A62" }}>
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {value}
-        </span>
-      );
-    case "amber-soft":
-      return (
-        <span className={base} style={{ backgroundColor: "#FEF3E2", color: "#92540A" }}>
-          {value}
-        </span>
-      );
-    case "grey-region":
-      return (
-        <span className={base} style={{ backgroundColor: "#F0F2F7", color: "#5B6478" }}>
-          {value}
-        </span>
-      );
-  }
 }
 
 /* ------------------------------------------------------------------ */

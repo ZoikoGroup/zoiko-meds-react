@@ -133,7 +133,7 @@ export default function PharmacySupportHeroSection() {
 
           {/* ---------------- Right: support status card mockup ---------------- */}
           <div>
-            {mounted ? <SupportStatusCard /> : <SupportStatusCardSkeleton />}
+            <img src="/pharmacy-support/hero.png" alt="Image" />
           </div>
         </div>
       </div>

@@ -179,25 +179,31 @@ function LayerCard({
       <div className="rounded-2xl border border-[#E7EAF1] bg-white p-6 transition-all duration-300 hover:border-[#9FE3D3] hover:shadow-[0_8px_28px_-14px_rgba(15,170,135,0.15)]">
 
         {/* Card header row */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
             {/* Layer badge */}
             <span
-              className="flex-shrink-0 rounded-lg px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.12em]"
+              className="flex-shrink-0 self-start rounded-lg px-2.5 py-1 text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.12em]"
               style={{ backgroundColor: "#DCF5EE", color: "#0B7A62" }}
             >
               Layer {layer.number}
             </span>
-            <div>
-              <h3 className="text-[15.5px] font-bold text-[#0F1F4E]">{layer.name}</h3>
-              <p className="text-[11.5px] text-[#9AA3B5]">{layer.subtitle}</p>
+
+            <div className="min-w-0">
+              <h3 className="text-[15px] sm:text-[15.5px] font-bold text-[#0F1F4E] leading-snug">
+                {layer.name}
+              </h3>
+
+              <p className="mt-1 text-[11px] sm:text-[11.5px] text-[#9AA3B5] leading-relaxed">
+                {layer.subtitle}
+              </p>
             </div>
           </div>
 
           {/* CTA */}
           <Link
             href={layer.href}
-            className="flex-shrink-0 inline-flex items-center justify-center rounded-xl border border-[#D0D5E2] bg-white px-4 py-2 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:scale-[0.97]"
+            className="inline-flex w-full sm:w-auto flex-shrink-0 items-center justify-center rounded-xl border border-[#D0D5E2] bg-white px-4 py-2 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:scale-[0.97]"
           >
             {layer.cta}
           </Link>

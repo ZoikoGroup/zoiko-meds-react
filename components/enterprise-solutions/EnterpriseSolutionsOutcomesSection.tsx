@@ -92,8 +92,8 @@ export default function EnterpriseSolutionsOutcomesSection() {
         <Reveal index={2} active={mounted}>
           <div className="mt-8 overflow-hidden rounded-2xl border border-[#E7EAF1] bg-white shadow-[0_4px_24px_-10px_rgba(15,31,78,0.08)]">
 
-            {/* Header row */}
-            <div className="grid grid-cols-[1.8fr_2fr_1.8fr_2fr] bg-[#0F1F4E] px-6 py-3.5">
+            {/* Header row (Desktop only) */}
+            <div className="hidden md:grid md:grid-cols-[1.8fr_2fr_1.8fr_2fr] bg-[#0F1F4E] px-6 py-3.5">
               {["Use Case", "Institutional Outcome", "Layer", "Action"].map((col) => (
                 <span
                   key={col}
@@ -106,41 +106,84 @@ export default function EnterpriseSolutionsOutcomesSection() {
 
             {/* Data rows */}
             <div className="divide-y divide-[#F0F2F7]">
-              {ROWS.map((row, i) => (
+              {ROWS.map((row) => (
                 <div
                   key={row.useCase}
-                  className="grid grid-cols-[1.8fr_2fr_1.8fr_2fr] items-center gap-2 px-6 py-4 transition-colors duration-150 hover:bg-[#F8FAFC]"
+                  className="transition-colors duration-150 hover:bg-[#F8FAFC]
+                     px-5 py-5
+                     md:grid md:grid-cols-[1.8fr_2fr_1.8fr_2fr] md:items-center md:gap-2 md:px-6 md:py-4"
                 >
-                  {/* Use case */}
-                  <span className="text-[13px] font-medium leading-snug text-[#0F1F4E]">
-                    {row.useCase}
-                  </span>
+                  {/* Mobile Layout */}
+                  <div className="space-y-4 md:hidden">
+                    <div>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9AA3B5]">
+                        Use Case
+                      </p>
+                      <p className="text-[14px] font-semibold text-[#0F1F4E]">
+                        {row.useCase}
+                      </p>
+                    </div>
 
-                  {/* Institutional outcome */}
-                  <span className="text-[13px] leading-snug text-[#5B6478]">
-                    {row.outcome}
-                  </span>
+                    <div>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9AA3B5]">
+                        Institutional Outcome
+                      </p>
+                      <p className="text-[13px] leading-relaxed text-[#5B6478]">
+                        {row.outcome}
+                      </p>
+                    </div>
 
-                  {/* Layer pill */}
-                  <span
-                    className="inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[11.5px] font-medium leading-none"
-                    style={{
-                      borderColor: "#C8D8F0",
-                      color: "#2A4A8A",
-                      backgroundColor: "#EEF3FB",
-                    }}
-                  >
-                    {row.layerPill}
-                  </span>
+                    <div className="flex items-center justify-between gap-4">
+                      <span
+                        className="inline-flex w-fit text-center items-center rounded-lg border px-2.5 py-1 text-[11px] font-medium"
+                        style={{
+                          borderColor: "#C8D8F0",
+                          color: "#2A4A8A",
+                          backgroundColor: "#EEF3FB",
+                        }}
+                      >
+                        {row.layerPill}
+                      </span>
 
-                  {/* Action link */}
-                  <Link
-                    href={row.href}
-                    className="text-[13px] font-semibold transition-opacity hover:opacity-75"
-                    style={{ color: ACCENT }}
-                  >
-                    {row.action}
-                  </Link>
+                      <Link
+                        href={row.href}
+                        className="text-[13px] text-center font-semibold"
+                        style={{ color: ACCENT }}
+                      >
+                        {row.action}
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <>
+                    <span className="hidden md:block text-[13px] font-medium leading-snug text-[#0F1F4E]">
+                      {row.useCase}
+                    </span>
+
+                    <span className="hidden md:block text-[13px] leading-snug text-[#5B6478]">
+                      {row.outcome}
+                    </span>
+
+                    <span
+                      className="hidden md:inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[11.5px] font-medium leading-none"
+                      style={{
+                        borderColor: "#C8D8F0",
+                        color: "#2A4A8A",
+                        backgroundColor: "#EEF3FB",
+                      }}
+                    >
+                      {row.layerPill}
+                    </span>
+
+                    <Link
+                      href={row.href}
+                      className="hidden md:block text-[13px] font-semibold transition-opacity hover:opacity-75"
+                      style={{ color: ACCENT }}
+                    >
+                      {row.action}
+                    </Link>
+                  </>
                 </div>
               ))}
             </div>
