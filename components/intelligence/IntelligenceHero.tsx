@@ -7,7 +7,7 @@ import Image from "next/image";
 
 
 const ACCENT = "#0FAA87";
-const HERO_IMAGE_SRC = "/images/intelligence-hero.webp";
+const HERO_IMAGE_SRC = "/images/intelligencehero.webp";
 
 export default function IntelligenceHero() {
   const [mounted, setMounted] = useState(false);
