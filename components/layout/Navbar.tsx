@@ -375,7 +375,7 @@ export default function Navbar() {
               >
                 Sign In
               </Link>
-              <Link href="/get-a-demo" style={{
+              <Link href="/request-a-briefing/" style={{
                 display: "flex", alignItems: "center", gap: "8px",
                 backgroundColor: "#00A99D", color: "white",
                 fontSize: "13.5px", fontWeight: 600,
@@ -394,7 +394,7 @@ export default function Navbar() {
 
             {/* Tablet compact CTA (icon-only, between mobile and desktop) */}
             <div className="nav-tablet-ctas" style={{ alignItems: "center", gap: "8px", flexShrink: 0 }}>
-              <Link href="/get-a-demo" aria-label="Request a Briefing" style={{
+              <Link href="/request-a-briefing/" aria-label="Request a Briefing" style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: "40px", height: "40px",
                 backgroundColor: "#00A99D", color: "white",
@@ -490,7 +490,7 @@ export default function Navbar() {
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#F0F4FF"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 onClick={() => setMobileOpen(false)}>Sign In</Link>
-              <Link href="/get-a-demo" style={{
+              <Link href="/request-a-briefing/" style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                 textAlign: "center", padding: "12px", fontSize: "14px", fontWeight: 600, color: "white",
                 backgroundColor: "#00A99D", borderRadius: "999px", textDecoration: "none",
