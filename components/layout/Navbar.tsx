@@ -10,7 +10,7 @@ interface NavItem { label: string; href?: string; dropdown?: DropdownItem[]; }
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Platform", href: "/platform/", dropdown: [
-    { label: "Overview", href: "/platform", description: "See the full platform" },
+    { label: "Overview", href: "/overview/", description: "See the full platform" },
     { label: "Features", href: "/platform/features", description: "Core capabilities" },
     { label: "Security", href: "/platform/security", description: "Enterprise-grade security" },
     { label: "Integrations", href: "/platform/integrations", description: "Connect your tools" },
