@@ -8,7 +8,7 @@ HomeStakeholdersSection,
 HomeEnginesSection,
 HomeEnterpriseSection,
 HomeTrustSection,
-HomeGlobalExpansionSection,
+HomeGlobalExpansionSection
 
 
 } from "@/components/home";

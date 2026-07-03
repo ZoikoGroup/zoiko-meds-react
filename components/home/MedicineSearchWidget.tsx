@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, DragEvent, ChangeEvent } from "react";
+import { useRef, useState, useCallback, useEffect, DragEvent, ChangeEvent } from "react";
 
 /* ─── types ─── */
 interface Location {
@@ -8,11 +8,53 @@ interface Location {
   postcode: string; phone: string; lat: number; lng: number; distance: number;
 }
 
+/* ─── DUMMY MEDICINE DATABASE (replace with real API/autocomplete source) ─── */
+const DUMMY_MEDICINES = [
+  "Acetaminophen", "Amoxicillin", "Amlodipine", "Atorvastatin", "Azithromycin",
+  "Aspirin", "Albuterol", "Alprazolam", "Ambien", "Ativan",
+  "Bupropion", "Benadryl", "Baclofen", "Buspirone",
+  "Ciprofloxacin", "Clopidogrel", "Cetirizine", "Citalopram", "Clindamycin",
+  "Codeine", "Cephalexin", "Carvedilol",
+  "Diazepam", "Duloxetine", "Diclofenac", "Doxycycline", "Digoxin",
+  "Escitalopram", "Enalapril", "Esomeprazole",
+  "Fluoxetine", "Furosemide", "Fexofenadine", "Famotidine",
+  "Gabapentin", "Glipizide", "Guaifenesin",
+  "Hydrochlorothiazide", "Hydrocodone", "Hydroxyzine",
+  "Ibuprofen", "Insulin Glargine", "Isosorbide",
+  "Lisinopril", "Losartan", "Levothyroxine", "Lorazepam", "Loratadine",
+  "Metformin", "Metoprolol", "Montelukast", "Meloxicam", "Metronidazole",
+  "Naproxen", "Nitrofurantoin",
+  "Omeprazole", "Ondansetron", "Oxycodone",
+  "Paracetamol", "Prednisone", "Pantoprazole", "Propranolol", "Paroxetine",
+  "Quetiapine",
+  "Ranitidine", "Rosuvastatin",
+  "Sertraline", "Simvastatin", "Sildenafil",
+  "Tramadol", "Trazodone", "Tamsulosin",
+  "Venlafaxine", "Valacyclovir",
+  "Warfarin",
+  "Zolpidem", "Zoloft",
+].sort();
+
 /* ─── helpers ─── */
 function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) {
   let u = `https://www.google.com/maps/dir/?api=1&destination=${dLat},${dLng}&travelmode=driving`;
   if (oLat && oLng) u += `&origin=${oLat},${oLng}`;
   return u;
+}
+
+/** Simple case-insensitive "contains" match against the dummy list.
+ *  Swap this out for a real API call (e.g. debounce + fetch("/api/medicine/autocomplete?q=...")) later. */
+function getMedicineSuggestions(query: string, limit = 8): string[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const starts: string[] = [];
+  const contains: string[] = [];
+  for (const med of DUMMY_MEDICINES) {
+    const lower = med.toLowerCase();
+    if (lower.startsWith(q)) starts.push(med);
+    else if (lower.includes(q)) contains.push(med);
+  }
+  return [...starts, ...contains].slice(0, limit);
 }
 
 /* ─── sub-components ─── */
@@ -106,6 +148,12 @@ export default function MedicineSearchWidget() {
   const [lastLat, setLastLat] = useState<number | undefined>();
   const [lastLng, setLastLng] = useState<number | undefined>();
 
+  /* medicine autocomplete state */
+  const [medSuggestions, setMedSuggestions] = useState<string[]>([]);
+  const [showMedSuggestions, setShowMedSuggestions] = useState(false);
+  const [activeSuggestionIdx, setActiveSuggestionIdx] = useState(-1);
+  const medicineFieldRef = useRef<HTMLDivElement>(null);
+
   /* tab 2 state */
   const [scanFile, setScanFile] = useState<File | null>(null);
   const [scanLocText, setScanLocText] = useState("");
@@ -123,6 +171,58 @@ export default function MedicineSearchWidget() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraRef    = useRef<HTMLInputElement>(null);
   const galleryRef   = useRef<HTMLInputElement>(null);
+
+  /* ─── close suggestions when clicking outside ─── */
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (medicineFieldRef.current && !medicineFieldRef.current.contains(e.target as Node)) {
+        setShowMedSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  /* ─── medicine input change → filter suggestions ─── */
+  const handleMedicineChange = (value: string) => {
+    setMedicine(value);
+    const matches = getMedicineSuggestions(value);
+    setMedSuggestions(matches);
+    setShowMedSuggestions(matches.length > 0);
+    setActiveSuggestionIdx(-1);
+  };
+
+  const selectSuggestion = (name: string) => {
+    setMedicine(name);
+    setShowMedSuggestions(false);
+    setMedSuggestions([]);
+    setActiveSuggestionIdx(-1);
+  };
+
+  const handleMedicineKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (showMedSuggestions && medSuggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveSuggestionIdx((i) => (i + 1) % medSuggestions.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveSuggestionIdx((i) => (i <= 0 ? medSuggestions.length - 1 : i - 1));
+        return;
+      }
+      if (e.key === "Enter" && activeSuggestionIdx >= 0) {
+        e.preventDefault();
+        selectSuggestion(medSuggestions[activeSuggestionIdx]);
+        return;
+      }
+      if (e.key === "Escape") {
+        setShowMedSuggestions(false);
+        return;
+      }
+    }
+    if (e.key === "Enter") handleSearch();
+  };
 
   /* ─── Geocode helpers ─── */
   const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
@@ -270,8 +370,8 @@ export default function MedicineSearchWidget() {
       {tab === "name" && (
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-start">
-            {/* Medicine Name */}
-            <div>
+            {/* Medicine Name — with autocomplete */}
+            <div ref={medicineFieldRef} className="relative">
               <label className="block text-[11px] font-semibold tracking-wider uppercase text-[#64748B] mb-1.5">Medicine Name</label>
               <div className="relative">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
@@ -279,13 +379,41 @@ export default function MedicineSearchWidget() {
                 </svg>
                 <input
                   value={medicine}
-                  onChange={(e) => setMedicine(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  onChange={(e) => handleMedicineChange(e.target.value)}
+                  onFocus={() => { if (medSuggestions.length > 0) setShowMedSuggestions(true); }}
+                  onKeyDown={handleMedicineKeyDown}
                   placeholder="Enter a medicine name, brand, or generic"
+                  autoComplete="off"
                   className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#e5e7eb] rounded-[10px] text-sm text-[#111827]
                     placeholder:text-[#b0b7c3] focus:outline-none focus:border-[#0D9A72] focus:ring-[3px] focus:ring-[#0D9A72]/10 transition"
                 />
               </div>
+
+              {/* suggestions dropdown */}
+              {showMedSuggestions && medSuggestions.length > 0 && (
+                <div
+                  className="absolute z-20 left-0 right-0 mt-1.5 bg-white border-[1.5px] border-[#e5e7eb] rounded-[10px]
+                    shadow-[0_8px_28px_rgba(0,0,0,0.12)] max-h-64 overflow-y-auto"
+                >
+                  {medSuggestions.map((name, idx) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); selectSuggestion(name); }}
+                      onMouseEnter={() => setActiveSuggestionIdx(idx)}
+                      className={`w-full flex items-center gap-2.5 text-left px-3.5 py-2.5 text-sm transition-colors
+                        ${idx === activeSuggestionIdx ? "bg-[#f0faf5] text-[#0D9A72]" : "text-[#111827] hover:bg-[#f8fafc]"}
+                        ${idx !== 0 ? "border-t border-[#f1f5f9]" : ""}`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5 flex-shrink-0 opacity-60">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <span className="font-medium">{name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <p className="text-[10px] text-[#b0b7c3] mt-1.5 leading-snug">
                 Enter a medicine name only. Do not enter symptoms, diagnoses, insurance details, or prescription images.
               </p>
