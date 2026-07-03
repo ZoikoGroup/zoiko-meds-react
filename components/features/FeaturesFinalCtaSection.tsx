@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function FeaturesFinalCtaSection() {
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
