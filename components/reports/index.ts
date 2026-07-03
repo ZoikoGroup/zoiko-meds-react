@@ -1,0 +1,10 @@
+export { default as ReportsHeroSection } from "./ReportsHeroSection";
+export { default as ReportsSuiteSection } from "./ReportsSuiteSection";
+export { default as ReportsAnatomySection } from "./ReportsAnatomySection";
+export { default as ReportsByStakeholderSection } from "./ReportsByStakeholderSection";
+export { default as ReportsSamplePreviewSection } from "./ReportsSamplePreviewSection";
+export { default as ReportsGovernanceSection } from "./ReportsGovernanceSection";
+export { default as ReportsRelationshipSection } from "./ReportsRelationshipSection";
+export { default as ReportsSampleRequestSection } from "./ReportsSampleRequestSection";
+export { default as ReportsFAQSection } from "./ReportsFAQSection";
+export { default as ReportsCTASection } from "./ReportsCTASection";
