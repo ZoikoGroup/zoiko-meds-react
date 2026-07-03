@@ -25,10 +25,10 @@ export default function AiInsightsClosingCtaSection() {
   }, []);
 
   return (
-    <section className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20">
+    <section className="bg-[#0C1B30] px-6 py-20 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl" ref={sectionRef}>
         <CtaFadeUp show={isVisible} delay={0}>
-          <div className="rounded-3xl border border-white/10 bg-[#0C1B30] px-6 py-16 text-center sm:px-12 lg:px-20">
+          <div className="rounded-3xl border border-white/10 bg-[#0B142E] px-6 py-16 text-center sm:px-12 lg:px-20">
             <h2 className="mx-auto max-w-3xl text-[1.6rem] font-bold leading-[1.3] text-white sm:text-[2rem] lg:text-[2.25rem]">
               Detect medicine access risk before{" "}
               <span className="text-[#1BC49B]">it becomes a blind spot.</span>

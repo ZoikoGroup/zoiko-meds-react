@@ -211,9 +211,9 @@ export default function AiInsightsBriefingFormSection() {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate>
+                <form onSubmit={handleSubmit} noValidate className="min-w-0">
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-sm font-semibold text-[#0F1F4E]">
                         Full name <span className="text-[#E05252]">*</span>
                       </label>
@@ -221,7 +221,7 @@ export default function AiInsightsBriefingFormSection() {
                         type="text"
                         value={form.fullName}
                         onChange={(e) => updateField("fullName", e.target.value)}
-                        className={`${inputBase} ${
+                        className={`${inputBase} min-w-0 ${
                           errors.fullName ? "border-[#E05252]" : "border-[#E7EAF1]"
                         }`}
                         placeholder=""
@@ -231,7 +231,7 @@ export default function AiInsightsBriefingFormSection() {
                       )}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-sm font-semibold text-[#0F1F4E]">
                         Work email <span className="text-[#E05252]">*</span>
                       </label>
@@ -239,7 +239,7 @@ export default function AiInsightsBriefingFormSection() {
                         type="email"
                         value={form.workEmail}
                         onChange={(e) => updateField("workEmail", e.target.value)}
-                        className={`${inputBase} ${
+                        className={`${inputBase} min-w-0 ${
                           errors.workEmail ? "border-[#E05252]" : "border-[#E7EAF1]"
                         }`}
                         placeholder="name@organization.org"
@@ -249,7 +249,7 @@ export default function AiInsightsBriefingFormSection() {
                       )}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-sm font-semibold text-[#0F1F4E]">
                         Organization <span className="text-[#E05252]">*</span>
                       </label>
@@ -257,7 +257,7 @@ export default function AiInsightsBriefingFormSection() {
                         type="text"
                         value={form.organization}
                         onChange={(e) => updateField("organization", e.target.value)}
-                        className={`${inputBase} ${
+                        className={`${inputBase} min-w-0 ${
                           errors.organization ? "border-[#E05252]" : "border-[#E7EAF1]"
                         }`}
                         placeholder=""
@@ -269,14 +269,14 @@ export default function AiInsightsBriefingFormSection() {
                       )}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-sm font-semibold text-[#0F1F4E]">
                         Role <span className="text-[#E05252]">*</span>
                       </label>
                       <select
                         value={form.role}
                         onChange={(e) => updateField("role", e.target.value)}
-                        className={`${inputBase} appearance-none ${
+                        className={`${inputBase} min-w-0 appearance-none ${
                           errors.role ? "border-[#E05252]" : "border-[#E7EAF1]"
                         } ${form.role ? "text-[#0F1F4E]" : "text-[#8A93A6]"}`}
                       >
@@ -294,7 +294,7 @@ export default function AiInsightsBriefingFormSection() {
                       )}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-sm font-semibold text-[#0F1F4E]">
                         Organization type <span className="text-[#E05252]">*</span>
                       </label>
@@ -303,7 +303,7 @@ export default function AiInsightsBriefingFormSection() {
                         onChange={(e) =>
                           updateField("organizationType", e.target.value)
                         }
-                        className={`${inputBase} appearance-none ${
+                        className={`${inputBase} min-w-0 appearance-none ${
                           errors.organizationType
                             ? "border-[#E05252]"
                             : "border-[#E7EAF1]"
@@ -327,7 +327,7 @@ export default function AiInsightsBriefingFormSection() {
                       )}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-sm font-semibold text-[#0F1F4E]">
                         Region of interest <span className="text-[#E05252]">*</span>
                       </label>
@@ -335,7 +335,7 @@ export default function AiInsightsBriefingFormSection() {
                         type="text"
                         value={form.region}
                         onChange={(e) => updateField("region", e.target.value)}
-                        className={`${inputBase} ${
+                        className={`${inputBase} min-w-0 ${
                           errors.region ? "border-[#E05252]" : "border-[#E7EAF1]"
                         }`}
                         placeholder="e.g. US, UK, EU, regional"
