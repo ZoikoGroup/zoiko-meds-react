@@ -32,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   ]},
   { label: "Intelligence", href: "/intelligence/", dropdown: [
     { label: "Analytics", href: "/analytics/", description: "Data-driven insights" },
-    { label: "AI Insights", href: "/intelligence/ai", description: "Predictive health intelligence" },
+    { label: "AI Insights", href: "/ai-insights/", description: "Predictive health intelligence" },
     { label: "Reports", href: "/intelligence/reports", description: "Compliance & performance" },
   ]},
   { label: "About", href: "/about/" },
