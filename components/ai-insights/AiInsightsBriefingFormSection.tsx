@@ -193,7 +193,7 @@ export default function AiInsightsBriefingFormSection() {
           </p>
         </FormFadeUp>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Form card */}
           <FormFadeUp show={isVisible} delay={200}>
             <div className="rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-sm sm:p-8 lg:col-span-2">
