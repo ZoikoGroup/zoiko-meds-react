@@ -6,6 +6,7 @@ import {
     ReportsSamplePreviewSection,
     ReportsGovernanceSection,
     ReportsRelationshipSection,
+    ReportsSampleRequestSection,
     ReportsFAQSection,
     ReportsCTASection 
 } from "@/components/reports";
@@ -20,6 +21,7 @@ export default function ReportsPage() {
       <ReportsSamplePreviewSection />
       <ReportsGovernanceSection />
       <ReportsRelationshipSection />
+      <ReportsSampleRequestSection />
       <ReportsFAQSection />
       <ReportsCTASection />
     </main>
