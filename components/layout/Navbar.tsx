@@ -12,8 +12,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Platform", href: "/platform/", dropdown: [
     { label: "Overview", href: "/overview/", description: "See the full platform" },
     { label: "Features", href: "/features", description: "Core capabilities" },
-    { label: "Security", href: "/platform/security", description: "Enterprise-grade security" },
-    { label: "Integrations", href: "/platform/integrations", description: "Connect your tools" },
+    { label: "Security", href: "/security/", description: "Enterprise-grade security" },
+    { label: "Integrations", href: "/integrations/", description: "Connect your tools" },
   ]},
   { label: "Patients", href: "/patient/", dropdown: [
     { label: "Patient Portal", href: "/patients/portal", description: "Access health records" },
