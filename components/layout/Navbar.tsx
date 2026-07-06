@@ -18,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Patients", href: "/patient/", dropdown: [
     { label: "Patient Portal", href: "/patient-portal/", description: "Access health records" },
     { label: "Prescriptions", href: "/prescriptions/", description: "Manage medications" },
-    { label: "Appointments", href: "/patients/appointments", description: "Schedule & track visits" },
+    { label: "Appointments", href: "/appointments/", description: "Schedule & track visits" },
   ]},
   { label: "Pharmacies", href: "/pharmacy/", dropdown: [
     { label: "Pharmacy Dashboard", href: "/pharmacies/dashboard", description: "Manage your pharmacy" },
