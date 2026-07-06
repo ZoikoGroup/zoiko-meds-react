@@ -1,0 +1,12 @@
+export { default as PatientPortalHeroSection } from "./PatientPortalHeroSection";
+export { default as PatientPortalTrustSafetySection } from "./PatientPortalTrustSafetySection";
+export { default as PatientPortalAccountValueSection } from "./PatientPortalAccountValueSection";
+export { default as PatientPortalDashboardPreviewSection } from "./PatientPortalDashboardPreviewSection";
+export { default as PatientPortalCoreFeaturesSection } from "./PatientPortalCoreFeaturesSection";
+export { default as PatientPortalHowItWorksSection } from "./PatientPortalHowItWorksSection";
+export { default as PatientPortalFindYourPathSection } from "./PatientPortalFindYourPathSection";
+export { default as PatientPortalPrivacySecuritySection } from "./PatientPortalPrivacySecuritySection";
+export { default as PatientPortalWhyUsersReturnSection } from "./PatientPortalWhyUsersReturnSection";
+export { default as PatientPortalSupportSection } from "./PatientPortalSupportSection";
+export { default as PatientPortalFaqSection } from "./PatientPortalFaqSection";
+export { default as PatientPortalFinalCtaSection } from "./PatientPortalFinalCtaSection";

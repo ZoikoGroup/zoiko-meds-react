@@ -32,7 +32,7 @@ export default function SecurityHeroSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
+    <section ref={ref} className="relative w-full py-20 sm:py-10" style={{ backgroundColor: BG }}>
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
 

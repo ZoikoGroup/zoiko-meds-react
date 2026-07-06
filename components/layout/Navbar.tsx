@@ -16,7 +16,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Integrations", href: "/integrations/", description: "Connect your tools" },
   ]},
   { label: "Patients", href: "/patient/", dropdown: [
-    { label: "Patient Portal", href: "/patients/portal", description: "Access health records" },
+    { label: "Patient Portal", href: "/patient-portal/", description: "Access health records" },
     { label: "Prescriptions", href: "/patients/prescriptions", description: "Manage medications" },
     { label: "Appointments", href: "/patients/appointments", description: "Schedule & track visits" },
   ]},
