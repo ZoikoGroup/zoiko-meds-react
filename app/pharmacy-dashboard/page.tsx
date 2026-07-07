@@ -15,7 +15,7 @@ import {
     FinalCtaSection
 } from "@/components/pharmacy-dashboard";
 
-export default function SavedSearchesPage() {
+export default function PharmacyDashboard() {
     return (
         <main>
             <Hero />
