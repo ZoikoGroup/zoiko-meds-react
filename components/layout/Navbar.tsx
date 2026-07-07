@@ -21,9 +21,9 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Appointments", href: "/appointments/", description: "Schedule & track visits" },
   ]},
   { label: "Pharmacies", href: "/pharmacy/", dropdown: [
-    { label: "Pharmacy Dashboard", href: "/pharmacies/dashboard", description: "Manage your pharmacy" },
-    { label: "Inventory", href: "/pharmacies/inventory", description: "Real-time stock management" },
-    { label: "Dispensing", href: "/pharmacies/dispensing", description: "Streamlined dispensing" },
+    { label: "Pharmacy Dashboard", href: "/pharmacy-dashboard", description: "Manage your pharmacy" },
+    { label: "Inventory", href: "/pharmacy-inventory", description: "Real-time stock management" },
+    { label: "Dispensing", href: "/pharmacy-dispensing", description: "Streamlined dispensing" },
   ]},
   { label: "Enterprise", href: "/enterprise/", dropdown: [
     { label: "Hospital Systems", href: "/enterprise/hospitals", description: "Large-scale deployments" },

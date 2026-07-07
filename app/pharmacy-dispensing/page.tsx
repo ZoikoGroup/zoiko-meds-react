@@ -1,17 +1,4 @@
 import {
-    AvailabilitySignalsSection,
-    DashboardValueSection,
-    CoreModulesSection,
-    OperatingOverviewSection,
-    TrustEquitySection,
-    EnterpriseNetworksSection,
-    AccessDemandSection,
-    ReportingInsightSection,
-    PrivacySafeguardsSection,
-    ProcessStepsSection,
-    JoinNetworkFormSection,
-} from "@/components/pharmacy-dashboard";
-import {
     Hero,
     Regulatory,
     Workflow,
