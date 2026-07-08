@@ -168,7 +168,7 @@ export default function HospitalSystemsEnterprisePlatformValueSection() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-[14px] font-bold text-[#0F1F4E]">{capability.title}</h3>
+                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">{capability.title}</h3>
 
                 {/* Description */}
                 <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-[#5B6478]">
