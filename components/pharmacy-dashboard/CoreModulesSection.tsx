@@ -98,7 +98,7 @@ export default function CoreModulesSection() {
               key={title}
               className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
             >
-              <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full bg-teal-50 text-teal-600">
+              <div className="mb-4 flex h-9 w-9 items-center p-2 justify-center rounded-[9px] bg-[#13A5941A] text-teal-600">
                 <Icon size={18} strokeWidth={2} />
               </div>
               <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
