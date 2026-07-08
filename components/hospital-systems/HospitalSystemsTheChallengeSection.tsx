@@ -83,7 +83,7 @@ export default function HospitalSystemsTheChallengeSection() {
 
         {/* ── Subtext ── */}
         <Reveal index={2} active={mounted}>
-          <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-[#5B6478]">
+          <p className="mt-4 max-w-2xl text-[14.5px] leading-relaxed text-[#5B6478]">
             Hospital systems operate across many facilities, pharmacies, partners, service lines,
             and regions. Generic analytics, directories, and isolated inventory systems don&apos;t provide
             a responsible, system-wide view.
