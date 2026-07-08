@@ -1,4 +1,13 @@
-export { default as Hero } from './Hero'
-export { default as TrustBoundary } from './TrustBoundary'
-export { default as Value } from './Value'
-export { default as Integration } from './Integration'
+export { default as Hero } from "./Hero";
+export { default as TrustBoundary } from "./TrustBoundary";
+export { default as Value } from "./Value";
+export { default as Integration } from "./Integration";
+export { default as ApiCapabilityMatrix } from "./ApiCapabilityMatrix";
+export { default as TechnicalArchitecturePreview } from "./TechnicalArchitecturePreview";
+export { default as SecurityPrivacyGovernanceSection } from "./SecurityPrivacyGovernanceSection";
+export { default as DeveloperExperienceSection } from "./DeveloperExperienceSection";
+export { default as ApiAccessRequestFlowSection } from "./ApiAccessRequestFlowSection";
+export { default as RetentionCustomerSuccessSection } from "./RetentionCustomerSuccessSection";
+export { default as RequestApiAccessBriefingSection } from "./RequestApiAccessBriefingSection";
+export { default as ApiAccessFaqSection } from "./ApiAccessFaqSection";
+export { default as CtaPage } from "./CtaPage";

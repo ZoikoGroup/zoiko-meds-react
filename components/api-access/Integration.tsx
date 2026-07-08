@@ -1,81 +1,65 @@
 "use client"
 import {
-    Check,
-    Circle,
-    ChartColumn,
-    Sparkles,
-    UserRound,
-    FileText,
-    Bell,
-    LifeBuoy,
-    ArrowRight,
-    LucideIcon
+  Hospital,
+  Building2,
+  Pill,
+  Truck,
+  Factory,
+  Landmark,
+  LucideIcon,
+  ArrowRight
 } from "lucide-react";
 
 interface Card {
-    icon: LucideIcon;
-    title: string;
-    description: string;
-    action: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  action: string;
 }
 
 const cards: Card[] = [
-    {
-        icon: Check,
-        title: "Availability signal management",
-        description:
-            "Review, confirm, update, or restrict medicine availability confidence signals through structured workflows.",
-        action: "See signal workflow",
-    },
-    {
-        icon: Circle,
-        title: "Verification queue",
-        description:
-            "Prioritize pending pharmacy confirmations, expired signals, and high-impact access requests.",
-        action: "View verification flow",
-    },
-    {
-        icon: ChartColumn,
-        title: "Patient access visibility",
-        description:
-            "Understand aggregated access demand patterns and inquiry volume by category, location, or region.",
-        action: "Explore access signals",
-    },
-    {
-        icon: Sparkles,
-        title: "Pharmacy profile & locations",
-        description:
-            "Manage details, service areas, hours, participation settings, and location-specific access permissions.",
-        action: "Configure profile",
-    },
-    {
-        icon: UserRound,
-        title: "Staff roles & permissions",
-        description:
-            "Assign owner, pharmacist, operations manager, staff, and viewer permissions.",
-        action: "Review access controls",
-    },
-    {
-        icon: FileText,
-        title: "Network reporting",
-        description:
-            "Track participation, response activity, confidence contribution, and recurring reports.",
-        action: "Request sample report",
-    },
-    {
-        icon: Bell,
-        title: "Notifications & alerts",
-        description:
-            "Prompts for expiring confirmations, high-demand medicines, access-risk signals, and reporting cycles.",
-        action: "Preview alerts",
-    },
-    {
-        icon: LifeBuoy,
-        title: "Support & onboarding",
-        description:
-            "Setup guidance, partnership support, and help resources.",
-        action: "Start onboarding",
-    },
+  {
+    icon: Hospital,
+    title: "Hospital systems",
+    description:
+      "Connect regional medicine availability intelligence, shortage signals, and reporting outputs into enterprise dashboards, care coordination operations, or procurement intelligence systems.",
+    action: "Request Hospital API Briefing",
+  },
+  {
+    icon: Building2,
+    title: "Clinic networks",
+    description:
+      "Integrate multi-location medicine access indicators, alert thresholds, and regional access reports into centralized clinic operations.",
+    action: "Discuss Clinic Network Integration",
+  },
+  {
+    icon: Pill,
+    title: "Pharmacy networks",
+    description:
+      "Enable authorized pharmacy confirmation workflows, confidence updates, and network participation signals through controlled endpoints.",
+    action: "Join Pharmacy API Program",
+  },
+  {
+    icon: Truck,
+    title: "Distributors & wholesalers",
+    description:
+      "Connect aggregated demand and availability intelligence into partner reporting without exposing sensitive inventory data to unauthorized users.",
+    action: "Explore Distribution Integration",
+  },
+  {
+    icon: Factory,
+    title: "Manufacturers",
+    description:
+      "Use shortage signals, access-risk insights, and demand-pattern reports to support market access, supply planning, and stakeholder intelligence.",
+    action: "Request Manufacturer Briefing",
+  },
+  {
+    icon: Landmark,
+    title: "Public health & government",
+    description:
+      "Receive governed regional access reports and shortage-awareness feeds for approved operational review and public health planning.",
+    action: "Request Public-Health API Review",
+  },
 ];
 
 export default function Integration() {
@@ -91,7 +75,7 @@ export default function Integration() {
                     <span className="text-[#0FAA87]">every stakeholder.</span>
                 </h2>
 
-                <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {cards.map(({ icon: Icon, title, description, action }) => (
                         <div
                             key={title}
@@ -101,7 +85,7 @@ export default function Integration() {
                                 <Icon size={18} strokeWidth={2} />
                             </div>
                             <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-                            <p className="mt-2 text-sm leading-relaxed text-gray-500">{description}</p>
+                            <p className="mt-2 md:min-h-30 text-sm leading-relaxed text-gray-500">{description}</p>
                             <button className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-teal-600 hover:text-teal-700">
                                 {action}
                                 <ArrowRight size={14} />
