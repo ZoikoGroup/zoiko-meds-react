@@ -160,7 +160,7 @@ export default function ClinicNetworksRequestBriefingSection() {
               className="rounded-2xl border bg-white p-6 sm:p-7"
               style={{
                 borderColor: "#E7EAF1",
-                boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
+                boxShadow: "0 4px 23px -10px rgba(15,31,78,0.06)",
               }}
             >
             <form onSubmit={handleSubmit} className="space-y-5">
