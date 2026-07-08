@@ -1,6 +1,18 @@
 import { 
     HospitalSystemsHeroSection,
-    HospitalSystemsTrustBoundariesSection 
+    HospitalSystemsTrustBoundariesSection,
+    HospitalSystemsTheChallengeSection,
+    HospitalSystemsEnterprisePlatformValueSection,
+    HospitalSystemsMultiSiteOperatingModelSection,
+    HospitalSystemsWorkflowMapSection,
+    HospitalSystemsExecutiveDashboardSection,
+    HospitalSystemsSecurityPrivacyGovernanceSection,
+    HospitalSystemsIntegrationsDeploymentSection,
+    HospitalSystemsReportingRetentionSection,
+    HospitalSystemsComparisonSection,
+    HospitalSystemsEnterpriseBriefingFormSection,
+    HospitalSystemsFaqSection,
+    HospitalSystemsFinalCtaSection
 } from "@/components/hospital-systems";
 
 export default function HospitalSystemsPage() {
@@ -8,6 +20,18 @@ export default function HospitalSystemsPage() {
     <main>
       <HospitalSystemsHeroSection />
       <HospitalSystemsTrustBoundariesSection />
+      <HospitalSystemsTheChallengeSection />
+      <HospitalSystemsEnterprisePlatformValueSection />
+      <HospitalSystemsMultiSiteOperatingModelSection />
+      <HospitalSystemsWorkflowMapSection />
+      <HospitalSystemsExecutiveDashboardSection />
+      <HospitalSystemsSecurityPrivacyGovernanceSection />
+      <HospitalSystemsIntegrationsDeploymentSection />
+      <HospitalSystemsReportingRetentionSection />
+      <HospitalSystemsComparisonSection />
+      <HospitalSystemsEnterpriseBriefingFormSection />
+      <HospitalSystemsFaqSection />
+      <HospitalSystemsFinalCtaSection />
     </main>
   );
 }

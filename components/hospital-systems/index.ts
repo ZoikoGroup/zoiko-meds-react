@@ -1,2 +1,14 @@
 export { default as HospitalSystemsHeroSection } from "./HospitalSystemsHeroSection";
 export { default as HospitalSystemsTrustBoundariesSection } from "./HospitalSystemsTrustBoundariesSection";
+export { default as HospitalSystemsTheChallengeSection } from "./HospitalSystemsTheChallengeSection";
+export { default as HospitalSystemsEnterprisePlatformValueSection } from "./HospitalSystemsEnterprisePlatformValueSection";
+export { default as HospitalSystemsMultiSiteOperatingModelSection } from "./HospitalSystemsMultiSiteOperatingModelSection";
+export { default as HospitalSystemsWorkflowMapSection } from "./HospitalSystemsWorkflowMapSection";
+export { default as HospitalSystemsExecutiveDashboardSection } from "./HospitalSystemsExecutiveDashboardSection";
+export { default as HospitalSystemsSecurityPrivacyGovernanceSection } from "./HospitalSystemsSecurityPrivacyGovernanceSection";
+export { default as HospitalSystemsIntegrationsDeploymentSection } from "./HospitalSystemsIntegrationsDeploymentSection";
+export { default as HospitalSystemsReportingRetentionSection } from "./HospitalSystemsReportingRetentionSection";
+export { default as HospitalSystemsComparisonSection } from "./HospitalSystemsComparisonSection";
+export { default as HospitalSystemsEnterpriseBriefingFormSection } from "./HospitalSystemsEnterpriseBriefingFormSection";
+export { default as HospitalSystemsFaqSection } from "./HospitalSystemsFaqSection";
+export { default as HospitalSystemsFinalCtaSection } from "./HospitalSystemsFinalCtaSection";
