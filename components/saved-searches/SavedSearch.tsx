@@ -1,4 +1,6 @@
+"use client"
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const cards = [
@@ -9,6 +11,7 @@ const cards = [
         description:
             "Save medicine, location, radius, and selected preferences so you can run the same search later.",
         buttonText: "Create free account",
+        link:"/create-account",
         primary: true,
     },
     {
@@ -18,6 +21,7 @@ const cards = [
         description:
             "Availability can change quickly. Saved searches make it easier to create alerts for medicines you need to monitor.",
         buttonText: "Create availability alert",
+        link:"/availability-alert"
     },
     {
         src: "/saved-searches/people.png",
@@ -26,10 +30,12 @@ const cards = [
         description:
             "Caregivers can label saved searches for family members or situations without creating a medical record.",
         buttonText: "Explore caregiver access",
+        link:"/caregiver-access"
     },
 ];
 
 export default function SavedSearch() {
+    const router = useRouter();
     return (
         <section className="bg-[#F4F7FB] pb-16 px-4">
             <div className="mx-auto max-w-6xl">
@@ -63,6 +69,7 @@ export default function SavedSearch() {
                             </p>
 
                             <button
+                            onClick={()=>router.push(card.link)}
                                 className={`mt-8 w-full rounded-xl px-5 py-3 text-sm font-semibold cursor-pointer transition ${card.primary
                                         ? "border border-[#13A594] bg-[#13A594] text-white hover:bg-[#109889]"
                                         : "border border-[#CDD7E3] bg-white text-[#0D1B2E] hover:bg-gray-50"

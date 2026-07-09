@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const details = [
@@ -24,6 +26,7 @@ const actions = [
 ];
 
 export default function SavedHero() {
+    const router = useRouter();
     return (
         <section className="bg-[#F4F7FB] px-4 py-8 lg:py-24">
             <div className="mx-auto max-w-6xl">
@@ -48,11 +51,15 @@ export default function SavedHero() {
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                            <button className="rounded-xl bg-[#13A594] border border-[#13A594] px-6 cursor-pointer py-3 font-semibold text-white transition hover:bg-[#119485]">
+                            <button
+                            onClick={()=>router.push("/create-account")}
+                             className="rounded-xl bg-[#13A594] border border-[#13A594] px-6 cursor-pointer py-3 font-semibold text-white transition hover:bg-[#119485]">
                                 Create Free Account
                             </button>
 
-                            <button className="rounded-xl border border-[#D0D5DD] bg-white px-6 cursor-pointer py-3 font-semibold text-[#0D1B2E] transition hover:bg-gray-50">
+                            <button
+                            onClick={()=>router.push("/searchmed")}
+                             className="rounded-xl border border-[#D0D5DD] bg-white px-6 cursor-pointer py-3 font-semibold text-[#0D1B2E] transition hover:bg-gray-50">
                                 Search Medicines
                             </button>
                         </div>

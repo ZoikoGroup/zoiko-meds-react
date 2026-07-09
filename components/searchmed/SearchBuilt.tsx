@@ -1,4 +1,6 @@
+"use client"
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const features = [
     {
@@ -52,6 +54,7 @@ const features = [
 ];
 
 export default function SearchBuilt() {
+    const router = useRouter();
     return (
         <section className="bg-[#0C1B30] py-14 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-12 xl:px-20">
             <div className="max-w-6xl mx-auto">
@@ -88,10 +91,12 @@ export default function SearchBuilt() {
                     </span>
                     <p className="text-sm sm:text-[15.5px] text-[#E7EEF6B2]/70 text-center max-w-[450px] leading-relaxed">Search first. Save searches and alerts only when you want to return or monitor changes.</p>
                     <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                        <button className="bg-[#13A594] hover:bg-[#11887a] border border-[#13A594] cursor-pointer text-white font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
+                        <button onClick={()=>router.push("#")}
+                         className="bg-[#13A594] hover:bg-[#11887a] border border-[#13A594] cursor-pointer text-white font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
                             Search Availability
                         </button>
-                        <button className="border border-[#FFFFFF40]/25 hover:bg-[#b6d1ce0a] text-white cursor-pointer font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
+                        <button onClick={()=>router.push("/create-account")}
+                         className="border border-[#FFFFFF40]/25 hover:bg-[#b6d1ce0a] text-white cursor-pointer font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
                             Create Free Account
                         </button>
                     </div>

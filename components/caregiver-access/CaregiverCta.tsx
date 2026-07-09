@@ -1,15 +1,22 @@
+"use client"
+
+import { useRouter } from "next/navigation";
+
 const actions = [
     {
         label: "Create Free Account",
         primary: true,
+        link:"/create-account"
     },
     {
         label: "Search Medicines",
         primary: false,
+        link:"/searchmed"
     },
 ];
 
 export default function CaregiverCta() {
+    const router = useRouter();
     return (
         <section className="bg-[#081B33] px-6 py-32 sm:px-8 lg:px-12">
             <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
@@ -21,8 +28,9 @@ export default function CaregiverCta() {
                 </h2>
 
                 <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
-                    {actions.map(({ label, primary }) => (
+                    {actions.map(({ label, primary, link }) => (
                         <button
+                            onClick={()=>router.push(link)}
                             key={label}
                             className={`h-16 rounded-2xl cursor-pointer px-10 text-base font-medium transition-all duration-300 sm:min-w-[250px]
                 ${primary

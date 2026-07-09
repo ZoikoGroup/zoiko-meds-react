@@ -1,5 +1,6 @@
-
+"use client"
 import Image from 'next/image'
+import { useRouter } from 'next/navigation';
 const followUpCards = [
     {
         image: {
@@ -9,6 +10,7 @@ const followUpCards = [
         title: "Save this search",
         desc: "Save a medicine and location so you can return without starting over — while respecting your privacy settings.",
         cta: "Create free account",
+        link:"/create-account",
         primary: true,
     },
     {
@@ -19,6 +21,7 @@ const followUpCards = [
         title: "Get availability alerts",
         desc: "Get updates when availability signals change near your location. Alerts never imply guaranteed or reserved medicine.",
         cta: "Create alert",
+        link:"/availability-alert",
         primary: true,
     },
     {
@@ -29,11 +32,13 @@ const followUpCards = [
         title: "Help a family member",
         desc: "Caregivers can save searches and monitor availability for someone they support — without uploading prescriptions or clinical records.",
         cta: "Caregiver access",
+        link:"/caregiver-access",
         primary: false,
     },
 ];
 
 export default function SearchFollowup() {
+    const router = useRouter();
     return (
         <section className="bg-[#EEF2F7] py-20 font-sans">
             <div className="max-w-6xl mx-auto px-6">
@@ -59,6 +64,7 @@ export default function SearchFollowup() {
                             <h3 className="text-[17px] font-semibold leading-[26.78px] text-[#0D1B2E]">{card.title}</h3>
                             <p className="text-[14px] text-[#566476] leading-[21.12px] flex-1">{card.desc}</p>
                             <button
+                            onClick={()=>router.push(card.link)}
                                 className={`mt-auto w-full py-4 rounded-lg text-[15.2px] cursor-pointer font-semibold transition-colors duration-150 ${card.primary
                                     ? "bg-[#13A594] hover:bg-[#0e8b7d] text-white"
                                     : "bg-white border border-[#CDD7E3] text-[#0D1B2E] hover:bg-[#F8FAFC]"
