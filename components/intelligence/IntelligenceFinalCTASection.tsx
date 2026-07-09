@@ -43,7 +43,7 @@ export default function IntelligenceFinalCTASection() {
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <a
-                href="#briefing-request"
+                href="/request-a-briefing"
                 className="inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90"
                 style={{ backgroundColor: ACCENT }}
               >

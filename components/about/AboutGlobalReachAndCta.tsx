@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /* ─── GLOBAL REACH DATA ─────────────────────────────────── */
@@ -228,6 +229,7 @@ function GlobalReach() {
 function CtaBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -327,7 +329,9 @@ function CtaBanner() {
                   Check Medicine Availability
                 </button>
 
-                <button className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-white font-semibold text-sm transition-all duration-300 hover:border-white/50 hover:bg-white/5 hover:-translate-y-0.5">
+                <button
+                onClick={()=>router.push("/create-account")}
+                 className="group inline-flex cursor-pointer items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-white font-semibold text-sm transition-all duration-300 hover:border-white/50 hover:bg-white/5 hover:-translate-y-0.5">
                   Create Free Account
                 </button>
               </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const items = [
@@ -87,6 +88,7 @@ export default function AboutWhatZoikomedsDoesNot() {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -271,7 +273,9 @@ export default function AboutWhatZoikomedsDoesNot() {
             className="banner-in"
             style={{ animationDelay: "820ms" }}
           >
-            <button className="group relative inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#2DC9A0] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(45,201,160,0.4)] hover:-translate-y-0.5 active:translate-y-0">
+            <button 
+            onClick={()=>router.push("/trust-center")}
+            className="group relative inline-flex items-center cursor-pointer gap-2 px-7 py-3.5 rounded-full bg-[#2DC9A0] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(45,201,160,0.4)] hover:-translate-y-0.5 active:translate-y-0">
               {/* shimmer */}
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
               Review Trust, Safety &amp; Governance Center →

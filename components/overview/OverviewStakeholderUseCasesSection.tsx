@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -25,36 +26,42 @@ const STAKEHOLDERS = [
     problem: "Limited visibility into medicine access patterns and patient availability friction.",
     value: "Identify access trends, shortage signals, and regional confidence movement.",
     cta: "Book a Provider Briefing",
+    link:"/request-a-briefing"
   },
   {
     label: "Pharmacies",
     problem: "Manual, inconsistent ways to signal availability and confirm stock confidence to partners.",
     value: "Participate in verification workflows that strengthen network-wide availability confidence.",
     cta: "Join the Pharmacy Network",
+    link:"/join-the-network"
   },
   {
     label: "Wholesalers & Distributors",
     problem: "Fragmented demand and network signals make allocation and planning reactive.",
     value: "Access structured demand, network, and confidence intelligence across regions.",
     cta: "Talk to Distribution Team",
+    link:"#"
   },
   {
     label: "Manufacturers",
     problem: "Little downstream signal on where access is weakening before shortages become visible.",
     value: "Monitor shortage risk and regional access movement tied to specific product lines.",
     cta: "Request a Manufacturer Demo",
+    link:"#"
   },
   {
     label: "Public Health & Government",
     problem: "Delayed, fragmented data on medicine access makes population-level response slower.",
     value: "Review compliance-ready regional access and shortage-awareness reporting.",
     cta: "Request a Public Health Briefing",
+    link:"#"
   },
   {
     label: "Enterprise Partners",
     problem: "Difficulty integrating availability intelligence into existing enterprise workflows.",
     value: "Connect ZoikoMeds intelligence into dashboards, reporting, and partner systems.",
     cta: "Talk to Partnerships",
+    link:"#"
   },
 ] as const;
 
@@ -62,6 +69,7 @@ export default function OverviewStakeholderUseCasesSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -159,7 +167,7 @@ export default function OverviewStakeholderUseCasesSection() {
               </div>
 
               <a
-                href="#"
+                href={current.link}
                 className="whitespace-nowrap rounded-xl px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90"
                 style={{ backgroundColor: ACCENT }}
               >

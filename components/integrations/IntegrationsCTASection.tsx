@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
@@ -7,6 +8,7 @@ const ACCENT = "#13A594";
 export default function IntegrationsCTASection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -51,6 +53,7 @@ export default function IntegrationsCTASection() {
             {/* Buttons */}
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
+              onClick={()=>router.push('#request-an-integration-briefing')}
                 type="button"
                 className="rounded-lg px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.5)]"
                 style={{ backgroundColor: ACCENT }}

@@ -91,7 +91,7 @@ export default function ReportsSampleRequestSection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
+    <section id="sample-reports" ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
 
         {/* ── Eyebrow ── */}

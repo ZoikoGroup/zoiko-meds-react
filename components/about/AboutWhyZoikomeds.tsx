@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AboutWhyZoikomeds() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -73,13 +75,15 @@ export default function AboutWhyZoikomeds() {
               ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
             style={{ transitionDelay: "360ms" }}
           >
-            <button className="group relative inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#2DC9A0] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(45,201,160,0.45)] hover:-translate-y-0.5 active:translate-y-0">
+            <button onClick={()=>router.push("#")}
+            className="group relative inline-flex cursor-pointer items-center justify-center px-7 py-3.5 rounded-full bg-[#2DC9A0] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(45,201,160,0.45)] hover:-translate-y-0.5 active:translate-y-0">
               {/* shimmer on hover */}
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               See How It Works
             </button>
 
-            <button className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-[#0d2636]/20 text-[#0d2636] font-semibold text-sm transition-all duration-300 hover:border-[#2DC9A0] hover:text-[#2DC9A0] hover:-translate-y-0.5 active:translate-y-0">
+            <button onClick={()=>router.push("/home")}
+            className="group inline-flex items-center cursor-pointer gap-2 px-7 py-3.5 rounded-full border border-[#0d2636]/20 text-[#0d2636] font-semibold text-sm transition-all duration-300 hover:border-[#2DC9A0] hover:text-[#2DC9A0] hover:-translate-y-0.5 active:translate-y-0">
               Explore Platform
               <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </button>

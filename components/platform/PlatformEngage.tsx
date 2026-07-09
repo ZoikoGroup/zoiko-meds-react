@@ -10,6 +10,7 @@ const plans = [
             "Protect inventory from scraper tools",
         ],
         cta: "Join the Network",
+        link:"/join-the-network",
         ctaPrimary: true,
     },
     {
@@ -21,6 +22,7 @@ const plans = [
             "High-throughput infrastructure APIs",
         ],
         cta: "Request a Briefing",
+        link:"/request-a-briefing",
         ctaPrimary: false,
     },
 ];
@@ -65,7 +67,7 @@ export default function PlatformEngage() {
                             {/* CTA */}
                             <button className="mt-auto pt-4">
                                 <a
-                                    href="#"
+                                    href={plan.link}
                                     className={`block w-full text-center py-4 rounded-lg text-[14.5px] transition-colors duration-150 ${plan.ctaPrimary
                                         ? "bg-[#005C55] hover:bg-[#044943] text-white"
                                         : "bg-transparent border border-[#C5C9D6] hover:border-[#0F6E56] text-[#081A13]"

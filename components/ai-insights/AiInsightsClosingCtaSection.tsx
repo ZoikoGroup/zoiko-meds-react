@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AiInsightsClosingCtaSection() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -42,6 +44,7 @@ export default function AiInsightsClosingCtaSection() {
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
+              onClick={()=>router.push("#ai-intelligence-briefing")}
                 type="button"
                 className="w-full rounded-xl bg-[#1BC49B] px-6 py-3 text-sm font-semibold text-[#0B142E] transition-all duration-200 hover:bg-[#1BC49B]/90 focus:outline-none sm:w-auto"
               >

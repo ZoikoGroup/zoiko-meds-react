@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AiInsightsHeroSection() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -60,15 +62,16 @@ export default function AiInsightsHeroSection() {
           <HeroFadeUp show={isVisible} delay={240}>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
+              onClick={()=>router.push("#ai-intelligence-briefing")}
                 type="button"
-                className="rounded-xl bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0FAA87]/90 focus:outline-none"
+                className="rounded-xl cursor-pointer bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0FAA87]/90 focus:outline-none"
               >
                 Request an AI Intelligence Briefing
               </button>
 
               <button
                 type="button"
-                className="rounded-xl border border-[#E7EAF1] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-200 hover:border-[#0FAA87]/30 hover:shadow-sm focus:outline-none"
+                className="rounded-xl cursor-pointer border border-[#E7EAF1] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-200 hover:border-[#0FAA87]/30 hover:shadow-sm focus:outline-none"
               >
                 See How AI Insights Work
               </button>

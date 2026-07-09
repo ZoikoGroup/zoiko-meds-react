@@ -67,14 +67,14 @@ export default function ReportsCTASection() {
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
-                  href="#request-sample-reports"
+                  href="#sample-reports"
                   className="w-full rounded-xl px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Request Sample Reports
                 </a>
                 <a
-                  href="#request-a-briefing"
+                  href="/request-a-briefing"
                   className="w-full rounded-xl border border-white/20 px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-white/5 sm:w-auto"
                 >
                   Request a Briefing

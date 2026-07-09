@@ -51,7 +51,7 @@ export default function HomeGlobalExpansionSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -73,13 +73,14 @@ export default function HomeGlobalExpansionSection() {
           <h2 className="mt-5 text-[38px] font-extrabold leading-tight text-slate-900 sm:text-4xl">
             Scaling market by market,
             <br />
-            jurisdiction by <span className="text-[#0A9B74]">jurisdiction.</span>
+            jurisdiction by{" "}
+            <span className="text-[#0A9B74]">jurisdiction.</span>
           </h2>
 
           <p className="mt-4 text-sm leading-relaxed text-slate-500">
             USA first, UK second — each market activated only after pharmacy
-            network density, regulatory clearance, and infrastructure
-            readiness are confirmed.
+            network density, regulatory clearance, and infrastructure readiness
+            are confirmed.
           </p>
         </div>
 
@@ -88,9 +89,13 @@ export default function HomeGlobalExpansionSection() {
             <div
               key={market.id}
               className={`group flex items-center justify-between gap-3 rounded-2xl bg-[#F7F9FC] px-5 py-4 transition-all duration-500 ease-out hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:shadow-slate-200/70 ${
-                isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                isVisible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-6 opacity-0"
               }`}
-              style={{ transitionDelay: isVisible ? `${index * 100}ms` : "0ms" }}
+              style={{
+                transitionDelay: isVisible ? `${index * 100}ms` : "0ms",
+              }}
             >
               <div className="flex items-center gap-3">
                 <span
@@ -135,14 +140,13 @@ export default function HomeGlobalExpansionSection() {
           </h3>
 
           <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-300">
-            Availability intelligence for patients, pharmacies, health
-            systems, and governments — from a single verified source of
-            truth.
+            Availability intelligence for patients, pharmacies, health systems,
+            and governments — from a single verified source of truth.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <a
-              href="/search"
+              href="/searchmed"
               className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#0A9B74] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#08825F] hover:shadow-lg hover:shadow-[#0A9B74]/30 active:scale-[0.98]"
             >
               <Search className="relative z-10 h-4 w-4" strokeWidth={2.5} />
@@ -151,7 +155,7 @@ export default function HomeGlobalExpansionSection() {
             </a>
 
             <a
-              href="/signup"
+              href="/create-account"
               className="rounded-full border border-slate-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:border-slate-300 hover:bg-white/5"
             >
               Create free account

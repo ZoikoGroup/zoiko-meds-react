@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const FEATURES = [
@@ -24,18 +25,21 @@ const FEATURES = [
   {
     id: "privacy-dashboard",
     title: "Privacy dashboard",
-    description: "view, delete, export, and pause history — always under your control.",
+    description:
+      "view, delete, export, and pause history — always under your control.",
   },
   {
     id: "caregiver-mode",
     title: "Caregiver mode",
-    description: "organize saved medicines for family members using nickname labels.",
+    description:
+      "organize saved medicines for family members using nickname labels.",
   },
 ];
 
 export default function HomeFreeAccountSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -48,7 +52,7 @@ export default function HomeFreeAccountSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(node);
@@ -104,10 +108,16 @@ export default function HomeFreeAccountSection() {
                     ? "translate-y-0 opacity-100"
                     : "translate-y-4 opacity-0"
                 }`}
-                style={{ transitionDelay: isVisible ? `${200 + index * 80}ms` : "0ms" }}
+                style={{
+                  transitionDelay: isVisible ? `${200 + index * 80}ms` : "0ms",
+                }}
               >
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0A9B74] transition-transform duration-300 group-hover:scale-110">
-                  <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3 text-white">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="h-3 w-3 text-white"
+                  >
                     <path
                       d="M5 13l4 4L19 7"
                       stroke="currentColor"
@@ -129,19 +139,23 @@ export default function HomeFreeAccountSection() {
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <button
+              onClick={() => router.push("/create-account")}
               type="button"
-              className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#0A9B74] px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#08825F] hover:shadow-lg hover:shadow-[#0A9B74]/25 active:scale-[0.98]"
+              className="group cursor-pointer relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#0A9B74] px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#08825F] hover:shadow-lg hover:shadow-[#0A9B74]/25 active:scale-[0.98]"
             >
               <span className="relative z-10">Create free account</span>
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
             </button>
 
             <button
+              onClick={() => router.push("/privacy-center")}
               type="button"
-              className="group inline-flex items-center gap-2 rounded-full border border-slate-200 px-7 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:border-[#0A9B74] hover:text-[#0A9B74]"
+              className="group cursor-pointer inline-flex items-center gap-2 rounded-full border border-slate-200 px-7 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:border-[#0A9B74] hover:text-[#0A9B74]"
             >
               Learn about privacy
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
             </button>
           </div>
 

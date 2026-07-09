@@ -84,7 +84,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section id="enterprise-briefing" ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
 
         {/* ── Eyebrow ── */}

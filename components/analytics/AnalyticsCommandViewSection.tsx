@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AnalyticsCommandViewSection() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -55,6 +57,7 @@ export default function AnalyticsCommandViewSection() {
           <AnalyticsFadeUp show={isVisible} delay={240}>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button
+              onClick={()=>router.push("/request-a-briefing")}
                 type="button"
                 className="rounded-lg bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-[#00A99D] hover:shadow-lg hover:shadow-[#0FAA87]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2"
               >

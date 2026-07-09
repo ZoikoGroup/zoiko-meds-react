@@ -63,7 +63,7 @@ export default function ClinicNetworksHeroSection() {
             <Reveal index={3} active={mounted}>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/clinic-networks/briefing"
+                  href="#clinic-networks-briefing"
                   className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90"
                   style={{ backgroundColor: ACCENT }}
                 >

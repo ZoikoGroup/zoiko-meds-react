@@ -13,6 +13,7 @@ const CARDS = [
     description:
       "Search verified pharmacies, save medicines, get alerts — no clinical profile required.",
     cta: "Search now",
+    link:"/search",
     ctaColor: "text-emerald-600",
     accent: "from-emerald-400 to-blue-500",
     highlighted: true,
@@ -82,7 +83,7 @@ export default function HomeStakeholdersSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(node);
@@ -90,7 +91,10 @@ export default function HomeStakeholdersSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full bg-[#F7F9FC] px-6 py-20 lg:px-12">
+    <section
+      ref={sectionRef}
+      className="w-full bg-[#F7F9FC] px-6 py-20 lg:px-12"
+    >
       <div className="mx-auto max-w-6xl">
         <div
           className={`mx-auto max-w-2xl text-center transition-all duration-700 ease-out ${
@@ -109,8 +113,7 @@ export default function HomeStakeholdersSection() {
 
           <p className="mt-5 text-base leading-relaxed text-slate-500">
             From patients checking a single pharmacy to governments monitoring
-            national supply — ZoikoMeds routes every audience to the right
-            tool.
+            national supply — ZoikoMeds routes every audience to the right tool.
           </p>
         </div>
 
@@ -129,12 +132,17 @@ export default function HomeStakeholdersSection() {
                     ? "border-emerald-200 bg-gradient-to-b from-emerald-50/60 to-white shadow-lg shadow-emerald-100/60"
                     : "border-slate-100 hover:border-emerald-200 hover:bg-gradient-to-b hover:from-emerald-50/60 hover:to-white hover:shadow-lg hover:shadow-emerald-100/60"
                 } hover:-translate-y-1`}
-                style={{ transitionDelay: isVisible ? `${index * 90}ms` : "0ms" }}
+                style={{
+                  transitionDelay: isVisible ? `${index * 90}ms` : "0ms",
+                }}
               >
                 <div
                   className={`flex h-11 w-11 items-center justify-center rounded-xl ${card.iconBg} transition-transform duration-300 group-hover:scale-110`}
                 >
-                  <Icon className={`h-5 w-5 ${card.iconColor}`} strokeWidth={2} />
+                  <Icon
+                    className={`h-5 w-5 ${card.iconColor}`}
+                    strokeWidth={2}
+                  />
                 </div>
 
                 <h3 className="mt-4 text-sm font-semibold text-slate-900">
@@ -142,22 +150,24 @@ export default function HomeStakeholdersSection() {
                 </h3>
 
                 <p className="mt-2 flex-1 text-xs leading-relaxed text-slate-500">
-  {card.description}
-</p>
+                  {card.description}
+                </p>
 
-<a
-  href="#"
-  className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold ${card.ctaColor} transition-all duration-300`}
->
-  {card.cta}
-  <span className="transition-transform duration-300 group-hover:translate-x-1">
-    →
-  </span>
-</a>
+                <a
+                  href="#"
+                  className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold ${card.ctaColor} transition-all duration-300`}
+                >
+                  {card.cta}
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
+                </a>
 
                 <span
                   className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${card.accent} transition-opacity duration-300 ${
-                    card.highlighted ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    card.highlighted
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
                   }`}
                 />
 

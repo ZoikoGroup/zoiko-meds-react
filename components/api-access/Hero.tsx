@@ -1,6 +1,9 @@
 "use client"
 
+import { useRouter } from "next/navigation";
+
 export default function Hero() {
+    const router = useRouter();
     return (
         <section className="bg-[#F4F7FB] px-4 py-8 lg:py-24">
             <div className="mx-auto max-w-6xl">
@@ -26,7 +29,9 @@ export default function Hero() {
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                            <button className="rounded-xl bg-[#13A594] border border-[#13A594] px-6 cursor-pointer py-3 font-semibold text-white transition hover:bg-[#119485]">
+                            <button
+                            onClick={()=>router.push("#api-access-briefing")}
+                             className="rounded-xl bg-[#13A594] border border-[#13A594] px-6 cursor-pointer py-3 font-semibold text-white transition hover:bg-[#119485]">
                                 Request API Access Briefing
                             </button>
 

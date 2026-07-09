@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const CARDS = [
@@ -48,6 +49,7 @@ const CARDS = [
 export default function HomeEnterpriseSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -60,7 +62,7 @@ export default function HomeEnterpriseSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -81,9 +83,9 @@ export default function HomeEnterpriseSection() {
             for <span className="text-[#0A9B74]">institutional buyers.</span>
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-slate-500">
-            ZoikoMeds converts anonymized search behavior into verified
-            shortage intelligence — available as governed data products and
-            API integrations for health systems, governments, pharma, and
+            ZoikoMeds converts anonymized search behavior into verified shortage
+            intelligence — available as governed data products and API
+            integrations for health systems, governments, pharma, and
             developers.
           </p>
         </div>
@@ -93,9 +95,13 @@ export default function HomeEnterpriseSection() {
             <div
               key={card.id}
               className={`group relative overflow-hidden rounded-2xl border border-slate-100 bg-[#F7F9FC] p-7 transition-all duration-500 ease-out hover:-translate-y-1 hover:border-[#0A9B74]/30 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60 ${
-                isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                isVisible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-6 opacity-0"
               }`}
-              style={{ transitionDelay: isVisible ? `${index * 100}ms` : "0ms" }}
+              style={{
+                transitionDelay: isVisible ? `${index * 100}ms` : "0ms",
+              }}
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:translate-x-full group-hover:opacity-100" />
 
@@ -144,8 +150,9 @@ export default function HomeEnterpriseSection() {
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => router.push("/enterprise")}
               type="button"
-              className="group relative overflow-hidden rounded-full bg-[#0A9B74] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#08825F] hover:shadow-lg hover:shadow-[#0A9B74]/30 active:scale-[0.98]"
+              className="group cursor-pointer relative overflow-hidden rounded-full bg-[#0A9B74] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#08825F] hover:shadow-lg hover:shadow-[#0A9B74]/30 active:scale-[0.98]"
             >
               <span className="relative z-10">Contact enterprise sales</span>
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />

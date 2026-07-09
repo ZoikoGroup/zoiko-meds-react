@@ -168,7 +168,7 @@ export default function AiInsightsBriefingFormSection() {
     "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-[#0F1F4E] placeholder:text-[#8A93A6] focus:outline-none focus:ring-2 focus:ring-[#0FAA87]/30";
 
   return (
-    <section ref={sectionRef} className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20">
+    <section id="ai-intelligence-briefing" ref={sectionRef} className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <FormFadeUp show={isVisible} delay={0}>
           <span className="text-xs font-bold tracking-[0.18em] text-[#0FAA87]">

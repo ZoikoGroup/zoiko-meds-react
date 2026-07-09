@@ -16,7 +16,7 @@ export default function PlatformStats() {
                         Check Medicine Availability
                     </a>
                     <a
-                        href="#"
+                        href="/request-a-briefing"
                         className="border border-white text-white text-[15px] px-10 py-4 rounded-sm hover:bg-white/10 transition-colors duration-150 whitespace-nowrap"
                     >
                         Request a Briefing
