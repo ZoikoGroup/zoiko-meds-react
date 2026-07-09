@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Enterprise", href: "/enterprise/", dropdown: [
     { label: "Hospital Systems", href: "/hospital-systems/", description: "Large-scale deployments" },
     { label: "Clinic Networks", href: "/clinic-networks/", description: "Multi-location management" },
-    { label: "API Access", href: "/enterprise/api", description: "Custom integrations" },
+    { label: "API Access", href: "/api-access/", description: "Custom integrations" },
   ]},
   { label: "Intelligence", href: "/intelligence/", dropdown: [
     { label: "Analytics", href: "/analytics/", description: "Data-driven insights" },
