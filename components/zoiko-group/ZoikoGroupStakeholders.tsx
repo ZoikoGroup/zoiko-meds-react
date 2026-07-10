@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import React from "react";
 
 type Card = {
@@ -5,6 +7,7 @@ type Card = {
     title: string;
     desc: string;
     cta: string;
+    link:string;
 };
 
 const cards: Card[] = [
@@ -13,36 +16,42 @@ const cards: Card[] = [
         title: "ZoikoMeds users",
         desc: "Follow up and caregivers checking medicine availability.",
         cta: "Search Medicines",
+        link:"/searchmed"
     },
     {
         src:"/zoiko-group/operators.png",
         title: "Healthcare operators",
         desc: "Zoiko Healthcare context, platform governance, and the healthcare operating model.",
         cta: "View Zoiko Healthcare",
+        link:"/zoiko-healthcare"
     },
     {
         src:"/zoiko-group/home.png",
         title: "Enterprise & institutional buyers",
         desc: "Health systems, governments, public health, life sciences, payers, digital health, and partners.",
         cta: "Request Institutional Briefing",
+        link:"#"
     },
     {
         src:"/zoiko-group/network.png",
         title: "Pharmacies & network participants",
         desc: "Pharmacy owners, PBOs, branch teams, groups, and integration teams.",
         cta: "Join the Verified Network",
+        link:"/join-the-network"
     },
     {
         src:"/zoiko-group/press.png",
         title: "Press & media",
         desc: "Journalists, analysts, and public communication stakeholders.",
         cta: "Press Inquiries",
+        link:"/press"
     },
     {
         src:"/zoiko-group/career.png",
         title: "Careers",
         desc: "Candidates and future team members.",
         cta: "View Careers",
+        link:"/careers"
     },
 ];
 
@@ -51,6 +60,7 @@ const fadeUp = (delay: number): React.CSSProperties => ({
 });
 
 export default function ZoikoGroupStakeholders() {
+    const router = useRouter();
     return (
         <section className="bg-slate-50 px-6 py-16 md:px-16">
             <style>{`
@@ -83,7 +93,8 @@ export default function ZoikoGroupStakeholders() {
                             </div>
                             <p className="mt-4 font-semibold text-[#0D1B2E]">{card.title}</p>
                             <p className="mt-2 flex-1 text-sm text-[#566476]">{card.desc}</p>
-                            <button className="mt-5 rounded-lg border border-[#CDD7E3] bg-white px-4 py-2 text-sm font-semibold text-[#0D1B2E] transition hover:bg-slate-50">
+                            <button onClick={()=>router.push(card.link)}
+                             className="mt-5 rounded-lg cursor-pointer border border-[#CDD7E3] bg-white px-4 py-2 text-sm font-semibold text-[#0D1B2E] transition hover:bg-slate-50">
                                 {card.cta}
                             </button>
                         </div>

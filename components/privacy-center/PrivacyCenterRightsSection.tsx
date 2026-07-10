@@ -215,7 +215,7 @@ export default function PrivacyCenterRightsSection() {
         </Reveal>
 
         <Reveal index={6} active={mounted}>
-          <div className="mt-7 rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.06)] sm:p-8">
+          <div id="request" className="mt-7 rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.06)] sm:p-8">
 
             {status === "success" ? (
               <div className="flex items-start gap-3 rounded-xl border border-[#0FAA87]/25 bg-[#0FAA87]/5 p-4">

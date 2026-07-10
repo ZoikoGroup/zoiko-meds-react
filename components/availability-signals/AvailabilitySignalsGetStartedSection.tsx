@@ -14,7 +14,7 @@ const PATHS = [
       "Clinicians, nurses, care coordinators, patient navigators, and clinic teams.",
     cta: "Request Signal Workflow Briefing",
     ctaFilled: true,
-    href: "#",
+    href: "#request",
   },
   {
     icon: "people",
@@ -23,7 +23,7 @@ const PATHS = [
       "Provider teams exploring role-based availability-support workflows.",
     cta: "Explore Care Team Access",
     ctaFilled: false,
-    href: "#",
+    href: "/care-team-access",
   },
   {
     icon: "search",
@@ -32,7 +32,7 @@ const PATHS = [
       "People checking availability for themselves or someone they support.",
     cta: "Search Medicines",
     ctaFilled: false,
-    href: "#",
+    href: "/searchmed",
   },
 ] as const;
 
@@ -81,7 +81,7 @@ export default function AvailabilitySignalsGetStartedSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section id="request" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
 
         {/* ── Header ── */}

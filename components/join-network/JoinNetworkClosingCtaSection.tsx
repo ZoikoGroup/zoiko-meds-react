@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -11,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 export default function JoinNetworkClosingCtaSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -64,16 +66,18 @@ export default function JoinNetworkClosingCtaSection() {
                 <Reveal index={2}>
                   <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                     <button
+                    onClick={()=>router.push("#verified-network")}
                       type="button"
-                      className="group relative overflow-hidden rounded-xl bg-[#00A99D] px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+                      className="group relative cursor-pointer overflow-hidden rounded-xl bg-[#00A99D] px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
                     >
                       <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
                       <span className="relative">Join the Verified Network</span>
                     </button>
 
                     <button
+                    onClick={()=>router.push("#claim-your-pharmacy")}
                       type="button"
-                      className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
+                      className="rounded-xl cursor-pointer border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
                     >
                       Claim Your Pharmacy
                     </button>

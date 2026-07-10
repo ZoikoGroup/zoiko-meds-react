@@ -57,7 +57,7 @@ export default function ZoikoGroupContact() {
         }
       `}</style>
 
-            <div className="mx-auto max-w-5xl">
+            <div id="contact" className="mx-auto max-w-5xl">
                 <p style={fadeUp(0)} className="text-xs font-semibold tracking-[2px] text-[#13A594]">
                     06 · CONTACT ZOIKO GROUP
                 </p>

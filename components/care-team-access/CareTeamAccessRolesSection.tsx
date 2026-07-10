@@ -13,6 +13,7 @@ const ROLES = [
       "Explain availability signals, guide pharmacy confirmation, and direct patients to self-service tools.",
     cta: "Request Care Team Access Briefing",
     ctaStyle: "filled",
+    link:"#request"
   },
   {
     icon: "home",
@@ -21,6 +22,7 @@ const ROLES = [
       "Support discharge conversations with availability search guidance and pharmacy confirmation reminders.",
     cta: "Explore Discharge Workflow Support",
     ctaStyle: "outline",
+    link:"#"
   },
   {
     icon: "monitor",
@@ -29,6 +31,7 @@ const ROLES = [
       "Route patients toward availability search, saved searches, alerts, and pharmacy confirmation.",
     cta: "Request Workflow Briefing",
     ctaStyle: "outline",
+    link:"#"
   },
   {
     icon: "gear",
@@ -37,6 +40,7 @@ const ROLES = [
       "Evaluate organization-wide access, SSO readiness, governance, auditability, and support escalation.",
     cta: "Request Organization Review",
     ctaStyle: "outline",
+    link:"#"
   },
 ] as const;
 
@@ -149,6 +153,7 @@ function RoleCard({
   cta,
   ctaStyle,
   index,
+  link
 }: {
   icon: "team" | "home" | "monitor" | "gear";
   title: string;
@@ -156,6 +161,7 @@ function RoleCard({
   cta: string;
   ctaStyle: "filled" | "outline";
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -186,7 +192,7 @@ function RoleCard({
       </p>
 
       <a
-        href="#"
+        href={link}
         className={
           ctaStyle === "filled"
             ? "group relative mt-5 inline-flex w-full overflow-hidden rounded-xl px-5 py-2.5 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"

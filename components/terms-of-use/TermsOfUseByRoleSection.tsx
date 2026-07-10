@@ -10,7 +10,7 @@ const CARDS = [
     title: "Patients & caregivers",
     description: "Medicine search, saved searches, alerts, account rules, no medical advice, pharmacy confirmation, and the emergency boundary.",
     cta: "View Patient Terms",
-    href: "/terms-of-use/patients",
+    href: "patients",
     icon: (
       <>
         <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -22,7 +22,7 @@ const CARDS = [
     title: "Pharmacies",
     description: "Verified participation, portal access, signal controls, confirmation requests, data limits, pharmacist judgment, and no exact public stock exposure.",
     cta: "View Pharmacy Terms",
-    href: "/terms-of-use/pharmacies",
+    href: "pharmacy",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -31,7 +31,7 @@ const CARDS = [
     title: "Healthcare providers",
     description: "Patient-support workflows, signal explanation, referral guidance, no clinical decision support, and data minimization.",
     cta: "View Provider Terms",
-    href: "/terms-of-use/providers",
+    href: "/provider-overview",
     icon: (
       <path d="M8 1.5l6 4v3c0 4-2.6 6.5-6 7.5-3.4-1-6-3.5-6-7.5v-3l6-4z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -40,7 +40,7 @@ const CARDS = [
     title: "Enterprise & API users",
     description: "Contract scope, data-use restrictions, API access, security review, no patient-level targeting, no exact stock exposure.",
     cta: "View Enterprise Terms",
-    href: "/terms-of-use/enterprise",
+    href: "enterprise",
     icon: (
       <path d="M5.5 4L2.5 8l3 4M10.5 4l3 4-3 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     ),
@@ -49,7 +49,7 @@ const CARDS = [
     title: "Wholesale participants",
     description: "Contracted access, procurement workflows, data controls, standards, confidentiality, and no public marketplace claims.",
     cta: "View Wholesale Terms",
-    href: "/terms-of-use/wholesale",
+    href: "#",
     icon: (
       <>
         <ellipse cx="8" cy="4" rx="4.5" ry="1.8" stroke="currentColor" strokeWidth="1.4" fill="none" />

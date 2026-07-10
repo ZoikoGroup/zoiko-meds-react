@@ -125,7 +125,7 @@ export default function PressGovernanceSection() {
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  href="#"
+                  href="#contact"
                   className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.97]"
                   style={{ backgroundColor: ACCENT }}
                 >
@@ -139,7 +139,7 @@ export default function PressGovernanceSection() {
                 </Link>
               </div>
               <Link
-                href="#"
+                href="/trust-center"
                 className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-white/60 transition-colors hover:text-white"
               >
                 Visit Trust Center

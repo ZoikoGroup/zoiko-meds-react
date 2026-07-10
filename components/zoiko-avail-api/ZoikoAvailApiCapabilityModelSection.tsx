@@ -12,6 +12,7 @@ const CAPABILITIES = [
       "Confidence-based availability indicators by medicine, geography, radius, and approved pharmacy-participation context.",
     value: "embed safer availability checks without public stock counts.",
     cta: "Request API Access",
+    link:"#request"
   },
   {
     icon: "clock",
@@ -20,6 +21,7 @@ const CAPABILITIES = [
       "Freshness context and signal-quality info where approved, so platforms can show when direct confirmation is needed.",
     value: "reduce false certainty; improve user guidance.",
     cta: "View API Capabilities",
+    link:"#"
   },
   {
     icon: "search",
@@ -28,6 +30,7 @@ const CAPABILITIES = [
       "MediBase™-powered matching for brand, generic, strength, form, and jurisdiction-aware identity logic.",
     value: "improve search precision, reduce name ambiguity.",
     cta: "Explore MediBase™",
+    link:"/medibase-data"
   },
   {
     icon: "check",
@@ -36,6 +39,7 @@ const CAPABILITIES = [
       "Confirmation-aware flows where participating verified pharmacies allow structured confirmation options.",
     value: "guide users to the right next step without reservations.",
     cta: "Discuss Confirmation Workflows",
+    link:"#"
   },
   {
     icon: "pin",
@@ -44,6 +48,7 @@ const CAPABILITIES = [
       "Radius, service-area, pharmacy-location, and jurisdiction-aware search workflows where approved.",
     value: "embed availability checks into patient, member, or care-team journeys.",
     cta: "Request Technical Briefing",
+    link:"#"
   },
   {
     icon: "refresh",
@@ -52,6 +57,7 @@ const CAPABILITIES = [
       "Scheduled pulls, webhook/event patterns, or streaming-like workflows where product readiness and contracts allow.",
     value: "stay aligned with changing signals while respecting rate limits.",
     cta: "Discuss Integration",
+    link:"#"
   },
 ] as const;
 
@@ -173,6 +179,7 @@ function CapabilityCard({
   value,
   cta,
   index,
+  link
 }: {
   icon: "pulse" | "clock" | "search" | "check" | "pin" | "refresh";
   title: string;
@@ -180,6 +187,7 @@ function CapabilityCard({
   value: string;
   cta: string;
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -217,7 +225,7 @@ function CapabilityCard({
       </p>
 
       <a
-        href="#"
+        href={link}
         className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}

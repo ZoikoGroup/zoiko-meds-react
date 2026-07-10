@@ -109,7 +109,7 @@ export default function CareTeamAccessGovernanceSection() {
           {mounted ? (
             <Reveal index={9}>
               <a
-                href="#"
+                href="/trust-center"
                 className="inline-flex items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
               >
                 Visit Trust Center

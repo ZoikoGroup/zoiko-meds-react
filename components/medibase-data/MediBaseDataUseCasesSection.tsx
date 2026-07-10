@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -11,6 +12,7 @@ const USE_CASES = [
       "Normalize brands, generics, misspellings, strengths, and local names into safer search candidates and approved entities.",
     cta: "Request Data Briefing",
     icon: "search",
+    link:"#request"
   },
   {
     title: "API medicine matching",
@@ -18,6 +20,7 @@ const USE_CASES = [
       "Reliable medicine matching before availability signals can be embedded in digital health and payer workflows.",
     cta: "Discuss API Access",
     icon: "code",
+    link:"#"
   },
   {
     title: "Cross-market data alignment",
@@ -25,6 +28,7 @@ const USE_CASES = [
       "Market-aware mappings across identifiers and jurisdictions for manufacturers, public health, and global platforms.",
     cta: "Request Standards Review",
     icon: "globe",
+    link:"#"
   },
   {
     title: "Availability signal accuracy",
@@ -32,6 +36,7 @@ const USE_CASES = [
       "Clean identity keeps ZoikoAvail™ from producing misleading signals caused by ambiguous names or presentations.",
     cta: "Explore ZoikoAvail™ API",
     icon: "pulse",
+    link:"/zoiko-avail-api"
   },
   {
     title: "Shortage & demand intelligence",
@@ -39,6 +44,7 @@ const USE_CASES = [
       "Consistent identity lets ZoikoSignal™ aggregate access pressure, shortage movement, and demand responsibly.",
     cta: "Explore ZoikoSignal™",
     icon: "chart",
+    link:"/zoikosignal-intelligence"
   },
   {
     title: "Data governance & auditability",
@@ -46,11 +52,13 @@ const USE_CASES = [
       "Versioned, governed data definitions instead of ad hoc medicine lists.",
     cta: "View Data Governance",
     icon: "doc",
+    link:"#"
   },
 ] as const;
 
 export default function MediBaseDataUseCasesSection() {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 250);
@@ -154,12 +162,15 @@ function UseCaseCard({
   description,
   cta,
   icon,
+  link
 }: {
   title: string;
   description: string;
   cta: string;
   icon: string;
+  link:string;
 }) {
+  const router = useRouter();
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_24px_-12px_rgba(15,31,78,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D7DCE6] hover:shadow-[0_16px_36px_-12px_rgba(15,31,78,0.14)]">
       <div
@@ -178,8 +189,9 @@ function UseCaseCard({
       </p>
 
       <button
+      onClick={()=>router.push(link)}
         type="button"
-        className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+        className="mt-5 w-full cursor-pointer rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}
       </button>

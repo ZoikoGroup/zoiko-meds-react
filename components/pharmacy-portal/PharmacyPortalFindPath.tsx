@@ -20,6 +20,7 @@ const PATHS = [
     description: "Approved pharmacy users who need portal access.",
     cta: "Sign In to Pharmacy Portal",
     variant: "solid",
+    link:"#"
   },
   {
     icon: "home",
@@ -28,6 +29,7 @@ const PATHS = [
       "Pharmacies that need to verify, claim, or activate participation.",
     cta: "Claim Your Pharmacy",
     variant: "outline",
+    link:"#claim-your-pharmacy"
   },
   {
     icon: "shield",
@@ -35,6 +37,7 @@ const PATHS = [
     description: "Pharmacies not yet participating in ZoikoMeds.",
     cta: "Join the Verified Network",
     variant: "outline",
+    link:"/join-the-network#verified-network"
   },
   {
     icon: "code",
@@ -43,6 +46,7 @@ const PATHS = [
       "Multi-branch operators, PMS/POS, API, or structured-feed discussions.",
     cta: "Discuss Integration",
     variant: "outline",
+    link:"#"
   },
   {
     icon: "help",
@@ -51,6 +55,7 @@ const PATHS = [
       "Access, confirmation, verification, data-control, or technical issues.",
     cta: "Get Pharmacy Support",
     variant: "outline",
+    link:"#"
   },
 ] as const;
 
@@ -153,7 +158,7 @@ export default function PharmacyPortalFindPathSection() {
         </div>
 
         {/* ---------------- Path cards ---------------- */}
-        <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div id="claim-your-pharmacy" className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {mounted
             ? PATHS.map((p, i) => <PathCard key={p.title} {...p} index={i} />)
             : PATHS.map((_, i) => <PathCardSkeleton key={i} />)}
@@ -220,6 +225,7 @@ function PathCard({
   cta,
   variant,
   index,
+  link
 }: {
   icon: "lock" | "home" | "shield" | "code" | "help";
   title: string;
@@ -227,6 +233,7 @@ function PathCard({
   cta: string;
   variant: "solid" | "outline";
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -260,7 +267,7 @@ function PathCard({
 
       {variant === "solid" ? (
         <a
-          href="#"
+          href={link}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           style={{ backgroundColor: ACCENT }}
         >
@@ -268,7 +275,7 @@ function PathCard({
         </a>
       ) : (
         <a
-          href="#"
+          href={link}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
         >
           {cta}

@@ -10,7 +10,7 @@ const CARDS = [
     title: "What ZoikoMeds does",
     description: "Provides medicine availability information, confidence-based signals, account tools, pharmacy workflows, provider guidance, enterprise intelligence, APIs, and data products.",
     link: "Explore Platform",
-    href: "/platform",
+    href: "/home",
     icon: (
       <path d="M2 8.5h2.5l1.5-3.5 2.5 6 1.5-3.5H14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     ),

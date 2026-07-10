@@ -195,7 +195,7 @@ export default function TrustCenterAccessSection() {
 
         {/* ── Request Trust Pack form ── */}
         <Reveal index={7} active={mounted}>
-          <div id="request-trust-pack" className="mt-10 rounded-2xl bg-white p-6 shadow-[0_4px_24px_-10px_rgba(0,0,0,0.35)] sm:p-8">
+          <div id="trust" className="mt-10 rounded-2xl bg-white p-6 shadow-[0_4px_24px_-10px_rgba(0,0,0,0.35)] sm:p-8">
             <h3 className="text-[16px] font-bold text-[#0F1F4E]">Request Trust Pack</h3>
             <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-[#5B6478]">
               We route your request to the right trust, security, privacy, legal, enterprise, or

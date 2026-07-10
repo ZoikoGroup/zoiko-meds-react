@@ -17,6 +17,7 @@ const STATUSES = [
     visibility: "Limited or suppressed, where approved.",
     action: "An authorized representative can start a claim.",
     cta: "Claim This Pharmacy",
+    link:"#claim-your-pharmacy"
   },
   {
     tone: "blue" as Tone,
@@ -27,6 +28,7 @@ const STATUSES = [
     visibility: "No verified badge until review is complete.",
     action: "Check status or provide more information.",
     cta: "Check Verification Status",
+    link:"#",
   },
   {
     tone: "amber" as Tone,
@@ -38,6 +40,7 @@ const STATUSES = [
       "May display a verified participation badge, subject to platform rules.",
     action: "View details and availability signals where supported.",
     cta: "View Pharmacy Profile",
+    link:"#",
   },
   {
     tone: "green" as Tone,
@@ -49,6 +52,7 @@ const STATUSES = [
       "Search may show confidence-based signals, not exact stock.",
     action: "Review signals and confirm with the pharmacy.",
     cta: "Learn About Availability Confidence",
+    link:"/availability-confidence"
   },
   {
     tone: "red" as Tone,
@@ -59,6 +63,7 @@ const STATUSES = [
     visibility: "May be limited, paused, or updated pending review.",
     action: "Provide updated information.",
     cta: "Contact Pharmacy Support",
+    link:"/pharmacy-support"
   },
 ];
 
@@ -159,6 +164,7 @@ export default function PharmacyPortalVerificationStatusSection() {
   visibility={s.visibility}
   action={s.action}
   cta={s.cta}
+  link={s.link}
   index={i}
 />
               ))
@@ -213,6 +219,7 @@ function StatusCard({
   action,
   cta,
   index,
+  link
 }: {
   tone: Tone;
   icon: "lock" | "clock" | "shield" | "check" | "warning";
@@ -222,6 +229,7 @@ function StatusCard({
   action: string;
   cta: string;
   index: number;
+  link:string;
 }) {
   const colors = TONE_STYLES[tone];
 
@@ -266,7 +274,7 @@ function StatusCard({
       <div className="mt-4 h-px w-full bg-[#EEF0F5]" />
 
       <a
-        href="#"
+        href={link}
         className="mt-4 inline-flex w-fit items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}

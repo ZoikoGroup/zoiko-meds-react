@@ -14,7 +14,7 @@ const PATHS = [
       "Search medicine availability, saved searches, alerts, caregiver access, availability confidence.",
     warning: "No medical advice or emergency support.",
     cta: "Search Medicines",
-    href: "#",
+    href: "/searchmed",
   },
   {
     icon: "home",
@@ -23,7 +23,7 @@ const PATHS = [
       "Join the verified network, claim a pharmacy, portal access, verification, inventory signals, confirmation requests, support.",
     warning: "No exact stock in public forms.",
     cta: "Get Pharmacy Support",
-    href: "#",
+    href: "/pharmacy-support",
   },
   {
     icon: "home",
@@ -32,7 +32,7 @@ const PATHS = [
       "Provider workflows, patient support, care-team access, referral guidance, signal education.",
     warning: "No PHI in public forms.",
     cta: "Get Provider Support",
-    href: "#",
+    href: "/provider-support",
   },
   {
     icon: "home",
@@ -41,7 +41,7 @@ const PATHS = [
       "Enterprise briefings, APIs, intelligence, health systems, government, public health, procurement.",
     warning: "Contract-scoped review required.",
     cta: "Request Enterprise Briefing",
-    href: "#",
+    href: "/enterprise",
   },
   {
     icon: "chat",
@@ -50,7 +50,7 @@ const PATHS = [
       "Media inquiries, official statements, logos, leadership background, interview requests.",
     warning: "No confidential claims without approval.",
     cta: "Contact Press Team",
-    href: "#",
+    href: "/press",
   },
   {
     icon: "person",
@@ -59,7 +59,7 @@ const PATHS = [
       "Open roles, talent pipeline, internships, candidate questions, hiring process.",
     warning: "Applications route through the careers workflow.",
     cta: "View Careers",
-    href: "#",
+    href: "/careers",
   },
   {
     icon: "shield",
@@ -68,7 +68,7 @@ const PATHS = [
       "Privacy requests, legal notices, accessibility, cookie questions, security concerns.",
     warning: "Sensitive issues require controlled workflows.",
     cta: "Submit Trust Request",
-    href: "#",
+    href: "/trust-center",
   },
   {
     icon: "globe",
@@ -77,7 +77,7 @@ const PATHS = [
       "Partnerships, corporate questions, non-urgent routing, investor or strategic introductions.",
     warning: "Triage before response.",
     cta: "Contact ZoikoMeds",
-    href: "#",
+    href: "/home",
   },
 ] as const;
 

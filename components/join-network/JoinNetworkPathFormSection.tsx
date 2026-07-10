@@ -113,14 +113,14 @@ export default function JoinNetworkPathFormSection() {
         </div>
 
         {/* ---------------- Path cards ---------------- */}
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div id="verified-network" className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3">
           {mounted
             ? PATHS.map((p, i) => <PathCard key={p.title} {...p} index={i} />)
             : PATHS.map((_, i) => <PathCardSkeleton key={i} />)}
         </div>
 
         {/* ---------------- Form (centered) ---------------- */}
-        <div className="mt-12 flex justify-center">
+        <div id="claim-your-pharmacy" className="mt-12 flex justify-center">
           {mounted ? <PathForm /> : <FormSkeleton />}
         </div>
       </div>

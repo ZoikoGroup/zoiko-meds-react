@@ -128,7 +128,7 @@ export default function CareersNextStepSection() {
         </div>
 
         {/* ---------------- Form card ---------------- */}
-        <div className="mt-6">
+        <div id="talent" className="mt-6">
           {mounted ? (
             <Reveal index={7}>
               <FormCard

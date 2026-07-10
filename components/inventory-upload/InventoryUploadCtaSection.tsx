@@ -67,7 +67,7 @@ export default function InventoryUploadCtaSection() {
             <Reveal index={2} active={mounted}>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  href="#"
+                  href="#signal-setup"
                   className="inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.97]"
                   style={{ backgroundColor: ACCENT }}
                 >
@@ -75,7 +75,7 @@ export default function InventoryUploadCtaSection() {
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/pharmacy-portal"
                   className="inline-flex items-center justify-center rounded-lg border border-white/25 bg-transparent px-6 py-2.5 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/5 active:scale-[0.97]"
                 >
                   Sign In to Pharmacy Portal

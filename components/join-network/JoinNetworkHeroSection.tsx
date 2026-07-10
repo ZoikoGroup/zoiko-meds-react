@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
@@ -19,6 +20,7 @@ const PROFILE_ROWS = [
 
 export default function JoinNetworkHeroSection() {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 250);
@@ -60,16 +62,18 @@ export default function JoinNetworkHeroSection() {
               <Reveal index={3}>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                   <button
+                  onClick={()=>router.push("#verified-network")}
                     type="button"
-                    className="group relative overflow-hidden rounded-xl bg-[#13A594] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+                    className="group  cursor-pointer relative overflow-hidden rounded-xl bg-[#13A594] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
                   >
                     <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
                     <span className="relative">Join the Verified Network</span>
                   </button>
 
                   <button
+                  onClick={()=>router.push("#claim-your-pharmacy")}
                     type="button"
-                    className="rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+                    className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                   >
                     Claim Your Pharmacy
                   </button>

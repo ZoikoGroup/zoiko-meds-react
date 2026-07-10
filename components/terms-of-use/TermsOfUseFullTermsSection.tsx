@@ -147,7 +147,7 @@ export default function TermsOfUseFullTermsSection() {
   }
 
   return (
-    <section ref={sectionRef} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section id="summary" ref={sectionRef} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
 
         {/* ── Eyebrow ── */}

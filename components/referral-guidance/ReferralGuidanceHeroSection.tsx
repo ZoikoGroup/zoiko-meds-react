@@ -67,14 +67,14 @@ export default function ReferralGuidanceHeroSection() {
             <Reveal index={3} active={mounted}>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link
-                  href="#"
+                  href="#request"
                   className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.97]"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Request Referral Workflow Briefing
                 </Link>
                 <Link
-                  href="#"
+                  href="/patient-support"
                   className="inline-flex items-center justify-center rounded-xl border border-[#D0D5E2] bg-white px-6 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:scale-[0.97]"
                 >
                   View Patient Support Workflows

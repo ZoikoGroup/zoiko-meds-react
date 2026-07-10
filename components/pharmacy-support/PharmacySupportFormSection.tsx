@@ -120,7 +120,7 @@ export default function PharmacySupportFormSection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section id="support" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         <div className="mx-auto max-w-2xl text-center">

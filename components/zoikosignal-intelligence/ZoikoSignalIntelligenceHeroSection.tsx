@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 
@@ -17,6 +18,7 @@ const DEMAND_BARS = [40, 55, 48, 65, 72, 80, 90];
 
 export default function ZoikoSignalIntelligenceHeroSection() {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 250);
@@ -81,8 +83,9 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                 <Reveal index={4}>
                   <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                     <button
+                    onClick={()=>router.push("#request")}
                       type="button"
-                      className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                      className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.boxShadow =
