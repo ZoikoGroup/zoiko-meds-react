@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function AnalyticsClosingCtaSection() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -45,6 +47,7 @@ export default function AnalyticsClosingCtaSection() {
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
+              onClick={()=>router.push("/request-a-briefing")}
                 type="button"
                 className="w-full rounded-xl bg-[#1BC49B] px-6 py-3 text-sm font-semibold text-[#0B142E] transition-all duration-200 hover:bg-[#1BC49B]/90 focus:outline-none sm:w-auto"
               >
@@ -52,8 +55,9 @@ export default function AnalyticsClosingCtaSection() {
               </button>
 
               <button
+              onClick={()=>router.push("/trust-center")}
                 type="button"
-                className="w-full rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-white/40 hover:bg-white/5 focus:outline-none sm:w-auto"
+                className="w-full cursor-pointer rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-white/40 hover:bg-white/5 focus:outline-none sm:w-auto"
               >
                 Visit Trust Center
               </button>

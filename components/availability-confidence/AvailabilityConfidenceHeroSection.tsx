@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 
@@ -29,6 +30,7 @@ const RESULTS = [
 export default function AvailabilityConfidenceHeroSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -85,7 +87,7 @@ export default function AvailabilityConfidenceHeroSection() {
                 <Reveal index={3}>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <a
-                      href="#"
+                      href="/searchmed"
                       className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                     >

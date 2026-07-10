@@ -48,7 +48,7 @@ export default function FeaturesFinalCtaSection() {
 
         <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
-            href="#"
+            href="#book-a-demo"
             className="inline-flex items-center justify-center rounded-lg bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#0C9575]"
           >
             Book a Demo

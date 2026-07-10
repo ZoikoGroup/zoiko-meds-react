@@ -11,7 +11,7 @@ const PATH_CARDS = [
     title: "New patient",
     description: "Account value, saved searches, alerts, and privacy controls.",
     ctaLabel: "Create Free Account",
-    href: "/patient-portal/create-account",
+    href: "/create-account",
     variant: "filled",
     icon: (
       <>
@@ -31,7 +31,7 @@ const PATH_CARDS = [
     title: "Returning patient",
     description: "Jump to sign-in, your saved medicine dashboard, and alert review.",
     ctaLabel: "Sign In",
-    href: "/patient-portal/sign-in",
+    href: "/sign-in",
     variant: "outline",
     icon: (
       <>
@@ -45,7 +45,7 @@ const PATH_CARDS = [
     title: "Caregiver",
     description: "Help organize medicine access for someone else, subject to permissions and consent.",
     ctaLabel: "Create Caregiver Account",
-    href: "/patient-portal/caregiver",
+    href: "/caregiver-access",
     variant: "outline",
     icon: (
       <path
@@ -62,7 +62,7 @@ const PATH_CARDS = [
     title: "Access concern",
     description: "Guidance to medicine search and responsible support — not an emergency service.",
     ctaLabel: "Search Medicines",
-    href: "/search",
+    href: "/searchmed",
     variant: "outline",
     icon: (
       <>
@@ -76,7 +76,7 @@ const PATH_CARDS = [
     title: "Privacy evaluator",
     description: "Review privacy, consent, security, and data-use controls before signing up.",
     ctaLabel: "Review Privacy Center",
-    href: "/privacy",
+    href: "/privacy-center",
     variant: "outline",
     icon: (
       <path

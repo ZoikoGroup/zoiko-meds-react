@@ -74,7 +74,7 @@ export default function PlatformHero() {
                             </svg>
                         </a>
                         <a
-                            href="#"
+                            href="/request-a-briefing"
                             className="inline-flex items-center border border-[#6E7977] text-[#131B2E] hover:bg-[#0F6E56]/5 font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors duration-150 whitespace-nowrap"
                         >
                             Request a Briefing

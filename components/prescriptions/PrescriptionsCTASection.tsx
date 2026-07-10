@@ -53,14 +53,14 @@ export default function PrescriptionsCTASection() {
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <a
-                href="#create-account"
+                href="/create-account"
                 className="w-full rounded-xl px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
                 style={{ backgroundColor: ACCENT }}
               >
                 Create Free Account
               </a>
               <a
-                href="#sign-in"
+                href="/sign-in"
                 className="w-full rounded-xl border px-6 py-3 text-center text-[13.5px] font-semibold transition-colors hover:bg-black/[0.03] sm:w-auto"
                 style={{ borderColor: `${NAVY}26`, color: NAVY }}
               >

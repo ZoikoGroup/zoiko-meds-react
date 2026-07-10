@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
 
 export default function ClinicNetworksCTASection() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,6 +58,7 @@ export default function ClinicNetworksCTASection() {
           <Reveal index={2} active={mounted}>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
+              onClick={()=>router.push("#clinic-networks-briefing")}
                 type="button"
                 className="rounded-lg px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
                 style={{ backgroundColor: ACCENT }}

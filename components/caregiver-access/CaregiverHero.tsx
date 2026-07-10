@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const caregivers = [
@@ -33,6 +35,7 @@ const stats = [
 ];
 
 export default function CaregiverHero() {
+    const router = useRouter();
     return (
         <section className="bg-[#F8F6F7] px-4 py-16">
             <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
@@ -56,12 +59,14 @@ export default function CaregiverHero() {
                     </p>
 
                     <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                        <button className="rounded-xl flex gap-2 cursor-pointer justify-center items-center bg-[#081B33] px-12 py-4 font text-white transition active:bg-[#15253D] hover:bg-[#15253D]">
+                        <button onClick={()=>router.push("/create-account")}
+                         className="rounded-xl flex gap-2 cursor-pointer justify-center items-center bg-[#081B33] px-12 py-4 font text-white transition active:bg-[#15253D] hover:bg-[#15253D]">
                             <span>Create Free Account</span>
                             <img src="/caregiver-access/arrow.png" alt="Image" width={16} height={16} />
                         </button>
 
-                        <button className="rounded-xl border cursor-pointer border-[#C4C6CE] bg-white px-12 py-4 font text-[#081B33] transition active:bg-gray-50 hover:bg-gray-50">
+                        <button onClick={()=>router.push("/searchmed")}
+                         className="rounded-xl border cursor-pointer border-[#C4C6CE] bg-white px-12 py-4 font text-[#081B33] transition active:bg-gray-50 hover:bg-gray-50">
                             Search Medicines
                         </button>
                     </div>

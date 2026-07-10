@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
@@ -61,6 +62,7 @@ export default function IntegrationsFAQSection() {
   const [mounted, setMounted] = useState(false);
   const [openId, setOpenId] = useState<string | null>(FAQS[0].id);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -124,6 +126,7 @@ export default function IntegrationsFAQSection() {
         <Reveal index={3} active={mounted}>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <button
+            onClick={()=>router.push("#request-an-integration-briefing")}
               type="button"
               className="rounded-lg px-5 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)]"
               style={{ backgroundColor: ACCENT }}

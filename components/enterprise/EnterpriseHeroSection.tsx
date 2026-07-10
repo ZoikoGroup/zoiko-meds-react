@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function EnterpriseHeroSection() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setIsVisible(true), 80);
@@ -66,7 +68,9 @@ export default function EnterpriseHeroSection() {
               className="ent-fade-up flex flex-wrap gap-4"
               style={{ animationDelay: "340ms" }}
             >
-              <button className="group relative inline-flex items-center justify-center px-7 py-3.5 rounded-md bg-[#000615] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:bg-[#1a3a50] hover:shadow-[0_8px_28px_rgba(13,38,54,0.3)] hover:-translate-y-0.5 active:translate-y-0">
+              <button
+              onClick={()=>router.push("/request-a-briefing")}
+               className="group cursor-pointer relative inline-flex items-center justify-center px-7 py-3.5 rounded-md bg-[#000615] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:bg-[#1a3a50] hover:shadow-[0_8px_28px_rgba(13,38,54,0.3)] hover:-translate-y-0.5 active:translate-y-0">
                 <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                 Request a Briefing
               </button>

@@ -1,15 +1,22 @@
+"use client"
+
+import { useRouter } from "next/navigation";
+
 const buttons = [
     {
         label: "Create Availability Alert",
         primary: true,
+        link:"#"
     },
     {
         label: "Search Medicines",
         primary: false,
+        link:"/searchmed"
     },
 ];
 
 export default function AvailabilityCta() {
+    const router = useRouter();
     return (
         <section className="bg-[#000615] px-6 py-20 lg:px-12">
             <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
@@ -25,8 +32,9 @@ export default function AvailabilityCta() {
                 </p>
 
                 <div className="mt-12 flex w-full flex-col items-center justify-center gap-5 sm:w-auto sm:flex-row">
-                    {buttons.map(({ label, primary }) => (
+                    {buttons.map(({ label, primary,link }) => (
                         <button
+                        onClick={()=>router.push(link)}
                             key={label}
                             className={`h-14 rounded-xl cursor-pointer px-12 py-4 text-base font-medium transition-all duration-300 sm:min-w-[270px]
                 ${primary

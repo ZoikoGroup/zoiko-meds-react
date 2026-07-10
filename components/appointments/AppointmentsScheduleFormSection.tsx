@@ -79,7 +79,7 @@ export default function AppointmentsScheduleFormSection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section id="schedule-an-appointment" ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
 
         {/* ── Eyebrow ── */}

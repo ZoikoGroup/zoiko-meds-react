@@ -1,15 +1,22 @@
+"use client"
+
+import { useRouter } from "next/navigation";
+
 const buttons = [
   {
     label: "Create Availability Alert",
     primary: true,
+    link:"/availability-alert",
   },
   {
     label: "Search Medicines",
     primary: false,
+    link:"/searchmed"
   },
 ];
 
 export default function AvailabilityHero() {
+  const router = useRouter();
   return (
     <section className="bg-[#F9F9FF] px-6 py-18 lg:px-12">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
@@ -33,9 +40,10 @@ export default function AvailabilityHero() {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            {buttons.map(({ label, primary }) => (
+            {buttons.map(({ label, primary, link }) => (
               <button
                 key={label}
+                onClick={()=>router.push(link)}
                 className={`h-14 rounded-xl px-12 cursor-pointer py-4 text-base font-medium transition ${
                   primary
                     ? "bg-gradient-to-r from-[#000615] to-[#006A65] text-white shadow-lg hover:bg-[#0B344E]"

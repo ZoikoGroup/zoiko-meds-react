@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
 
 export default function HospitalSystemsHeroSection() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -57,9 +59,9 @@ export default function HospitalSystemsHeroSection() {
 
             <Reveal index={3} active={mounted}>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <button
+                <button onClick={()=>router.push("#enterprise-briefing")}
                   type="button"
-                  className="rounded-xl px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
+                  className="rounded-xl cursor-pointer px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Request Enterprise Briefing

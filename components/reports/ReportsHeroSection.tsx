@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -24,6 +25,7 @@ const TRUST_BADGES = [
 ] as const;
 
 export default function ReportsHeroSection() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -78,7 +80,7 @@ export default function ReportsHeroSection() {
             <Reveal index={3} active={mounted}>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 <a
-                  href="/request-sample-reports"
+                  href="#sample-reports"
                   className="inline-flex items-center justify-center rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90"
                   style={{ backgroundColor: ACCENT }}
                 >

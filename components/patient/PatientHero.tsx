@@ -1,6 +1,9 @@
+"use client"
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const router = useRouter();
   return (
     <section className="bg-[#F9F9FF] py-16 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -19,7 +22,9 @@ export default function HeroSection() {
               Check Medicine Availability
               <img src="/patient/arrow.png" alt="image" height="16px" width="16px" />
             </button>
-            <button className="text-[14px] cursor-pointer font-inter text-[#151C27] font-medium border border-[#C4C6CE] px-[32px] py-[16px] rounded-full hover:bg-[#F4F6FA] transition-colors duration-200">
+            <button
+            onClick={()=>router.push("/patient-portal")}
+             className="text-[14px] cursor-pointer font-inter text-[#151C27] font-medium border border-[#C4C6CE] px-[32px] py-[16px] rounded-full hover:bg-[#F4F6FA] transition-colors duration-200">
               How It Works
             </button>
           </div>

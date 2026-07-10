@@ -84,7 +84,7 @@ export default function AppointmentsHeroSection() {
                   Schedule an Appointment
                 </a>
                 <a
-                  href="#sign-in"
+                  href="/sign-in"
                   className="rounded-xl border px-6 py-3 text-center text-[13.5px] font-semibold transition-colors hover:bg-black/[0.03]"
                   style={{ borderColor: `${NAVY}26`, color: NAVY }}
                 >
@@ -95,7 +95,7 @@ export default function AppointmentsHeroSection() {
 
             <Reveal index={4} active={mounted}>
               <a
-                href="#create-account"
+                href="/create-account"
                 className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
                 style={{ color: ACCENT }}
               >

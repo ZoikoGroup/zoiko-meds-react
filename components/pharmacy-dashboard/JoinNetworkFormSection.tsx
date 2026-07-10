@@ -44,7 +44,7 @@ export default function JoinNetworkFormSection() {
   const [agreed, setAgreed] = useState(false);
 
   return (
-    <section className="bg-slate-50 px-6 py-16 sm:px-10 lg:px-16">
+    <section id="join-the-network" className="bg-slate-50 px-6 py-16 sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
         <p className="mb-3 text-sm uppercase font-semibold tracking-[2px] text-[#13A594]">
           11 · Join the network

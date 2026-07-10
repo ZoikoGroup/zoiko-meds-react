@@ -1,5 +1,7 @@
+"use client"
 import React from "react";
 import Image from 'next/image'
+import { useRouter } from "next/navigation";
 const controls = [
   {
     src: "/create-account/search.png",
@@ -40,6 +42,7 @@ const controls = [
 ];
 
 export default function ControlsSection() {
+  const router = useRouter();
   return (
     <section className="bg-[#f6f9fc] py-16 px-6">
       <div className="max-w-6xl mx-auto">
@@ -68,6 +71,7 @@ export default function ControlsSection() {
 
         <div className="pt-6 border-t border-gray-100 flex justify-center md:justify-start items-center gap-3">
           <button
+          onClick={()=>router.push("/trust-center")}
             className="text-[15px] py-3 px-5 bg-white border border-[#CDD7E3] rounded-xl font-semibold text-[#0D1B2E] hover:bg-gray-50 cursor-pointer"
           >
             View Privacy Center

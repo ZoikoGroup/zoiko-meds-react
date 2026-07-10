@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
@@ -7,6 +8,7 @@ const ACCENT = "#13A594";
 export default function PatientPortalHeroSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -57,15 +59,17 @@ export default function PatientPortalHeroSection() {
             <Reveal index={3} active={mounted}>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
+                onClick={()=>router.push('/create-account')}
                   type="button"
-                  className="rounded-xl px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
+                  className="rounded-xl cursor-pointer px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Create Free Account
                 </button>
                 <button
+                onClick={()=>router.push('/sign-in')}
                   type="button"
-                  className="rounded-xl border px-6 py-3.5 text-[14px] font-bold text-[#0F1F4E] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
+                  className="rounded-xl cursor-pointer border px-6 py-3.5 text-[14px] font-bold text-[#0F1F4E] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
                   style={{ borderColor: "#E7EAF1" }}
                 >
                   Sign In

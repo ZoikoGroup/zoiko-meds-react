@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TriangleAlert } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const RISK_FACTORS: string[] = [
   "Demand increase",
@@ -21,6 +22,7 @@ const INPUT_TAGS: string[] = [
 export default function AiInsightsRiskScoringSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -116,8 +118,9 @@ export default function AiInsightsRiskScoringSection() {
 
             <RiskFadeUp show={isVisible} delay={280}>
               <button
+              onClick={()=>router.push("#ai-intelligence-briefing")}
                 type="button"
-                className="mt-6 rounded-xl bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0FAA87]/90 focus:outline-none"
+                className="mt-6 rounded-xl cursor-pointer bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0FAA87]/90 focus:outline-none"
               >
                 Request an AI Intelligence Briefing
               </button>

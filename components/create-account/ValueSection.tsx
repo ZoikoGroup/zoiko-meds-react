@@ -1,4 +1,6 @@
+"use client"
 import Image from 'next/image'
+import { useRouter } from 'next/navigation';
 import React from "react";
 
 const cards = [
@@ -21,6 +23,7 @@ const cards = [
     title: "Saved searches",
     desc: "Save a medicine, strength, location, and search radius so you can run the same search again quickly.",
     cta: "Create free account",
+    link:"/create-account",
     primary: true
   },
   {
@@ -32,6 +35,7 @@ const cards = [
     title: "Availability alerts",
     desc: "Get notified when availability signals change near your selected location, subject to notification settings and platform rules.",
     cta: "Learn how alerts work",
+    link:"/availability-alert",
     primary: false
   },
   {
@@ -43,11 +47,13 @@ const cards = [
     title: "Caregiver organization",
     desc: "Keep searches labeled when helping a parent, child, or someone living with a chronic condition.",
     cta: "Caregiver access",
+    link:"caregiver-access",
     primary: false
   },
 ];
 
 export default function ValueSection() {
+  const router = useRouter();
   return (
     <section className="bg-[#EEF2F7] py-16 px-6">
       <div className="max-w-6xl mx-auto">
@@ -75,6 +81,7 @@ export default function ValueSection() {
               <h3 className="text-sm font-bold text-gray-900 mb-2">{card.title}</h3>
               <p className="text-[14px] md:max-w-[290px] text-[#566476] leading-relaxed mb-5">{card.desc}</p>
               <button
+              onClick={()=>router.push(card.link)}
                 className={`text-[15px] font-semibold border cursor-pointer rounded-xl px-5 py-3 transition-colors inline-block ${card.primary ? "border-[#13A594] bg-[#13A594] text-white hover:bg-[#118e80]" : "text-black bg-white border-[#CDD7E3] hover:bg-gray-50"}`}
               >
                 {card.cta}

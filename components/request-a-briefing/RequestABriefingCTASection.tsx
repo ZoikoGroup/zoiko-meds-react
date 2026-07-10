@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -7,6 +8,7 @@ const ACCENT = "#0FAA87";
 export default function RequestABriefingCTASection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -51,15 +53,17 @@ export default function RequestABriefingCTASection() {
             {/* Buttons */}
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
+              onClick={()=>router.push("#start-briefing")}
                 type="button"
-                className="w-full rounded-xl px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(15,170,135,0.5)] sm:w-auto"
+                className="w-full cursor-pointer rounded-xl px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(15,170,135,0.5)] sm:w-auto"
                 style={{ backgroundColor: ACCENT }}
               >
                 Start Briefing Request
               </button>
               <button
+              onClick={()=>router.push("/trust-center")}
                 type="button"
-                className="w-full rounded-xl border px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/[0.04] sm:w-auto"
+                className="w-full cursor-pointer rounded-xl border px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/[0.04] sm:w-auto"
                 style={{ borderColor: "rgba(255,255,255,0.18)" }}
               >
                 Explore Trust Center

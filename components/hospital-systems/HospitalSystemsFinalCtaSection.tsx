@@ -57,7 +57,7 @@ export default function HospitalSystemsFinalCtaSection() {
           <Reveal index={2} active={mounted}>
             <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row">
               <Link
-                href="/hospital-systems/enterprise-briefing"
+                href="#enterprise-briefing"
                 className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-opacity duration-200 hover:opacity-90"
                 style={{ backgroundColor: ACCENT }}
               >
