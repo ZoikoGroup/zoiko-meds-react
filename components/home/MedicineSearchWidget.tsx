@@ -1,39 +1,14 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect, DragEvent, ChangeEvent } from "react";
+import { searchMedicines, matchMedibase, type Confidence } from "@/lib/api";
 
 /* ─── types ─── */
 interface Location {
-  id: number; name: string; address: string; city: string;
+  id: string; name: string; address: string; city: string;
   postcode: string; phone: string; lat: number; lng: number; distance: number;
+  confidence?: Confidence; requiresConfirmation?: boolean;
 }
-
-/* ─── DUMMY MEDICINE DATABASE (replace with real API/autocomplete source) ─── */
-const DUMMY_MEDICINES = [
-  "Acetaminophen", "Amoxicillin", "Amlodipine", "Atorvastatin", "Azithromycin",
-  "Aspirin", "Albuterol", "Alprazolam", "Ambien", "Ativan",
-  "Bupropion", "Benadryl", "Baclofen", "Buspirone",
-  "Ciprofloxacin", "Clopidogrel", "Cetirizine", "Citalopram", "Clindamycin",
-  "Codeine", "Cephalexin", "Carvedilol",
-  "Diazepam", "Duloxetine", "Diclofenac", "Doxycycline", "Digoxin",
-  "Escitalopram", "Enalapril", "Esomeprazole",
-  "Fluoxetine", "Furosemide", "Fexofenadine", "Famotidine",
-  "Gabapentin", "Glipizide", "Guaifenesin",
-  "Hydrochlorothiazide", "Hydrocodone", "Hydroxyzine",
-  "Ibuprofen", "Insulin Glargine", "Isosorbide",
-  "Lisinopril", "Losartan", "Levothyroxine", "Lorazepam", "Loratadine",
-  "Metformin", "Metoprolol", "Montelukast", "Meloxicam", "Metronidazole",
-  "Naproxen", "Nitrofurantoin",
-  "Omeprazole", "Ondansetron", "Oxycodone",
-  "Paracetamol", "Prednisone", "Pantoprazole", "Propranolol", "Paroxetine",
-  "Quetiapine",
-  "Ranitidine", "Rosuvastatin",
-  "Sertraline", "Simvastatin", "Sildenafil",
-  "Tramadol", "Trazodone", "Tamsulosin",
-  "Venlafaxine", "Valacyclovir",
-  "Warfarin",
-  "Zolpidem", "Zoloft",
-].sort();
 
 /* ─── helpers ─── */
 function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) {
@@ -42,20 +17,35 @@ function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) 
   return u;
 }
 
-/** Simple case-insensitive "contains" match against the dummy list.
- *  Swap this out for a real API call (e.g. debounce + fetch("/api/medicine/autocomplete?q=...")) later. */
-function getMedicineSuggestions(query: string, limit = 8): string[] {
-  const q = query.trim().toLowerCase();
-  if (q.length < 2) return [];
-  const starts: string[] = [];
-  const contains: string[] = [];
-  for (const med of DUMMY_MEDICINES) {
-    const lower = med.toLowerCase();
-    if (lower.startsWith(q)) starts.push(med);
-    else if (lower.includes(q)) contains.push(med);
-  }
-  return [...starts, ...contains].slice(0, limit);
+/** Great-circle distance in miles. */
+function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return Math.round(R * 2 * Math.asin(Math.sqrt(a)) * 10) / 10;
 }
+
+/** Live medicine-name suggestions from the MediBase match endpoint. */
+async function getMedicineSuggestions(query: string, limit = 8): Promise<string[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  try {
+    const matches = await matchMedibase(q, limit);
+    const names = matches.map((m) => m.canonicalName).filter(Boolean);
+    return Array.from(new Set(names)).slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+const CONFIDENCE_STYLE: Record<string, string> = {
+  HIGH: "bg-[#f0faf5] text-[#0f7a53]",
+  MODERATE: "bg-[#fff7e6] text-[#92600a]",
+  LOW: "bg-[#fef2f2] text-[#b42318]",
+};
 
 /* ─── sub-components ─── */
 function Spinner({ dark }: { dark?: boolean }) {
@@ -84,6 +74,13 @@ function ResultCard({ loc, originLat, originLng }: { loc: Location; originLat?: 
         </div>
       </div>
       <div className="flex items-center gap-2.5 flex-shrink-0">
+        {loc.confidence && (
+          <span className={`font-bold text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap uppercase tracking-wide
+            ${CONFIDENCE_STYLE[String(loc.confidence).toUpperCase()] ?? "bg-[#f1f5f9] text-[#475569]"}`}>
+            {String(loc.confidence).toLowerCase()}
+            {loc.requiresConfirmation ? " · confirm" : ""}
+          </span>
+        )}
         <span className="bg-[#f0faf5] text-[#25a874] font-bold text-sm px-3.5 py-1 rounded-full whitespace-nowrap">{dist}</span>
         <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2} className="w-4 h-4">
@@ -153,6 +150,8 @@ export default function MedicineSearchWidget() {
   const [showMedSuggestions, setShowMedSuggestions] = useState(false);
   const [activeSuggestionIdx, setActiveSuggestionIdx] = useState(-1);
   const medicineFieldRef = useRef<HTMLDivElement>(null);
+  const medDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const medReqSeq = useRef(0);
 
   /* tab 2 state */
   const [scanFile, setScanFile] = useState<File | null>(null);
@@ -183,13 +182,23 @@ export default function MedicineSearchWidget() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* ─── medicine input change → filter suggestions ─── */
+  /* ─── medicine input change → debounced live suggestions ─── */
   const handleMedicineChange = (value: string) => {
     setMedicine(value);
-    const matches = getMedicineSuggestions(value);
-    setMedSuggestions(matches);
-    setShowMedSuggestions(matches.length > 0);
     setActiveSuggestionIdx(-1);
+    if (medDebounceRef.current) clearTimeout(medDebounceRef.current);
+    if (value.trim().length < 2) {
+      setMedSuggestions([]);
+      setShowMedSuggestions(false);
+      return;
+    }
+    const seq = ++medReqSeq.current;
+    medDebounceRef.current = setTimeout(async () => {
+      const matches = await getMedicineSuggestions(value);
+      if (seq !== medReqSeq.current) return; // a newer keystroke won
+      setMedSuggestions(matches);
+      setShowMedSuggestions(matches.length > 0);
+    }, 220);
   };
 
   const selectSuggestion = (name: string) => {
@@ -241,16 +250,38 @@ export default function MedicineSearchWidget() {
     return d.success ? d.data : null;
   }, []);
 
-  /* ─── Core search ─── */
+  /* ─── Core search — live ZoikoMeds backend (/search) ─── */
   const doSearch = useCallback(async (
     med: string, lat: number, lng: number, rad: number
   ): Promise<Location[]> => {
-    const r = await fetch("/api/medicine/search", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ medicine: med, lat, lng, radius: rad }),
-    });
-    const d = await r.json();
-    return d.success ? d.data.locations : [];
+    try {
+      const res = await searchMedicines({ q: med, lat, lng, maxDistance: rad });
+      // Flatten verified availability across matched medicines; dedupe by pharmacy.
+      const byPharmacy = new Map<string, Location>();
+      for (const result of res.results ?? []) {
+        for (const a of result.availability ?? []) {
+          const p = a.pharmacy;
+          if (byPharmacy.has(p.id)) continue;
+          const hasCoords = p.latitude != null && p.longitude != null;
+          byPharmacy.set(p.id, {
+            id: p.id,
+            name: p.name,
+            address: [p.city, p.region].filter(Boolean).join(", "),
+            city: p.city ?? "",
+            postcode: "",
+            phone: "",
+            lat: p.latitude ?? 0,
+            lng: p.longitude ?? 0,
+            distance: hasCoords ? distanceMiles(lat, lng, p.latitude!, p.longitude!) : 0,
+            confidence: a.confidence,
+            requiresConfirmation: a.requiresConfirmation,
+          });
+        }
+      }
+      return Array.from(byPharmacy.values()).sort((a, b) => a.distance - b.distance);
+    } catch {
+      return [];
+    }
   }, []);
 
   /* ─── Tab 1: use location ─── */
