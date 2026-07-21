@@ -10,7 +10,7 @@ const CARDS = [
     title: "Search privacy",
     description: "Understand anonymous-first search and what is not required to search.",
     cta: "Learn About Search Privacy",
-    href: "/search-privacy",
+    href: "#",
     icon: (
       <>
         <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -22,7 +22,7 @@ const CARDS = [
     title: "Account data",
     description: "View and manage saved searches, alerts, preferences, and profile data.",
     cta: "Manage Account Data",
-    href: "/account-data",
+    href: "#",
     icon: (
       <>
         <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -43,7 +43,7 @@ const CARDS = [
     title: "Availability alerts",
     description: "Control alert channels, frequency, pause/resume, and notification privacy.",
     cta: "Manage Alerts",
-    href: "/manage-alerts",
+    href: "#",
     icon: (
       <path d="M8 1.5c-2 0-3.5 1.6-3.5 3.6v2.7c0 .6-.2 1.2-.6 1.7L3 10.5h10l-.9-1c-.4-.5-.6-1.1-.6-1.7V5.1c0-2-1.5-3.6-3.5-3.6zM6.5 12.5a1.5 1.5 0 003 0" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" fill="none" />
     ),
@@ -52,7 +52,7 @@ const CARDS = [
     title: "Caregiver labels",
     description: "Manage labels used to organize someone else's availability searches.",
     cta: "Manage Caregiver Labels",
-    href: "/caregiver-labels",
+    href: "#",
     icon: (
       <path d="M8 13.5s-5.5-3.2-5.5-7.2A3 3 0 018 4.3a3 3 0 015.5 2c0 4-5.5 7.2-5.5 7.2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -75,7 +75,7 @@ const CARDS = [
     title: "Data request",
     description: "Submit access, correction, deletion, or portability requests where applicable.",
     cta: "Submit Privacy Request",
-    href: "/submit-privacy-request",
+    href: "#request",
     icon: (
       <path d="M8 13V3M4.5 6.5L8 3l3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     ),
@@ -84,7 +84,7 @@ const CARDS = [
     title: "Account deletion",
     description: "Start account deletion or understand lawful retention limits.",
     cta: "Delete Account",
-    href: "/delete-account",
+    href: "#",
     icon: (
       <>
         <path d="M3.5 4.5h9M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M5 4.5l.5 9a1 1 0 001 1h3a1 1 0 001-1l.5-9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />

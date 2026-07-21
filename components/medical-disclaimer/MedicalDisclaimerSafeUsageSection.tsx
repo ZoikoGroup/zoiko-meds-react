@@ -13,7 +13,7 @@ const USER_TYPES = [
     description:
       "Search for a medicine, review the signal, check pharmacy details, and confirm directly before traveling.",
     cta: "Search Medicines",
-    href: "#",
+    href: "/searchmed",
   },
   {
     icon: "shield",
@@ -21,7 +21,7 @@ const USER_TYPES = [
     description:
       "Search or save availability checks for someone you support — without creating medical authority or clinical records.",
     cta: "Explore Caregiver Access",
-    href: "#",
+    href: "/caregiver-access",
   },
   {
     icon: "home",
@@ -29,7 +29,7 @@ const USER_TYPES = [
     description:
       "Support access conversations, not clinical decisions, prescribing, or substitution advice.",
     cta: "View Provider Guidance",
-    href: "#",
+    href: "/provider-support",
   },
   {
     icon: "home2",
@@ -37,7 +37,7 @@ const USER_TYPES = [
     description:
       "Manage availability participation and confirmation workflows without public exact-stock exposure.",
     cta: "Sign In to Pharmacy Portal",
-    href: "#",
+    href: "/pharmacy-portal",
   },
   {
     icon: "home3",
@@ -45,7 +45,7 @@ const USER_TYPES = [
     description:
       "Use governed aggregate intelligence and APIs under contract, privacy controls, and approved access scope.",
     cta: "Request Enterprise Briefing",
-    href: "#",
+    href: "/enterprise",
   },
 ] as const;
 

@@ -169,7 +169,7 @@ export default function PrivacyCenterGovernanceSection() {
                 Manage Privacy Choices
               </a>
               <a
-                href="/submit-privacy-request"
+                href="#request"
                 className="inline-flex items-center justify-center rounded-lg border border-white/20 px-5 py-2.5 text-[13.5px] font-semibold text-white transition-colors duration-150 hover:border-white/40"
               >
                 Submit Privacy Request

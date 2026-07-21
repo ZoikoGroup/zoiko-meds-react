@@ -14,7 +14,7 @@ const PATHS = [
       "Visibility into availability pressure, shortage signals, demand movement, and regional access risk.",
     bestFit: "Strategy, public health, health systems, manufacturers, payers.",
     cta: "Explore ZoikoSignal™",
-    href: "#",
+    href: "/zoikosignal-intelligence",
   },
   {
     icon: "code",
@@ -23,7 +23,7 @@ const PATHS = [
       "Embed availability checks, confidence signals, or confirmation workflows inside existing digital products.",
     bestFit: "Telehealth, digital health, provider platforms, payer apps, pharmacy systems.",
     cta: "Discuss API Access",
-    href: "#",
+    href: "/zoiko-avail-api",
   },
   {
     icon: "db",
@@ -32,7 +32,7 @@ const PATHS = [
       "Cleaner medicine matching across brands, generics, strengths, forms, markets, and identifiers.",
     bestFit: "Health data teams, pharmacy systems, manufacturers, integration partners.",
     cta: "Explore MediBase™ Data",
-    href: "#",
+    href: "/medibase-data",
   },
   {
     icon: "home",
@@ -41,7 +41,7 @@ const PATHS = [
       "Support discharge, care coordination, and patient access workflows without clinical overreach.",
     bestFit: "Hospitals, clinics, provider organizations, care teams.",
     cta: "Request Health System Briefing",
-    href: "#",
+    href: "/health-systems",
   },
   {
     icon: "globe",
@@ -50,7 +50,7 @@ const PATHS = [
       "Monitor availability pressure, shortage movement, population access risk, and jurisdictional intelligence.",
     bestFit: "Governments, public-health agencies, emergency preparedness teams.",
     cta: "Request Public Health Briefing",
-    href: "#",
+    href: "/government-public-health",
   },
 ] as const;
 

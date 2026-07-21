@@ -15,7 +15,7 @@ const SCENARIOS = [
     highlight: "Reduces post-discharge confusion and avoidable pharmacy trips.",
     cta: "Request Workflow Briefing",
     ctaFilled: false,
-    href: "#",
+    href: "#request",
   },
   {
     icon: "alert",
@@ -35,7 +35,7 @@ const SCENARIOS = [
     highlight: "Encourages patient self-service and repeat access support.",
     cta: "Learn About Saved Searches",
     ctaFilled: false,
-    href: "#",
+    href: "/saved-searches",
   },
   {
     icon: "people",
@@ -45,7 +45,7 @@ const SCENARIOS = [
     highlight: "Supports families without creating a clinical proxy system.",
     cta: "Explore Caregiver Access",
     ctaFilled: false,
-    href: "#",
+    href: "caregiver-access",
   },
   {
     icon: "monitor",
@@ -55,7 +55,7 @@ const SCENARIOS = [
     highlight: "Keeps access guidance practical while preserving clinical boundaries.",
     cta: "Request Workflow Briefing",
     ctaFilled: true,
-    href: "#",
+    href: "#request",
   },
   {
     icon: "shield",
@@ -65,7 +65,7 @@ const SCENARIOS = [
     highlight: null,
     cta: null,
     ctaFilled: false,
-    href: "#",
+    href: "#request",
   },
 ] as const;
 

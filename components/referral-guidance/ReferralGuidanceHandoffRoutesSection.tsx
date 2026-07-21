@@ -13,6 +13,7 @@ const ROUTES = [
     patientAction: "Enter medicine, location, and radius.",
     nextStep: "Confirm directly with the pharmacy before traveling.",
     cta: "Search Medicines",
+    link:"/searchmed"
   },
   {
     number: 2,
@@ -21,6 +22,7 @@ const ROUTES = [
     patientAction: "Create a free account and save a medicine/location search.",
     nextStep: "Run the saved search again when needed.",
     cta: "Learn About Saved Searches",
+    link:"/saved-searches"
   },
   {
     number: 3,
@@ -29,6 +31,7 @@ const ROUTES = [
     patientAction: "Create an alert from a saved search.",
     nextStep: "Review the updated signal and confirm with the pharmacy.",
     cta: "Learn About Alerts",
+    link:"/availability-alert"
   },
   {
     number: 4,
@@ -37,6 +40,7 @@ const ROUTES = [
     patientAction: "Organize searches with labels and alerts.",
     nextStep: "Confirm directly with the pharmacy before acting.",
     cta: "Explore Caregiver Access",
+    link:"/caregiver-access"
   },
 ] as const;
 
@@ -144,6 +148,7 @@ function RouteCard({
   nextStep,
   cta,
   index,
+  link
 }: {
   number: number;
   title: string;
@@ -152,6 +157,7 @@ function RouteCard({
   nextStep: string;
   cta: string;
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -193,7 +199,7 @@ function RouteCard({
       <RouteRow label="Next step" text={nextStep} last />
 
       <a
-        href="#"
+        href={link}
         className="mt-5 inline-flex w-fit items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 
@@ -8,6 +9,7 @@ const ACCENT = "#0FAA87";
 export default function ProviderSupportClosingCtaSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -61,8 +63,9 @@ export default function ProviderSupportClosingCtaSection() {
                 <Reveal index={2}>
                   <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                     <button
+                    onClick={()=>router.push("#support")}
                       type="button"
-                      className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                      className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.boxShadow =

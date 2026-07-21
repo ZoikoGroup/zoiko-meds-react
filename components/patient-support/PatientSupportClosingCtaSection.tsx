@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -15,6 +16,7 @@ const ACCENT = "#0FAA87";
 export default function PatientSupportClosingCtaSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -64,8 +66,9 @@ export default function PatientSupportClosingCtaSection() {
                 <Reveal index={2}>
                   <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                     <button
+                    onClick={()=>router.push("#request")}
                       type="button"
-                      className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                      className="group relative cursor-pointer overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.boxShadow =
@@ -80,8 +83,9 @@ export default function PatientSupportClosingCtaSection() {
                     </button>
 
                     <button
+                    onClick={()=>router.push("/searchmed")}
                       type="button"
-                      className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
+                      className="rounded-xl cursor-pointer border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
                     >
                       Search Medicines
                     </button>

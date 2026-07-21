@@ -160,7 +160,7 @@ export default function PatientSupportBoundariesSection() {
         <Reveal index={11} active={mounted}>
           <div className="mt-7">
             <Link
-              href="#"
+              href="/trust-center"
               className="inline-flex items-center justify-center rounded-xl border border-[#D0D5E2] bg-white px-6 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:scale-[0.97]"
             >
               Visit Trust Center

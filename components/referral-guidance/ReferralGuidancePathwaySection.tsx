@@ -11,6 +11,7 @@ const PATHS = [
     description: "Care teams that want approved patient handoff language.",
     cta: "Request Referral Workflow Briefing",
     variant: "solid",
+    link:"#request"
   },
   {
     icon: "building",
@@ -19,6 +20,7 @@ const PATHS = [
       "Clinics, hospitals, telehealth teams, and health systems evaluating access workflows.",
     cta: "Request Provider Briefing",
     variant: "outline",
+    link:"#"
   },
   {
     icon: "search",
@@ -27,6 +29,7 @@ const PATHS = [
       "People checking availability for themselves or someone they support.",
     cta: "Search Medicines",
     variant: "outline",
+    link:"/searchmed"
   },
 ] as const;
 
@@ -151,7 +154,7 @@ export default function ReferralGuidancePathwaySection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section id="request" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         <div className="mx-auto max-w-2xl text-center">
@@ -248,6 +251,7 @@ function PathCard({
   cta,
   variant,
   index,
+  link
 }: {
   icon: "arrow" | "building" | "search";
   title: string;
@@ -255,6 +259,7 @@ function PathCard({
   cta: string;
   variant: "solid" | "outline";
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -288,7 +293,7 @@ function PathCard({
 
       {variant === "solid" ? (
         <a
-          href="#"
+          href={link}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           style={{ backgroundColor: ACCENT }}
         >
@@ -296,7 +301,7 @@ function PathCard({
         </a>
       ) : (
         <a
-          href="#"
+          href={link}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
         >
           {cta}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -197,6 +198,7 @@ function EscalationRowSkeleton({ isLast }: { isLast: boolean }) {
 /*  Closing CTA banner                                                  */
 /* ----------------------------------------------------------------- */
 function ClosingCtaBanner() {
+  const router = useRouter();
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] px-8 py-14 text-center sm:px-16">
       <h3 className="font-[var(--font-plus-jakarta-sans)] text-2xl font-bold leading-snug text-white sm:text-[1.75rem]">
@@ -214,8 +216,9 @@ function ClosingCtaBanner() {
 
       <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <button
+        onClick={()=>router.push("/searchmed")}
           type="button"
-          className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+          className="group relative cursor-pointer overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           style={{ backgroundColor: ACCENT }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.boxShadow =
@@ -228,8 +231,9 @@ function ClosingCtaBanner() {
         </button>
 
         <button
+        onClick={()=>router.push("/trust-center")}
           type="button"
-          className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
+          className="rounded-xl cursor-pointer border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
         >
           Visit Trust Center
         </button>

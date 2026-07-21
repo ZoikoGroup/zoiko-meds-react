@@ -23,7 +23,7 @@ const PATHS = [
       "Provider organizations evaluating care-team access, discharge support, or integration needs.",
     cta: "Request Provider Briefing",
     ctaFilled: true,
-    href: "#",
+    href: "#request",
   },
   {
     icon: "code",
@@ -41,7 +41,7 @@ const PATHS = [
       "People checking availability for themselves or someone they support.",
     cta: "Search Medicines",
     ctaFilled: false,
-    href: "#",
+    href: "/searchmed",
   },
 ] as const;
 
@@ -157,7 +157,7 @@ export default function ProviderOverviewGetStartedSection() {
 
         {/* ── Centred form card ── */}
         <Reveal index={7} active={mounted}>
-          <div className="mx-auto mt-8 max-w-lg rounded-2xl border border-[#E7EAF1] bg-white p-7 sm:p-8">
+          <div id="request" className="mx-auto mt-8 max-w-lg rounded-2xl border border-[#E7EAF1] bg-white p-7 sm:p-8">
             <h3 className="text-[15px] font-bold text-[#0F1F4E]">
               Request a provider briefing
             </h3>

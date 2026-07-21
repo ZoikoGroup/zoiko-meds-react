@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -17,6 +18,7 @@ const BENEFITS = [
       "Turn repeated manual stock inquiries into structured availability signals and confirmation workflows, easing front-counter and phone pressure over time.",
     cta: "Join the Network",
     ctaStyle: "filled",
+    link:"#verified-network"
   },
   {
     icon: "search",
@@ -25,6 +27,7 @@ const BENEFITS = [
       "Appear in relevant searches when users are actively checking availability near your location — subject to verification, participation status, and jurisdiction rules.",
     cta: "Claim Your Pharmacy",
     ctaStyle: "outline",
+    link:"#claim-your-pharmacy"
   },
   {
     icon: "lock",
@@ -33,6 +36,7 @@ const BENEFITS = [
       "Use confidence-based signals instead of public exact stock quantities — giving patients guidance without exposing sensitive inventory.",
     cta: "View Data Controls",
     ctaStyle: "outline",
+    link:"#"
   },
   {
     icon: "scale",
@@ -41,12 +45,14 @@ const BENEFITS = [
       "Independents can begin with the portal. Groups and chains can discuss branch-level controls, integrations, SSO, and operational governance.",
     cta: "Request Chain Briefing",
     ctaStyle: "outline",
+    link:"#"
   },
 ] as const;
 
 export default function JoinNetworkBenefitsSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -156,6 +162,7 @@ function BenefitCard({
   cta,
   ctaStyle,
   index,
+  link
 }: {
   icon: "phone" | "search" | "lock" | "scale";
   title: string;
@@ -163,7 +170,9 @@ function BenefitCard({
   cta: string;
   ctaStyle: "filled" | "outline";
   index: number;
+  link:string;
 }) {
+  const router = useRouter();
   return (
     <div
       className="group rounded-2xl border border-[#E7EAF1] bg-white p-7 transition-all duration-300 ease-out animate-[joinNetworkBenefitFadeUp_0.6s_ease-out_forwards] hover:-translate-y-1 hover:border-[#9FE3D3] hover:shadow-[0_14px_36px_-16px_rgba(0,169,157,0.25)]"
@@ -180,10 +189,11 @@ function BenefitCard({
       </p>
 
       <button
+      onClick={()=>router.push(link)}
         type="button"
         className={
           ctaStyle === "filled"
-            ? "group relative mt-5 overflow-hidden rounded-xl bg-[#00A99D] px-5 py-2.5 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+            ? "group relative mt-5 cursor-pointer overflow-hidden rounded-xl bg-[#00A99D] px-5 py-2.5 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
             : "mt-5 rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
         }
       >

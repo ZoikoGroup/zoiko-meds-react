@@ -127,7 +127,7 @@ export default function MediBaseDataTrustSection() {
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  href="#"
+                  href="#request"
                   className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.97]"
                   style={{ backgroundColor: ACCENT }}
                 >

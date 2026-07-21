@@ -50,6 +50,7 @@ const NEXT_STEPS = [
     description: "Claim or verify your pharmacy profile.",
     cta: "Claim Your Pharmacy",
     variant: "solid",
+    link:"#claim-your-pharmacy"
   },
   {
     icon: "building",
@@ -57,6 +58,7 @@ const NEXT_STEPS = [
     description: "Verify multiple branches, users, and role structures.",
     cta: "Request Chain Briefing",
     variant: "outline",
+    link:"#"
   },
   {
     icon: "search",
@@ -64,6 +66,7 @@ const NEXT_STEPS = [
     description: "Understand verified pharmacy search results.",
     cta: "Search Medicines",
     variant: "outline",
+    link:"/searchmed"
   },
 ] as const;
 
@@ -196,7 +199,7 @@ export default function VerificationLimitsAndNextStepSection() {
         </div>
 
         {/* ---------------- Claim / verify form (centered) ---------------- */}
-        <div className="mx-auto mt-8 flex max-w-5xl justify-center">
+        <div id="claim-your-pharmacy" className="mx-auto mt-8 flex max-w-5xl justify-center">
           {mounted ? (
             <ClaimForm
               form={form}
@@ -389,6 +392,7 @@ function NextStepCard({
   cta,
   variant,
   index,
+  link
 }: {
   icon: "home" | "building" | "search";
   title: string;
@@ -396,6 +400,7 @@ function NextStepCard({
   cta: string;
   variant: "solid" | "outline";
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -429,7 +434,7 @@ function NextStepCard({
 
       {variant === "solid" ? (
         <a
-          href="#"
+          href={link}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           style={{ backgroundColor: ACCENT }}
         >
@@ -437,7 +442,7 @@ function NextStepCard({
         </a>
       ) : (
         <a
-          href="#"
+          href={link}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
         >
           {cta}

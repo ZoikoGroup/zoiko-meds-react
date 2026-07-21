@@ -1,11 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
 
 export default function ZoikoHealthcareHeroSection() {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 250);
@@ -70,8 +72,9 @@ export default function ZoikoHealthcareHeroSection() {
                 <Reveal index={4}>
                   <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                     <button
+                    onClick={()=>router.push("/home")}
                       type="button"
-                      className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                      className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.boxShadow =
@@ -86,8 +89,9 @@ export default function ZoikoHealthcareHeroSection() {
                     </button>
 
                     <button
+                    onClick={()=>router.push("/contact")}
                       type="button"
-                      className="rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+                      className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       Contact Zoiko Healthcare
                     </button>
@@ -96,7 +100,7 @@ export default function ZoikoHealthcareHeroSection() {
 
                 <Reveal index={5}>
                   <a
-                    href="#"
+                    href="/trust-center"
                     className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
                     style={{ color: ACCENT }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}

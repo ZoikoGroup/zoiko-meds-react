@@ -12,28 +12,28 @@ const PATHS = [
     title: "Strategic Enterprise Briefing",
     description: "C-suite, strategy, partnerships, procurement, and commercial teams.",
     cta: "Request Enterprise Briefing",
-    href: "#",
+    href: "#request",
   },
   {
     icon: "code",
     title: "API Evaluation",
     description: "CTOs, product teams, engineering, digital health, and platform teams.",
     cta: "Discuss API Access",
-    href: "#",
+    href: "/zoiko-avail-api",
   },
   {
     icon: "pulse",
     title: "Intelligence Review",
     description: "Public health, manufacturers, payers, health systems, and access-risk teams.",
     cta: "Explore ZoikoSignal™",
-    href: "#",
+    href: "/zoikosignal-intelligence",
   },
   {
     icon: "db",
     title: "Data & Standards Review",
     description: "Data teams, integration teams, and platform partners.",
     cta: "Explore MediBase™",
-    href: "#",
+    href: "/medibase-data",
   },
 ] as const;
 
@@ -138,14 +138,14 @@ export default function EnterpriseSolutionsAccessSection() {
               {/* Buttons */}
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  href="#"
+                  href="#request"
                   className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.97]"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Request Enterprise Briefing
                 </Link>
                 <Link
-                  href="#"
+                  href="/zoikosignal-intelligence"
                   className="inline-flex items-center justify-center rounded-xl border border-white/25 px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/5 active:scale-[0.97]"
                 >
                   Explore Intelligence Stack

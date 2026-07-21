@@ -66,7 +66,7 @@ const WORKSPACES = [
       "Activity history, setting changes, support tickets, profile changes, and review workflows.",
     highlight: "Accountability and oversight.",
     cta: "Get Pharmacy Support",
-    href: "#",
+    href: "/pharmacy-support",
   },
 ] as const;
 

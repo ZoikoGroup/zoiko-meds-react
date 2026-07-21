@@ -58,14 +58,14 @@ export default function ReferralGuidanceFinalCtaSection() {
               <Reveal index={2}>
                 <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <a
-                    href="#"
+                    href="#request"
                     className="inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
                     style={{ backgroundColor: ACCENT }}
                   >
                     Request Referral Workflow Briefing
                   </a>
                   <a
-                    href="#"
+                    href="/searchmed"
                     className="inline-flex w-full items-center justify-center rounded-xl border border-[#3A4668] bg-transparent px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-white/5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
                   >
                     Search Medicines

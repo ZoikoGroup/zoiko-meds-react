@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -44,6 +45,7 @@ const STEPS = [
 export default function JoinNetworkVerificationStepsSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -103,8 +105,9 @@ export default function JoinNetworkVerificationStepsSection() {
           {mounted ? (
             <Reveal index={6}>
               <button
+              onClick={()=>router.push("#verified-network")}
                 type="button"
-                className="group relative overflow-hidden rounded-xl bg-[#00A99D] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+                className="group relative cursor-pointer overflow-hidden rounded-xl bg-[#00A99D] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
               >
                 <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
                 <span className="relative">Start Pharmacy Verification</span>

@@ -365,7 +365,7 @@ export default function Navbar() {
 
             {/* Desktop CTAs */}
             <div className="nav-desktop" style={{ alignItems: "center", gap: "10px", flexShrink: 0 }}>
-              <Link href="/sign-in" style={{
+              <Link href="https://zoiko-meds-platform.vercel.app/login" style={{
                 fontSize: "13.5px", fontWeight: 600, color: "#374151",
                 padding: "8px 16px", borderRadius: "999px", textDecoration: "none",
                 transition: "all 0.18s ease", border: "1.5px solid #e5e7eb", whiteSpace: "nowrap",

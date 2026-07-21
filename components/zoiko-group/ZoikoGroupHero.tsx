@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import React from "react";
 
 type StructureItem = {
@@ -19,6 +21,7 @@ const fadeUp = (delay: number): React.CSSProperties => ({
 });
 
 export default function ZoikoGroupHero() {
+    const router = useRouter();
     return (
         <section className="bg-linear-to-b from-slate-50 px-5 sm:px-8 lg:px-54 to-slate-100 py-16">
             <style>{`
@@ -56,17 +59,20 @@ export default function ZoikoGroupHero() {
                     </p>
 
                     <div style={fadeUp(0.3)} className="mt-8 flex flex-col sm:flex-row gap-4 lg:min-w-[580px]">
-                        <button className="rounded-xl bg-[#13A594] px-6 py-3 font-semibold border cursor-pointer border-[#13A594] text-white transition hover:bg-teal-700">
+                        <button onClick={()=>router.push("#")}
+                         className="rounded-xl bg-[#13A594] px-6 py-3 font-semibold border cursor-pointer border-[#13A594] text-white transition hover:bg-teal-700">
                             Request Institutional Briefing
                         </button>
-                        <button className="rounded-xl border border-[#CDD7E3] bg-white px-6 py-3 cursor-pointer font-semibold text-[#0D1B2E] transition hover:bg-slate-50">
+                        <button
+                        onClick={()=>router.push("/home")}
+                         className="rounded-xl border border-[#CDD7E3] bg-white px-6 py-3 cursor-pointer font-semibold text-[#0D1B2E] transition hover:bg-slate-50">
                             Explore ZoikoMeds
                         </button>
                     </div>
 
                     <a
                         style={fadeUp(0.4)}
-                        href="#"
+                        href="/health-systems"
                         className="mt-4 inline-block text-sm font-medium text-[#13A594] hover:underline"
                     >
                         View Zoiko Healthcare →

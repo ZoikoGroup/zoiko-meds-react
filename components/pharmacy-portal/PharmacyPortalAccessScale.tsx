@@ -22,6 +22,7 @@ const TIERS = [
       "Single-location and pharmacist-owned stores manage profile, availability settings, confirmation routing, support, and basic user access.",
     pills: null,
     cta: "Claim Your Pharmacy",
+    link:"#claim-your-pharmacy"
   },
   {
     icon: "users",
@@ -38,6 +39,7 @@ const TIERS = [
       "Integration",
     ],
     cta: null,
+    link:"#"
   },
   {
     icon: "building",
@@ -46,6 +48,7 @@ const TIERS = [
       "Multi-branch operators use branch-level control, organization roles, SSO readiness, audit visibility, and integration governance.",
     pills: null,
     cta: "Request Chain Briefing",
+    link:"#"
   },
 ] as const;
 
@@ -209,6 +212,7 @@ function TierCard({
   pills,
   cta,
   index,
+  link
 }: {
   icon: "home" | "users" | "building";
   title: string;
@@ -216,6 +220,7 @@ function TierCard({
   pills: readonly string[] | null;
   cta: string | null;
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -262,7 +267,7 @@ function TierCard({
 
       {cta && (
         <a
-          href="#"
+          href={link}
           className="mt-auto inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 pt-6 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
         >
           {cta}

@@ -11,7 +11,7 @@ const CARDS = [
     description: "Search safely and understand what results mean.",
     trust: "Privacy Center, Medical Disclaimer, Availability Confidence, Accessibility.",
     cta: "Search Medicines",
-    href: "/search",
+    href: "/searchmed",
     icon: (
       <>
         <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -24,7 +24,7 @@ const CARDS = [
     description: "Protect exact stock and pharmacy control.",
     trust: "Verification Standards, Pharmacy Data Controls, Confirmation Requests, Inventory Signal Governance.",
     cta: "Join Verified Network",
-    href: "/join-verified-network",
+    href: "/join-the-network",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -34,7 +34,7 @@ const CARDS = [
     description: "Support patients without clinical overreach.",
     trust: "Provider Workflows, Availability Signals, Referral Guidance, Medical Disclaimer.",
     cta: "Request Provider Briefing",
-    href: "/request-provider-briefing",
+    href: "/provider-support",
     icon: (
       <path d="M8 1.5l6 4v3c0 4-2.6 6.5-6 7.5-3.4-1-6-3.5-6-7.5v-3l6-4z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -44,7 +44,7 @@ const CARDS = [
     description: "Trust the data, APIs, governance, and security posture.",
     trust: "Enterprise Trust Pack, Security Pack, Data Governance, ZoikoSignal™, ZoikoAvail™ API.",
     cta: "Request Enterprise Briefing",
-    href: "/request-enterprise-briefing",
+    href: "/enterprise",
     icon: (
       <>
         <path d="M3 14V6.5L8 3l5 3.5V14" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
@@ -57,7 +57,7 @@ const CARDS = [
     description: "Public-interest visibility without exposing sensitive data.",
     trust: "Public Health Trust Review, Controlled Medicine Policy, Data Governance, Jurisdiction Controls.",
     cta: "Request Public Health Briefing",
-    href: "/request-public-health-briefing",
+    href: "/health-systems",
     icon: (
       <>
         <path d="M3 14V6.5L8 3l5 3.5V14" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
@@ -70,7 +70,7 @@ const CARDS = [
     description: "Review policies, controls, and available evidence.",
     trust: "Trust Pack, Privacy Center, Terms of Use, Security Review, Accessibility Statement.",
     cta: "Request Trust Pack",
-    href: "/request-trust-pack",
+    href: "#trust",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),

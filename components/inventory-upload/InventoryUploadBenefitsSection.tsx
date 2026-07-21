@@ -21,7 +21,7 @@ const BENEFITS = [
       'Structured inputs can help ZoikoMeds show more current confidence signals than stale or manual information — without publishing exact stock.',
     cta: "Discuss Inventory Signal Setup",
     ctaFilled: true,
-    href: "#",
+    href: "#signal-setup",
   },
   {
     icon: "phone",

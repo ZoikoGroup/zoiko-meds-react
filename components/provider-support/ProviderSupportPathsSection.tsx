@@ -20,7 +20,7 @@ const PATHS = [
     description:
       "Help with discharge support, shortage follow-up, chronic medication access, caregiver handoff, and patient self-service routing.",
     cta: "Get Workflow Support",
-    href: "/provider-support/workflow-support",
+    href: "/provider-support",
   },
   {
     icon: "users",
@@ -44,7 +44,7 @@ const PATHS = [
     description:
       "Help for clinics, health systems, telehealth teams, digital-health platforms, security review, procurement review, and integration routing.",
     cta: "Request Organization Review",
-    href: "/provider-support/organization-review",
+    href: "#",
   },
   {
     icon: "search",
@@ -52,7 +52,7 @@ const PATHS = [
     description:
       "Help providers send users to the correct public page for Search Medicines, Caregiver Access, Availability Alerts, or Availability Confidence.",
     cta: "Send to Search Medicines",
-    href: "/search-medicines",
+    href: "/searchmed",
   },
 ] as const;
 

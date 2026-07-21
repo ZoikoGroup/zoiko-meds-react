@@ -13,7 +13,7 @@ const USAGE_CARDS = [
     donts: ["Don't use for clinical decisions, substitutions, dose changes, or treatment recommendations."],
     cta: "View Patient Support Workflows",
     ctaFilled: false,
-    href: "#",
+    href: "/patient-support",
   },
   {
     icon: "home",
@@ -22,7 +22,7 @@ const USAGE_CARDS = [
     donts: ["Don't use signals to guarantee medication access after discharge."],
     cta: "Request Workflow Briefing",
     ctaFilled: false,
-    href: "#",
+    href: "#request",
   },
   {
     icon: "alert",
@@ -40,7 +40,7 @@ const USAGE_CARDS = [
     donts: ["Don't use as legal caregiver authority, care plans, or medical proxy decisions."],
     cta: "Explore Caregiver Access",
     ctaFilled: false,
-    href: "#",
+    href: "/caregiver-access",
   },
 ] as const;
 

@@ -130,7 +130,7 @@ export default function GovernmentPublicHealthRequestBriefingSection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section id="request" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
         {/* ---------------- Header (left-aligned) ---------------- */}
         <div>

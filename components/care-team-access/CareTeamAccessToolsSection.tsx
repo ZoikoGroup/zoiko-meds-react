@@ -12,6 +12,7 @@ const TOOLS = [
     description:
       "Patient-safe explanation of whether a signal is strong, limited, confirmation-needed, or unavailable.",
     cta: "View Signal Guide",
+    link:"#"
   },
   {
     icon: "search",
@@ -19,6 +20,7 @@ const TOOLS = [
     description:
       "Clear search instructions by medicine name, strength or form, location, and radius — without unnecessary clinical data.",
     cta: "Search Medicines",
+    link:"/searchmed"
   },
   {
     icon: "phone",
@@ -26,6 +28,7 @@ const TOOLS = [
     description:
       "Safer next-step language that encourages direct pharmacy confirmation and avoids stock guarantees.",
     cta: "Explore Patient Support Workflows",
+    link:"/patient-support"
   },
   {
     icon: "bell",
@@ -33,6 +36,7 @@ const TOOLS = [
     description:
       "Patient-owned follow-up — not provider-owned medical monitoring.",
     cta: "Learn About Alerts",
+    link:"#"
   },
   {
     icon: "team",
@@ -40,6 +44,7 @@ const TOOLS = [
     description:
       "Family support without turning ZoikoMeds into a legal proxy or clinical care record.",
     cta: "Explore Caregiver Access",
+    link:"/caregiver-access"
   },
   {
     icon: "lock",
@@ -47,6 +52,7 @@ const TOOLS = [
     description:
       "Governed access for teams, not unmanaged public use.",
     cta: "Request Care Team Access Briefing",
+    link:"#request"
   },
 ] as const;
 
@@ -158,12 +164,14 @@ function ToolCard({
   description,
   cta,
   index,
+  link
 }: {
   icon: "pulse" | "search" | "phone" | "bell" | "team" | "lock";
   title: string;
   description: string;
   cta: string;
   index: number;
+  link:string;
 }) {
   return (
     <div
@@ -194,7 +202,7 @@ function ToolCard({
       </p>
 
       <a
-        href="#"
+        href={link}
         className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}

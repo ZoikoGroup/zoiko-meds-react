@@ -1,4 +1,9 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+
 export default function CookieHero() {
+    const router = useRouter();
     return (
         <section className="bg-gradient-to-b from-[#F6F9FC] to-[#EEF2F7] px-6 md:px-54 py-12">
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-25 items-center">
@@ -30,11 +35,15 @@ export default function CookieHero() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                        <button className="bg-[#13A594] cursor-pointer border border-[#13A594] hover:bg-[#13A594]/90 text-white text-sm font-semibold rounded-md px-5 py-2.5">
+                        <button 
+                        onClick={()=>router.push("#")}
+                        className="bg-[#13A594] cursor-pointer border border-[#13A594] hover:bg-[#13A594]/90 text-white text-sm font-semibold rounded-md px-5 py-2.5">
                             Manage cookie settings
                         </button>
 
-                        <button className="bg-white border font-semibold cursor-pointer border-[#CDD7E3] text-[#0D1B2E] hover:bg-white/10 text-sm rounded-md px-5 py-2.5">
+                        <button 
+                        onClick={()=>router.push("/privacy-center")}
+                        className="bg-white border font-semibold cursor-pointer border-[#CDD7E3] text-[#0D1B2E] hover:bg-white/10 text-sm rounded-md px-5 py-2.5">
                             Privacy Center
                         </button>
                     </div>

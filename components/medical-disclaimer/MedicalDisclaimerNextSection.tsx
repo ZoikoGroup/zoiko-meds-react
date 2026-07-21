@@ -44,7 +44,7 @@ const CARDS = [
     title: "Controlled Medicine Policy",
     description: "Rules for restricted, controlled, high-risk, or jurisdiction-sensitive medicines.",
     cta: "Read Policy",
-    href: "/controlled-medicine-policy",
+    href: "#",
     icon: (
       <>
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -68,7 +68,7 @@ const CARDS = [
     title: "Search Medicines",
     description: "Return safely to medicine availability search.",
     cta: "Search Medicines",
-    href: "/search",
+    href: "/searchmed",
     icon: (
       <>
         <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.4" fill="none" />

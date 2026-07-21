@@ -145,7 +145,7 @@ export default function InventoryUploadGetStartedSection() {
               secure portal.
             </p>
 
-            <div className="mt-5 flex flex-col gap-4">
+            <div id="signal-setup" className="mt-5 flex flex-col gap-4">
               {/* Work email */}
               <FormField label="Work email">
                 <input

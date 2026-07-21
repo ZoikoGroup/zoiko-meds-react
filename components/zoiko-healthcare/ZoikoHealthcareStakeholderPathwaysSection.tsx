@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -11,6 +12,7 @@ const PATHWAY_CARDS = [
       "Check availability, save searches, create alerts, and understand availability confidence.",
     cta: "Search Medicines",
     icon: "search",
+    link:"/searchmed"
   },
   {
     title: "Pharmacies",
@@ -18,6 +20,7 @@ const PATHWAY_CARDS = [
       "Join the verified network, manage profiles, participate in availability signals, and access pharmacy support.",
     cta: "Join the Network",
     icon: "pharmacy",
+    link:"/join-the-network"
   },
   {
     title: "Healthcare providers",
@@ -25,6 +28,7 @@ const PATHWAY_CARDS = [
       "Support patient access conversations, referral guidance, care-team workflows, and signal education.",
     cta: "Explore Provider Workflows",
     icon: "home",
+    link:"/provider-overview"
   },
   {
     title: "Enterprise & public sector",
@@ -32,6 +36,7 @@ const PATHWAY_CARDS = [
       "Access intelligence, APIs, data products, and availability-risk visibility.",
     cta: "Request Enterprise Briefing",
     icon: "building",
+    link:"/enterprise"
   },
   {
     title: "Media & press",
@@ -39,6 +44,7 @@ const PATHWAY_CARDS = [
       "Request official company information, statements, media assets, and spokesperson routing.",
     cta: "Press Inquiries",
     icon: "message",
+    link:"/press"
   },
   {
     title: "Careers",
@@ -46,6 +52,7 @@ const PATHWAY_CARDS = [
       "Explore opportunities to build healthcare infrastructure with Zoiko Healthcare and the Zoiko ecosystem.",
     cta: "View Careers",
     icon: "people",
+    link:"/careers"
   },
 ] as const;
 
@@ -141,12 +148,15 @@ function PathwayCard({
   description,
   cta,
   icon,
+  link
 }: {
   title: string;
   description: string;
   cta: string;
   icon: string;
+  link:string;
 }) {
+  const router = useRouter();
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_24px_-12px_rgba(15,31,78,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D7DCE6] hover:shadow-[0_16px_36px_-12px_rgba(15,31,78,0.14)]">
       <div
@@ -165,8 +175,9 @@ function PathwayCard({
       </p>
 
       <button
+      onClick={()=>router.push(link)}
         type="button"
-        className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+        className="mt-5 w-full cursor-pointer rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}
       </button>

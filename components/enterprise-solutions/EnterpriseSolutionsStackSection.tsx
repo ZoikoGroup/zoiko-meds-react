@@ -18,7 +18,7 @@ const LAYERS = [
     deliveredAs:
       "Dashboards, intelligence reports, signal feeds, institutional briefings, and enterprise data products.",
     cta: "Explore ZoikoSignal™",
-    href: "#",
+    href: "/zoikosignal-intelligence",
   },
   {
     number: 2,
@@ -31,7 +31,7 @@ const LAYERS = [
     deliveredAs:
       "REST APIs, event feeds where supported, availability confidence endpoints, pharmacy signal metadata, and confirmation-aware outputs.",
     cta: "Discuss ZoikoAvail™ API",
-    href: "#",
+    href: "/zoiko-avail-api",
   },
   {
     number: 3,
@@ -44,7 +44,7 @@ const LAYERS = [
     deliveredAs:
       "Licensed data products, reference APIs, medicine matching support, jurisdictional classification, and normalization workflows.",
     cta: "Explore MediBase™",
-    href: "#",
+    href: "/medibase-data",
   },
 ] as const;
 

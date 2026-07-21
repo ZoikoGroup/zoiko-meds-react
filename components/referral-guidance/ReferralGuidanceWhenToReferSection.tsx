@@ -28,7 +28,7 @@ const REFERRAL_CARDS = [
     donts: ["Not for guaranteeing post-discharge access or dispensing."],
     cta: "View Patient Support Workflows",
     ctaFilled: false,
-    href: "#",
+    href: "/patient-support",
     colSpan: 1,
   },
   {
@@ -54,7 +54,7 @@ const CAREGIVER_CARD = {
   donts: ["Not for creating legal authority, power of attorney, or medical decisions."],
   cta: "Explore Caregiver Access",
   ctaFilled: false,
-  href: "#",
+  href: "/caregiver-access",
 } as const;
 
 type IconName = "doc" | "home" | "alert" | "people";

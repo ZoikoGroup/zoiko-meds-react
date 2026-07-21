@@ -28,7 +28,7 @@ const METHODS = [
     badge: false,
     cta: "Sign In to Pharmacy Portal",
     ctaFilled: false,
-    href: "#",
+    href: "/pharmacy-portal",
   },
   {
     icon: "file",

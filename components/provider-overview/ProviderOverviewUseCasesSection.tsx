@@ -14,7 +14,7 @@ const USE_CASES = [
       "Help patients understand where to check availability before leaving a hospital, urgent-care center, or outpatient setting — reducing post-discharge access surprises.",
     cta: "Explore Patient Support Workflows",
     ctaFilled: true,
-    href: "#",
+    href: "/patient-support",
   },
   {
     icon: "refresh",
@@ -23,7 +23,7 @@ const USE_CASES = [
       "Clinics supporting recurring therapies can help patients repeat searches, save medicines, and monitor signals — improving follow-through during recurring access issues.",
     cta: "Learn About Saved Searches",
     ctaFilled: false,
-    href: "#",
+    href: "/saved-searches",
   },
   {
     icon: "alert",
@@ -32,7 +32,7 @@ const USE_CASES = [
       "During shortages or regional access pressure, care teams can use confidence-based signals to guide patients toward pharmacy confirmation — avoiding unsafe substitution language.",
     cta: "Learn About Availability Confidence",
     ctaFilled: false,
-    href: "#",
+    href: "/availability-confidence",
   },
   {
     icon: "people",
@@ -41,7 +41,7 @@ const USE_CASES = [
       "Care coordinators, nurses, patient-support staff, and clinic administrators can help patients and caregivers understand availability next steps — reducing manual guesswork.",
     cta: "Request Provider Briefing",
     ctaFilled: false,
-    href: "#",
+    href: "#request",
   },
 ] as const;
 

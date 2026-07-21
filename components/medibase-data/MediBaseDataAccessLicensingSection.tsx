@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -13,6 +14,7 @@ const ACCESS_CARDS = [
       "guided briefing, data-scope review, commercial qualification.",
     cta: "Request MediBase™ Data Briefing",
     icon: "home",
+    link:"#request"
   },
   {
     title: "Data dictionary review",
@@ -22,6 +24,7 @@ const ACCESS_CARDS = [
       "field definitions, entity model, quality states, source & scope notes.",
     cta: "Request Data Dictionary",
     icon: "doc",
+    link:"#"
   },
   {
     title: "Reference API evaluation",
@@ -30,6 +33,7 @@ const ACCESS_CARDS = [
     delivery: "REST API, sandbox, test keys where approved, example payloads.",
     cta: "Discuss API Access",
     icon: "code",
+    link:"#"
   },
   {
     title: "Bulk or licensed data product",
@@ -38,6 +42,7 @@ const ACCESS_CARDS = [
     delivery: "contract-scoped files, update cadence, schema docs, licensing terms.",
     cta: "Request Data Licensing Review",
     icon: "database",
+    link:"#"
   },
   {
     title: "Mapping & implementation workshop",
@@ -46,6 +51,7 @@ const ACCESS_CARDS = [
     delivery: "mapping review, normalization plan, integration backlog.",
     cta: "Request Implementation Workshop",
     icon: "layers",
+    link:"#"
   },
 ] as const;
 
@@ -163,13 +169,16 @@ function AccessCard({
   delivery,
   cta,
   icon,
+  link
 }: {
   title: string;
   description: string;
   delivery: string;
   cta: string;
   icon: string;
+  link:string;
 }) {
+  const router = useRouter()
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_24px_-12px_rgba(15,31,78,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D7DCE6] hover:shadow-[0_16px_36px_-12px_rgba(15,31,78,0.14)]">
       <div
@@ -191,6 +200,7 @@ function AccessCard({
       </p>
 
       <button
+      onClick={()=>router.push(link)}
         type="button"
         className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >

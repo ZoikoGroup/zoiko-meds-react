@@ -93,7 +93,7 @@ export default function AboutHero() {
           style={{ transitionDelay: isVisible ? "400ms" : "0ms" }}
         >
           <a
-            href="#"
+            href="/searchmed"
             className="inline-flex items-center gap-2 bg-[#0FAA87] text-white text-sm font-semibold rounded-full px-6 py-3.5 shadow-[0_10px_24px_-8px_rgba(0,169,157,0.5)] transition-all duration-200 hover:bg-[#00978D] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-8px_rgba(0,169,157,0.55)] active:translate-y-0"
           >
             <Search size={16} strokeWidth={2.4} />

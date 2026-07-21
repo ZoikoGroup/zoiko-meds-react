@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import React from "react";
 
 type Row = {
@@ -7,6 +9,7 @@ type Row = {
     name: string;
     desc: string;
     cta: string;
+    link:string;
 };
 
 const rows: Row[] = [
@@ -17,6 +20,7 @@ const rows: Row[] = [
         name: "Zoiko Group Inc.",
         desc: "Provides group-level direction, governance expectations, brand stewardship, and ecosystem support.",
         cta: "Contact Zoiko Group",
+        link:"#contact"
     },
     {
         tag: "OPERATING COMPANY",
@@ -25,6 +29,7 @@ const rows: Row[] = [
         name: "Zoiko Healthcare Inc.",
         desc: "The healthcare-focused entity operating ZoikoMeds and responsible for the governed medicine availability platform context.",
         cta: "View Zoiko Healthcare",
+        link:"/zoiko-healthcare"
     },
     {
         tag: "PLATFORM",
@@ -33,6 +38,7 @@ const rows: Row[] = [
         name: "ZoikoMeds",
         desc: "Global medicine availability infrastructure for search, verified pharmacy signals, availability confidence, and enterprise intelligence.",
         cta: "Explore ZoikoMeds",
+        link:"/home"
     },
     {
         tag: "TECHNOLOGY",
@@ -41,6 +47,7 @@ const rows: Row[] = [
         name: "Zoiko Tech Inc.",
         desc: "Supports engineering, infrastructure, data, AI, and platform capabilities where contractually and operationally assigned.",
         cta: "Request Technical Briefing",
+        link:"#"
     },
 ];
 
@@ -49,6 +56,7 @@ const fadeUp = (delay: number): React.CSSProperties => ({
 });
 
 export default function ZoikoGroupArchitecture() {
+    const router = useRouter();
     return (
         <section className="bg-[#EEF2F7] px-6 py-16 md:px-16">
             <style>{`
@@ -88,7 +96,8 @@ export default function ZoikoGroupArchitecture() {
                                 </div>
                                 <p className="mt-4 max-w-175 text-[14.4px] text-[#2B3A4F]">{row.desc}</p>
                             </div>
-                            <button className="shrink-0 self-start rounded-lg border border-[#CDD7E3] bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 sm:self-center">
+                            <button onClick={()=>router.push(row.link)}
+                            className="shrink-0 cursor-pointer self-start rounded-lg border border-[#CDD7E3] bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 sm:self-center">
                                 {row.cta}
                             </button>
                         </div>

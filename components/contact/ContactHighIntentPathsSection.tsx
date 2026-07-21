@@ -12,7 +12,7 @@ const PATHS = [
     description:
       "CIOs, CTOs, procurement, public-health leaders, health systems, manufacturers, payers, and digital health platforms.",
     cta: "Request Enterprise Briefing",
-    href: "/enterprise-solutions",
+    href: "/enterprise",
   },
   {
     icon: "lock",
@@ -36,7 +36,7 @@ const PATHS = [
     description:
       "Journalists, analysts, podcast hosts, media partners, and newsroom contacts.",
     cta: "Contact Press Team",
-    href: "/contact/press",
+    href: "/press",
   },
   {
     icon: "user",
@@ -51,7 +51,7 @@ const PATHS = [
     description:
       "Data subject requests, accessibility concerns, cookie/privacy questions, legal notices, vulnerability reports.",
     cta: "Submit Trust Request",
-    href: "/contact/trust",
+    href: "/trust-center",
   },
 ] as const;
 

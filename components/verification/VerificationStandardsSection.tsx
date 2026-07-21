@@ -72,14 +72,14 @@ export default function PharmacyPortalVerificationStandardsSection() {
                 <Reveal index={3}>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <a
-                      href="#"
+                      href="#claim-your-pharmacy"
                       className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                     >
                       Claim Your Pharmacy
                     </a>
                     <a
-                      href="#"
+                      href="/join-the-network"
                       className="inline-flex items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       Join the Verified Network
