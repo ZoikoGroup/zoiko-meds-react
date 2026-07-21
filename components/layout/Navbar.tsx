@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ChevronDown, Phone } from "lucide-react";
 import MegaMenu from "./MegaMenu";
 import { platformMegaMenuConfig, patientsMegaMenuConfig, pharmaciesMegaMenuConfig, enterpriseMegaMenuConfig, intelligenceMegaMenuConfig } from "./megaMenuConfigs";
+import { appUrl } from "@/lib/config";
 
 interface DropdownItem { label: string; href: string; description?: string; }
 interface NavItem { label: string; href?: string; dropdown?: DropdownItem[]; }
@@ -407,7 +408,7 @@ export default function Navbar() {
 
             {/* Desktop CTAs */}
             <div className="nav-desktop" style={{ alignItems: "center", gap: "10px", flexShrink: 0 }}>
-              <Link href="https://zoiko-meds-platform.vercel.app/login" style={{
+              <Link href={appUrl("/login")} style={{
                 fontSize: "13.5px", fontWeight: 600, color: "#374151",
                 padding: "8px 16px", borderRadius: "999px", textDecoration: "none",
                 transition: "all 0.18s ease", border: "1.5px solid #e5e7eb", whiteSpace: "nowrap",
@@ -528,7 +529,7 @@ export default function Navbar() {
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "18px" }}>
-              <Link href="/sign-in" style={{ textAlign: "center", padding: "12px", fontSize: "14px", fontWeight: 600, color: "#1E2F6E", border: "1.5px solid #1E2F6E", borderRadius: "999px", textDecoration: "none", transition: "background 0.15s ease" }}
+              <Link href={appUrl("/login")} style={{ textAlign: "center", padding: "12px", fontSize: "14px", fontWeight: 600, color: "#1E2F6E", border: "1.5px solid #1E2F6E", borderRadius: "999px", textDecoration: "none", transition: "background 0.15s ease" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#F0F4FF"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 onClick={() => setMobileOpen(false)}>Sign In</Link>

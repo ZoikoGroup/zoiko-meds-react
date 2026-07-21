@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { appUrl } from "@/lib/config";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
@@ -79,7 +80,7 @@ export default function IntegrationsCTASection() {
               </a>
               <span className="text-[#7C859B]">|</span>
               <a
-                href="/sign-in"
+                href={appUrl("/login")}
                 className="text-[13px] font-semibold text-[#AEB6C9] transition-colors duration-200 hover:text-white"
               >
                 Sign In →
