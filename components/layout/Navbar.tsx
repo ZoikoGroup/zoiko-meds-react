@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Phone } from "lucide-react";
+import MegaMenu from "./MegaMenu";
+import { platformMegaMenuConfig, patientsMegaMenuConfig, pharmaciesMegaMenuConfig, enterpriseMegaMenuConfig, intelligenceMegaMenuConfig } from "./megaMenuConfigs";
 
 interface DropdownItem { label: string; href: string; description?: string; }
 interface NavItem { label: string; href?: string; dropdown?: DropdownItem[]; }
@@ -19,24 +21,30 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Patient Portal", href: "/patient-portal/", description: "Access health records" },
     { label: "Prescriptions", href: "/prescriptions/", description: "Manage medications" },
     { label: "Appointments", href: "/appointments/", description: "Schedule & track visits" },
+    { label: "Medicine Search", href: "/searchmed/", description: "Find verified pharmacy availability" },
   ]},
   { label: "Pharmacies", href: "/pharmacy/", dropdown: [
-    { label: "Pharmacy Dashboard", href: "/pharmacy-dashboard", description: "Manage your pharmacy" },
-    { label: "Inventory", href: "/pharmacy-inventory", description: "Real-time stock management" },
-    { label: "Dispensing", href: "/pharmacy-dispensing", description: "Streamlined dispensing" },
+    { label: "Join the Network", href: "/join-the-network/", description: "Verified pharmacy onboarding & claim" },
+    { label: "Pharmacy Portal", href: "/pharmacy-portal/", description: "Dashboard, requests & inventory signals" },
+    { label: "Inventory Data Options", href: "/inventory-upload/", description: "PMS/API, SFTP/CSV, or manual upload" },
+    { label: "Verification & Compliance", href: "/verification/", description: "Credential and license standards" },
   ]},
   { label: "Enterprise", href: "/enterprise/", dropdown: [
     { label: "Hospital Systems", href: "/hospital-systems/", description: "Large-scale deployments" },
     { label: "Clinic Networks", href: "/clinic-networks/", description: "Multi-location management" },
     { label: "API Access", href: "/api-access/", description: "Custom integrations" },
+    { label: "Government & Public Health", href: "/government-public-health/", description: "Shortage intelligence & public dashboards" },
   ]},
   { label: "Intelligence", href: "/intelligence/", dropdown: [
     { label: "Analytics", href: "/analytics/", description: "Data-driven insights" },
     { label: "AI Insights", href: "/ai-insights/", description: "Predictive health intelligence" },
     { label: "Reports", href: "/reports", description: "Compliance & performance" },
+    { label: "ZoikoSignal™", href: "/zoikosignal-intelligence/", description: "Shortage intelligence for enterprise use" },
   ]},
   { label: "About", href: "/about/" },
 ];
+
+const MEGA_MENU_LABELS = ["Platform", "Patients", "Pharmacies", "Enterprise", "Intelligence"] as const;
 
 function USFlag() {
   return (
@@ -358,9 +366,43 @@ export default function Navbar() {
                     </button>
                   )}
 
-                  {item.dropdown && <DropdownMenu items={item.dropdown} visible={activeDropdown === item.label} />}
+                  {item.dropdown && !MEGA_MENU_LABELS.includes(item.label as typeof MEGA_MENU_LABELS[number]) && (
+                    <DropdownMenu items={item.dropdown} visible={activeDropdown === item.label} />
+                  )}
                 </div>
               ))}
+
+              {/* Mega menus rendered outside the per-item wrapper so they can center on the full header instead of the (narrow, off-center) trigger */}
+              <MegaMenu
+                config={platformMegaMenuConfig}
+                visible={activeDropdown === "Platform"}
+                onEnter={() => handleMouseEnter("Platform")}
+                onLeave={handleMouseLeave}
+              />
+              <MegaMenu
+                config={patientsMegaMenuConfig}
+                visible={activeDropdown === "Patients"}
+                onEnter={() => handleMouseEnter("Patients")}
+                onLeave={handleMouseLeave}
+              />
+              <MegaMenu
+                config={pharmaciesMegaMenuConfig}
+                visible={activeDropdown === "Pharmacies"}
+                onEnter={() => handleMouseEnter("Pharmacies")}
+                onLeave={handleMouseLeave}
+              />
+              <MegaMenu
+                config={enterpriseMegaMenuConfig}
+                visible={activeDropdown === "Enterprise"}
+                onEnter={() => handleMouseEnter("Enterprise")}
+                onLeave={handleMouseLeave}
+              />
+              <MegaMenu
+                config={intelligenceMegaMenuConfig}
+                visible={activeDropdown === "Intelligence"}
+                onEnter={() => handleMouseEnter("Intelligence")}
+                onLeave={handleMouseLeave}
+              />
             </nav>
 
             {/* Desktop CTAs */}
