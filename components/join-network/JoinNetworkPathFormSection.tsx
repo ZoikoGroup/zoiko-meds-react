@@ -316,7 +316,18 @@ function JoinForm() {
     note: "",
   });
   const [errors, setErrors] = useState<JoinErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        setSubmitted(false);
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted]);
 
   function validate(v: JoinFormState): JoinErrors {
     const e: JoinErrors = {};
@@ -335,21 +346,66 @@ function JoinForm() {
     if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
+    if (apiError) setApiError(null);
+    if (submitted) setSubmitted(false);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setApiError(null);
     const nextErrors = validate(values);
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      // Wire this up to your real submit handler / API call.
-      console.log("Join the Verified Network submission:", values);
-    }
-  }
 
-  if (submitted) {
-    return <SuccessState onReset={() => setSubmitted(false)} />;
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/verified-network/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          workEmail: values.email,
+          fullName: values.fullName,
+          orgName: values.orgName,
+          pharmacyType: values.pharmacyType,
+          note: values.note,
+        }),
+      });
+
+      const resData = await response.json();
+
+      if (!response.ok || !resData.success) {
+        if (resData.errors) {
+          setErrors(resData.errors);
+        }
+        setApiError(
+          resData.message || "Failed to submit registration request. Please try again."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Clear all form inputs after successful submission
+      setValues({
+        email: "",
+        fullName: "",
+        orgName: "",
+        pharmacyType: "",
+        note: "",
+      });
+      setErrors({});
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Join the Verified Network submission error:", err);
+      setApiError("Network or server error. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -362,12 +418,22 @@ function JoinForm() {
         pharmacy — no documents needed yet.
       </p>
 
+      {apiError && (
+        <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-3.5 text-[13px] text-[#991B1B] flex items-start gap-2.5">
+          <svg className="h-5 w-5 flex-shrink-0 text-[#DC2626]" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <span className="leading-snug">{apiError}</span>
+        </div>
+      )}
+
       <div className="mt-5 space-y-4">
         <Field label="Work email" error={errors.email}>
           <input
             type="email"
             value={values.email}
             onChange={(e) => handleChange("email", e.target.value)}
+            disabled={isSubmitting}
             placeholder="you@yourpharmacy.com"
             className={inputClasses(!!errors.email)}
           />
@@ -378,6 +444,7 @@ function JoinForm() {
             type="text"
             value={values.fullName}
             onChange={(e) => handleChange("fullName", e.target.value)}
+            disabled={isSubmitting}
             placeholder="Your full name"
             className={inputClasses(!!errors.fullName)}
           />
@@ -388,6 +455,7 @@ function JoinForm() {
             type="text"
             value={values.orgName}
             onChange={(e) => handleChange("orgName", e.target.value)}
+            disabled={isSubmitting}
             placeholder="e.g. Riverside Community Pharmacy"
             className={inputClasses(!!errors.orgName)}
           />
@@ -398,6 +466,7 @@ function JoinForm() {
             <select
               value={values.pharmacyType}
               onChange={(e) => handleChange("pharmacyType", e.target.value)}
+              disabled={isSubmitting}
               className={`${inputClasses(!!errors.pharmacyType)} appearance-none pr-9 ${
                 values.pharmacyType ? "text-[#0F1F4E]" : "text-[#9AA3B5]"
               }`}
@@ -431,6 +500,7 @@ function JoinForm() {
           <textarea
             value={values.note}
             onChange={(e) => handleChange("note", e.target.value)}
+            disabled={isSubmitting}
             placeholder="Anything about your pharmacy, group, or integration need"
             rows={3}
             className={`${inputClasses(false)} resize-none`}
@@ -440,11 +510,59 @@ function JoinForm() {
 
       <button
         type="submit"
-        className="group relative mt-6 w-full overflow-hidden rounded-xl bg-[#00A99D] px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+        disabled={isSubmitting}
+        className="group relative mt-6 w-full overflow-hidden rounded-xl bg-[#00A99D] px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
       >
-        <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-        <span className="relative">Join the Verified Network</span>
+        {!isSubmitting && (
+          <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
+        )}
+        <span className="relative flex items-center justify-center gap-2">
+          {isSubmitting ? (
+            <>
+              <svg className="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>Submitting...</span>
+            </>
+          ) : (
+            "Join the Verified Network"
+          )}
+        </span>
       </button>
+
+      {submitted && (
+        <div className="mt-3.5 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-left animate-[vnetSuccessFade_250ms_ease-out_forwards]">
+          <div className="flex items-start gap-2.5">
+            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#16A34A] text-white">
+              <svg className="h-2.5 w-2.5" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M4 10.5l3.5 3.5L16 5.5"
+                  stroke="currentColor"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <p className="text-[12.5px] font-medium leading-relaxed text-[#14532D]">
+              Registration request submitted successfully. Our team will review your application and contact you via email.
+            </p>
+          </div>
+          <style jsx>{`
+            @keyframes vnetSuccessFade {
+              from {
+                opacity: 0;
+                transform: translateY(4px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          `}</style>
+        </div>
+      )}
 
       <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
         No exact stock, license documents, or sensitive data are
@@ -607,32 +725,50 @@ function inputClasses(hasError: boolean) {
 /* ----------------------------------------------------------------- */
 /*  Success state                                                      */
 /* ----------------------------------------------------------------- */
-function SuccessState({ onReset }: { onReset: () => void }) {
+function SuccessState({
+  message,
+  onReset,
+}: {
+  message?: string;
+  onReset: () => void;
+}) {
+  const displayMessage =
+    message ||
+    "Registration request submitted successfully. Our team will review your application and contact you via email once it has been approved.";
+
   return (
     <div className="flex flex-col items-center py-6 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#DCF5EE] text-[#00A99D]">
-        <svg className="h-6 w-6" viewBox="0 0 20 20" fill="none">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#DCF5EE] text-[#00A99D] shadow-[0_4px_12px_rgba(0,169,157,0.15)]">
+        <svg className="h-7 w-7" viewBox="0 0 20 20" fill="none">
           <path
             d="M4 10.5l3.5 3.5L16 5.5"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </span>
-      <h3 className="mt-4 text-[16px] font-bold text-[#0F1F4E]">
-        Request received
+
+      <h3 className="mt-4 text-[17px] font-bold text-[#0F1F4E]">
+        Registration Request Received
       </h3>
-      <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-[#5B6478]">
-        We&apos;ll follow up by email with the next verification steps.
-      </p>
+
+      <div className="mt-4 w-full rounded-xl border border-[#A7F3D0] bg-[#ECFDF5] p-4 text-center">
+        <p className="text-[13.5px] font-medium leading-relaxed text-[#065F46]">
+          {displayMessage}
+        </p>
+      </div>
+
       <button
         type="button"
         onClick={onReset}
-        className="mt-5 text-[13px] font-semibold text-[#00A99D] transition-colors duration-200 hover:text-[#03877D]"
+        className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#00A99D] transition-colors duration-200 hover:text-[#03877D]"
       >
-        Submit another request
+        <span>Submit another request</span>
+        <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+          <path d="M6 12l4-4-4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
     </div>
   );

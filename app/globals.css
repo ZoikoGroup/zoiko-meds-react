@@ -54,3 +54,17 @@ textarea,
 select {
   font-family: var(--font-jakarta), sans-serif;
 }
+
+/* Hide Next.js dev indicators and dev toolbar overlay button */
+nextjs-portal,
+[data-nextjs-toast],
+[data-nextjs-dialog-overlay],
+[data-next-badge],
+[data-next-mark],
+#next-logo,
+button[aria-label*="Next.js"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
