@@ -74,7 +74,7 @@ function DashboardGraphic({ featured }: { featured: MegaMenuFeatured }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 108px", gap: "8px", marginTop: "8px" }}>
         <div style={{ position: "relative", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "8px 12px", display: "flex", alignItems: "center" }}>
           {chartCaption && (
-            <span style={{ position: "absolute", top: "7px", left: "50%", transform: "translateX(-50%)", fontSize: "8.5px", color: "rgba(255,255,255,0.4)" }}>
+            <span style={{ position: "absolute", top: "6px", left: "50%", transform: "translateX(-50%)", fontSize: "8.5px", color: "rgba(255,255,255,0.4)" }}>
               {chartCaption}
             </span>
           )}
