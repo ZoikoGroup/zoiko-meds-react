@@ -6,4 +6,5 @@ export { default as TrustCenterControlsSection } from "./TrustCenterControlsSect
 export { default as TrustCenterPlatformSection } from "./TrustCenterPlatformSection";
 export { default as TrustCenterAudienceSection } from "./TrustCenterAudienceSection";
 export { default as TrustCenterAccessSection } from "./TrustCenterAccessSection";
+export { default as TrustCenterAISection } from "./TrustCenterAISection";
 

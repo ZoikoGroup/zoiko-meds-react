@@ -11,7 +11,10 @@ const HERO_IMAGE_SRC = "/images/contact-hero.webp";
 
 export default function ContactHeroSection() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-14 sm:py-20">

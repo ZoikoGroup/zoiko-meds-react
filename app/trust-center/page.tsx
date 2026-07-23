@@ -7,6 +7,7 @@ import {
   TrustCenterPlatformSection,
   TrustCenterAudienceSection,
   TrustCenterAccessSection,
+  TrustCenterAISection,
 } from "@/components/trust-center";
 
 export default function TrustCenterPage() {
@@ -14,6 +15,7 @@ export default function TrustCenterPage() {
     <main>
       <TrustCenterHeroSection />
       <TrustCenterDoctrineSection />
+      <TrustCenterAISection />
       <TrustCenterLayersSection />
       <TrustCenterControlsSection />
       <TrustCenterPlatformSection />

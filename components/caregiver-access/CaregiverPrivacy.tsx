@@ -96,7 +96,7 @@ export default function CaregiverPrivacy() {
                             </h3>
                         </div>
                         <p className="mt-3 max-w-[760px] text-[16px] leading-[24px] text-white/80">
-                            We are currently engineering a "Multi-Caregiver Node" feature. This
+                            We are currently engineering a &quot;Multi-Caregiver Node&quot; feature. This
                             will allow multiple users (e.g., two siblings caring for a parent) to
                             securely share a single workspace label. Participation in this feature
                             will be strictly opt-in and require mutual verification.

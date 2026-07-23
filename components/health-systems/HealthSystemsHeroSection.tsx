@@ -35,7 +35,10 @@ const BAR_HEIGHTS = [45, 55, 65, 70, 75, 80];
 
 export default function HealthSystemsHeroSection() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-14 sm:py-20">

@@ -182,7 +182,7 @@ export default function HealthSystemsContactSection() {
               <p className="flex items-start gap-2 text-[11.5px] leading-relaxed text-[#9AA3B5]">
                 <InfoIcon />
                 <span>
-                  Don't include PHI, diagnosis, prescription records, patient
+                  Don&apos;t include PHI, diagnosis, prescription records, patient
                   identifiers, exact pharmacy stock, or API credentials in this
                   form.
                 </span>

@@ -18,7 +18,10 @@ const ACCENT = "#0FAA87";
 export default function PatientSupportHeroSection() {
   const [mounted, setMounted] = useState(false);
   // Hero is always in view — mount immediately after hydration
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-16 sm:py-20">

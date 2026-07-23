@@ -254,7 +254,7 @@ export default function MedicineSearchWidget() {
   }, []);
 
   /* ─── Tab 1: use location ─── */
-  const useMyLocation = useCallback(async (
+  const handleGetMyLocation = useCallback(async (
     setLat: (v: number) => void, setLng: (v: number) => void,
     setInput: (v: string) => void, setLabel: (v: string) => void
   ) => {
@@ -436,7 +436,7 @@ export default function MedicineSearchWidget() {
                 />
               </div>
               <button
-                onClick={() => useMyLocation(setUserLat, setUserLng, setLocationText, setLocBtnLabel)}
+                onClick={() => handleGetMyLocation(setUserLat, setUserLng, setLocationText, setLocBtnLabel)}
                 className="flex items-center gap-1.5 text-[#0D9A72] text-[12.5px] font-semibold mt-1.5 hover:opacity-70 transition-opacity"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2.5} className="w-3 h-3">
@@ -586,7 +586,7 @@ export default function MedicineSearchWidget() {
               />
             </div>
             <button
-              onClick={() => useMyLocation(setScanLat, setScanLng, setScanLocText, setScanLocLabel)}
+              onClick={() => handleGetMyLocation(setScanLat, setScanLng, setScanLocText, setScanLocLabel)}
               className="flex items-center gap-1.5 text-[#0D9A72] text-[12.5px] font-semibold mt-1.5 hover:opacity-70 transition-opacity"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2.5} className="w-3 h-3">
@@ -640,7 +640,7 @@ export default function MedicineSearchWidget() {
                     key={m}
                     onClick={() => setSelectedMeds((prev) => {
                       const next = new Set(prev);
-                      next.has(m) ? next.delete(m) : next.add(m);
+                      if (next.has(m)) { next.delete(m); } else { next.add(m); }
                       return next;
                     })}
                     className={`text-[13px] font-semibold px-4 py-1.5 rounded-full border-[1.5px] transition-all

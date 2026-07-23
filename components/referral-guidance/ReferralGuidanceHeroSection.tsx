@@ -27,7 +27,10 @@ const HANDOFF_ROWS: { label: string; value: string; variant: PillVariant }[] = [
 
 export default function ReferralGuidanceHeroSection() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-16 sm:py-20">

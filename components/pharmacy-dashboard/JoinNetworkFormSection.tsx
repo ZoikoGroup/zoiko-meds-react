@@ -229,7 +229,7 @@ export default function JoinNetworkFormSection() {
               <span className="mt-1 h-2 w-2 rounded-full border border-[#00A99D]" />
               <p>
                 A ZoikoMeds representative will review eligibility and onboarding fit.
-                Not medical advice, dispensing, or a pharmacy management system — don't
+                Not medical advice, dispensing, or a pharmacy management system — don&apos;t
                 include PHI, prescriptions, or exact stock.
               </p>
             </div>
