@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { appUrl } from "@/lib/config";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#2FD4B0";
@@ -63,7 +64,7 @@ export default function PatientPortalFinalCtaSection() {
                 Create Free Account
               </Link>
               <Link
-                href="/sign-in"
+                href={appUrl("/login")}
                 className="inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-[13.5px] font-semibold text-white transition-colors duration-200 hover:bg-white/5"
                 style={{ borderColor: "rgba(255,255,255,0.2)" }}
               >
