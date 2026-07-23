@@ -377,7 +377,18 @@ function JoinForm() {
         }),
       });
 
-      const resData = await response.json();
+      const contentType = response.headers.get("content-type");
+      let resData: { success?: boolean; message?: string; errors?: JoinErrors } = {};
+      
+      if (contentType && contentType.includes("application/json")) {
+        resData = await response.json();
+      } else if (!response.ok) {
+        const text = await response.text();
+        console.error("Non-JSON API error response:", response.status, text);
+        setApiError(`Server error (${response.status} ${response.statusText || "Not Found"}). Please check API route configuration.`);
+        setIsSubmitting(false);
+        return;
+      }
 
       if (!response.ok || !resData.success) {
         if (resData.errors) {
