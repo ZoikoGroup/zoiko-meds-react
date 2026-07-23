@@ -78,7 +78,7 @@ export default function ZoikoGroupStakeholders() {
                     Find the right <span className="text-[#0FAA87]">Zoiko Group pathway.</span>
                 </h2>
                 <p style={fadeUp(0.1)} className="mt-4 text-sm text-[#566476]">
-                    Every route names its destination — no generic "learn more."
+                    Every route names its destination — no generic &quot;learn more.&quot;
                 </p>
 
                 <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">

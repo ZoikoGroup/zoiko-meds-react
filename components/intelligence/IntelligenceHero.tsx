@@ -11,7 +11,10 @@ const HERO_IMAGE_SRC = "/images/intelligencehero.webp";
 
 export default function IntelligenceHero() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-16 sm:py-20">

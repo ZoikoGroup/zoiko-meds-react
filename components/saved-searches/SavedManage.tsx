@@ -69,7 +69,7 @@ export default function SavedManage() {
 
                     <p className="mx-auto mt-4 max-w-[595px] text-center text-[16px] leading-6 text-[#566476]">
                         After you sign in, your saved searches live in a private
-                        workspace. Here's what it looks like.
+                        workspace. Here&apos;s what it looks like.
                     </p>
                 </div>
 

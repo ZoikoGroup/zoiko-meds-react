@@ -73,7 +73,7 @@ export default function SavedWork() {
 
                     <p className="text-[14.9px] leading-[22px] text-[#2B3A4F]">
                         If you tap <span className="font-bold">Save search</span> while
-                        signed out, we'll open a quick sign-in or account creation and bring
+                        signed out, we&apos;ll open a quick sign-in or account creation and bring
                         you right back to your search — so saving never breaks your journey.
                     </p>
                 </div>

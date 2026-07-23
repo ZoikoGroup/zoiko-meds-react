@@ -176,7 +176,7 @@ export default function TrustEnterprise() {
 
             <p className="flex items-start gap-2 text-xs text-slate-500">
              <img src="/trust-center/verify.png" alt="image" width={15} height={15} />
-              Don't include PHI, patient identifiers, exact stock, API secrets, passwords, license
+              Don&apos;t include PHI, patient identifiers, exact stock, API secrets, passwords, license
               documents, commercial terms, or audit records in this form.
             </p>
           </form>
