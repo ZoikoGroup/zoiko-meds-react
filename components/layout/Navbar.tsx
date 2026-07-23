@@ -76,7 +76,7 @@ function USFlag() {
   );
 }
 
-function DropdownMenu({ items, visible }: { items: DropdownItem[]; visible: boolean }) {
+function DropdownMenu({ items, visible, onItemClick }: { items: DropdownItem[]; visible: boolean; onItemClick: () => void }) {
   return (
     <div style={{
       position: "absolute", top: "100%", left: "50%",
@@ -97,6 +97,7 @@ function DropdownMenu({ items, visible }: { items: DropdownItem[]; visible: bool
             }}
             onMouseEnter={e => { e.currentTarget.style.background = "#F0F4FF"; e.currentTarget.style.transform = "translateX(2px)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "translateX(0)"; }}
+            onClick={onItemClick}
           >
             <span style={{ fontSize: "13px", fontWeight: 600, color: "#1E2F6E" }}>{item.label}</span>
             {item.description && <span style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>{item.description}</span>}
@@ -152,6 +153,10 @@ export default function Navbar() {
   };
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => setActiveDropdown(null), 120);
+  };
+  const closeDropdown = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setActiveDropdown(null);
   };
 
   return (
@@ -367,7 +372,7 @@ export default function Navbar() {
                   )}
 
                   {item.dropdown && !MEGA_MENU_LABELS.includes(item.label as typeof MEGA_MENU_LABELS[number]) && (
-                    <DropdownMenu items={item.dropdown} visible={activeDropdown === item.label} />
+                    <DropdownMenu items={item.dropdown} visible={activeDropdown === item.label} onItemClick={closeDropdown} />
                   )}
                 </div>
               ))}
@@ -378,30 +383,35 @@ export default function Navbar() {
                 visible={activeDropdown === "Platform"}
                 onEnter={() => handleMouseEnter("Platform")}
                 onLeave={handleMouseLeave}
+                onItemClick={closeDropdown}
               />
               <MegaMenu
                 config={patientsMegaMenuConfig}
                 visible={activeDropdown === "Patients"}
                 onEnter={() => handleMouseEnter("Patients")}
                 onLeave={handleMouseLeave}
+                onItemClick={closeDropdown}
               />
               <MegaMenu
                 config={pharmaciesMegaMenuConfig}
                 visible={activeDropdown === "Pharmacies"}
                 onEnter={() => handleMouseEnter("Pharmacies")}
                 onLeave={handleMouseLeave}
+                onItemClick={closeDropdown}
               />
               <MegaMenu
                 config={enterpriseMegaMenuConfig}
                 visible={activeDropdown === "Enterprise"}
                 onEnter={() => handleMouseEnter("Enterprise")}
                 onLeave={handleMouseLeave}
+                onItemClick={closeDropdown}
               />
               <MegaMenu
                 config={intelligenceMegaMenuConfig}
                 visible={activeDropdown === "Intelligence"}
                 onEnter={() => handleMouseEnter("Intelligence")}
                 onLeave={handleMouseLeave}
+                onItemClick={closeDropdown}
               />
             </nav>
 
