@@ -1,39 +1,21 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect, DragEvent, ChangeEvent } from "react";
+import { searchMedicines, matchMedibase, type Confidence } from "@/lib/api";
 
 /* ─── types ─── */
-interface Location {
-  id: number; name: string; address: string; city: string;
-  postcode: string; phone: string; lat: number; lng: number; distance: number;
+interface Pharmacy {
+  id: string; name: string; address: string;
+  lat: number; lng: number; distanceKm?: number;
+  phone?: string; rating?: number; openNow?: boolean;
+  mapsUrl: string;
 }
-
-/* ─── DUMMY MEDICINE DATABASE (replace with real API/autocomplete source) ─── */
-const DUMMY_MEDICINES = [
-  "Acetaminophen", "Amoxicillin", "Amlodipine", "Atorvastatin", "Azithromycin",
-  "Aspirin", "Albuterol", "Alprazolam", "Ambien", "Ativan",
-  "Bupropion", "Benadryl", "Baclofen", "Buspirone",
-  "Ciprofloxacin", "Clopidogrel", "Cetirizine", "Citalopram", "Clindamycin",
-  "Codeine", "Cephalexin", "Carvedilol",
-  "Diazepam", "Duloxetine", "Diclofenac", "Doxycycline", "Digoxin",
-  "Escitalopram", "Enalapril", "Esomeprazole",
-  "Fluoxetine", "Furosemide", "Fexofenadine", "Famotidine",
-  "Gabapentin", "Glipizide", "Guaifenesin",
-  "Hydrochlorothiazide", "Hydrocodone", "Hydroxyzine",
-  "Ibuprofen", "Insulin Glargine", "Isosorbide",
-  "Lisinopril", "Losartan", "Levothyroxine", "Lorazepam", "Loratadine",
-  "Metformin", "Metoprolol", "Montelukast", "Meloxicam", "Metronidazole",
-  "Naproxen", "Nitrofurantoin",
-  "Omeprazole", "Ondansetron", "Oxycodone",
-  "Paracetamol", "Prednisone", "Pantoprazole", "Propranolol", "Paroxetine",
-  "Quetiapine",
-  "Ranitidine", "Rosuvastatin",
-  "Sertraline", "Simvastatin", "Sildenafil",
-  "Tramadol", "Trazodone", "Tamsulosin",
-  "Venlafaxine", "Valacyclovir",
-  "Warfarin",
-  "Zolpidem", "Zoloft",
-].sort();
+interface MedicineMatch {
+  id: string; name: string; generic?: string; strength?: string;
+  dosageForm?: string; category?: string;
+  availabilityCount: number; bestConfidence?: Confidence;
+}
+interface SearchOutcome { medicines: MedicineMatch[]; pharmacies: Pharmacy[]; }
 
 /* ─── helpers ─── */
 function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) {
@@ -42,20 +24,37 @@ function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) 
   return u;
 }
 
-/** Simple case-insensitive "contains" match against the dummy list.
- *  Swap this out for a real API call (e.g. debounce + fetch("/api/medicine/autocomplete?q=...")) later. */
-function getMedicineSuggestions(query: string, limit = 8): string[] {
-  const q = query.trim().toLowerCase();
-  if (q.length < 2) return [];
-  const starts: string[] = [];
-  const contains: string[] = [];
-  for (const med of DUMMY_MEDICINES) {
-    const lower = med.toLowerCase();
-    if (lower.startsWith(q)) starts.push(med);
-    else if (lower.includes(q)) contains.push(med);
-  }
-  return [...starts, ...contains].slice(0, limit);
+/** Great-circle distance in km (used to sort/label fallback pharmacies). */
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return Math.round(R * 2 * Math.asin(Math.sqrt(a)) * 10) / 10;
 }
+
+const CONFIDENCE_ORDER: Record<string, number> = { HIGH: 3, MODERATE: 2, LOW: 1 };
+
+/** Live medicine-name suggestions from the MediBase match endpoint. */
+async function getMedicineSuggestions(query: string, limit = 8): Promise<string[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  try {
+    const matches = await matchMedibase(q, limit);
+    const names = matches.map((m) => m.canonicalName).filter(Boolean);
+    return Array.from(new Set(names)).slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+const CONFIDENCE_STYLE: Record<string, string> = {
+  HIGH: "bg-[#f0faf5] text-[#0f7a53]",
+  MODERATE: "bg-[#fff7e6] text-[#92600a]",
+  LOW: "bg-[#fef2f2] text-[#b42318]",
+};
 
 /* ─── sub-components ─── */
 function Spinner({ dark }: { dark?: boolean }) {
@@ -67,9 +66,43 @@ function Spinner({ dark }: { dark?: boolean }) {
   );
 }
 
-function ResultCard({ loc, originLat, originLng }: { loc: Location; originLat?: number; originLng?: number }) {
-  const url = buildMapsUrl(loc.lat, loc.lng, originLat, originLng);
-  const dist = loc.distance < 0.1 ? "0 mi" : `${loc.distance} mi`;
+function MedicineCard({ m }: { m: MedicineMatch }) {
+  const rx = m.category ? m.category.toUpperCase() !== "OTC" : false;
+  const meta = [m.generic, m.strength, m.dosageForm].filter(Boolean).join(" · ");
+  return (
+    <div className="border border-[#e5e7eb] rounded-xl px-4 py-3 mb-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-bold text-[#111827]">{m.name}</span>
+            {m.category && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide
+                ${rx ? "bg-[#eef2ff] text-[#4338ca]" : "bg-[#f0faf5] text-[#0f7a53]"}`}>
+                {rx ? "Rx" : "OTC"}
+              </span>
+            )}
+          </div>
+          {meta && <div className="text-xs text-[#6b7280] mt-0.5">{meta}</div>}
+          <div className="text-[11px] text-[#6b7280] mt-1">
+            {m.availabilityCount > 0
+              ? `Verified availability at ${m.availabilityCount} pharmac${m.availabilityCount === 1 ? "y" : "ies"}`
+              : "No verified availability reported yet"}
+          </div>
+        </div>
+        {m.availabilityCount > 0 && m.bestConfidence && (
+          <span className={`font-bold text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap uppercase tracking-wide flex-shrink-0
+            ${CONFIDENCE_STYLE[String(m.bestConfidence).toUpperCase()] ?? "bg-[#f1f5f9] text-[#475569]"}`}>
+            {String(m.bestConfidence).toLowerCase()}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PharmacyCard({ p, origin }: { p: Pharmacy; origin?: { lat?: number; lng?: number } }) {
+  const url = p.mapsUrl || buildMapsUrl(p.lat, p.lng, origin?.lat, origin?.lng);
+  const dist = p.distanceKm == null ? "" : p.distanceKm < 0.1 ? "0 km" : `${p.distanceKm} km`;
   return (
     <a
       href={url} target="_blank" rel="noopener noreferrer"
@@ -77,14 +110,24 @@ function ResultCard({ loc, originLat, originLng }: { loc: Location; originLat?: 
         transition-all duration-200 no-underline text-inherit
         hover:border-[#0D9A72] hover:shadow-[0_2px_14px_rgba(13,154,114,0.12)] hover:bg-[#f0faf5]"
     >
-      <div>
-        <div className="text-sm font-bold text-[#111827]">{loc.name}</div>
-        <div className="text-xs text-[#6b7280] mt-0.5">
-          {loc.address}{loc.postcode ? ` · ${loc.postcode}` : ""}{loc.phone ? ` · ${loc.phone}` : ""}
+      <div className="min-w-0">
+        <div className="text-sm font-bold text-[#111827]">{p.name}</div>
+        <div className="text-xs text-[#6b7280] mt-0.5 truncate">
+          {p.address}{p.phone ? ` · ${p.phone}` : ""}
         </div>
+        {(p.rating != null || p.openNow != null) && (
+          <div className="text-[11px] text-[#6b7280] mt-1 flex items-center gap-2.5">
+            {p.rating != null && <span>★ {p.rating}</span>}
+            {p.openNow != null && (
+              <span className={p.openNow ? "text-[#0f7a53] font-semibold" : "text-[#b42318]"}>
+                {p.openNow ? "Open now" : "Closed"}
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-2.5 flex-shrink-0">
-        <span className="bg-[#f0faf5] text-[#25a874] font-bold text-sm px-3.5 py-1 rounded-full whitespace-nowrap">{dist}</span>
+        {dist && <span className="bg-[#f0faf5] text-[#25a874] font-bold text-sm px-3.5 py-1 rounded-full whitespace-nowrap">{dist}</span>}
         <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2} className="w-4 h-4">
             <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -95,35 +138,48 @@ function ResultCard({ loc, originLat, originLng }: { loc: Location; originLat?: 
   );
 }
 
-function ResultsBlock({ locations, medicine, loading, originLat, originLng }: {
-  locations: Location[] | null; medicine: string; loading: boolean; originLat?: number; originLng?: number;
+function ResultsBlock({ outcome, loading, origin }: {
+  outcome: SearchOutcome | null; loading: boolean; origin?: { lat?: number; lng?: number };
 }) {
   if (loading) return (
     <div className="flex items-center gap-2.5 justify-center py-6 text-sm text-[#6b7280]">
-      <Spinner dark /> Searching nearby pharmacies…
+      <Spinner dark /> Searching medicines &amp; nearby pharmacies…
     </div>
   );
-  if (!locations) return null;
-  return (
-    <div className="mt-4">
-      <div className="flex items-center gap-2 flex-wrap mb-3 font-bold text-sm text-[#111827]">
-        {medicine ? `Pharmacies near you` : "Nearby pharmacies"}
-        <span className="bg-[#0D9A72] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">{locations.length} found</span>
+  if (!outcome) return null;
+  const { medicines, pharmacies } = outcome;
+  if (medicines.length === 0 && pharmacies.length === 0) {
+    return (
+      <div className="text-center py-6 text-sm text-[#6b7280] mt-4">
+        No matches found. Try a different medicine name, location, or a larger distance.
       </div>
-      {locations.length === 0 ? (
-        <div className="text-center py-6 text-sm text-[#6b7280]">
-          No pharmacies found within the selected radius. Try a different location or increase the distance.
+    );
+  }
+  return (
+    <div className="mt-4 space-y-5">
+      {medicines.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-3 font-bold text-sm text-[#111827]">
+            Medicine matches
+            <span className="bg-[#1E2F6E] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">{medicines.length}</span>
+          </div>
+          {medicines.map((m) => <MedicineCard key={m.id} m={m} />)}
         </div>
-      ) : (
-        <>
+      )}
+      {pharmacies.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 flex-wrap mb-3 font-bold text-sm text-[#111827]">
+            Pharmacies near you
+            <span className="bg-[#0D9A72] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">{pharmacies.length}</span>
+          </div>
           <div className="flex items-center gap-1.5 text-[11px] text-[#6b7280] mb-2">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3">
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
             Click any card to get directions in Google Maps
           </div>
-          {locations.map((l) => <ResultCard key={l.id} loc={l} originLat={originLat} originLng={originLng} />)}
-        </>
+          {pharmacies.map((p) => <PharmacyCard key={p.id} p={p} origin={origin} />)}
+        </div>
       )}
     </div>
   );
@@ -143,7 +199,7 @@ export default function MedicineSearchWidget() {
   const [userLng, setUserLng] = useState<number | undefined>();
   const [locBtnLabel, setLocBtnLabel] = useState("Use my current location");
   const [searching, setSearching] = useState(false);
-  const [results, setResults] = useState<Location[] | null>(null);
+  const [results, setResults] = useState<SearchOutcome | null>(null);
   const [lastMedicine, setLastMedicine] = useState("");
   const [lastLat, setLastLat] = useState<number | undefined>();
   const [lastLng, setLastLng] = useState<number | undefined>();
@@ -153,6 +209,8 @@ export default function MedicineSearchWidget() {
   const [showMedSuggestions, setShowMedSuggestions] = useState(false);
   const [activeSuggestionIdx, setActiveSuggestionIdx] = useState(-1);
   const medicineFieldRef = useRef<HTMLDivElement>(null);
+  const medDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const medReqSeq = useRef(0);
 
   /* tab 2 state */
   const [scanFile, setScanFile] = useState<File | null>(null);
@@ -164,7 +222,7 @@ export default function MedicineSearchWidget() {
   const [scanning, setScanning] = useState(false);
   const [scannedMeds, setScannedMeds] = useState<string[]>([]);
   const [selectedMeds, setSelectedMeds] = useState<Set<string>>(new Set());
-  const [scanResults, setScanResults] = useState<{ [med: string]: Location[] | null }>({});
+  const [scanResults, setScanResults] = useState<{ [med: string]: SearchOutcome | null }>({});
   const [scanSearching, setScanSearching] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
@@ -183,13 +241,23 @@ export default function MedicineSearchWidget() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* ─── medicine input change → filter suggestions ─── */
+  /* ─── medicine input change → debounced live suggestions ─── */
   const handleMedicineChange = (value: string) => {
     setMedicine(value);
-    const matches = getMedicineSuggestions(value);
-    setMedSuggestions(matches);
-    setShowMedSuggestions(matches.length > 0);
     setActiveSuggestionIdx(-1);
+    if (medDebounceRef.current) clearTimeout(medDebounceRef.current);
+    if (value.trim().length < 2) {
+      setMedSuggestions([]);
+      setShowMedSuggestions(false);
+      return;
+    }
+    const seq = ++medReqSeq.current;
+    medDebounceRef.current = setTimeout(async () => {
+      const matches = await getMedicineSuggestions(value);
+      if (seq !== medReqSeq.current) return; // a newer keystroke won
+      setMedSuggestions(matches);
+      setShowMedSuggestions(matches.length > 0);
+    }, 220);
   };
 
   const selectSuggestion = (name: string) => {
@@ -241,16 +309,75 @@ export default function MedicineSearchWidget() {
     return d.success ? d.data : null;
   }, []);
 
-  /* ─── Core search ─── */
+  /* ─── Core search — live ZoikoMeds backend (/search) ─── */
   const doSearch = useCallback(async (
     med: string, lat: number, lng: number, rad: number
-  ): Promise<Location[]> => {
-    const r = await fetch("/api/medicine/search", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ medicine: med, lat, lng, radius: rad }),
-    });
-    const d = await r.json();
-    return d.success ? d.data.locations : [];
+  ): Promise<SearchOutcome> => {
+    try {
+      const res = await searchMedicines({ q: med, lat, lng, maxDistance: rad });
+
+      // 1) Matched medicines (with their best verified-availability signal).
+      const medicines: MedicineMatch[] = (res.results ?? []).map((r) => {
+        let best: Confidence | undefined;
+        for (const a of r.availability ?? []) {
+          if (!best || (CONFIDENCE_ORDER[String(a.confidence).toUpperCase()] ?? 0) >
+                        (CONFIDENCE_ORDER[String(best).toUpperCase()] ?? 0)) {
+            best = a.confidence;
+          }
+        }
+        return {
+          id: r.medicine.id,
+          name: r.medicine.canonicalName,
+          generic: r.medicine.genericName ?? undefined,
+          strength: r.medicine.strength ?? undefined,
+          dosageForm: r.medicine.dosageForm ?? undefined,
+          category: r.medicine.prescriptionCategory ?? undefined,
+          availabilityCount: (r.availability ?? []).length,
+          bestConfidence: best,
+        };
+      });
+
+      // 2) Pharmacies — prefer location-aware nearby results (Google Places);
+      //    fall back to the verified-availability pharmacies when none returned.
+      let pharmacies: Pharmacy[] = [];
+      const nearby = res.nearbyPharmacies?.pharmacies ?? [];
+      if (nearby.length > 0) {
+        pharmacies = nearby.map((p, i) => ({
+          id: p.placeId ?? `${p.name}-${i}`,
+          name: p.name,
+          address: p.address,
+          lat: p.latitude,
+          lng: p.longitude,
+          distanceKm: p.distanceKm,
+          phone: p.phone,
+          rating: p.rating,
+          openNow: p.openNow,
+          mapsUrl: p.googleMapsUri ?? buildMapsUrl(p.latitude, p.longitude, lat, lng),
+        }));
+      } else {
+        const byId = new Map<string, Pharmacy>();
+        for (const r of res.results ?? []) {
+          for (const a of r.availability ?? []) {
+            const p = a.pharmacy;
+            if (byId.has(p.id) || p.latitude == null || p.longitude == null) continue;
+            byId.set(p.id, {
+              id: p.id,
+              name: p.name,
+              address: [p.city, p.region].filter(Boolean).join(", "),
+              lat: p.latitude,
+              lng: p.longitude,
+              distanceKm: distanceKm(lat, lng, p.latitude, p.longitude),
+              mapsUrl: buildMapsUrl(p.latitude, p.longitude, lat, lng),
+            });
+          }
+        }
+        pharmacies = Array.from(byId.values()).sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+      }
+
+      return { medicines, pharmacies };
+    } catch {
+      return { medicines: [], pharmacies: [] };
+    }
   }, []);
 
   /* ─── Tab 1: use location ─── */
@@ -278,7 +405,7 @@ export default function MedicineSearchWidget() {
     if (!lat || !lng) {
       if (!locationText) return;
       const geo = await geocodeAddress(locationText);
-      if (!geo) { setResults([]); return; }
+      if (!geo) { setResults({ medicines: [], pharmacies: [] }); return; }
       lat = geo.lat; lng = geo.lng;
     }
     setSearching(true); setResults(null);
@@ -331,7 +458,7 @@ export default function MedicineSearchWidget() {
     }
     setScanSearching(true);
     const entries = await Promise.all(
-      Array.from(selectedMeds).map(async (med) => [med, await doSearch(med, lat!, lng!, rad)] as [string, Location[]])
+      Array.from(selectedMeds).map(async (med) => [med, await doSearch(med, lat!, lng!, rad)] as [string, SearchOutcome])
     );
     setScanResults(Object.fromEntries(entries));
     setScanSearching(false);
@@ -475,7 +602,7 @@ export default function MedicineSearchWidget() {
                   text-[#111827] bg-white appearance-none cursor-pointer focus:outline-none focus:border-[#0D9A72]
                   hover:border-[#0D9A72] transition min-w-[110px]"
               >
-                {RADII.map((r) => <option key={r} value={r}>{r} miles</option>)}
+                {RADII.map((r) => <option key={r} value={r}>{r} km</option>)}
               </select>
               <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6b7280]">
                 <svg viewBox="0 0 10 6" fill="currentColor" className="w-2.5 h-1.5"><path d="M0 0l5 6 5-6z"/></svg>
@@ -490,7 +617,7 @@ export default function MedicineSearchWidget() {
 
           {/* Results */}
           {(searching || results !== null) && (
-            <ResultsBlock locations={results} medicine={lastMedicine} loading={searching} originLat={lastLat} originLng={lastLng} />
+            <ResultsBlock outcome={results} loading={searching} origin={{ lat: lastLat, lng: lastLng }} />
           )}
         </div>
       )}
@@ -606,7 +733,7 @@ export default function MedicineSearchWidget() {
                 className="h-[34px] pl-3 pr-7 border-[1.5px] border-[#e5e7eb] rounded-lg text-[13.5px] font-semibold
                   text-[#111827] bg-white appearance-none cursor-pointer focus:outline-none focus:border-[#0D9A72] hover:border-[#0D9A72] transition min-w-[110px]"
               >
-                {RADII.map((r) => <option key={r} value={r}>{r} miles</option>)}
+                {RADII.map((r) => <option key={r} value={r}>{r} km</option>)}
               </select>
               <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6b7280]">
                 <svg viewBox="0 0 10 6" fill="currentColor" className="w-2.5 h-1.5"><path d="M0 0l5 6 5-6z"/></svg>
@@ -667,9 +794,10 @@ export default function MedicineSearchWidget() {
               </button>
 
               {/* Per-medicine results */}
-              {Object.entries(scanResults).map(([med, locs]) => (
+              {Object.entries(scanResults).map(([med, oc]) => (
                 <div key={med} className="mt-4">
-                  <ResultsBlock locations={locs} medicine={med} loading={false} originLat={scanLat} originLng={scanLng} />
+                  <p className="font-bold text-[13px] text-[#111827] mb-1">{med}</p>
+                  <ResultsBlock outcome={oc} loading={false} origin={{ lat: scanLat, lng: scanLng }} />
                 </div>
               ))}
             </div>
