@@ -65,7 +65,7 @@ export default function PlatformManifesto() {
 
           <div className='md:min-w-[1097px]'>
             <blockquote className="text-2xl md:text-4xl font-bold text-white leading-snug tracking-tight mb-0">
-              "ZoikoMeds is medicine availability infrastructure. We provide the protocol and the substrate; we do not manufacture, we enable."
+              &quot;ZoikoMeds is medicine availability infrastructure. We provide the protocol and the substrate; we do not manufacture, we enable.&quot;
             </blockquote>
             {/* Pillars row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-10 md:max-w-[718px]">

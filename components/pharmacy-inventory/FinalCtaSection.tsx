@@ -9,7 +9,7 @@ export default function FinalCtaSection() {
       <div className="max-w-[1032px] mx-auto flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-[#102540] to-[#0C1B30] px-5 py-10 sm:px-7 sm:pt-11 sm:pb-17 text-center">
         <h2 className="text-2xl font-semibold text-white mb-3">
           Manage medicine availability responsibly —{" "}
-          <span className="text-[#0FAA87]">on your pharmacy's terms.</span>
+          <span className="text-[#0FAA87]">on your pharmacy&apos;s terms.</span>
         </h2>
         <p className="text-[#E7EEF6B2] text-[15px] max-w-125 text-center mb-6 leading-relaxed">
           Join the ZoikoMeds pharmacy network or request an inventory

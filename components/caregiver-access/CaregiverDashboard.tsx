@@ -179,7 +179,7 @@ export default function CaregiverDashboard() {
 
                         <p className="max-w-[523px] text-[16px] leading-6 text-[#44474D]">
                             A streamlined interface designed for clarity and rapid
-                            response. Keep everyone's needs in view without clinical
+                            response. Keep everyone&apos;s needs in view without clinical
                             clutter.
                         </p>
                     </div>
