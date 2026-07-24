@@ -150,6 +150,13 @@ export async function streamResponse(
               }
             }
 
+            if (data.citations) {
+              completeMsg.citations = data.citations;
+            }
+            if (data.evidenceState) {
+              completeMsg.evidenceState = data.evidenceState;
+            }
+
             if (needsEscalation && !chips.some((c) => c.action === "escalate")) {
               chips.push({ label: "Talk to team", action: "escalate" });
             }
