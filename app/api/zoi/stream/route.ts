@@ -95,29 +95,42 @@ function resetRetrievedSources(): void {
 
 const GUARDRAIL_TEXTS: Record<string, string> = {
   medical_advice:
-    "That's an important question, and it's one for a clinical professional \u2014 " +
-    "drug interactions depend on your specific situation, and I'm not able to advise on them safely.\n\n" +
-    "Your pharmacist can answer this when you collect your medicine. If you'd like, " +
-    "I can show you the stocking pharmacies' contact details now.",
+    "I can't make medical decisions, provide diagnosis, recommend treatments, or give personalized dosage advice. " +
+    "A qualified pharmacist or prescriber can review your situation safely. " +
+    "I can still help you search for medicine availability or nearby verified pharmacies.",
   crisis:
-    "It sounds like you may need urgent help. Please contact your local emergency services or a crisis helpline right away.\n\n" +
-    "If this is a medical emergency, call 911 or your local emergency number immediately.",
+    "CRITICAL SAFETY NOTICE: It appears you may need urgent medical assistance or emergency guidance.\n\n" +
+    "• Medical Emergency / Overdose: Call 911 (US) or 999/111 (UK) immediately.\n" +
+    "• Poison Control: Call 1-800-222-1222 (US) or contact NHS 111 (UK).\n" +
+    "• Mental Health & Crisis Line: Call or text 988 (US) or 111 (UK).\n\n" +
+    "ZoikoMeds is an availability search tool and does not provide emergency medical treatment.",
   abuse:
-    "I can't help with that request. ZoikoMeds supports responsible use of medicines under professional guidance. " +
-    "If you need help with substance use, please contact a healthcare professional or a support service.",
+    "I cannot assist with requests attempting to misuse, abuse, or bypass prescription requirements for controlled substances. " +
+    "ZoikoMeds operates strictly under professional healthcare and legal compliance doctrines.",
 };
 
 const GUARDRAIL_CHIPS: Record<string, string[]> = {
-  medical_advice: ["show_pharmacies", "continue_availability"],
+  medical_advice: ["check_availability", "escalate"],
   crisis: ["escalate"],
   abuse: ["escalate"],
 };
 
-function formatSourceMessage(sources: ContentDocument[]): string | null {
+function formatSourceMessage(sources: ContentDocument[]): { text: string; citations: Array<{ id: string; title: string; url?: string; sourceType: string; authorityLevel: "A1" | "A2" | "A3" | "A4" | "A5" | "A6" }> } | null {
   if (sources.length === 0) return null;
   const primary = sources[0];
-  const followUp = sources.length > 1 ? ` You can also learn more on the ${sources.slice(1).map((s) => s.title).join(", ")} page.` : "";
-  return `${primary.body}${followUp}`;
+  const citations = sources.map((s) => ({
+    id: s.id,
+    title: s.title,
+    url: s.url || `https://zoikomeds.com${s.url || "/platform"}`,
+    sourceType: s.section,
+    authorityLevel: (s.id.startsWith("spec-") ? "A2" : "A5") as "A2" | "A5",
+  }));
+
+  const followUp = sources.length > 1 ? ` (Referenced: ${sources.map((s) => s.title).join("; ")})` : "";
+  return {
+    text: `${primary.body}${followUp}`,
+    citations,
+  };
 }
 
 // ── Response model (layer 4) ────────────────────────────────────────────
@@ -126,7 +139,15 @@ type ResponsePlan = {
   text: string;
   chips: string[];
   sources?: RetrievedSource[];
+  citations?: Array<{ id: string; title: string; url?: string; sourceType: string; authorityLevel: "A1" | "A2" | "A3" | "A4" | "A5" | "A6" }>;
   availabilityCard?: unknown;
+  emergencyTemplate?: {
+    templateId: string;
+    market: "US" | "UK";
+    headline: string;
+    bodyText: string;
+    emergencyActions: Array<{ label: string; actionUrl: string }>;
+  };
 };
 
 function getResponsePlan(query: string, persona: string, classification: ClassifierVerdict): ResponsePlan {
@@ -157,7 +178,7 @@ function getResponsePlan(query: string, persona: string, classification: Classif
 
     if (!region) {
       return {
-        text: `I found ${displayName} in our system. Which location or city should I check availability for? (e.g. Nakuru, Nairobi, Kisumu)`,
+        text: `I found ${displayName} in our system. Which location or city should I check availability for? (e.g. London, New York, Chicago)`,
         chips: ["check_availability", "escalate"],
       };
     }
@@ -195,11 +216,16 @@ function getResponsePlan(query: string, persona: string, classification: Classif
       section: c.section,
       score: scoreForSource(query, c),
     }));
-    const msg = formatSourceMessage(contentResults);
-    if (msg) {
+    const formatted = formatSourceMessage(contentResults);
+    if (formatted) {
       const chips: string[] = ["check_availability"];
       if (classification.verdict === "safe" && classification.intent === "commercial") chips.push("escalate");
-      return { text: msg, chips: chips.length > 3 ? chips.slice(0, 3) : chips, sources: retrievedSources };
+      return {
+        text: formatted.text,
+        chips: chips.length > 3 ? chips.slice(0, 3) : chips,
+        sources: retrievedSources,
+        citations: formatted.citations,
+      };
     }
   }
 
@@ -385,7 +411,7 @@ export async function POST(req: NextRequest) {
       });
     } else if (foundMedicine) {
       const medName = foundMedicine.toUpperCase();
-      const promptText = `I can set an alert for ${medName}. Which location or city should I monitor? (e.g. Nakuru, Nairobi, Kisumu)`;
+      const promptText = `I can set an alert for ${medName}. Which location or city should I monitor? (e.g. London, New York, Chicago)`;
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {
@@ -495,6 +521,10 @@ export async function POST(req: NextRequest) {
       const donePayload: Record<string, unknown> = { type: "done", chips: plan.chips };
       if (plan.availabilityCard) {
         donePayload.availabilityCard = plan.availabilityCard;
+      }
+      if (plan.citations && plan.citations.length > 0) {
+        donePayload.citations = plan.citations;
+        donePayload.evidenceState = "SUFFICIENT_SINGLE";
       }
       controller.enqueue(encoder.encode(`data: ${JSON.stringify(donePayload)}\n\n`));
       controller.close();

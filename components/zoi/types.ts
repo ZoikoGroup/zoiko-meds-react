@@ -16,6 +16,42 @@ export interface AvailabilityPayload {
   source: string;
 }
 
+export type EvidenceState =
+  | "SUFFICIENT_SINGLE"
+  | "SUFFICIENT_MULTI"
+  | "PARTIAL"
+  | "CONFLICT"
+  | "STALE"
+  | "INSUFFICIENT"
+  | "BLOCKED";
+
+export interface Citation {
+  id: string;
+  title: string;
+  url?: string;
+  sourceType: string;
+  authorityLevel: "A1" | "A2" | "A3" | "A4" | "A5" | "A6";
+}
+
+export interface EmergencySafetyTemplate {
+  templateId: string;
+  market: "US" | "UK";
+  headline: string;
+  bodyText: string;
+  emergencyActions: Array<{ label: string; actionUrl: string }>;
+}
+
+export interface RFC9457ProblemDetails {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance: string;
+  code: string;
+  correlation_id?: string;
+  retryable?: boolean;
+}
+
 export interface Message {
   id: string;
   role: MessageRole;
@@ -27,6 +63,12 @@ export interface Message {
   alertContext?: { medicine: string; region: string };
   chips?: Chip[];
   timestamp: number;
+  citations?: Citation[];
+  evidenceState?: EvidenceState;
+  emergencyTemplate?: EmergencySafetyTemplate;
+  problemDetails?: RFC9457ProblemDetails;
+  previewId?: string;
+  confirmationToken?: string;
 }
 
 export interface Chip {

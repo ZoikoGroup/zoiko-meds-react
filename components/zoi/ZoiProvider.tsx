@@ -282,13 +282,14 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
             if (targetMed) {
               import("./mockAiService").then(({ fetchAvailability }) => {
                 fetchAvailability(targetMed, targetReg).then((res) => {
-                  let pharmacyContent = `Here are stocking pharmacies for ${targetMed}${targetReg !== "any" ? ` in ${targetReg}` : ""}:\n\n`;
+                  let pharmacyContent = "";
                   if (res && res.card && res.card.pharmacies && res.card.pharmacies.length > 0) {
-                    pharmacyContent += res.card.pharmacies
-                      .map((p, i) => `${i + 1}. ${p.name}, ${p.city} — ${p.phone ? p.phone : "0700 123 456"} (${p.address})`)
-                      .join("\n");
+                    pharmacyContent = `Here are stocking pharmacies for ${targetMed}${targetReg !== "any" ? ` in ${targetReg}` : ""}:\n\n` +
+                      res.card.pharmacies
+                        .map((p, i) => `${i + 1}. ${p.name}, ${p.city} — ${p.phone ? p.phone : "N/A"} (${p.address})`)
+                        .join("\n");
                   } else {
-                    pharmacyContent += `1. HealthPlus Pharmacy, ${targetReg !== "any" ? targetReg : "Nakuru"} — 0700 123 456 (Kenyatta Ave)\n2. MediCare Chemist, ${targetReg !== "any" ? targetReg : "Nakuru"} — 0700 789 012 (Moi Rd)`;
+                    pharmacyContent = `No stocking pharmacies currently report active stock for ${targetMed}${targetReg !== "any" ? ` in ${targetReg}` : ""}. You can set an availability alert to be notified when stock becomes available, or search a nearby area.`;
                   }
                   dispatch({
                     type: "ADD_MESSAGE",
