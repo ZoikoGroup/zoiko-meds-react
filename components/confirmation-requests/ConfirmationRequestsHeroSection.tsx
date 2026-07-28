@@ -55,7 +55,7 @@ export default function ConfirmationRequestsHeroSection() {
               <Reveal index={3}>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                   <button
-                  onClick={()=>router.push("#confirmation-request")}
+                  onClick={()=>router.push("#request")}
                     type="button"
                     className="group relative cursor-pointer overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                     style={{ backgroundColor: ACCENT }}

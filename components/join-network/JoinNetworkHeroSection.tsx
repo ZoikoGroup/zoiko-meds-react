@@ -82,7 +82,7 @@ export default function JoinNetworkHeroSection() {
 
               <Reveal index={4}>
                 <a
-                  href="#"
+                  href="#control"
                   className="group mt-1 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-[#13A594] transition-colors duration-200 hover:text-[#03877D]"
                 >
                   View Pharmacy Data Controls
