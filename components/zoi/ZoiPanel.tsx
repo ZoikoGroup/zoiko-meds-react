@@ -150,52 +150,6 @@ export default function ZoiPanel() {
         <ZoiHeader />
         <ZoiViewport />
         <ZoiComposer />
-
-        {!state.error && (
-          <div
-            style={{
-              padding: "8px 18px 10px",
-              borderTop: "1px solid #F3F4F6",
-              flexShrink: 0,
-              background: "#FAFAFA",
-            }}
-          >
-            <a
-              href="/trust-center"
-              style={{
-                fontSize: "11px",
-                color: "#6B7280",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              {t("footer.disclosure")}
-            </a>
-          </div>
-        )}
-
-        {state.error && (
-          <div
-            style={{
-              padding: "8px 18px 10px",
-              borderTop: "1px solid #F3F4F6",
-              flexShrink: 0,
-              background: "#FAFAFA",
-            }}
-          >
-            <a
-              href="/trust-center"
-              style={{
-                fontSize: "11px",
-                color: "#6B7280",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              {t("footer.disclosure")}
-            </a>
-          </div>
-        )}
       </div>
     </>
   );

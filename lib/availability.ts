@@ -242,6 +242,128 @@ export interface LookupParams {
   region?: string;
 }
 
+/**
+ * Connects to live remote inventory API endpoint if LIVE_INVENTORY_API_URL is configured
+ */
+export async function fetchLiveStockFromApi(
+  canonicalMedicine: string,
+  region?: string
+): Promise<StockEntry[] | null> {
+  const apiUrl = process.env.LIVE_INVENTORY_API_URL;
+  if (!apiUrl) return null;
+
+  const apiKey = process.env.LIVE_INVENTORY_API_KEY;
+  const timeoutMs = Number(process.env.LIVE_INVENTORY_TIMEOUT_MS) || 3000;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const url = new URL(apiUrl);
+    url.searchParams.set("medicine", canonicalMedicine);
+    if (region && region !== "any") {
+      url.searchParams.set("region", region);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.warn(`[ZoikoAvail Live API] Returned HTTP status ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const list = Array.isArray(data.pharmacies) ? data.pharmacies : Array.isArray(data) ? data : null;
+
+    if (list && list.length > 0) {
+      return list.map((p: Record<string, unknown>, idx: number) => ({
+        pharmacyId: Number(p.id || p.pharmacyId) || idx + 1000,
+        name: String(p.name || "Partner Pharmacy"),
+        address: String(p.address || "Main St"),
+        city: String(p.city || region || "Nairobi"),
+        phone: String(p.phone || "+254000000000"),
+        reportedAt: String(p.reportedAt || new Date().toISOString()),
+        signalStrength: typeof p.signalStrength === "number" ? p.signalStrength : 0.95,
+      }));
+    }
+    return null;
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.warn(`[ZoikoAvail Live API] Fetch error or timeout:`, errorMsg);
+    return null;
+  }
+}
+
+/**
+ * Async lookup for live API integration with automatic fallback to local PHARMACY_DB
+ */
+export async function lookupAvailabilityAsync(params: LookupParams): Promise<AvailabilityResult | null> {
+  const canonicalKey = resolveMedicine(params.medicine);
+  if (!canonicalKey) return null;
+
+  const rawRegion = params.region ? params.region.trim() : "any";
+  let resolvedRegion = "any";
+  if (rawRegion.toLowerCase() !== "any") {
+    const extracted = extractRegion(rawRegion);
+    if (extracted) {
+      resolvedRegion = extracted;
+    } else if (VALID_REGIONS.includes(rawRegion.toLowerCase())) {
+      resolvedRegion = rawRegion.toLowerCase();
+    } else {
+      return null;
+    }
+  }
+
+  // Tries live API first if configured
+  const liveStock = await fetchLiveStockFromApi(canonicalKey, resolvedRegion);
+  if (liveStock && liveStock.length > 0) {
+    const confidence = computeConfidence(liveStock, resolvedRegion);
+    const cardState = computeCardState(confidence, liveStock, resolvedRegion);
+    const regionLabel = resolvedRegion !== "any"
+      ? resolvedRegion.charAt(0).toUpperCase() + resolvedRegion.slice(1)
+      : "Nationwide Live Signal";
+
+    const regionStock = resolvedRegion !== "any"
+      ? liveStock.filter((s) => s.city.toLowerCase() === resolvedRegion)
+      : liveStock;
+
+    return {
+      medicine: canonicalKey.toUpperCase(),
+      region: regionLabel,
+      confidence,
+      cardState,
+      stockingPharmacies: regionStock.length,
+      totalPharmacies: liveStock.length,
+      pharmacies: regionStock.map((s) => ({
+        id: s.pharmacyId,
+        name: s.name,
+        address: s.address,
+        city: s.city,
+        phone: s.phone,
+        reportedAt: s.reportedAt,
+      })),
+      timestamp: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) + " Live API",
+      source: "ZoikoAvail™ Live Inventory API",
+    };
+  }
+
+  // Fallback to local signal database
+  return lookupAvailability(params);
+}
+
+/**
+ * Synchronous availability lookup (local signal network)
+ */
 export function lookupAvailability(params: LookupParams): AvailabilityResult | null {
   try {
     const canonicalKey = resolveMedicine(params.medicine);
@@ -311,7 +433,7 @@ export function lookupAvailability(params: LookupParams): AvailabilityResult | n
           hour: "2-digit", minute: "2-digit", timeZone: tz,
         }) + " " + label;
       })(),
-      source: "ZoikoAvail\u2122",
+      source: "ZoikoAvail™",
     };
 
     console.log(`[ZoikoAvail Debug] lookupAvailability SUCCESS: medicine="${canonicalKey}", region="${resolvedRegion}", cardState="${result.cardState}", pharmacies=${result.stockingPharmacies}`);
