@@ -11,7 +11,7 @@ const ISSUES = [
     description:
       "Authenticated provider access support with identity and role review.",
     cta: "Get Access Help",
-    href: "#",
+    href: "/provider-overview",
     tone: "navy",
   },
   {
@@ -19,7 +19,7 @@ const ISSUES = [
     title: "Patient-safe language concern",
     description: "Referral guidance support and approved-language review.",
     cta: "Request Language Review",
-    href: "#",
+    href: "/patient-support",
     tone: "navy",
   },
   {
@@ -27,7 +27,7 @@ const ISSUES = [
     title: "Signal interpretation concern",
     description: "Signal guidance support for state, freshness, and limitations.",
     cta: "Get Signal Guidance",
-    href: "#",
+    href: "/availability-signals",
     tone: "navy",
   },
   {
@@ -35,7 +35,7 @@ const ISSUES = [
     title: "Workflow routing issue",
     description: "Workflow operations review and routing correction.",
     cta: "Report Routing Issue",
-    href: "#",
+    href: "/patient-support",
     tone: "navy",
   },
   {
@@ -43,7 +43,7 @@ const ISSUES = [
     title: "Privacy or PHI concern",
     description: "Privacy support escalation handled under incident procedures.",
     cta: "Report Privacy Concern",
-    href: "#",
+    href: "/privacy-center",
     tone: "red",
   },
   {
@@ -51,7 +51,7 @@ const ISSUES = [
     title: "Security or unauthorized access",
     description: "Security support escalation with verification and audit.",
     cta: "Report Security Concern",
-    href: "#",
+    href: "/security",
     tone: "red",
   },
 ] as const;

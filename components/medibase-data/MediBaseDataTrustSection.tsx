@@ -134,7 +134,7 @@ export default function MediBaseDataTrustSection() {
                   Request MediBase™ Data Briefing
                 </Link>
                 <Link
-                  href="#"
+                  href="/api-access"
                   className="inline-flex items-center justify-center rounded-xl border border-white/25 px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/5 active:scale-[0.97]"
                 >
                   Discuss Data/API Access

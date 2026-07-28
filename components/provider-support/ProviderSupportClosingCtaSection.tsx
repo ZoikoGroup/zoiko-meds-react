@@ -81,7 +81,8 @@ export default function ProviderSupportClosingCtaSection() {
 
                     <button
                       type="button"
-                      className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
+                      onClick={()=>router.push("/request-a-briefing")}
+                      className="rounded-xl border border-white/20 cursor-pointer bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
                     >
                       Request Provider Briefing
                     </button>

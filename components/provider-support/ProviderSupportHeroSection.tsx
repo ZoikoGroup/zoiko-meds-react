@@ -82,7 +82,7 @@ export default function ProviderSupportHeroSection() {
                       Get Provider Support
                     </a>
                     <a
-                      href="#"
+                      href="/request-a-briefing"
                       className="inline-flex items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       Request Provider Briefing
@@ -92,7 +92,7 @@ export default function ProviderSupportHeroSection() {
 
                 <Reveal index={4}>
                   <a
-                    href="#"
+                    href="/searchmed"
                     className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200 hover:text-[#00786F]"
                     style={{ color: ACCENT }}
                   >

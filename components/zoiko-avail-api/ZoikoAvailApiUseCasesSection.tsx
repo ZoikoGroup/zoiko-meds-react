@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -12,6 +13,7 @@ const USE_CASES = [
     bestFit: "Telehealth platforms, virtual clinics, async care.",
     cta: "Discuss Telehealth Integration",
     icon: "monitor",
+    link:"/integrations",
   },
   {
     title: "Payer & member support",
@@ -20,6 +22,7 @@ const USE_CASES = [
     bestFit: "Payers, PBMs, member-support platforms.",
     cta: "Request Payer Briefing",
     icon: "shield",
+    link:"/request-a-briefing",
   },
   {
     title: "Provider & care navigation",
@@ -28,6 +31,7 @@ const USE_CASES = [
     bestFit: "Health systems, care teams, navigation platforms.",
     cta: "Request Provider Workflow Briefing",
     icon: "home",
+    link:"/provider-overview",
   },
   {
     title: "Digital health & patient apps",
@@ -36,6 +40,7 @@ const USE_CASES = [
     bestFit: "Digital health, patient support, chronic-care apps.",
     cta: "Request API Access",
     icon: "phone",
+    link:"#request",
   },
   {
     title: "Enterprise pharmacy platforms",
@@ -44,6 +49,7 @@ const USE_CASES = [
     bestFit: "Pharmacy operators, systems, integration partners.",
     cta: "Discuss Pharmacy Integration",
     icon: "house",
+    link:"/integrations",
   },
   {
     title: "Public-sector & access programs",
@@ -52,6 +58,7 @@ const USE_CASES = [
     bestFit: "Government, public health, preparedness, NGOs.",
     cta: "Request Public Health API Briefing",
     icon: "building",
+    link:"/government-public-health",
   },
 ] as const;
 
@@ -149,13 +156,16 @@ function UseCaseCard({
   bestFit,
   cta,
   icon,
+  link
 }: {
   title: string;
   description: string;
   bestFit: string;
   cta: string;
   icon: string;
+  link:string;
 }) {
+  const router = useRouter();
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_24px_-12px_rgba(15,31,78,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D7DCE6] hover:shadow-[0_16px_36px_-12px_rgba(15,31,78,0.14)]">
       <div
@@ -180,7 +190,8 @@ function UseCaseCard({
 
       <button
         type="button"
-        className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+        onClick={()=>router.push(link)}
+        className="mt-5 w-full rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}
       </button>

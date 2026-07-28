@@ -37,7 +37,7 @@ export default function ZoikoAvailApiFaqSection() {
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
+    <section id="view" className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
       <div className="relative mx-auto max-w-4xl px-6 lg:px-8">
         {/* ---------------- Eyebrow + heading ---------------- */}
         {mounted ? (
