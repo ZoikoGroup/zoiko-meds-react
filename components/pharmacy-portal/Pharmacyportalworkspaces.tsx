@@ -21,7 +21,7 @@ const WORKSPACES = [
       "Name, address, hours, contact details, service area, and public-facing profile information.",
     highlight: "Keep patient-facing info accurate.",
     cta: "Sign In to Update Profile",
-    href: "#",
+    href: "https://zoiko-meds-platform.vercel.app/login",
   },
   {
     icon: "lock",
@@ -30,7 +30,7 @@ const WORKSPACES = [
       "Confidence-based participation, visibility preferences, signal status, freshness, and exact-stock suppression.",
     highlight: "Support search; protect inventory.",
     cta: "View Data Controls",
-    href: "#",
+    href: "/availability-signals",
   },
   {
     icon: "phone",
@@ -39,7 +39,7 @@ const WORKSPACES = [
       "Structured review and response workflows for supported availability confirmation requests.",
     highlight: "Reduce repeated calls.",
     cta: "Learn About Confirmation",
-    href: "#",
+    href: "/confirmation-requests",
   },
   {
     icon: "branch",
@@ -48,7 +48,7 @@ const WORKSPACES = [
       "Organization-level users, branch-level access, roles, operating locations, and team permissions.",
     highlight: "Scale from one store to many.",
     cta: "Request Chain Briefing",
-    href: "#",
+    href: "/request-a-briefing",
   },
   {
     icon: "code",
@@ -57,7 +57,7 @@ const WORKSPACES = [
       "Approved inventory-signal workflows, secure uploads, PMS/POS connections, APIs, and structured feeds.",
     highlight: "Less manual work, fresher signals.",
     cta: "Discuss Integration",
-    href: "#",
+    href: "/integrations",
   },
   {
     icon: "doc",

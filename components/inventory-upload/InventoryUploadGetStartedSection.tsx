@@ -21,7 +21,7 @@ const PATHS = [
     description:
       "Single-location pharmacies using portal updates or simple signal controls.",
     cta: "Start Portal Setup",
-    href: "#",
+    href: "/pharmacy-portal",
   },
   {
     icon: "branch",
@@ -29,7 +29,7 @@ const PATHS = [
     description:
       "Multi-location operators needing branch controls, secure files, PMS/POS integration, or governance review.",
     cta: "Request Chain Integration",
-    href: "#",
+    href: "/request-a-briefing",
   },
   {
     icon: "code",
@@ -37,7 +37,7 @@ const PATHS = [
     description:
       "IT teams, PMS/POS vendors, API teams, and structured-feed implementation teams.",
     cta: "Discuss API Integration",
-    href: "#",
+    href: "/api-access",
   },
 ] as const;
 
@@ -87,7 +87,7 @@ export default function InventoryUploadGetStartedSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section ref={ref} id="signal-setup" className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
 
         {/* ── Header ── */}

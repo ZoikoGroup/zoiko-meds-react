@@ -72,7 +72,7 @@ export default function PharmacyPortalVerificationStandardsSection() {
                 <Reveal index={3}>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <a
-                      href="#claim-your-pharmacy"
+                      href="pharmacy"
                       className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                     >
@@ -89,7 +89,7 @@ export default function PharmacyPortalVerificationStandardsSection() {
 
                 <Reveal index={4}>
                   <a
-                    href="#"
+                    href="/pharmacy"
                     className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200 hover:text-[#00786F]"
                     style={{ color: ACCENT }}
                   >

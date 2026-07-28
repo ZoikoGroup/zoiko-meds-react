@@ -12,7 +12,7 @@ const ISSUES = [
     description:
       "Authenticated access support with identity verification and role review.",
     cta: "Get Portal Access Help",
-    href: "/pharmacy-support/portal-access",
+    href: "/pharmacy-portal",
     tone: "navy",
   },
   {
@@ -21,7 +21,7 @@ const ISSUES = [
     description:
       "Profile correction review; branch or location verification as needed.",
     cta: "Report Profile Issue",
-    href: "/pharmacy-support/profile-update",
+    href: "/pharmacy-support",
     tone: "navy",
   },
   {
@@ -30,7 +30,7 @@ const ISSUES = [
     description:
       "Availability signal support; data-control and participation review.",
     cta: "Review Signal Settings",
-    href: "/pharmacy-portal#data-controls",
+    href: "/availability-signals",
     tone: "navy",
   },
   {
@@ -39,7 +39,7 @@ const ISSUES = [
     description:
       "Volume-control and pause support; branch-routing review.",
     cta: "Adjust Request Controls",
-    href: "/confirmation-requests/support",
+    href: "/confirmation-requests",
     tone: "navy",
   },
   {
@@ -48,7 +48,7 @@ const ISSUES = [
     description:
       "Technical integration queue; secure handling of upload or API details.",
     cta: "Contact Integration Support",
-    href: "/pharmacy-support/integration",
+    href: "/integrations",
     tone: "navy",
   },
   {
@@ -57,7 +57,7 @@ const ISSUES = [
     description:
       "Security escalation with authenticated or additional verification.",
     cta: "Report Security Concern",
-    href: "/pharmacy-support/security-concern",
+    href: "/security",
     tone: "red",
   },
 ] as const;
