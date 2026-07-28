@@ -95,7 +95,7 @@ export default function EnterpriseSolutionsHeroSection() {
             {/* Arrow text link */}
             <Reveal index={5} active={mounted}>
               <Link
-                href="#"
+                href="/security"
                 className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium transition-opacity hover:opacity-80"
                 style={{ color: ACCENT }}
               >

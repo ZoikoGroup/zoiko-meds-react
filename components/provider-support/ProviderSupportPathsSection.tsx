@@ -12,7 +12,7 @@ const PATHS = [
     description:
       "Help understanding signal states, freshness, exact-stock limitations, and patient-safe explanations.",
     cta: "Get Signal Guidance",
-    href: "/availability-confidence",
+    href: "/availability-signals",
   },
   {
     icon: "lines",
@@ -20,7 +20,7 @@ const PATHS = [
     description:
       "Help with discharge support, shortage follow-up, chronic medication access, caregiver handoff, and patient self-service routing.",
     cta: "Get Workflow Support",
-    href: "/provider-support",
+    href: "/patient-support",
   },
   {
     icon: "users",
@@ -44,7 +44,7 @@ const PATHS = [
     description:
       "Help for clinics, health systems, telehealth teams, digital-health platforms, security review, procurement review, and integration routing.",
     cta: "Request Organization Review",
-    href: "#",
+    href: "/integrations",
   },
   {
     icon: "search",

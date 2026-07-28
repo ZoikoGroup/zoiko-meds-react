@@ -12,7 +12,7 @@ const PATHS = [
     description:
       "Claim already submitted, more information requested, license/registry review, duplicate profile, or authorized-representative questions.",
     cta: "Check Verification Status",
-    href: "/verification#status",
+    href: "/verification",
   },
   {
     icon: "lock",
@@ -20,7 +20,7 @@ const PATHS = [
     description:
       "Can't sign in, MFA or passkey issue, branch not visible, wrong role assigned, or a user invitation problem.",
     cta: "Get Portal Access Help",
-    href: "/pharmacy-support/portal-access",
+    href: "/pharmacy-portal",
   },
   {
     icon: "home",
@@ -28,7 +28,7 @@ const PATHS = [
     description:
       "Update address, correct phone, change hours, add or remove a branch, or report inaccurate profile information.",
     cta: "Request Profile Update",
-    href: "/pharmacy-support/profile-update",
+    href: "/pharmacy-support",
   },
   {
     icon: "bell",
@@ -36,7 +36,7 @@ const PATHS = [
     description:
       "Signal looks stale, participation paused, visibility review, exact-stock protection question, or an inventory signal issue.",
     cta: "View Data Controls",
-    href: "/pharmacy-portal#data-controls",
+    href: "/availability-signals",
   },
   {
     icon: "phone",
@@ -44,7 +44,7 @@ const PATHS = [
     description:
       "Requests going to the wrong branch, queue volume too high, need to pause requests, unclear templates, or audit-history questions.",
     cta: "Get Confirmation Request Help",
-    href: "/confirmation-requests/support",
+    href: "/confirmation-requests",
   },
   {
     icon: "code",
@@ -52,7 +52,7 @@ const PATHS = [
     description:
       "Upload error, API credential issue, PMS/POS or branch mapping, file validation error, or integration status.",
     cta: "Discuss Integration Support",
-    href: "/pharmacy-support/integration",
+    href: "/integrations",
   },
   {
     icon: "users",
@@ -60,7 +60,7 @@ const PATHS = [
     description:
       "Add or remove users, change roles, branch permission mismatch, staff turnover, or organization-level access issues.",
     cta: "Request Access Review",
-    href: "/pharmacy-support/access-review",
+    href: "/request-a-briefing",
   },
   {
     icon: "shieldAlert",
@@ -68,7 +68,7 @@ const PATHS = [
     description:
       "Suspicious access, an unauthorized user, compromised credentials, improper branch access, or possible workspace misuse.",
     cta: "Report Security Concern",
-    href: "/pharmacy-support/security-concern",
+    href: "/security",
   },
 ] as const;
 

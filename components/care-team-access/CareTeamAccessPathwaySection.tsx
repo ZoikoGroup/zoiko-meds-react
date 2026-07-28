@@ -22,7 +22,7 @@ const PATHS = [
       "Hospitals, clinics, telehealth teams, and health systems evaluating governed access.",
     cta: "Request Organization Review",
     variant: "outline",
-    link:"#"
+    link:"/provider-support"
   },
   {
     icon: "search",

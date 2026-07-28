@@ -12,6 +12,7 @@ const PATHWAY_CARDS = [
       "CTOs, product, engineering, digital health platforms, and integration buyers.",
     cta: "Request API Access",
     icon: "code",
+    link: "#request",
   },
   {
     title: "Technical briefing",
@@ -19,6 +20,7 @@ const PATHWAY_CARDS = [
       "Enterprise architects, data teams, engineering leads, and platform teams.",
     cta: "Request Technical Briefing",
     icon: "monitor",
+    link: "/request-a-briefing",
   },
   {
     title: "Security & procurement",
@@ -26,6 +28,7 @@ const PATHWAY_CARDS = [
       "InfoSec, privacy, legal, procurement, and compliance reviewers.",
     cta: "Request Security Pack",
     icon: "lock",
+    link: "/security",
   },
   {
     title: "Medicine data review",
@@ -33,6 +36,7 @@ const PATHWAY_CARDS = [
       "Teams needing medicine identity normalization before availability integration.",
     cta: "Explore MediBase™",
     icon: "search",
+    link: "/medibase-data",
   },
 ] as const;
 
@@ -81,7 +85,9 @@ export default function ZoikoAvailApiAccessPathwaysSection() {
                   <PathwayCard {...card} />
                 </Reveal>
               ))
-            : Array.from({ length: 4 }).map((_, i) => <PathwayCardSkeleton key={i} />)}
+            : Array.from({ length: 4 }).map((_, i) => (
+                <PathwayCardSkeleton key={i} />
+              ))}
         </div>
 
         {/* ---------------- Closing CTA banner ---------------- */}
@@ -139,12 +145,15 @@ function PathwayCard({
   description,
   cta,
   icon,
+  link
 }: {
   title: string;
   description: string;
   cta: string;
   icon: string;
+  link:string;
 }) {
+  const router = useRouter();
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_24px_-12px_rgba(15,31,78,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D7DCE6] hover:shadow-[0_16px_36px_-12px_rgba(15,31,78,0.14)]">
       <div
@@ -162,7 +171,8 @@ function PathwayCard({
 
       <button
         type="button"
-        className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+        onClick={()=>router.push(link)}
+        className="mt-5 w-full rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}
       </button>
@@ -197,14 +207,14 @@ function ClosingCtaBanner() {
       </h3>
 
       <p className="mx-auto mt-4 max-w-2xl text-[14px] leading-relaxed text-[#9AA3B5]">
-        Integrate confidence-based medicine availability signals,
-        freshness metadata, confirmation-aware workflows, and
-        jurisdiction-aware controls into regulated healthcare products.
+        Integrate confidence-based medicine availability signals, freshness
+        metadata, confirmation-aware workflows, and jurisdiction-aware controls
+        into regulated healthcare products.
       </p>
 
       <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <button
-        onClick={()=>router.push("#request")}
+          onClick={() => router.push("#request")}
           type="button"
           className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           style={{ backgroundColor: ACCENT }}
@@ -220,7 +230,8 @@ function ClosingCtaBanner() {
 
         <button
           type="button"
-          className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
+          onClick={()=>router.push("/request-a-briefing")}
+          className="rounded-xl border border-white/20 cursor-pointer bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
         >
           Request Technical Briefing
         </button>

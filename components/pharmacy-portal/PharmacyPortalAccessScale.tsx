@@ -22,7 +22,7 @@ const TIERS = [
       "Single-location and pharmacist-owned stores manage profile, availability settings, confirmation routing, support, and basic user access.",
     pills: null,
     cta: "Claim Your Pharmacy",
-    link:"#claim-your-pharmacy"
+    link:"/pharmacy"
   },
   {
     icon: "users",
@@ -48,7 +48,7 @@ const TIERS = [
       "Multi-branch operators use branch-level control, organization roles, SSO readiness, audit visibility, and integration governance.",
     pills: null,
     cta: "Request Chain Briefing",
-    link:"#"
+    link:"/request-a-briefing"
   },
 ] as const;
 

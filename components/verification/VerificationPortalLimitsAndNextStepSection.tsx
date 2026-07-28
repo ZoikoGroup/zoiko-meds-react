@@ -50,7 +50,7 @@ const NEXT_STEPS = [
     description: "Claim or verify your pharmacy profile.",
     cta: "Claim Your Pharmacy",
     variant: "solid",
-    link:"#claim-your-pharmacy"
+    link:"/pharmacy"
   },
   {
     icon: "building",
@@ -58,7 +58,7 @@ const NEXT_STEPS = [
     description: "Verify multiple branches, users, and role structures.",
     cta: "Request Chain Briefing",
     variant: "outline",
-    link:"#"
+    link:"/request-a-briefing"
   },
   {
     icon: "search",
@@ -144,7 +144,7 @@ export default function VerificationLimitsAndNextStepSection() {
   }
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section ref={ref} id="status" className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         <div className="mx-auto max-w-2xl text-center">

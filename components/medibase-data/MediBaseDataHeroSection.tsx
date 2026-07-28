@@ -23,12 +23,24 @@ export default function MediBaseDataHeroSection() {
         {mounted ? (
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <a
+                href="/"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
                 Home
               </a>
               <span>/</span>
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
-                Enterprise &amp; Intelligence
+              <a
+                href="/enterprise"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
+                Enterprise &amp;
+              </a>
+              <a
+                href="/intelligence"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
+                intelligence
               </a>
               <span>/</span>
               <span className="text-[#0F1F4E]">MediBase™ data</span>
@@ -63,18 +75,18 @@ export default function MediBaseDataHeroSection() {
 
                 <Reveal index={3}>
                   <p className="max-w-lg text-[15px] leading-relaxed text-[#5B6478]">
-                    MediBase™ normalizes medicine names, brands,
-                    generics, strengths, dosage forms, identifiers, and
-                    jurisdictional context so enterprises can build
-                    cleaner search, API, availability, and intelligence
-                    workflows on governed medicine data.
+                    MediBase™ normalizes medicine names, brands, generics,
+                    strengths, dosage forms, identifiers, and jurisdictional
+                    context so enterprises can build cleaner search, API,
+                    availability, and intelligence workflows on governed
+                    medicine data.
                   </p>
                 </Reveal>
 
                 <Reveal index={4}>
                   <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                     <button
-                    onClick={()=>router.push("#request")}
+                      onClick={() => router.push("#request")}
                       type="button"
                       className="group relative cursor-pointer overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
@@ -94,7 +106,8 @@ export default function MediBaseDataHeroSection() {
 
                     <button
                       type="button"
-                      className="rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+                      onClick={()=>router.push("/api-access")}
+                      className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       Discuss Data/API Access
                     </button>
@@ -103,10 +116,12 @@ export default function MediBaseDataHeroSection() {
 
                 <Reveal index={5}>
                   <a
-                    href="#"
+                    href="#view"
                     className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
                     style={{ color: ACCENT }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#0C8A6E")
+                    }
                     onMouseLeave={(e) => (e.currentTarget.style.color = ACCENT)}
                   >
                     View Data Governance
@@ -133,12 +148,18 @@ export default function MediBaseDataHeroSection() {
                       viewBox="0 0 16 16"
                       fill="none"
                     >
-                      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.5"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
                     </svg>
                     MediBase™ supports medicine identity matching and
-                    availability workflows. It does not provide clinical
-                    advice, recommend substitutes, validate
-                    prescriptions, or confirm dispensing eligibility.
+                    availability workflows. It does not provide clinical advice,
+                    recommend substitutes, validate prescriptions, or confirm
+                    dispensing eligibility.
                   </p>
                 </Reveal>
               </div>
@@ -155,10 +176,10 @@ export default function MediBaseDataHeroSection() {
                 className="mt-3 animate-[zoikoSignalFadeUp_0.5s_ease-out_forwards] text-center text-[11.5px] leading-relaxed text-[#9AA3B5]"
                 style={{ opacity: 0, animationDelay: "1100ms" }}
               >
-                Illustrative example. Data availability, identifier
-                coverage, regulatory context, and jurisdictional
-                mappings depend on licensed sources, approved use, data
-                quality, and contract scope.
+                Illustrative example. Data availability, identifier coverage,
+                regulatory context, and jurisdictional mappings depend on
+                licensed sources, approved use, data quality, and contract
+                scope.
               </p>
             )}
           </div>
@@ -233,13 +254,20 @@ function MedicineIdentityCard() {
         <p className="mt-1.5 text-[18px] font-bold text-[#0F1F4E]">
           Atorvastatin
         </p>
-        <p className="mt-1 text-[12.5px] font-semibold" style={{ color: ACCENT }}>
+        <p
+          className="mt-1 text-[12.5px] font-semibold"
+          style={{ color: ACCENT }}
+        >
           Brand: Lipitor® · generic, synonyms aligned
         </p>
       </div>
 
       {/* active ingredient / strength / route */}
-      <DetailRow label="Active ingredient" value="Atorvastatin calcium" delay={320} />
+      <DetailRow
+        label="Active ingredient"
+        value="Atorvastatin calcium"
+        delay={320}
+      />
       <DetailRow label="Strength · form" value="10 mg · tablet" delay={390} />
       <DetailRow label="Route" value="Oral" delay={460} last />
 
@@ -263,8 +291,20 @@ function MedicineIdentityCard() {
         ))}
       </div>
 
-      <DetailRow label="Jurisdiction" valueNode={<Pill tone="blue">Region: US / EU</Pill>} delay={600} />
-      <DetailRow label="ZoikoAvail™ linkage" valueNode={<Pill tone="green" icon="check">Linked</Pill>} delay={670} />
+      <DetailRow
+        label="Jurisdiction"
+        valueNode={<Pill tone="blue">Region: US / EU</Pill>}
+        delay={600}
+      />
+      <DetailRow
+        label="ZoikoAvail™ linkage"
+        valueNode={
+          <Pill tone="green" icon="check">
+            Linked
+          </Pill>
+        }
+        delay={670}
+      />
       <DetailRow
         label="Governance"
         valueNode={
@@ -328,8 +368,8 @@ function Pill({
     tone === "green"
       ? "bg-[#DCF5EE] text-[#0C8A6E]"
       : tone === "blue"
-      ? "bg-[#E3E8FB] text-[#3B5BDB]"
-      : "bg-[#EEF1F6] text-[#5B6478]";
+        ? "bg-[#E3E8FB] text-[#3B5BDB]"
+        : "bg-[#EEF1F6] text-[#5B6478]";
 
   return (
     <span
