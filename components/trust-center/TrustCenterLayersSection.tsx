@@ -12,7 +12,7 @@ const LAYERS = [
     description: "Anonymous-first search, account controls, role-based access, MFA/passkey readiness, and SSO readiness where applicable.",
     note: "Users and organizations reach the right workflows without unnecessary data collection.",
     cta: "View Account Security",
-    href: "/account-security",
+    href: "/security",
   },
   {
     badge: "Pharmacy Trust",
@@ -20,7 +20,7 @@ const LAYERS = [
     description: "Verified pharmacy participation, authorized-user controls, branch permissions, profile governance, and auditability.",
     note: "Users see participating pharmacy information with clearer accountability.",
     cta: "View Verification Standards",
-    href: "/verification-standards",
+    href: "/verification",
   },
   {
     badge: "Medicine Data Trust",
@@ -28,7 +28,7 @@ const LAYERS = [
     description: "Medicine identity normalization, brand/generic matching, strength/form support, and jurisdiction context.",
     note: "Search and integration rely on cleaner medicine identity logic.",
     cta: "Explore MediBase™",
-    href: "/medibase",
+    href: "/medibase-data",
   },
   {
     badge: "Availability Trust",
@@ -44,7 +44,7 @@ const LAYERS = [
     description: "Aggregated, anonymized, thresholded, contract-scoped institutional intelligence.",
     note: "Institutions gain access visibility without patient-level exposure.",
     cta: "Explore ZoikoSignal™",
-    href: "/zoikosignal",
+    href: "/zoikosignal-intelligence",
   },
   {
     badge: "Operational Trust",
@@ -52,7 +52,7 @@ const LAYERS = [
     description: "Incident response, support routing, security review, document governance, accessibility, and policy versioning.",
     note: "Stakeholders know how trust is maintained over time.",
     cta: "Request Trust Pack",
-    href: "/request-trust-pack",
+    href: "/request-a-briefing",
   },
 ] as const;
 
