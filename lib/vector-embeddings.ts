@@ -116,7 +116,7 @@ export interface RemoteVectorMatch {
 }
 
 export async function queryExternalVectorStore(
-  _query: RemoteVectorQuery
+  query: RemoteVectorQuery
 ): Promise<RemoteVectorMatch[] | null> {
   const provider = process.env.VECTOR_DB_TYPE;
   if (!provider) {
@@ -125,6 +125,6 @@ export async function queryExternalVectorStore(
   }
 
   // Fallback / stub for production Pinecone or pgvector connector
-  console.log(`[Vector DB] Connected to provider: ${provider}`);
+  console.log(`[Vector DB] Connected to provider: ${provider} (topK=${query.topK})`);
   return null;
 }

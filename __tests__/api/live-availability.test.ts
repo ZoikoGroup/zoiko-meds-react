@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
-  lookupAvailability,
   lookupAvailabilityAsync,
-  fetchLiveStockFromApi,
 } from "@/lib/availability";
 
 describe("Live Pharmacy Inventory API Integration (lib/availability.ts)", () => {

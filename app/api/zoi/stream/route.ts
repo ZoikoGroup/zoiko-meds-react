@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
-import { resolveMedicine } from "@/lib/medibase";
+import { isDrugLikeTerm } from "@/lib/medibase";
 import { searchContent, type ContentDocument } from "@/lib/site-content";
-import { lookupAvailability, lookupAvailabilityAsync, findMedicineInQuery, extractRegion } from "@/lib/availability";
+import { lookupAvailabilityAsync, findMedicineInQuery, extractRegion } from "@/lib/availability";
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
