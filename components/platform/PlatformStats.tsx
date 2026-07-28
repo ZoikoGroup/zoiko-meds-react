@@ -10,7 +10,7 @@ export default function PlatformStats() {
 
                 <div className="flex flex-col sm:flex-row gap-4">
                     <a
-                        href="#"
+                        href="/searchmed"
                         className="bg-white text-[#005C55] font-semibold text-[15px] px-10 py-4 rounded-sm hover:bg-gray-50 transition-colors duration-150 whitespace-nowrap"
                     >
                         Check Medicine Availability

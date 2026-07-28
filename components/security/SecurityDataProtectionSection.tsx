@@ -61,32 +61,43 @@ export default function SecurityDataProtectionSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
+    <section
+      ref={ref}
+      className="relative w-full py-20 sm:py-24"
+      style={{ backgroundColor: BG }}
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
             className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: ACCENT }}
           >
-            <span className="opacity-60" style={{ color: NAVY }}>04</span>
-            <span className="opacity-40" style={{ color: NAVY }}>·</span>
+            <span className="opacity-60" style={{ color: NAVY }}>
+              04
+            </span>
+            <span className="opacity-40" style={{ color: NAVY }}>
+              ·
+            </span>
             Data Protection &amp; Privacy
           </p>
         </Reveal>
 
         {/* ── Headline ── */}
         <Reveal index={1} active={mounted}>
-          <h2 className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]" style={{ color: NAVY }}>
-            Privacy-aware by <span style={{ color: ACCENT }}>architecture.</span>
+          <h2
+            className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]"
+            style={{ color: NAVY }}
+          >
+            Privacy-aware by{" "}
+            <span style={{ color: ACCENT }}>architecture.</span>
           </h2>
         </Reveal>
 
@@ -104,7 +115,10 @@ export default function SecurityDataProtectionSection() {
                 <p className="text-[14px] font-bold" style={{ color: NAVY }}>
                   {card.title}
                 </p>
-                <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}99` }}>
+                <p
+                  className="mt-2 text-[12.5px] leading-relaxed"
+                  style={{ color: `${NAVY}99` }}
+                >
                   {card.body}
                 </p>
               </div>
@@ -113,10 +127,12 @@ export default function SecurityDataProtectionSection() {
 
           {/* Privacy Center CTA card — same size as the rest */}
           <Reveal index={2 + CARDS.length} active={mounted}>
-            <a
-              href="#privacy-center"
+            <div
               className="group flex h-full flex-col rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(19,165,148,0.15)]"
-              style={{ backgroundColor: `${ACCENT}14`, borderColor: `${ACCENT}40` }}
+              style={{
+                backgroundColor: `${ACCENT}14`,
+                borderColor: `${ACCENT}40`,
+              }}
             >
               <div
                 className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-200 group-hover:translate-x-0.5"
@@ -127,20 +143,23 @@ export default function SecurityDataProtectionSection() {
               <p className="text-[14px] font-bold" style={{ color: NAVY }}>
                 Privacy Center
               </p>
-              <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}99` }}>
+              <p
+                className="mt-2 text-[12.5px] leading-relaxed"
+                style={{ color: `${NAVY}99` }}
+              >
                 Reach privacy details, notices, and controls.
               </p>
-              <span
+              <a
+                href="/privacy-center"
                 className="mt-4 inline-flex items-center gap-1.5 text-[12.5px] font-semibold"
                 style={{ color: ACCENT }}
               >
                 Visit Privacy Center
                 <ArrowRightIcon />
-              </span>
-            </a>
+              </a>
+            </div>
           </Reveal>
         </div>
-
       </div>
     </section>
   );
@@ -203,7 +222,13 @@ function CardIcon({ name }: { name: (typeof CARDS)[number]["icon"] }) {
 function ArrowIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="M5 12h14M13 6l6 6-6 6" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M5 12h14M13 6l6 6-6 6"
+        stroke={ACCENT}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -211,7 +236,13 @@ function ArrowIcon() {
 function ArrowRightIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 8H13M13 8L9 4M13 8L9 12"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -219,9 +250,24 @@ function ArrowRightIcon() {
 /* ------------------------------------------------------------------ */
 /*  Reveal                                                             */
 /* ------------------------------------------------------------------ */
-function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
+function Reveal({
+  children,
+  index,
+  active,
+}: {
+  children: React.ReactNode;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `securityDataProtectionFadeUp 0.6s ease-out ${index * 90}ms both` : "none" }}>
+    <div
+      style={{
+        opacity: active ? undefined : 0,
+        animation: active
+          ? `securityDataProtectionFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
+      }}
+    >
       {children}
       <style>{`
         @keyframes securityDataProtectionFadeUp {
