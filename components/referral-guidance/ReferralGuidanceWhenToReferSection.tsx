@@ -16,7 +16,7 @@ const REFERRAL_CARDS = [
     donts: ["Not for changing the prescription, selecting substitutes, or confirming suitability."],
     cta: "View Signal Guide",
     ctaFilled: false,
-    href: "#",
+    href: "/availability-signals",
     colSpan: 1,
   },
   {
@@ -40,7 +40,7 @@ const REFERRAL_CARDS = [
     donts: ["Not for declaring official shortages or recommending alternative therapy."],
     cta: "View Medication Availability Signals",
     ctaFilled: false,
-    href: "#",
+    href: "/availability-alert",
     colSpan: 1,
   },
 ] as const;

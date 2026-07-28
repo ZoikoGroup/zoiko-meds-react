@@ -82,13 +82,13 @@ export default function PrivacyCenterHeroSection() {
             {/* CTAs */}
             <Reveal index={4} active={mounted}>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <a
+           { /*    <a
                   href="#"
                   className="inline-flex items-center justify-center rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Manage Privacy Choices
-                </a>
+                </a>*/}
                 <a
                   href="#request"
                   className="inline-flex items-center justify-center rounded-lg border border-[#E7EAF1] bg-white px-5 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-150 hover:border-[#0F1F4E]"

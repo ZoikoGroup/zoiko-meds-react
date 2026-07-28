@@ -17,7 +17,7 @@ const STATUSES = [
     visibility: "Limited or suppressed, where approved.",
     action: "An authorized representative can start a claim.",
     cta: "Claim This Pharmacy",
-    link:"#claim-your-pharmacy"
+    link:"/pharmacy"
   },
   {
     tone: "blue" as Tone,
@@ -28,7 +28,7 @@ const STATUSES = [
     visibility: "No verified badge until review is complete.",
     action: "Check status or provide more information.",
     cta: "Check Verification Status",
-    link:"#",
+    link:"#status",
   },
   {
     tone: "amber" as Tone,
@@ -40,7 +40,7 @@ const STATUSES = [
       "May display a verified participation badge, subject to platform rules.",
     action: "View details and availability signals where supported.",
     cta: "View Pharmacy Profile",
-    link:"#",
+    link:"/",
   },
   {
     tone: "green" as Tone,

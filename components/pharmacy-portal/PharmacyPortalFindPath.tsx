@@ -20,7 +20,7 @@ const PATHS = [
     description: "Approved pharmacy users who need portal access.",
     cta: "Sign In to Pharmacy Portal",
     variant: "solid",
-    link:"#"
+    link:"https://zoiko-meds-platform.vercel.app/login"
   },
   {
     icon: "home",
@@ -29,7 +29,7 @@ const PATHS = [
       "Pharmacies that need to verify, claim, or activate participation.",
     cta: "Claim Your Pharmacy",
     variant: "outline",
-    link:"#claim-your-pharmacy"
+    link:"/pharmacy"
   },
   {
     icon: "shield",
@@ -37,7 +37,7 @@ const PATHS = [
     description: "Pharmacies not yet participating in ZoikoMeds.",
     cta: "Join the Verified Network",
     variant: "outline",
-    link:"/join-the-network#verified-network"
+    link:"/join-the-network"
   },
   {
     icon: "code",
@@ -46,7 +46,7 @@ const PATHS = [
       "Multi-branch operators, PMS/POS, API, or structured-feed discussions.",
     cta: "Discuss Integration",
     variant: "outline",
-    link:"#"
+    link:"/integrations"
   },
   {
     icon: "help",
@@ -55,7 +55,7 @@ const PATHS = [
       "Access, confirmation, verification, data-control, or technical issues.",
     cta: "Get Pharmacy Support",
     variant: "outline",
-    link:"#"
+    link:"/pharmacy-support"
   },
 ] as const;
 

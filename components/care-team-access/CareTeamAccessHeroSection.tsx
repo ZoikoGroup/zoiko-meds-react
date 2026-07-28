@@ -93,7 +93,7 @@ export default function CareTeamAccessHeroSection() {
 
               <Reveal index={4}>
                 <a
-                  href="#"
+                  href="/availability-signals"
                   className="inline-flex items-center text-[13.5px] font-semibold transition-colors duration-200"
                   style={{ color: ACCENT }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}

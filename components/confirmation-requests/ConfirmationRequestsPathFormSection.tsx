@@ -83,7 +83,7 @@ export default function ConfirmationRequestsPathFormSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] ">
+    <section ref={ref} id="request" className="relative w-full bg-[#F4F6FA] ">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         {mounted ? (

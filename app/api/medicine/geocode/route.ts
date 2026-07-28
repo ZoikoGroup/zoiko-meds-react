@@ -5,7 +5,11 @@ export async function POST(req: NextRequest) {
   if (!address) return NextResponse.json({ success: false, error: "No address" }, { status: 400 });
 
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`;
-  const resp = await fetch(url, { headers: { "User-Agent": "ZoikoMeds/1.0" } });
+  const resp = await fetch(url, {
+    headers: { "User-Agent": "ZoikoMeds/1.0 (contact@zoikogroup.com)" },
+    cache: "no-store",
+  });
+  if (!resp.ok) return NextResponse.json({ success: false, error: "Location not found" }, { status: 404 });
   const data = await resp.json();
 
   if (!data[0]) return NextResponse.json({ success: false, error: "Location not found" }, { status: 404 });
