@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -21,13 +22,13 @@ export default function ZoikoHealthcareHeroSection() {
         {mounted ? (
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <Link href="/" className="transition-colors duration-200 hover:text-[#0F1F4E]">
                 Home
-              </a>
+              </Link>
               <span>/</span>
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <Link href="/trust-center" className="transition-colors duration-200 hover:text-[#0F1F4E]">
                 Trust &amp; Legal
-              </a>
+              </Link>
               <span>/</span>
               <span className="text-[#0F1F4E]">Zoiko Healthcare</span>
             </nav>

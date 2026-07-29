@@ -20,7 +20,7 @@ const PATHS = [
       "Clinics, hospitals, telehealth teams, and health systems evaluating access workflows.",
     cta: "Request Provider Briefing",
     variant: "outline",
-    link:"#"
+    link:"/provider-support"
   },
   {
     icon: "search",

@@ -67,7 +67,7 @@ const METHODS = [
     badge: true,
     cta: "Discuss API Integration",
     ctaFilled: true,
-    href: "#",
+    href: "/api-access",
   },
 ] as const;
 

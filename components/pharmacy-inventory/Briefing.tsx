@@ -262,7 +262,7 @@ export default function Briefing() {
                             <img src="/pharmacy-dispensing/view.png" alt="image" />
                             <p className="text-[#566476] text-sm max-w-160">
                                 A ZoikoMeds representative will review your workflows and onboarding fit. Not a pharmacy
-                                management system, medical advice, or dispensing — don't include PHI, prescriptions, or exact
+                                management system, medical advice, or dispensing — don&apos;t include PHI, prescriptions, or exact
                                 stock.
                             </p>
                         </div>

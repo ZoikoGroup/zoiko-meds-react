@@ -31,6 +31,7 @@ export default function PharmacyHeroSection() {
 
   return (
     <section
+      id="hero"
       ref={sectionRef}
       className="relative w-full overflow-hidden bg-[#0A1330] py-20 sm:py-24 lg:py-28"
     >
@@ -122,7 +123,9 @@ export default function PharmacyHeroSection() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <span className="relative">Claim &amp; Verify Pharmacy</span>
+                    <span className="relative">
+                      Claim &amp; Verify Pharmacy
+                    </span>
                   </button>
 
                   <p className="mt-3 text-[12px] leading-relaxed text-white/40">
@@ -133,7 +136,7 @@ export default function PharmacyHeroSection() {
                   <p className="mt-1 text-[12px] text-white/40">
                     Enterprise chain or health system?{" "}
                     <a
-                      href="#"
+                      href="/integrations"
                       className="inline-flex items-center gap-1 font-medium text-[#00A99D] transition-colors duration-200 hover:text-[#3FD9CC]"
                     >
                       Request an Integration Briefing

@@ -58,7 +58,7 @@ const CARDS = [
     title: "User responsibility",
     description: "Users must use ZoikoMeds lawfully, accurately, and without abuse, scraping, fraud, misinformation, or unauthorized access.",
     link: "Acceptable Use",
-    href: "/acceptable-use",
+    href: "/overview",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),

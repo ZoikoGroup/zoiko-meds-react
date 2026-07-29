@@ -25,7 +25,7 @@ const SCENARIOS = [
     highlight: "Standardizes access conversations during high-friction periods.",
     cta: "View Signal Guide",
     ctaFilled: false,
-    href: "#",
+    href: "/availability-signals",
   },
   {
     icon: "refresh",

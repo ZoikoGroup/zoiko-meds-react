@@ -12,7 +12,7 @@ const TOOLS = [
     description:
       "Patient-safe explanation of whether a signal is strong, limited, confirmation-needed, or unavailable.",
     cta: "View Signal Guide",
-    link:"#"
+    link:"/availability-signals"
   },
   {
     icon: "search",
@@ -36,7 +36,7 @@ const TOOLS = [
     description:
       "Patient-owned follow-up — not provider-owned medical monitoring.",
     cta: "Learn About Alerts",
-    link:"#"
+    link:"availability-alert"
   },
   {
     icon: "team",

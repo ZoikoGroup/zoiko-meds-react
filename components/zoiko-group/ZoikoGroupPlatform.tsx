@@ -105,7 +105,7 @@ export default function ZoikoGroupPlatform() {
                         availability platform operated by Zoiko Healthcare Inc.
                     </p>
                     <div className="mt-6 flex flex-wrap justify-center gap-4">
-                        <button onClick={()=>router.push("#")}
+                        <button onClick={()=>router.push("/request-a-briefing")}
                          className="cursor-pointer rounded-lg bg-[#13A594] border border-[#13A594] px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-600">
                             Request Institutional Briefing
                         </button>

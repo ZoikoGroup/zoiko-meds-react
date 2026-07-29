@@ -31,7 +31,10 @@ type PillVariant = "teal-soft" | "grey-icon" | "blue-soft" | "green-bold";
 export default function InventoryUploadHeroSection() {
   // Hero is always in the viewport — mount right after hydration
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
@@ -94,7 +97,7 @@ export default function InventoryUploadHeroSection() {
             {/* Text link */}
             <Reveal index={4} active={mounted}>
               <Link
-                href="#"
+                href="/join-the-network"
                 className="mt-4 inline-block text-[13px] font-medium transition-opacity hover:opacity-80"
                 style={{ color: ACCENT }}
               >

@@ -35,9 +35,9 @@ export default function ZoikoGroupHero() {
                 {/* Left column */}
                 <div>
                     <div style={fadeUp(0)} className="text-xs flex gap-3 leading-4 tracking-[0.45px] text-[#566476]">
-                        <span>Home</span>
+                        <span className="cursor-pointer" onClick={()=>router.push('/')}>Home</span>
                         <span className="text-[#CDD7E3]">/</span>
-                        <span>Trust</span>
+                        <span className="cursor-pointer" onClick={()=>router.push("/trust-center")}>Trust</span>
                         <span>&</span>
                         <span>Legal</span>
                         <span className="text-[#CDD7E3]">/</span>
@@ -59,7 +59,7 @@ export default function ZoikoGroupHero() {
                     </p>
 
                     <div style={fadeUp(0.3)} className="mt-8 flex flex-col sm:flex-row gap-4 lg:min-w-[580px]">
-                        <button onClick={()=>router.push("#")}
+                        <button onClick={()=>router.push("/request-a-briefing")}
                          className="rounded-xl bg-[#13A594] px-6 py-3 font-semibold border cursor-pointer border-[#13A594] text-white transition hover:bg-teal-700">
                             Request Institutional Briefing
                         </button>

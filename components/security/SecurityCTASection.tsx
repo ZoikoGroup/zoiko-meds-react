@@ -19,9 +19,9 @@ const BG = "#0C1B30";
 const PANEL = "#0B1226";
 
 const SECONDARY_LINKS = [
-  { label: "Visit Trust Center", href: "#trust-center" },
-  { label: "Privacy Center", href: "#privacy-center" },
-  { label: "Terms of Use", href: "#terms-of-use" },
+  { label: "Visit Trust Center", href: "/trust-center" },
+  { label: "Privacy Center", href: "/privacy-center" },
+  { label: "Terms of Use", href: "/terms-of-use" },
 ] as const;
 
 export default function SecurityCTASection() {
@@ -80,7 +80,7 @@ export default function SecurityCTASection() {
                   Request a Security Briefing
                 </a>
                 <a
-                  href="#start-enterprise-review"
+                  href="/enterprise"
                   className="w-full rounded-xl border border-white/20 px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-white/5 sm:w-auto"
                 >
                   Start Enterprise Review

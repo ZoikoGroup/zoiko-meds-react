@@ -91,7 +91,7 @@ export default function PharmacySupportHeroSection() {
 
                 <Reveal index={4}>
                   <a
-                    href="#"
+                    href="/verification"
                     className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200 hover:text-[#00786F]"
                     style={{ color: ACCENT }}
                   >

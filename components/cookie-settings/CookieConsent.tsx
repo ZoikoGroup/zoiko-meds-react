@@ -58,7 +58,7 @@ const cookieCategories: CookieCategory[] = [
 
 export default function CookieConsent() {
     return (
-        <section className="bg-[#f6f9fc] px-6 md:px-54 py-12">
+        <section id="manage" className="bg-[#f6f9fc] px-6 md:px-54 py-12">
             <div className="max-w-6xl mx-auto">
 
                 <p className="text-xs text-[#13A594] tracking-[2px] font-semibold mb-4">

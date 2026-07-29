@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -26,6 +27,7 @@ const TIERS = [
     ],
     cta: "Claim Pharmacy",
     style: "light",
+    href:"#hero"
   },
   {
     badge: "Pro",
@@ -42,6 +44,7 @@ const TIERS = [
     ],
     cta: "Explore Pro",
     style: "pro",
+    href:"#"
   },
   {
     badge: "Enterprise",
@@ -59,6 +62,7 @@ const TIERS = [
     ],
     cta: "Contact Enterprise Sales",
     style: "enterprise",
+    href:"/enterprise"
   },
 ] as const;
 
@@ -175,6 +179,7 @@ function PricingCard({
   cta,
   style,
   index,
+  href
 }: {
   badge: string;
   badgeColor: string;
@@ -185,6 +190,7 @@ function PricingCard({
   cta: string;
   style: "light" | "pro" | "enterprise";
   index: number;
+  href:string;
 }) {
   const wrapperClasses =
     style === "light"
@@ -210,7 +216,7 @@ function PricingCard({
       : style === "pro"
       ? "w-full rounded-xl border border-[#3FD9CC]/40 bg-transparent px-5 py-2.5 text-sm font-semibold text-[#3FD9CC] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#3FD9CC] hover:bg-[#3FD9CC]/10 active:translate-y-0 active:scale-[0.98]"
       : "w-full rounded-xl border border-[#6E8CF2]/40 bg-transparent px-5 py-2.5 text-sm font-semibold text-[#A9BBF7] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#6E8CF2] hover:bg-[#6E8CF2]/10 active:translate-y-0 active:scale-[0.98]";
-
+  const router = useRouter();
   return (
     <div
       className={`group relative flex flex-col rounded-2xl p-7 transition-all duration-300 ease-out animate-[pharmacyPricingFadeUp_0.6s_ease-out_forwards] hover:-translate-y-1 ${wrapperClasses}`}
@@ -261,7 +267,9 @@ function PricingCard({
         ))}
       </ul>
 
-      <button type="button" className={`mt-7 ${ctaClasses}`}>
+      <button
+      onClick={()=>router.push(href)}
+       type="button" className={`mt-7 ${ctaClasses}`}>
         {style === "light" && (
           <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
         )}

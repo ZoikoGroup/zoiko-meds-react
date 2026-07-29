@@ -101,7 +101,8 @@ export default function ZoikoSignalIntelligenceHeroSection() {
 
                     <button
                       type="button"
-                      className="rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+                      onClick={()=>router.push("/intelligence")}
+                      className="rounded-xl border border-[#D7DCE6] cursor-pointer bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       View Sample Intelligence Dashboard
                     </button>

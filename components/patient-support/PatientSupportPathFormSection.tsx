@@ -30,7 +30,7 @@ const PATHS = [
       "Hospitals, clinics, telehealth providers, and multi-site care organizations.",
     cta: "Request Provider Briefing",
     ctaStyle: "outline",
-    link:"#"
+    link:"/provider-support"
   },
   {
     icon: "search",

@@ -139,7 +139,7 @@ export default function ZoikoGroupContact() {
 
                     <div className="mt-4 flex items-center gap-2">
                         <img src="/zoiko-group/governed.png" alt="image" />
-                        <p className="text-xs w-[550px] text-[#566476]">Don't include patient or medical details, prescription data, insert work, identified pharmacy,
+                        <p className="text-xs w-[550px] text-[#566476]">Don&apos;t include patient or medical details, prescription data, insert work, identified pharmacy,
                             or sequence claim documents, or sensitive info in this form.</p>
                     </div>
                 </form>

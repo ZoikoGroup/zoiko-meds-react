@@ -31,7 +31,7 @@ const BENEFITS = [
     descriptionPrefix: "Signals and confirmation workflows can reduce repetitive ",
     cta: "Learn About Confirmation Requests",
     ctaFilled: false,
-    href: "#",
+    href: "/confirmation-requests",
   },
   {
     icon: "lock",
@@ -40,7 +40,7 @@ const BENEFITS = [
       "Inputs become confidence signals, not public stock counts — patient support without exposing operational inventory.",
     cta: "View Data Controls",
     ctaFilled: false,
-    href: "#",
+    href: "/join-the-network",
   },
   {
     icon: "branch",
@@ -49,7 +49,7 @@ const BENEFITS = [
       "Groups can manage branch-level signal participation, integration preferences, upload cadence, and governance settings.",
     cta: "Request Chain Integration",
     ctaFilled: false,
-    href: "#",
+    href: "/integrations",
   },
 ] as const;
 

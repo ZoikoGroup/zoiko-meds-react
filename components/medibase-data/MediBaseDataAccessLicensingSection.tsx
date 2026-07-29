@@ -33,7 +33,7 @@ const ACCESS_CARDS = [
     delivery: "REST API, sandbox, test keys where approved, example payloads.",
     cta: "Discuss API Access",
     icon: "code",
-    link:"#"
+    link:"/api-access"
   },
   {
     title: "Bulk or licensed data product",

@@ -126,7 +126,7 @@ export default function FeaturesEnterpriseControlsSection() {
 
               {/* CTA cell */}
               <a
-                href="#"
+                href="/trust-center"
                 className="group flex flex-col rounded-2xl bg-[#E7F8F1] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0F1F4E] transition-colors duration-300 group-hover:bg-[#0FAA87]">

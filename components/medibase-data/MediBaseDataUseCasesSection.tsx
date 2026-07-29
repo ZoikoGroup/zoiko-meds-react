@@ -20,7 +20,7 @@ const USE_CASES = [
       "Reliable medicine matching before availability signals can be embedded in digital health and payer workflows.",
     cta: "Discuss API Access",
     icon: "code",
-    link:"#"
+    link:"/api-access"
   },
   {
     title: "Cross-market data alignment",
@@ -28,7 +28,7 @@ const USE_CASES = [
       "Market-aware mappings across identifiers and jurisdictions for manufacturers, public health, and global platforms.",
     cta: "Request Standards Review",
     icon: "globe",
-    link:"#"
+    link:"#request"
   },
   {
     title: "Availability signal accuracy",
@@ -52,7 +52,7 @@ const USE_CASES = [
       "Versioned, governed data definitions instead of ad hoc medicine lists.",
     cta: "View Data Governance",
     icon: "doc",
-    link:"#"
+    link:"#view"
   },
 ] as const;
 

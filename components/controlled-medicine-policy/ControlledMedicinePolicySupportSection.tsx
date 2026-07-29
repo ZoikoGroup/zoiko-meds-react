@@ -148,6 +148,7 @@ function EscalationRow({
   cta?: string;
   isLast: boolean;
 }) {
+  const router = useRouter();
   return (
     <div
       className={`group flex items-start justify-between gap-6 px-7 py-5 transition-colors duration-200 hover:bg-white/[0.03] ${
@@ -164,7 +165,8 @@ function EscalationRow({
       {cta && (
         <button
           type="button"
-          className="hidden flex-shrink-0 rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:block"
+          onClick={()=>router.push("/searchmed")}
+          className="hidden flex-shrink-0 rounded-xl cursor-pointer px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:block"
           style={{ backgroundColor: ACCENT }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.boxShadow =
@@ -240,7 +242,7 @@ function ClosingCtaBanner() {
       </div>
 
       <a
-        href="#"
+        href="/medicine-disclaimer"
         className="mt-5 inline-block text-[13px] font-semibold text-[#9AA3B5] underline-offset-2 transition-colors duration-200 hover:text-white hover:underline"
       >
         Read Medical Disclaimer →

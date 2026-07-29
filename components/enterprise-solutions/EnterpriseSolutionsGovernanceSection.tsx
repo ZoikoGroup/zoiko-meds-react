@@ -20,7 +20,7 @@ const CARDS = [
       "Data minimization by default",
     ],
     cta: "View Data Governance",
-    href: "#",
+    href: "/privacy-center",
   },
   {
     icon: "lock",
@@ -34,7 +34,7 @@ const CARDS = [
       "Step-up authentication for sensitive actions",
     ],
     cta: "Request Security Pack",
-    href: "#",
+    href: "/security",
   },
   {
     icon: "doc",
@@ -48,7 +48,7 @@ const CARDS = [
       "MSA governance, jurisdiction-scoped terms",
     ],
     cta: "Request Commercial Briefing",
-    href: "#",
+    href: "/request-a-briefing",
   },
 ] as const;
 

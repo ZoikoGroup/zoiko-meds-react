@@ -21,6 +21,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
+    href:"/searchmed"
   },
   {
     id: "shortage-signal-awareness",
@@ -37,6 +38,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
+    href:"#"
   },
   {
     id: "pharmacy-network-visibility",
@@ -53,6 +55,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
+    href:"/pharmacy"
   },
   {
     id: "regional-access-analytics",
@@ -69,6 +72,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
+    href:"/analytics"
   },
   {
     id: "compliance-ready-reporting",
@@ -86,6 +90,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
+    href:"/reports"
   },
   {
     id: "enterprise-deployment-controls",
@@ -99,6 +104,7 @@ const CAPABILITIES = [
         <path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
       </>
     ),
+    href:"/enterprise"
   },
 ];
 
@@ -177,7 +183,7 @@ export default function HospitalSystemsEnterprisePlatformValueSection() {
 
                 {/* CTA link */}
                 <a
-                  href="#"
+                  href={capability.href}
                   className="mt-4 inline-flex text-[13px] font-semibold hover:underline"
                   style={{ color: ACCENT }}
                 >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 /**
  * PrescriptionsHeroSection
@@ -84,7 +85,7 @@ export default function PrescriptionsHeroSection() {
                   Create Free Account
                 </a>
                 <a
-                  href="/sign-in"
+                  href={appUrl("/login")}
                   className="rounded-xl border px-6 py-3 text-center text-[13.5px] font-semibold transition-colors hover:bg-black/[0.03]"
                   style={{ borderColor: `${NAVY}26`, color: NAVY }}
                 >
@@ -95,7 +96,7 @@ export default function PrescriptionsHeroSection() {
 
             <Reveal index={4} active={mounted}>
               <a
-                href="#find-medicines"
+                href="/searchmed"
                 className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
                 style={{ color: ACCENT }}
               >

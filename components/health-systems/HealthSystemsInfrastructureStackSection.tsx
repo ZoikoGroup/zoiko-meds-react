@@ -16,7 +16,7 @@ const LAYERS = [
     users: "Pharmacy leadership, population health, strategy, access teams, public-health liaison teams.",
     delivery: "Dashboards, reports, signal feeds, executive briefings.",
     cta: "Explore ZoikoSignal™",
-    href: "#",
+    href: "/zoikosignal-intelligence",
     dark: false,
   },
   {
@@ -28,7 +28,7 @@ const LAYERS = [
     users: "Digital front door, patient portal, telehealth, integration, and care navigation teams.",
     delivery: "REST APIs, event feeds where supported, workflow endpoints, API evaluation.",
     cta: "Discuss ZoikoAvail™ API",
-    href: "#",
+    href: "/zoiko-avail-api",
     dark: false,
   },
   {
@@ -40,7 +40,7 @@ const LAYERS = [
     users: "Data teams, pharmacy informatics, enterprise architecture, digital product teams.",
     delivery: "Licensed data products, reference APIs, normalization workflows.",
     cta: "Explore MediBase™",
-    href: "#",
+    href: "/medibase-data",
     dark: false,
   },
   {
@@ -52,7 +52,7 @@ const LAYERS = [
     users: "Discharge teams, care coordinators, patient navigators, clinic administrators.",
     delivery: "Guidance templates, workflow briefings, role-based access where built.",
     cta: "Explore Care Team Workflows",
-    href: "#",
+    href: "/care-team-access",
     dark: false,
   },
   {
@@ -64,7 +64,7 @@ const LAYERS = [
     users: "Legal, compliance, privacy, security, procurement, enterprise governance teams.",
     delivery: "Trust center materials, security pack, data governance review, MSA governance.",
     cta: "View Signal Governance",
-    href: "#",
+    href: "/availability-signals",
     dark: true,
   },
 ] as const;

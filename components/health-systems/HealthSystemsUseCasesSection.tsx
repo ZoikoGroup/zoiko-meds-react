@@ -14,7 +14,7 @@ const USE_CASES = [
       "Help patients understand availability signals and pharmacy confirmation steps before they leave a hospital, clinic, or outpatient setting.",
     outcome: "Fewer post-discharge access surprises; clearer next steps.",
     cta: "Explore Discharge Support",
-    href: "#",
+    href: "/patient-support",
   },
   {
     icon: "people",
@@ -23,7 +23,7 @@ const USE_CASES = [
       "Coordinators and navigators guide patients toward availability search, saved searches, alerts, and pharmacy confirmation.",
     outcome: "Consistent access support without becoming clinical care.",
     cta: "Request Workflow Briefing",
-    href: "#",
+    href: "/pharmacy-support",
   },
   {
     icon: "pin",
@@ -32,7 +32,7 @@ const USE_CASES = [
       "Outpatient and specialty teams support patients who repeatedly struggle with recurring or shortage-prone medicines.",
     outcome: "Better continuity support around access friction.",
     cta: "Explore Care Team Access",
-    href: "#",
+    href: "/care-team-access",
   },
   {
     icon: "barchart",
@@ -41,7 +41,7 @@ const USE_CASES = [
       "Pharmacy leadership reviews availability pressure, confirmation demand, access friction, and signal coverage under governed controls.",
     outcome: "Institutional visibility without public exact-stock exposure.",
     cta: "Request Health System Briefing",
-    href: "#",
+    href: "/request-a-briefing",
   },
   {
     icon: "pulse",
@@ -50,7 +50,7 @@ const USE_CASES = [
       "Aggregated, privacy-safe intelligence to understand emerging access pressure across regions or service lines.",
     outcome: "Earlier visibility into access-risk patterns.",
     cta: "Explore ZoikoSignal™",
-    href: "#",
+    href: "/zoikosignal-intelligence",
   },
   {
     icon: "code",
@@ -59,7 +59,7 @@ const USE_CASES = [
       "Digital products evaluate availability-aware workflows through ZoikoAvail™ API and patient-safe guidance pathways.",
     outcome: "Availability-aware journeys across digital access channels.",
     cta: "Discuss Integration",
-    href: "#",
+    href: "/integrations",
   },
 ] as const;
 

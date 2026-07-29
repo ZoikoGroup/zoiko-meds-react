@@ -65,7 +65,7 @@ export default function PlatformHero() {
                     {/* CTAs */}
                     <div className="flex flex-wrap gap-3 mb-10">
                         <a
-                            href="#"
+                            href="/searchmed"
                             className="inline-flex items-center gap-2 bg-[#005C55] hover:bg-[#0a5241] text-white font-semibold text-sm px-6 py-3.5 rounded-lg transition-colors duration-150 whitespace-nowrap"
                         >
                             Check Medicine Availability

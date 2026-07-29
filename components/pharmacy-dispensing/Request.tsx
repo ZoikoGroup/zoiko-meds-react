@@ -71,7 +71,7 @@ export default function JoinNetworkFormSection() {
                     <span className="text-[#0FAA87]">matched to your pharmacy.</span>
                 </h2>
                 <p className="mt-4 max-w-160 leading-relaxed text-[#566476]">
-                    Request a demo, sign in if you're already onboarded, or talk to pharmacy
+                    Request a demo, sign in if you&apos;re already onboarded, or talk to pharmacy
                     partnerships about your workflow needs.
                 </p>
 
@@ -265,7 +265,7 @@ export default function JoinNetworkFormSection() {
                             <span className="mt-1 h-2 w-2 rounded-full border border-[#00A99D]" />
                             <p>
                                 A ZoikoMeds representative will review eligibility and onboarding fit.
-                                Not medical advice, dispensing, or a pharmacy management system — don't
+                                Not medical advice, dispensing, or a pharmacy management system — don&apos;t
                                 include PHI, prescriptions, or exact stock.
                             </p>
                         </div>

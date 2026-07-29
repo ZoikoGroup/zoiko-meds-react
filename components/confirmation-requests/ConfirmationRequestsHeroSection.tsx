@@ -55,7 +55,7 @@ export default function ConfirmationRequestsHeroSection() {
               <Reveal index={3}>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                   <button
-                  onClick={()=>router.push("#confirmation-request")}
+                  onClick={()=>router.push("#request")}
                     type="button"
                     className="group relative cursor-pointer overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                     style={{ backgroundColor: ACCENT }}
@@ -83,7 +83,7 @@ export default function ConfirmationRequestsHeroSection() {
 
               <Reveal index={4}>
                 <a
-                  href="#"
+                  href="/join-the-network"
                   className="inline-flex items-center text-[13.5px] font-semibold transition-colors duration-200"
                   style={{ color: ACCENT }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}

@@ -10,24 +10,28 @@ const PATHS = [
     title: "Verified pharmacy",
     description: "Existing verified pharmacy users.",
     cta: "Sign In to Pharmacy Portal",
+    href:"/pharmacy-portal"
   },
   {
     icon: "shield",
     title: "New pharmacy",
     description: "Pharmacies not yet verified.",
     cta: "Join the Verified Network",
+    href:"/join-the-network"
   },
   {
     icon: "branch",
     title: "Pharmacy group or chain",
     description: "Multi-location operators.",
     cta: "Request Chain Briefing",
+    href:"/request-a-briefing"
   },
   {
     icon: "code",
     title: "Integration team",
     description: "API, PMS/POS, or queue-routing discussions.",
     cta: "Discuss Integration",
+    href:"/integrations"
   },
 ] as const;
 
@@ -83,7 +87,7 @@ export default function ConfirmationRequestsPathFormSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] ">
+    <section ref={ref} id="request" className="relative w-full bg-[#F4F6FA] ">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         {mounted ? (
@@ -153,12 +157,14 @@ function PathCard({
   description,
   cta,
   index,
+  href,
 }: {
   icon: "lock" | "shield" | "branch" | "code";
   title: string;
   description: string;
   cta: string;
   index: number;
+  href:string
 }) {
   return (
     <div
@@ -187,7 +193,7 @@ function PathCard({
       </p>
 
       <a
-        href="#"
+        href={href}
         className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-4 py-2 text-[12px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}

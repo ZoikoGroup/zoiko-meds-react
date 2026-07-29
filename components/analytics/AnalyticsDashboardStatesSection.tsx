@@ -10,6 +10,7 @@ import {
   ArrowUp,
   ArrowRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type DashboardState = {
   icon: React.ElementType;
@@ -18,6 +19,7 @@ type DashboardState = {
   badgeText: string;
   description: string;
   linkLabel: string;
+  href: string;
 };
 
 const STATES: DashboardState[] = [
@@ -26,16 +28,20 @@ const STATES: DashboardState[] = [
     label: "EMPTY",
     badgeBg: "bg-[#EEF0F4]",
     badgeText: "text-[#5B6472]",
-    description: "Select a medicine, geography, or category to begin building an analytics view.",
+    description:
+      "Select a medicine, geography, or category to begin building an analytics view.",
     linkLabel: "Start with common medicines",
+    href: "/searchmed",
   },
   {
     icon: Check,
     label: "STANDARD",
     badgeBg: "bg-[#E1F5EE]",
     badgeText: "text-[#0FAA87]",
-    description: "Analytics view loaded with confidence, trend, and network modules.",
+    description:
+      "Analytics view loaded with confidence, trend, and network modules.",
     linkLabel: "Save view",
+    href: "/analytics",
   },
   {
     icon: TriangleAlert,
@@ -45,6 +51,7 @@ const STATES: DashboardState[] = [
     description:
       "Availability confidence has changed. Review source freshness and confirmation coverage.",
     linkLabel: "Request briefing",
+    href: "/request-a-briefing",
   },
   {
     icon: Lock,
@@ -53,28 +60,34 @@ const STATES: DashboardState[] = [
     badgeText: "text-[#C23B3B]",
     description: "This analytics layer requires authorized access.",
     linkLabel: "Request access",
+    href: "/api-access",
   },
   {
     icon: Clock,
     label: "STALE DATA",
     badgeBg: "bg-[#E5EEFB]",
     badgeText: "text-[#2F6FCB]",
-    description: "Some signals may be outdated. Review freshness before acting.",
+    description:
+      "Some signals may be outdated. Review freshness before acting.",
     linkLabel: "Refresh or contact support",
+    href: "/contact",
   },
   {
     icon: ArrowUp,
     label: "EXPORT",
     badgeBg: "bg-[#E1F5EE]",
     badgeText: "text-[#0FAA87]",
-    description: "Exports include filters, timestamps, permitted-use notes, and governance labels.",
+    description:
+      "Exports include filters, timestamps, permitted-use notes, and governance labels.",
     linkLabel: "Export report",
+    href: "/reports",
   },
 ];
 
 export default function AnalyticsDashboardStatesSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -87,7 +100,7 @@ export default function AnalyticsDashboardStatesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -95,7 +108,10 @@ export default function AnalyticsDashboardStatesSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20">
+    <section
+      ref={sectionRef}
+      className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20"
+    >
       <div className="mx-auto max-w-6xl">
         <StatesFadeUp show={isVisible} delay={0}>
           <span className="text-xs font-bold tracking-[0.18em] text-[#0FAA87]">
@@ -105,7 +121,8 @@ export default function AnalyticsDashboardStatesSection() {
 
         <StatesFadeUp show={isVisible} delay={80}>
           <h2 className="mt-4 text-[1.9rem] font-bold leading-[1.2] text-[#0F1F4E] sm:text-[2.3rem] lg:text-[2.5rem]">
-            Every state, designed for <span className="text-[#0FAA87]">product quality.</span>
+            Every state, designed for{" "}
+            <span className="text-[#0FAA87]">product quality.</span>
           </h2>
         </StatesFadeUp>
 
@@ -119,7 +136,11 @@ export default function AnalyticsDashboardStatesSection() {
           {STATES.map((state, i) => {
             const Icon = state.icon;
             return (
-              <StatesFadeUp key={state.label} show={isVisible} delay={200 + i * 60}>
+              <StatesFadeUp
+                key={state.label}
+                show={isVisible}
+                delay={200 + i * 60}
+              >
                 <div className="h-full rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.7rem] font-bold tracking-[0.08em] ${state.badgeBg} ${state.badgeText}`}
@@ -134,7 +155,8 @@ export default function AnalyticsDashboardStatesSection() {
 
                   <button
                     type="button"
-                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 focus:outline-none"
+                    onClick={() => router.push(state.href)}
+                    className="mt-4 inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 focus:outline-none"
                   >
                     {state.linkLabel}
                     <ArrowRight className="h-4 w-4" strokeWidth={2.5} />

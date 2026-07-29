@@ -41,7 +41,7 @@ export default function SignalPermissionModelSection() {
         </p>
 
         <h1 className="text-3xl max-w-160 font-semibold leading-[45px] text-[#0D1B2E] md:text-[32px]">
-          What's public, restricted,{" "}
+          What&apos;s public, restricted,{" "}
           <span className="text-[#0FAA87]"> internal, and
             enterprise-only.</span>
         </h1>

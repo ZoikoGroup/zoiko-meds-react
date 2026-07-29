@@ -58,7 +58,7 @@ export default function JoinNetworkVerificationStepsSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(el);
@@ -66,7 +66,11 @@ export default function JoinNetworkVerificationStepsSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section
+      id="control"
+      ref={ref}
+      className="relative w-full bg-[#F4F6FA] py-20 sm:py-24"
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         <div className="mx-auto max-w-2xl text-center">
@@ -82,9 +86,9 @@ export default function JoinNetworkVerificationStepsSection() {
 
               <Reveal index={1}>
                 <p className="mx-auto mt-4 max-w-xl text-[14.5px] leading-relaxed text-[#5B6478]">
-                  Start with a lightweight network request. Sensitive
-                  licensing and documentation are collected later, inside
-                  a secure verification workflow.
+                  Start with a lightweight network request. Sensitive licensing
+                  and documentation are collected later, inside a secure
+                  verification workflow.
                 </p>
               </Reveal>
             </>
@@ -105,7 +109,7 @@ export default function JoinNetworkVerificationStepsSection() {
           {mounted ? (
             <Reveal index={6}>
               <button
-              onClick={()=>router.push("#verified-network")}
+                onClick={() => router.push("#verified-network")}
                 type="button"
                 className="group relative cursor-pointer overflow-hidden rounded-xl bg-[#00A99D] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
               >

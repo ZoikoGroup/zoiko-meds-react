@@ -17,7 +17,7 @@ const indexCards: IndexCard[] = [
     description:
       "Understand access signals, availability confidence, and regional visibility.",
     linkLabel: "Jump to Availability",
-    href: "#availability",
+    href: "/searchmed",
   },
   {
     icon: <StoreIcon />,
@@ -25,28 +25,28 @@ const indexCards: IndexCard[] = [
     description:
       "Support pharmacy participation, verification, and confidence-building.",
     linkLabel: "Jump to Pharmacy Network",
-    href: "#pharmacy-network",
+    href: "/pharmacy",
   },
   {
     icon: <WarningTriangleIcon />,
     title: "Shortage Signal Awareness",
     description: "Identify emerging shortage movement and access-risk patterns.",
     linkLabel: "Jump to Shortage Signals",
-    href: "#shortage-signals",
+    href: "#",
   },
   {
     icon: <BarChartIcon />,
     title: "Analytics and Dashboards",
     description: "Turn signals into stakeholder-ready insights and operating views.",
     linkLabel: "Jump to Analytics",
-    href: "#analytics",
+    href: "/analytics",
   },
   {
     icon: <ReportIcon />,
     title: "Reports and Briefings",
     description: "Generate compliance-conscious reports for leadership and partners.",
     linkLabel: "Jump to Reports",
-    href: "#reports",
+    href: "/reports",
   },
   {
     icon: <IntegrationsIcon />,
@@ -54,7 +54,7 @@ const indexCards: IndexCard[] = [
     description:
       "Connect approved systems, APIs, identity, reporting, and enterprise tools.",
     linkLabel: "Jump to Integrations",
-    href: "#integrations",
+    href: "/integrations",
   },
 ];
 

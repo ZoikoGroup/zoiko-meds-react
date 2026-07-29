@@ -12,7 +12,7 @@ const CARDS = [
     description: "Search can start without an account. No prescription upload or diagnosis is required for public search.",
     concern: "will my search expose medical information?",
     cta: "Search Without Account",
-    href: "/search",
+    href: "/searchmed",
     icon: (
       <>
         <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -25,7 +25,7 @@ const CARDS = [
     description: "Caregiver labels are organizational tools — not clinical records or legal authority.",
     concern: "will labels become medical records?",
     cta: "View Caregiver Privacy",
-    href: "/caregiver-privacy",
+    href: "/caregiver-access",
     icon: (
       <path d="M8 13.5s-5.5-3.2-5.5-7.2A3 3 0 018 4.3a3 3 0 015.5 2c0 4-5.5 7.2-5.5 7.2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -35,7 +35,7 @@ const CARDS = [
     description: "Public pages use confidence signals and suppress exact public stock counts.",
     concern: "will exact stock be exposed?",
     cta: "View Pharmacy Data Controls",
-    href: "/pharmacy-data-controls",
+    href: "/join-the-network",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -45,7 +45,7 @@ const CARDS = [
     description: "Provider workflows are data-minimized by default and avoid PHI unless separately governed.",
     concern: "will workflows require PHI?",
     cta: "View Provider Privacy",
-    href: "/provider-privacy",
+    href: "/provider-support",
     icon: (
       <path d="M8 1.5l6 4v3c0 4-2.6 6.5-6 7.5-3.4-1-6-3.5-6-7.5v-3l6-4z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -55,7 +55,7 @@ const CARDS = [
     description: "Enterprise outputs are aggregated, anonymized, thresholded, and contract-scoped.",
     concern: "is patient-level data sold?",
     cta: "Request Privacy Pack",
-    href: "/request-privacy-pack",
+    href: "/security",
     icon: (
       <path d="M8 1.5c-2 0-3.5 1.6-3.5 3.6v2.7c0 .6-.2 1.2-.6 1.7L3 10.5h10l-.9-1c-.4-.5-.6-1.1-.6-1.7V5.1c0-2-1.5-3.6-3.5-3.6zM6.5 12.5a1.5 1.5 0 003 0" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" fill="none" />
     ),

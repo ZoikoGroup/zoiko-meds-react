@@ -39,6 +39,7 @@ export default function PatientFeatures() {
                                 alt={f.title}
                                 width={f.width}
                                 height={f.height}
+                                style={{ width: 'auto', height: 'auto' }}
                             />
                         </div>
                         <h3 className="text-[16px] text-[#151C27] mt-4">{f.title}</h3>

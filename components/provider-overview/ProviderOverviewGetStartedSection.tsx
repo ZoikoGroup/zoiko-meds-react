@@ -14,7 +14,7 @@ const PATHS = [
       "Clinicians, nurses, care coordinators, and support staff exploring availability support.",
     cta: "Explore Provider Workflows",
     ctaFilled: false,
-    href: "#",
+    href: "/provider-support",
   },
   {
     icon: "building",
@@ -32,7 +32,7 @@ const PATHS = [
       "Telehealth, care navigation, patient-support, or workflow platforms evaluating integration.",
     cta: "Discuss Workflow Integration",
     ctaFilled: false,
-    href: "#",
+    href: "/integrations",
   },
   {
     icon: "search",

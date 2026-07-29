@@ -36,7 +36,7 @@ const BENEFITS = [
       "Use confidence-based signals instead of public exact stock quantities — giving patients guidance without exposing sensitive inventory.",
     cta: "View Data Controls",
     ctaStyle: "outline",
-    link:"#"
+    link:"#control"
   },
   {
     icon: "scale",
@@ -45,7 +45,7 @@ const BENEFITS = [
       "Independents can begin with the portal. Groups and chains can discuss branch-level controls, integrations, SSO, and operational governance.",
     cta: "Request Chain Briefing",
     ctaStyle: "outline",
-    link:"#"
+    link:"/request-a-briefing"
   },
 ] as const;
 

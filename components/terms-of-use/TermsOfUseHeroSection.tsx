@@ -15,7 +15,7 @@ const BREADCRUMBS = [
 const RELATED_LINKS = [
   { label: "Privacy Center", href: "/privacy-center" },
   { label: "Trust Center", href: "/trust-center" },
-  { label: "Contact Support", href: "/contact-support" },
+  { label: "Contact Support", href: "/contact" },
 ] as const;
 
 export default function TermsOfUseHeroSection() {

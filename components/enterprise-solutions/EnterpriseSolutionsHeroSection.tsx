@@ -25,7 +25,10 @@ const BAR_HEIGHTS = [55, 70, 85, 65, 90];
 
 export default function EnterpriseSolutionsHeroSection() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <section className="relative w-full bg-[#F4F6FA] py-14 sm:py-20">
@@ -92,7 +95,7 @@ export default function EnterpriseSolutionsHeroSection() {
             {/* Arrow text link */}
             <Reveal index={5} active={mounted}>
               <Link
-                href="#"
+                href="/security"
                 className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium transition-opacity hover:opacity-80"
                 style={{ color: ACCENT }}
               >

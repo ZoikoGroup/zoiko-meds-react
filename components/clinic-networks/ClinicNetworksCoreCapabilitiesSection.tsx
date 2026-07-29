@@ -11,7 +11,7 @@ const CORE_CAPABILITIES = [
     title: "Multi-location access visibility",
     description: "Monitor medicine access signals by clinic, region, service line, and operating territory.",
     linkLabel: "See Network View",
-    href: "/clinic-networks/network-view",
+    href: "#",
     icon: (
       <>
         <rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1" stroke="currentColor" strokeWidth="1.3" fill="none" />
@@ -26,7 +26,7 @@ const CORE_CAPABILITIES = [
     title: "Priority medicine watchlists",
     description: "Track medicines or categories that matter most to the clinic network and its patient populations.",
     linkLabel: "Create Watchlist Briefing",
-    href: "/clinic-networks/watchlist-briefing",
+    href: "#",
     icon: (
       <path
         d="M4.5 3h7a1 1 0 011 1v9.2l-4.5-2.6-4.5 2.6V4a1 1 0 011-1z"
@@ -42,7 +42,7 @@ const CORE_CAPABILITIES = [
     title: "Shortage signal awareness",
     description: "Identify patterns that may indicate access pressure, weakening confidence, or emerging shortage movement.",
     linkLabel: "Explore Shortage Intelligence",
-    href: "/clinic-networks/shortage-intelligence",
+    href: "/intelligence",
     icon: (
       <path
         d="M8 1.6L14.9 13.4a1 1 0 01-.86 1.5H2a1 1 0 01-.87-1.5L8 1.6z"
@@ -58,7 +58,7 @@ const CORE_CAPABILITIES = [
     title: "Pharmacy network coordination",
     description: "Understand where pharmacy participation and confirmation activity are strengthening access confidence.",
     linkLabel: "View Pharmacy Network Signals",
-    href: "/clinic-networks/pharmacy-network-signals",
+    href: "/pharmacy",
     icon: (
       <path
         d="M3 6.2L8 3l5 3.2v6.6a.7.7 0 01-.7.7H3.7a.7.7 0 01-.7-.7V6.2z M6.3 12.5V9.2h3.4v3.3"
@@ -74,7 +74,7 @@ const CORE_CAPABILITIES = [
     title: "Operational escalation workflows",
     description: "Route access concerns to assigned teams with status, notes, priority, and review ownership.",
     linkLabel: "Discuss Workflow Design",
-    href: "/clinic-networks/workflow-design",
+    href: "#",
     icon: (
       <path
         d="M4.6 3.4c.4-.3 1-.2 1.3.2l1 1.5c.3.4.2 1-.2 1.3l-.7.5c.5 1.2 1.5 2.2 2.7 2.7l.5-.7c.3-.4.9-.5 1.3-.2l1.5 1c.4.3.5.9.2 1.3l-.6.9c-.3.4-.8.6-1.3.5-2.7-.5-5.4-3.2-5.9-5.9-.1-.5.1-1 .5-1.3l.7-.8z"
@@ -90,7 +90,7 @@ const CORE_CAPABILITIES = [
     title: "Compliance-ready reporting",
     description: "Produce structured reports for leadership, operations, compliance, and stakeholder briefings.",
     linkLabel: "Request Sample Reports",
-    href: "/clinic-networks/sample-reports",
+    href: "/reports",
     icon: (
       <path
         d="M4.2 2.5h6l2.6 2.6v8.4a.6.6 0 01-.6.6H4.2a.6.6 0 01-.6-.6V3.1a.6.6 0 01.6-.6zM9.8 2.5v2.6h2.6"
