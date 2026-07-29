@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
 import { successResponse, errorResponse, validateRequired } from "@/lib/api/helpers";
-import { lookupAvailability, KNOW_MEDICINES, VALID_REGIONS, extractRegion } from "@/lib/availability";
+import { lookupAvailabilityAsync, KNOW_MEDICINES, VALID_REGIONS, extractRegion } from "@/lib/availability";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const result = lookupAvailability({ medicine: rawMedicine, region: rawRegion });
+    const result = await lookupAvailabilityAsync({ medicine: rawMedicine, region: rawRegion });
 
     if (!result) {
       return errorResponse("medicine_not_found", 404, {

@@ -29,63 +29,89 @@ export default function ZoiComposer() {
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-    e.currentTarget.style.height = "auto";
-    e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight, 120) + "px";
+    if (e.target.value.length <= 500) {
+      setInput(e.target.value);
+    }
   };
 
   return (
     <div
       style={{
         borderTop: "1px solid #E2E8F0",
-        padding: "14px 18px 16px",
+        padding: "10px 14px 8px",
         background: "linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)",
         flexShrink: 0,
       }}
     >
-      <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={handleInput}
-          onKeyDown={handleKeyDown}
-          placeholder={t("composer.placeholder")}
-          rows={1}
-          disabled={state.isStreaming}
-          style={{
-            flex: 1,
-            minHeight: "46px",
-            maxHeight: "120px",
-            padding: "12px 16px",
-            fontSize: "14px",
-            border: "1.5px solid #CBD5E1",
-            borderRadius: "14px",
-            outline: "none",
-            resize: "none",
-            background: state.isStreaming ? "#F8FAFC" : "#FFFFFF",
-            color: "#0F172A",
-            fontFamily: "var(--font-jakarta), sans-serif",
-            lineHeight: 1.5,
-            transition: "all 0.2s ease",
-            boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-          }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; e.currentTarget.style.boxShadow = "0 0 0 3.5px rgba(0,136,130,0.12)"; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.03)"; }}
-        />
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div style={{ flex: 1, position: "relative" }}>
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder={t("composer.placeholder")}
+            rows={1}
+            maxLength={500}
+            disabled={state.isStreaming}
+            style={{
+              width: "100%",
+              height: "44px",
+              minHeight: "44px",
+              maxHeight: "44px",
+              padding: input.length > 400 ? "10px 60px 10px 14px" : "10px 14px",
+              fontSize: "14px",
+              border: "1.5px solid #CBD5E1",
+              borderRadius: "12px",
+              outline: "none",
+              resize: "none",
+              overflowY: "auto",
+              scrollbarWidth: "none",
+              boxSizing: "border-box",
+              background: state.isStreaming ? "#F8FAFC" : "#FFFFFF",
+              color: "#0F172A",
+              fontFamily: "var(--font-jakarta), sans-serif",
+              lineHeight: "22px",
+              transition: "all 0.2s ease",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,136,130,0.12)"; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.03)"; }}
+          />
+          {input.length > 400 && (
+            <span
+              style={{
+                position: "absolute",
+                right: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                fontSize: "11px",
+                fontWeight: 600,
+                color: input.length >= 490 ? "#DC2626" : "#64748B",
+                pointerEvents: "none",
+              }}
+            >
+              {input.length}/500
+            </span>
+          )}
+        </div>
         <button
           onClick={handleSubmit}
           disabled={!input.trim() || state.isStreaming}
           aria-label="Send message"
           style={{
-            width: "46px",
-            height: "46px",
+            width: "44px",
+            height: "44px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             border: "none",
-            borderRadius: "14px",
-            background: !input.trim() || state.isStreaming ? "#CBD5E1" : "linear-gradient(135deg, #008882 0%, #006662 100%)",
-            color: "white",
+            borderRadius: "12px",
+            boxSizing: "border-box",
+            background: !input.trim() || state.isStreaming
+              ? "#E2E8F0"
+              : "linear-gradient(135deg, #008882 0%, #006662 100%)",
+            color: !input.trim() || state.isStreaming ? "#94A3B8" : "#FFFFFF",
             cursor: !input.trim() || state.isStreaming ? "not-allowed" : "pointer",
             flexShrink: 0,
             boxShadow: !input.trim() || state.isStreaming ? "none" : "0 3px 10px rgba(0,136,130,0.25)",
@@ -107,6 +133,23 @@ export default function ZoiComposer() {
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
         </button>
+      </div>
+
+      <div style={{ marginTop: "6px", textAlign: "center" }}>
+        <a
+          href="/trust-center"
+          style={{
+            fontSize: "11px",
+            color: "#64748B",
+            textDecoration: "none",
+            fontWeight: 500,
+            transition: "color 0.15s ease",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#008882"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#64748B"; }}
+        >
+          {t("footer.disclosure")}
+        </a>
       </div>
     </div>
   );

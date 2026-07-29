@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
-import { resolveMedicine } from "@/lib/medibase";
+import { isDrugLikeTerm } from "@/lib/medibase";
 import { searchContent, type ContentDocument } from "@/lib/site-content";
-import { lookupAvailability, findMedicineInQuery, extractRegion } from "@/lib/availability";
+import { lookupAvailabilityAsync, findMedicineInQuery, extractRegion } from "@/lib/availability";
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -150,7 +150,7 @@ type ResponsePlan = {
   };
 };
 
-function getResponsePlan(query: string, persona: string, classification: ClassifierVerdict): ResponsePlan {
+async function getResponsePlan(query: string, persona: string, classification: ClassifierVerdict): Promise<ResponsePlan> {
   resetRetrievedSources();
 
   if (checkPromptInjection(query)) {
@@ -183,7 +183,7 @@ function getResponsePlan(query: string, persona: string, classification: Classif
       };
     }
 
-    const availResult = lookupAvailability({ medicine: foundMed, region });
+    const availResult = await lookupAvailabilityAsync({ medicine: foundMed, region });
 
     if (availResult) {
       return {
@@ -264,19 +264,224 @@ function scoreForSource(query: string, doc: { id: string; title: string }): numb
 
 const DRUG_SUFFIX_PATTERN = /\b\w+(?:ine|am|ol|ate|ide|ium|pam|zep|barb|caine|vir|mab|zole|zone|pam|tan|cet|dip|pram|lol|pine|xide|pril|sart|vastatin|oxacin|mycin|cillin|conazole)\b/i;
 
-function isDrugLikeTerm(query: string): boolean {
-  const words = query.toLowerCase().split(/\s+/);
-  return words.some((w) => w.length >= 5 && DRUG_SUFFIX_PATTERN.test(w));
-}
+const VALID_PERSONAS = ["patient", "pharmacy", "enterprise", "wholesale", "other"];
 
 async function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-const VALID_PERSONAS = ["patient", "pharmacy", "enterprise", "wholesale", "other"];
+async function streamGeminiResponse(
+  query: string,
+  persona: string,
+  ragSources: ContentDocument[],
+  apiKey: string,
+  plan: ResponsePlan
+): Promise<Response | null> {
+  try {
+    const systemPrompt = `You are Zoi, the intelligent medicine availability assistant for ZoikoMeds.
+Your core mission is to help users discover medicine availability and navigate the platform safely.
+CRITICAL SAFETY BOUNDARIES:
+- DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
+- Refer clinical questions to a doctor or qualified pharmacist.
+- For medical emergencies, direct users to call 911 (US) or 999 (UK).
+CONTEXT (Site Knowledge Base):
+${ragSources.map((s) => `[${s.title} (${s.section})]: ${s.body}`).join("\n")}
+
+USER PERSONA: ${persona}
+Respond concisely, helpfully, and professionally. Limit response to 3-4 sentences. Do NOT invent fake availability data.`;
+
+    const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:streamGenerateContent?key=${apiKey}&alt=sse`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: query }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { maxOutputTokens: 300, temperature: 0.3 },
+      }),
+    });
+
+    if (!res.ok || !res.body) {
+      console.warn(`[Zoi Gemini API] API request failed with status ${res.status}, falling back to local engine.`);
+      return null;
+    }
+
+    const encoder = new TextEncoder();
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const rawJson = line.slice(6).trim();
+                if (!rawJson || rawJson === "[DONE]") continue;
+                try {
+                  const parsed = JSON.parse(rawJson);
+                  const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (textChunk) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ type: "token", content: textChunk })}\n\n`)
+                    );
+                  }
+                } catch {
+                  // JSON parse catch
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[Zoi Gemini Stream] Error reading stream:", err);
+        } finally {
+          const donePayload: Record<string, unknown> = { type: "done", chips: plan.chips };
+          if (plan.availabilityCard) donePayload.availabilityCard = plan.availabilityCard;
+          if (plan.citations && plan.citations.length > 0) {
+            donePayload.citations = plan.citations;
+            donePayload.evidenceState = "SUFFICIENT_SINGLE";
+          }
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(donePayload)}\n\n`));
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[Zoi Gemini API] Error:", err);
+    return null;
+  }
+}
+
+async function streamGroqResponse(
+  query: string,
+  persona: string,
+  ragSources: ContentDocument[],
+  apiKey: string,
+  plan: ResponsePlan
+): Promise<Response | null> {
+  try {
+    const systemPrompt = `You are Zoi, the intelligent medicine availability assistant for ZoikoMeds.
+Your core mission is to help users discover medicine availability and navigate the platform safely.
+CRITICAL SAFETY BOUNDARIES:
+- DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
+- Refer clinical questions to a doctor or qualified pharmacist.
+- For medical emergencies, direct users to call 911 (US) or 999 (UK).
+CONTEXT (Site Knowledge Base):
+${ragSources.map((s) => `[${s.title} (${s.section})]: ${s.body}`).join("\n")}
+
+USER PERSONA: ${persona}
+Respond concisely, helpfully, and professionally. Limit response to 3-4 sentences. Do NOT invent fake availability data.`;
+
+    const modelName = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    const url = "https://api.groq.com/openai/v1/chat/completions";
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: query },
+        ],
+        stream: true,
+        temperature: 0.3,
+        max_tokens: 300,
+      }),
+    });
+
+    if (!res.ok || !res.body) {
+      console.warn(`[Zoi Groq API] API request failed with status ${res.status}, falling back.`);
+      return null;
+    }
+
+    const encoder = new TextEncoder();
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith("data: ")) {
+                const rawJson = trimmed.slice(6).trim();
+                if (!rawJson || rawJson === "[DONE]") continue;
+                try {
+                  const parsed = JSON.parse(rawJson);
+                  const textChunk = parsed.choices?.[0]?.delta?.content;
+                  if (textChunk) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ type: "token", content: textChunk })}\n\n`)
+                    );
+                  }
+                } catch {
+                  // JSON parse catch
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[Zoi Groq Stream] Error reading stream:", err);
+        } finally {
+          const donePayload: Record<string, unknown> = { type: "done", chips: plan.chips };
+          if (plan.availabilityCard) donePayload.availabilityCard = plan.availabilityCard;
+          if (plan.citations && plan.citations.length > 0) {
+            donePayload.citations = plan.citations;
+            donePayload.evidenceState = "SUFFICIENT_SINGLE";
+          }
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(donePayload)}\n\n`));
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[Zoi Groq API] Error:", err);
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
-  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  try {
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const conversationId = crypto.randomUUID?.() ?? Date.now().toString(36);
   const rlKey = `zoi-stream:${clientIp}`;
   const rl = rateLimit(rlKey, 20, 60000);
@@ -449,7 +654,7 @@ export async function POST(req: NextRequest) {
   if (foundMedicine && foundRegion) {
     console.log(`[Zoi Debug] Calling lookupAvailability with medicine="${foundMedicine}" region="${foundRegion}"`);
 
-    const availResult = lookupAvailability({ medicine: foundMedicine, region: foundRegion });
+    const availResult = await lookupAvailabilityAsync({ medicine: foundMedicine, region: foundRegion });
 
     console.log(`[Zoi Debug] lookupAvailability returned: ${availResult ? "SUCCESS" : "NULL"}`);
 
@@ -497,7 +702,39 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Layer 2 + 3 + 4: injection check, RAG, response model ──
-  const plan = getResponsePlan(query, persona, classification);
+  const plan = await getResponsePlan(query, persona, classification);
+
+  // Check for Groq API key first, then Gemini API key
+  const groqApiKey = process.env.GROQ_API_KEY;
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+  if (!checkPromptInjection(query)) {
+    const rawDocs = searchContent(query);
+
+    if (groqApiKey) {
+      const groqRes = await streamGroqResponse(query, persona, rawDocs, groqApiKey, plan);
+      if (groqRes) {
+        console.log(`[Zoi Audit]`, JSON.stringify({
+          ...auditLog,
+          action: "response_sent_via_groq_llm",
+          model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+        }));
+        return groqRes;
+      }
+    }
+
+    if (geminiApiKey) {
+      const geminiRes = await streamGeminiResponse(query, persona, rawDocs, geminiApiKey, plan);
+      if (geminiRes) {
+        console.log(`[Zoi Audit]`, JSON.stringify({
+          ...auditLog,
+          action: "response_sent_via_gemini_llm",
+          model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
+        }));
+        return geminiRes;
+      }
+    }
+  }
 
   // Audit: final response
   console.log(`[Zoi Audit]`, JSON.stringify({
@@ -531,12 +768,19 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Connection": "keep-alive",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[Zoi Stream Fatal Error]:", err);
+    return new Response(
+      JSON.stringify({ success: false, error: "internal_server_error", detail: String(err) }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }

@@ -28,9 +28,10 @@ export default function AlertForm({ medicine, region }: Props) {
       <div
         style={{
           border: "1px solid #CCFBF1",
-          borderRadius: "12px",
+          borderRadius: "14px",
           padding: "16px",
-          background: "#F0FDFA",
+          background: "linear-gradient(180deg, #F0FDFA 0%, #E6FFFA 100%)",
+          boxSizing: "border-box",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
@@ -38,7 +39,7 @@ export default function AlertForm({ medicine, region }: Props) {
             🔔 Activate Stock Alert
           </span>
         </div>
-        <div style={{ fontSize: "12px", color: "#115E59", marginBottom: "12px", lineHeight: 1.4 }}>
+        <div style={{ fontSize: "12px", color: "#115E59", marginBottom: "12px", lineHeight: 1.45 }}>
           {medicine && region
             ? `Enter your email or phone number to receive instant notifications when ${medicine} is in stock near ${region}.`
             : "Enter your email or phone number to receive instant SMS/Email notifications when stock is detected."}
@@ -52,21 +53,23 @@ export default function AlertForm({ medicine, region }: Props) {
             type="text"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            placeholder="0700 123 456 or you@example.com"
+            placeholder="0700 123 456 or name@domain.com"
             disabled={submitted}
             style={{
               width: "100%",
+              boxSizing: "border-box",
               padding: "10px 14px",
-              fontSize: "14px",
+              fontSize: "13.5px",
               border: "1.5px solid #99F6E4",
               borderRadius: "10px",
               outline: "none",
               background: submitted ? "#F0FDFA" : "#FFFFFF",
               color: "#111827",
               fontFamily: "var(--font-jakarta), sans-serif",
+              transition: "all 0.2s ease",
             }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = "#99F6E4"; }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,136,130,0.12)"; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = "#99F6E4"; e.currentTarget.style.boxShadow = "none"; }}
           />
 
           {!submitted && (
@@ -75,17 +78,22 @@ export default function AlertForm({ medicine, region }: Props) {
               disabled={!contact.trim()}
               style={{
                 width: "100%",
+                boxSizing: "border-box",
                 marginTop: "12px",
-                padding: "11px",
+                padding: "12px",
                 fontSize: "14px",
                 fontWeight: 600,
                 border: "none",
                 borderRadius: "10px",
-                background: !contact.trim() ? "#D1D5DB" : "#008882",
-                color: "#FFFFFF",
+                background: !contact.trim()
+                  ? "#CBD5E1"
+                  : "linear-gradient(135deg, #008882 0%, #006662 100%)",
+                color: !contact.trim() ? "#64748B" : "#FFFFFF",
                 cursor: !contact.trim() ? "not-allowed" : "pointer",
                 fontFamily: "var(--font-jakarta), sans-serif",
                 lineHeight: 1,
+                boxShadow: !contact.trim() ? "none" : "0 3px 10px rgba(0,136,130,0.22)",
+                transition: "all 0.2s ease",
               }}
             >
               Activate Stock Alert

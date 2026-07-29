@@ -1,3 +1,9 @@
+import {
+  buildVocabulary,
+  generateVectorEmbedding,
+  cosineSimilarity,
+} from "./vector-embeddings";
+
 export interface ContentDocument {
   id: string;
   title: string;
@@ -5,6 +11,14 @@ export interface ContentDocument {
   keywords: string[];
   body: string;
   url?: string;
+  vector?: number[];
+}
+
+export interface HybridSearchResult {
+  doc: ContentDocument;
+  score: number;
+  vectorScore: number;
+  keywordScore: number;
 }
 
 const CONTENT_INDEX: ContentDocument[] = [
@@ -21,7 +35,7 @@ const CONTENT_INDEX: ContentDocument[] = [
     title: "Pharmacy onboarding",
     section: "pharmacy",
     keywords: ["pharmacy", "onboard", "join", "partner", "register", "sign up pharmacy"],
-    body: "Pharmacies can join the ZoikoMeds network to share real-time availability signals with patients in their area. The onboarding process includes verification of pharmacy licensure, setup of inventory reporting, and integration with the ZoikoAvail\u2122 signal network.",
+    body: "Pharmacies can join the ZoikoMeds network to share real-time availability signals with patients in their area. The onboarding process includes verification of pharmacy licensure, setup of inventory reporting, and integration with the ZoikoAvail™ signal network.",
     url: "/pharmacies",
   },
   {
@@ -37,7 +51,7 @@ const CONTENT_INDEX: ContentDocument[] = [
     title: "Availability confidence",
     section: "platform",
     keywords: ["confidence", "availability", "signal", "how accurate", "reliability"],
-    body: "Availability is reported as a confidence tier \u2014 high, moderate, or low \u2014 based on the recency and strength of pharmacy-reported signals. Stock can change quickly, so always confirm directly with the pharmacy before visiting.",
+    body: "Availability is reported as a confidence tier — high, moderate, or low — based on the recency and strength of pharmacy-reported signals. Stock can change quickly, so always confirm directly with the pharmacy before visiting.",
   },
   {
     id: "privacy-overview",
@@ -87,17 +101,17 @@ const CONTENT_INDEX: ContentDocument[] = [
   },
   {
     id: "zoikoavail-explanation",
-    title: "ZoikoAvail\u2122 network",
+    title: "ZoikoAvail™ network",
     section: "platform",
     keywords: ["zoikoavail", "network", "availability data", "how it works", "source"],
-    body: "ZoikoAvail\u2122 is ZoikoMeds\u2019 availability signal network. Participating pharmacies report stock data, which is aggregated into confidence-based availability tiers. The system uses Bayesian inference to compute the posterior probability that a medicine is in stock at a given location.",
+    body: "ZoikoAvail™ is ZoikoMeds’ availability signal network. Participating pharmacies report stock data, which is aggregated into confidence-based availability tiers. The system uses Bayesian inference to compute the posterior probability that a medicine is in stock at a given location.",
   },
   {
     id: "trust-center",
     title: "Trust Center",
     section: "compliance",
     keywords: ["trust", "safety", "security", "compliance", "governance"],
-    body: "The Trust Center documents ZoikoMeds\u2019 safety doctrine, AI assistant governance, data controls, platform security, and audience-specific protections.",
+    body: "The Trust Center documents ZoikoMeds’ safety doctrine, AI assistant governance, data controls, platform security, and audience-specific protections.",
     url: "/trust-center",
   },
   {
@@ -190,6 +204,17 @@ const CONTENT_INDEX: ContentDocument[] = [
   },
 ];
 
+// Initialize vector space vocabulary and document embeddings
+const docTexts = CONTENT_INDEX.map(
+  (doc) => `${doc.title} ${doc.keywords.join(" ")} ${doc.body}`
+);
+buildVocabulary(docTexts);
+
+for (const doc of CONTENT_INDEX) {
+  const textToEmbed = `${doc.title} ${doc.keywords.join(" ")} ${doc.body}`;
+  doc.vector = generateVectorEmbedding(textToEmbed);
+}
+
 const STOP_WORDS = new Set([
   "a", "an", "the", "is", "it", "at", "on", "in", "to", "for", "of", "with",
   "and", "or", "but", "not", "do", "does", "did", "can", "will", "would",
@@ -206,7 +231,7 @@ function tokenize(text: string): string[] {
     .filter((t) => t.length > 1 && !STOP_WORDS.has(t));
 }
 
-function scoreDocument(query: string, doc: ContentDocument): number {
+function scoreKeywordDocument(query: string, doc: ContentDocument): number {
   const queryTokens = tokenize(query);
   const docTokens = tokenize(doc.title + " " + doc.body);
   const keywordTokens = doc.keywords.flatMap((k) => tokenize(k));
@@ -237,14 +262,40 @@ function guessSection(query: string): string {
   return "platform";
 }
 
-export function searchContent(query: string, topK: number = 3): ContentDocument[] {
-  const scored = CONTENT_INDEX
-    .map((doc) => ({ doc, score: scoreDocument(query, doc) }))
-    .filter((s) => s.score > 0)
+/**
+ * Perform hybrid vector similarity + keyword search across ZOI content
+ */
+export function hybridSearchContent(query: string, topK: number = 3): HybridSearchResult[] {
+  const queryVector = generateVectorEmbedding(query);
+
+  const results: HybridSearchResult[] = CONTENT_INDEX.map((doc) => {
+    const vectorScore = doc.vector ? cosineSimilarity(queryVector, doc.vector) : 0;
+    const rawKeywordScore = scoreKeywordDocument(query, doc);
+    const keywordScore = rawKeywordScore > 0 ? Math.min(1.0, rawKeywordScore / 10) : 0;
+
+    // Combined score: 65% vector semantic similarity + 35% exact keyword match
+    const combinedScore = vectorScore * 0.65 + keywordScore * 0.35;
+
+    return {
+      doc,
+      score: combinedScore,
+      vectorScore,
+      keywordScore,
+    };
+  });
+
+  return results
+    .filter((r) => r.score > 0.01)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK);
+}
 
-  return scored.map((s) => s.doc);
+/**
+ * Main Content Search (uses Hybrid Vector RAG under the hood)
+ */
+export function searchContent(query: string, topK: number = 3): ContentDocument[] {
+  const hybridResults = hybridSearchContent(query, topK);
+  return hybridResults.map((res) => res.doc);
 }
 
 export function getContentBySection(section: string): ContentDocument[] {

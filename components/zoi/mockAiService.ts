@@ -144,6 +144,7 @@ export async function streamResponse(
                 if (lowConfidenceCount >= LOW_CONFIDENCE_THRESHOLD) {
                   needsEscalation = true;
                   escalateReason = "low_confidence";
+                  console.log("[Zoi Service] Escalating due to:", escalateReason);
                 }
               } else {
                 lowConfidenceCount = 0;
@@ -175,6 +176,7 @@ export async function streamResponse(
       }
     }
   } catch (err) {
+    console.warn("[Zoi Service] Stream error fallback:", err);
     const fallbackText = "I'm having trouble connecting right now. Please try again or contact support directly.";
     const words = fallbackText.split(" ");
     for (let i = 0; i < words.length; i++) {

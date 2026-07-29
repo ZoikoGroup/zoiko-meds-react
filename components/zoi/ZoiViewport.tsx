@@ -109,8 +109,8 @@ export default function ZoiViewport() {
         </div>
       )}
 
-      {state.messages.map((msg) => (
-        <div key={msg.id} style={{ marginBottom: "2px" }}>
+      {state.messages.map((msg, idx) => (
+        <div key={`${msg.id}-${idx}`} style={{ marginBottom: "2px" }}>
           {msg.role === "system" ? null : (
             <div
               style={{
