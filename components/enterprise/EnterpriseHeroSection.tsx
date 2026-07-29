@@ -46,8 +46,7 @@ export default function EnterpriseHeroSection() {
             >
               The institutional <br />
               infrastructure <br />
-              for{" "}
-              <span className="text-[#006A65]">medicine</span>
+              for <span className="text-[#006A65]">medicine</span>
               <br />
               <span className="text-[#006A65]">availability</span>
               <br />
@@ -60,8 +59,7 @@ export default function EnterpriseHeroSection() {
             >
               Health systems, governments, and digital-health platforms use
               ZoikoMeds to convert fragmented pharmacy data into governed,
-              jurisdiction-aware intelligence through institutional-grade
-              APIs.
+              jurisdiction-aware intelligence through institutional-grade APIs.
             </p>
 
             <div
@@ -69,12 +67,16 @@ export default function EnterpriseHeroSection() {
               style={{ animationDelay: "340ms" }}
             >
               <button
-              onClick={()=>router.push("/request-a-briefing")}
-               className="group cursor-pointer relative inline-flex items-center justify-center px-7 py-3.5 rounded-md bg-[#000615] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:bg-[#1a3a50] hover:shadow-[0_8px_28px_rgba(13,38,54,0.3)] hover:-translate-y-0.5 active:translate-y-0">
+                onClick={() => router.push("/request-a-briefing")}
+                className="group cursor-pointer relative inline-flex items-center justify-center px-7 py-3.5 rounded-md bg-[#000615] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:bg-[#1a3a50] hover:shadow-[0_8px_28px_rgba(13,38,54,0.3)] hover:-translate-y-0.5 active:translate-y-0"
+              >
                 <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
                 Request a Briefing
               </button>
-              <button className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-md border border-[#0d2636]/25 text-[#0d2636] font-semibold text-sm bg-white transition-all duration-300 hover:border-[#2DC9A0] hover:text-[#2DC9A0] hover:-translate-y-0.5 active:translate-y-0">
+              <button
+                onClick={() => router.push("/searchmed")}
+                className="group inline-flex items-center cursor-pointer gap-2 px-7 py-3.5 rounded-md border border-[#0d2636]/25 text-[#0d2636] font-semibold text-sm bg-white transition-all duration-300 hover:border-[#2DC9A0] hover:text-[#2DC9A0] hover:-translate-y-0.5 active:translate-y-0"
+              >
                 Explore the Stack
                 <span className="transition-transform duration-300 group-hover:translate-x-1">
                   →

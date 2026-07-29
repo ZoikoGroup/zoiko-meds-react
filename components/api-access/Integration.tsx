@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   Hospital,
   Building2,
@@ -7,14 +7,16 @@ import {
   Factory,
   Landmark,
   LucideIcon,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Card {
   icon: LucideIcon;
   title: string;
   description: string;
   action: string;
+  href: string;
 }
 
 const cards: Card[] = [
@@ -22,8 +24,9 @@ const cards: Card[] = [
     icon: Hospital,
     title: "Hospital systems",
     description:
-      "Connect regional medicine availability intelligence, shortage signals, and reporting outputs into enterprise dashboards, care coordination operations, or procurement intelligence systems.",
+      "Connect regional medicine me availability intelligence, shortage signals, and reporting outputs into enterprise dashboards, care coordination operations, or procurement intelligence systems.",
     action: "Request Hospital API Briefing",
+    href: "/hospital-systems",
   },
   {
     icon: Building2,
@@ -31,6 +34,7 @@ const cards: Card[] = [
     description:
       "Integrate multi-location medicine access indicators, alert thresholds, and regional access reports into centralized clinic operations.",
     action: "Discuss Clinic Network Integration",
+    href: "/clinic-networks",
   },
   {
     icon: Pill,
@@ -38,6 +42,7 @@ const cards: Card[] = [
     description:
       "Enable authorized pharmacy confirmation workflows, confidence updates, and network participation signals through controlled endpoints.",
     action: "Join Pharmacy API Program",
+    href: "/pharmacy-support",
   },
   {
     icon: Truck,
@@ -45,6 +50,7 @@ const cards: Card[] = [
     description:
       "Connect aggregated demand and availability intelligence into partner reporting without exposing sensitive inventory data to unauthorized users.",
     action: "Explore Distribution Integration",
+    href: "/integrations",
   },
   {
     icon: Factory,
@@ -52,6 +58,7 @@ const cards: Card[] = [
     description:
       "Use shortage signals, access-risk insights, and demand-pattern reports to support market access, supply planning, and stakeholder intelligence.",
     action: "Request Manufacturer Briefing",
+    href: "/request-a-briefing",
   },
   {
     icon: Landmark,
@@ -59,41 +66,47 @@ const cards: Card[] = [
     description:
       "Receive governed regional access reports and shortage-awareness feeds for approved operational review and public health planning.",
     action: "Request Public-Health API Review",
+    href: "/public-health-government",
   },
 ];
 
 export default function Integration() {
-    return (
-        <section className="bg-[#f6f9fc] px-6 py-16 sm:px-10 lg:px-16">
-            <div className="mx-auto max-w-6xl">
+  const router = useRouter();
+  return (
+    <section className="bg-[#f6f9fc] px-6 py-16 sm:px-10 lg:px-16">
+      <div className="mx-auto max-w-6xl">
+        <p className="mb-3 text-sm uppercase font-semibold tracking-[2px] text-[#13A594]">
+          03 · Integration use cases
+        </p>
+        <h2 className="max-w-2xl text-3xl md:text-[32px] font-semibold leading-snug text-gray-900">
+          API value, mapped to{" "}
+          <span className="text-[#0FAA87]">every stakeholder.</span>
+        </h2>
 
-                <p className="mb-3 text-sm uppercase font-semibold tracking-[2px] text-[#13A594]">
-                    03 · Integration use cases
-                </p>
-                <h2 className="max-w-2xl text-3xl md:text-[32px] font-semibold leading-snug text-gray-900">
-                    API value, mapped to {" "}
-                    <span className="text-[#0FAA87]">every stakeholder.</span>
-                </h2>
-
-                <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {cards.map(({ icon: Icon, title, description, action }) => (
-                        <div
-                            key={title}
-                            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
-                        >
-                            <div className="mb-4 flex h-9 w-9 items-center p-2 justify-center rounded-[9px] bg-[#13A5941A] text-teal-600">
-                                <Icon size={18} strokeWidth={2} />
-                            </div>
-                            <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-                            <p className="mt-2 md:min-h-30 text-sm leading-relaxed text-gray-500">{description}</p>
-                            <button className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-teal-600 hover:text-teal-700">
-                                {action}
-                                <ArrowRight size={14} />
-                            </button>
-                        </div>
-                    ))}
-                </div>
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map(({ icon: Icon, title, description, action, href }) => (
+            <div
+              key={title}
+              className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+            >
+              <div className="mb-4 flex h-9 w-9 items-center p-2 justify-center rounded-[9px] bg-[#13A5941A] text-teal-600">
+                <Icon size={18} strokeWidth={2} />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+              <p className="mt-2 md:min-h-30 text-sm leading-relaxed text-gray-500">
+                {description}
+              </p>
+              <button
+                onClick={() => router.push(href)}
+                className="mt-4 inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-teal-600 hover:text-teal-700"
+              >
+                {action}
+                <ArrowRight size={14} />
+              </button>
             </div>
-        </section>
-    );
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

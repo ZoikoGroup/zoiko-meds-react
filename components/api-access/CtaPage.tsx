@@ -25,7 +25,7 @@ export default function CTASection() {
             Request API Access Briefing
           </button>
 
-          <button className="w-full sm:w-auto rounded-xl border cursor-pointer border-white/25 px-6 py-2.5 text-center text-[15px] font-semibold text-white transition-colors hover:bg-gray-800">
+          <button onClick={()=>router.push("/integrations")} className="w-full sm:w-auto rounded-xl border cursor-pointer border-white/25 px-6 py-2.5 text-center text-[15px] font-semibold text-white transition-colors hover:bg-gray-800">
             Talk to Integration Team
           </button>
         </div>
