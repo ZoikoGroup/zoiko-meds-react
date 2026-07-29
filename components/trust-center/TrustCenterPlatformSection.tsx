@@ -10,7 +10,7 @@ const CARDS = [
     title: "Verified pharmacy participation",
     description: "How ZoikoMeds reviews pharmacy identity, authorization, license/registry evidence where available, user roles, branch controls, and ongoing review triggers.",
     link: "View Verification Standards",
-    href: "/verification-standards",
+    href: "/verification",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -40,7 +40,7 @@ const CARDS = [
     title: "Controlled medicine policy",
     description: "How controlled, restricted, high-risk, or jurisdiction-sensitive medicines may be suppressed, limited, routed, or governed under additional controls.",
     link: "View Controlled Medicine Policy",
-    href: "/controlled-medicine-policy",
+    href: "/medical-disclaimer",
     icon: (
       <>
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.4" fill="none" />

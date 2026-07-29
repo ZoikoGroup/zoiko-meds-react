@@ -84,7 +84,7 @@ export default function SecurityHeroSection() {
 
             <Reveal index={4} active={mounted}>
               <a
-                href="#trust-center"
+                href="/trust-center"
                 className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
                 style={{ color: ACCENT }}
               >

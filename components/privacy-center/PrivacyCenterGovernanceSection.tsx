@@ -162,7 +162,7 @@ export default function PrivacyCenterGovernanceSection() {
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
               <a
-                href="/privacy-choices"
+                href="#"
                 className="inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90"
                 style={{ backgroundColor: ACCENT }}
               >
@@ -177,7 +177,7 @@ export default function PrivacyCenterGovernanceSection() {
             </div>
 
             <a
-              href="/search"
+              href="/searchmed"
               className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-white/60 transition-colors duration-150 hover:text-white"
             >
               Search Without an Account <span aria-hidden>→</span>

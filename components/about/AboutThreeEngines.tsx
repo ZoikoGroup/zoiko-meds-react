@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const engines = [
@@ -11,17 +12,28 @@ const engines = [
     desc: "The medicine identity layer that normalizes medicines across names, brands, strengths, routes, and jurisdictions — making cross-border medicine identity tractable.",
     link: "Learn about MediBase™ →",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+        />
       </svg>
     ),
     iconBg: "rgba(96,165,250,0.18)",
     iconColor: "#93c5fd",
     /* deep navy base + blue radial glow top-right */
-    cardBg: "radial-gradient(ellipse 70% 60% at 90% 0%, rgba(59,93,190,0.55) 0%, transparent 70%), #0e1e35",
+    cardBg:
+      "radial-gradient(ellipse 70% 60% at 90% 0%, rgba(59,93,190,0.55) 0%, transparent 70%), #0e1e35",
     linkColor: "#60a5fa",
     border: "rgba(96,165,250,0.18)",
+    href: "/medibase-data",
   },
   {
     id: 2,
@@ -31,17 +43,28 @@ const engines = [
     desc: "The availability confidence engine that determines when a medicine signal is current, verified, indicative, stale, or suppressed — protecting patients and supply integrity.",
     link: "Learn about ZoikoAvail™ →",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+        />
       </svg>
     ),
     iconBg: "rgba(45,201,160,0.18)",
     iconColor: "#2DC9A0",
     /* dark teal base + teal radial glow top-right */
-    cardBg: "radial-gradient(ellipse 65% 60% at 88% 0%, rgba(20,140,100,0.7) 0%, transparent 65%), #061f18",
+    cardBg:
+      "radial-gradient(ellipse 65% 60% at 88% 0%, rgba(20,140,100,0.7) 0%, transparent 65%), #061f18",
     linkColor: "#2DC9A0",
     border: "rgba(45,201,160,0.2)",
+    href: "/zoiko-avail-api",
   },
   {
     id: 3,
@@ -51,17 +74,28 @@ const engines = [
     desc: "The intelligence engine identifying aggregated shortage, demand, zero-result, and restock patterns for enterprise and public-sector insight — anonymized and governed.",
     link: "Learn about ZoikoSignal™ →",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+        />
       </svg>
     ),
     iconBg: "rgba(167,139,250,0.18)",
     iconColor: "#c4b5fd",
     /* deep purple base + violet radial glow top-right */
-    cardBg: "radial-gradient(ellipse 65% 60% at 88% 0%, rgba(109,40,217,0.65) 0%, transparent 65%), #12082a",
+    cardBg:
+      "radial-gradient(ellipse 65% 60% at 88% 0%, rgba(109,40,217,0.65) 0%, transparent 65%), #12082a",
     linkColor: "#a78bfa",
     border: "rgba(167,139,250,0.2)",
+    href: "/zoikosignal-intelligence",
   },
 ];
 
@@ -69,11 +103,14 @@ export default function AboutThreeEngines() {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.1 },
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -116,7 +153,6 @@ export default function AboutThreeEngines() {
       `}</style>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-
         {/* ── HEADER ── */}
         <div className="mb-14 max-w-xl">
           <div
@@ -135,7 +171,9 @@ export default function AboutThreeEngines() {
           >
             <span className="text-white">Three engines.</span>
             <br />
-            <span className="text-[#2DC9A0] italic">One availability layer.</span>
+            <span className="text-[#2DC9A0] italic">
+              One availability layer.
+            </span>
           </h2>
 
           <p
@@ -143,8 +181,9 @@ export default function AboutThreeEngines() {
               transition-all duration-700 delay-200
               ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
           >
-            Purpose-built infrastructure that no generic database or search product replicates.
-            Each engine is governed, commercially licensed, and audit-ready.
+            Purpose-built infrastructure that no generic database or search
+            product replicates. Each engine is governed, commercially licensed,
+            and audit-ready.
           </p>
         </div>
 
@@ -163,7 +202,6 @@ export default function AboutThreeEngines() {
                 />
               );
             }
-
             return (
               <div
                 key={eng.id}
@@ -175,7 +213,9 @@ export default function AboutThreeEngines() {
                   animationDelay: delay,
                   background: eng.cardBg,
                   border: `1px solid ${eng.border}`,
-                  transform: isHovered ? "translateY(-6px) scale(1.015)" : "translateY(0) scale(1)",
+                  transform: isHovered
+                    ? "translateY(-6px) scale(1.015)"
+                    : "translateY(0) scale(1)",
                   boxShadow: isHovered
                     ? `0 24px 60px -10px ${eng.linkColor}33, 0 0 0 1px ${eng.border}`
                     : "0 2px 20px rgba(0,0,0,0.4)",
@@ -234,7 +274,8 @@ export default function AboutThreeEngines() {
 
                 {/* link */}
                 <span
-                  className="text-sm font-semibold transition-all duration-300"
+                  className="text-sm font-semibold cursor-pointer transition-all duration-300"
+                  onClick={() => router.push(eng.href)}
                   style={{
                     color: eng.linkColor,
                     letterSpacing: isHovered ? "0.03em" : "0",

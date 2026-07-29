@@ -107,23 +107,6 @@ export default function AboutHero() {
           </a>
         </div>
 
-        <div
-          className={`group flex items-center gap-3 pb-5 mb-4 border-b border-[#0F1F4E]/[0.08] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-          style={{ transitionDelay: isVisible ? "500ms" : "0ms" }}
-        >
-          <span className="flex-shrink-0 w-[34px] h-[34px] rounded-full bg-[#0F1F4E]/[0.06] flex items-center justify-center transition-all duration-200 group-hover:bg-[#00A99D]/[0.14] group-hover:scale-110">
-            <Phone size={15} className="text-[#0F1F4E]" strokeWidth={2} />
-          </span>
-          <div>
-            <div className="text-[11.5px] text-[#8A91A3]">Enterprise inquiries</div>
-            <a href="tel:+18004845574" className="block text-sm font-bold text-[#0F1F4E] no-underline">
-              +1-800-484-5574
-            </a>
-          </div>
-        </div>
-
         <p
           className={`text-[11.5px] leading-[1.6] text-[#A3AAB8] max-w-[460px] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
