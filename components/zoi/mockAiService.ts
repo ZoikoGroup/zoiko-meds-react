@@ -52,7 +52,8 @@ export async function streamResponse(
   }
 
   try {
-    const response = await fetch(`${SELF_URL}/api/zoi/stream`, {
+    const endpoint = typeof window !== "undefined" ? "/api/zoi/stream" : `${SELF_URL}/api/zoi/stream`;
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
