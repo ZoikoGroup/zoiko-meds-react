@@ -47,7 +47,7 @@ const rows: Row[] = [
         name: "Zoiko Tech Inc.",
         desc: "Supports engineering, infrastructure, data, AI, and platform capabilities where contractually and operationally assigned.",
         cta: "Request Technical Briefing",
-        link:"#"
+        link:"/request-a-briefing"
     },
 ];
 

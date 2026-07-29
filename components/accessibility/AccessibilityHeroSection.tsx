@@ -65,7 +65,7 @@ export default function AccessibilityHeroSection() {
                   Report Accessibility Issue
                 </a>
                 <a
-                  href="/accessibility-commitment"
+                  href="#commitment"
                   className="inline-flex items-center justify-center rounded-lg border border-[#E7EAF1] bg-white px-5 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-150 hover:border-[#0F1F4E]"
                 >
                   Review Accessibility Commitment
@@ -76,7 +76,7 @@ export default function AccessibilityHeroSection() {
             {/* Text link */}
             <Reveal index={4} active={mounted}>
               <a
-                href="/search"
+                href="/searchmed"
                 className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-opacity duration-150 hover:opacity-80"
                 style={{ color: ACCENT }}
               >

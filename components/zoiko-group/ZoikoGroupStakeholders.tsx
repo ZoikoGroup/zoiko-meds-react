@@ -30,7 +30,7 @@ const cards: Card[] = [
         title: "Enterprise & institutional buyers",
         desc: "Health systems, governments, public health, life sciences, payers, digital health, and partners.",
         cta: "Request Institutional Briefing",
-        link:"#"
+        link:"/request-a-briefing"
     },
     {
         src:"/zoiko-group/network.png",

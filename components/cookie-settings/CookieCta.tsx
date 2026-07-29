@@ -18,7 +18,7 @@ export default function CookieCta() {
                         controls.
                     </p>
                     <div className="flex flex-wrap justify-center gap-4 mt-2">
-                        <button onClick={()=>router.push("#")}
+                        <button onClick={()=>router.push("#manage")}
                         className="px-5 py-2.5 rounded-lg bg-[#13A594] cursor-pointer hover:bg-teal-600 transition text-white text-sm font-semibold">
                             Manage Cookie Settings
                         </button>
@@ -27,7 +27,7 @@ export default function CookieCta() {
                             Privacy Center
                         </button>
                     </div>
-                    <a href="#" className="text-[#E7EEF6D9] font-medium text-center text-[15px] hover:underline">Contact Privacy Support →</a>
+                    <a href="/privacy-center" className="text-[#E7EEF6D9] font-medium text-center text-[15px] hover:underline">Contact Privacy Support →</a>
                 </div>
             </div>
         </section>

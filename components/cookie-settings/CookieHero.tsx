@@ -36,7 +36,7 @@ export default function CookieHero() {
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-6">
                         <button 
-                        onClick={()=>router.push("#")}
+                        onClick={()=>router.push("#manage")}
                         className="bg-[#13A594] cursor-pointer border border-[#13A594] hover:bg-[#13A594]/90 text-white text-sm font-semibold rounded-md px-5 py-2.5">
                             Manage cookie settings
                         </button>
@@ -49,7 +49,7 @@ export default function CookieHero() {
                     </div>
 
                     <a
-                        href="#"
+                        href="/trust-center"
                         className="mt-4 inline-block text-sm font-medium text-[#13A594] hover:underline"
                     >
                         Learn about ZoikoMeds Trust Center →

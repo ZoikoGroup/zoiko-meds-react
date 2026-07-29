@@ -321,7 +321,9 @@ function CtaBanner() {
                 className={`flex flex-wrap gap-3 ${isVisible ? "cta-in" : "opacity-0"}`}
                 style={{ animationDelay: "420ms" }}
               >
-                <button className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#2DC9A0] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_8px_28px_rgba(45,201,160,0.45)] hover:-translate-y-0.5">
+                <button 
+                onClick={()=>router.push('/searchmed')}
+                className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#2DC9A0] text-white font-semibold text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_8px_28px_rgba(45,201,160,0.45)] hover:-translate-y-0.5">
                   <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 flex-shrink-0">
                     <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="m21 21-4.35-4.35" />

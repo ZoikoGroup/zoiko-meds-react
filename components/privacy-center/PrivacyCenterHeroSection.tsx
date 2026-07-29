@@ -101,7 +101,7 @@ export default function PrivacyCenterHeroSection() {
             {/* Text link */}
             <Reveal index={5} active={mounted}>
               <a
-                href="/search"
+                href="/searchmed"
                 className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-opacity duration-150 hover:opacity-80"
                 style={{ color: ACCENT }}
               >

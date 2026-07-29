@@ -18,31 +18,31 @@ const ROWS = [
     area: "Data minimization",
     promise: "Collect only what is needed for search, account preferences, alerts, workflows, security, and governance.",
     route: "Request Data Governance Pack",
-    href: "/request-data-governance-pack",
+    href: "/request-a-briefing",
   },
   {
     area: "Security controls",
     promise: "Role-based access, MFA readiness, encryption, audit logging, secure sessions, bot protection, and secure document routing for protected workflows.",
     route: "Request Security Pack",
-    href: "/request-security-pack",
+    href: "/security",
   },
   {
     area: "Enterprise governance",
     promise: "Enterprise outputs are contract-scoped, jurisdiction-aware, thresholded, aggregated, and access-controlled.",
     route: "Request Enterprise Trust Review",
-    href: "/request-enterprise-trust-review",
+    href: "/enterprise",
   },
   {
     area: "Analytics privacy",
     promise: "Identifiable medicine searches, precise locations, PHI, exact stock, internal scores, and sensitive operational data must not flow into general marketing analytics.",
     route: "View Analytics Governance",
-    href: "/analytics-governance",
+    href: "/analytics",
   },
   {
     area: "Policy governance",
     promise: "Public policies, disclaimers, controlled medicine rules, privacy materials, and trust copy are versioned and reviewed.",
     route: "View Legal & Trust Policies",
-    href: "/legal-trust",
+    href: "#",
   },
 ] as const;
 
