@@ -3,6 +3,8 @@ import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
 import { successResponse, errorResponse, validateRequired } from "@/lib/api/helpers";
 import { lookupAvailabilityAsync, KNOW_MEDICINES, VALID_REGIONS, extractRegion } from "@/lib/availability";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";

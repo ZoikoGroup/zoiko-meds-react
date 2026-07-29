@@ -4,6 +4,9 @@ import { isDrugLikeTerm } from "@/lib/medibase";
 import { searchContent, type ContentDocument } from "@/lib/site-content";
 import { lookupAvailabilityAsync, findMedicineInQuery, extractRegion } from "@/lib/availability";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
