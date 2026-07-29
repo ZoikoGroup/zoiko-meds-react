@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -14,6 +15,7 @@ const ROLE_ROWS = [
   {
     tag: "Platform",
     name: "ZoikoMeds",
+    link: "/",
     description:
       "Global medicine availability infrastructure platform operated by Zoiko Healthcare Inc.",
     cta: "Explore ZoikoMeds",
@@ -21,6 +23,7 @@ const ROLE_ROWS = [
   {
     tag: "Parent group",
     name: "Zoiko Group Inc.",
+    link: "/about",
     description:
       "Parent group and broader corporate ecosystem supporting strategic direction and group governance.",
     cta: "Learn About Zoiko Group",
@@ -128,13 +131,16 @@ function RoleRow({
   description,
   cta,
   isLast,
+  link,
 }: {
   tag: string;
   name: string;
   description: string;
   cta?: string;
   isLast: boolean;
+  link?: string;
 }) {
+  const router = useRouter();
   return (
     <div
       className={`group flex items-start justify-between gap-6 px-7 py-6 transition-colors duration-200 hover:bg-[#F7F9FC] ${
@@ -159,7 +165,8 @@ function RoleRow({
       {cta && (
         <button
           type="button"
-          className="hidden flex-shrink-0 rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98] sm:block"
+          onClick={() => link && router.push(link)}
+          className="hidden flex-shrink-0 cursor-pointer rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98] sm:block"
         >
           {cta}
         </button>

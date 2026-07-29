@@ -39,20 +39,21 @@ export default function ZoiPanel() {
         }
         .zoi-panel {
           position: fixed;
-          bottom: 25px;
+          bottom: 24px;
           right: 24px;
           z-index: 48;
           display: flex;
           flex-direction: column;
-          width: 420px;
-          max-height: 640px;
-          height: min(640px, calc(100dvh - 120px));
+          width: 430px;
+          max-height: 660px;
+          height: min(660px, calc(100dvh - 110px));
           background: #FFFFFF;
-          border-radius: 12px;
-          border: 1px solid #E5E7EB;
-          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0,0,0,0.03);
-          animation: zoiSlideUp 0.3s ease;
+          border-radius: 16px;
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          box-shadow: 0 24px 72px rgba(15, 23, 42, 0.16), 0 4px 16px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(0,0,0,0.04);
+          animation: zoiSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           overflow: hidden;
+          font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
         }
 
         @media (max-width: 767px) {
@@ -92,7 +93,7 @@ export default function ZoiPanel() {
         aria-describedby={state.error ? "zoi-error-desc" : undefined}
         tabIndex={-1}
       >
-        <div style={{ height: "3px", background: "linear-gradient(90deg, #263D88, #00A99D)", flexShrink: 0 }} />
+        <div style={{ height: "4px", background: "linear-gradient(90deg, #008882 0%, #263D88 100%)", flexShrink: 0 }} />
 
         {state.error === "offline" && (
           <div
@@ -149,52 +150,6 @@ export default function ZoiPanel() {
         <ZoiHeader />
         <ZoiViewport />
         <ZoiComposer />
-
-        {!state.error && (
-          <div
-            style={{
-              padding: "8px 18px 10px",
-              borderTop: "1px solid #F3F4F6",
-              flexShrink: 0,
-              background: "#FAFAFA",
-            }}
-          >
-            <a
-              href="/trust-center"
-              style={{
-                fontSize: "11px",
-                color: "#6B7280",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              {t("footer.disclosure")}
-            </a>
-          </div>
-        )}
-
-        {state.error && (
-          <div
-            style={{
-              padding: "8px 18px 10px",
-              borderTop: "1px solid #F3F4F6",
-              flexShrink: 0,
-              background: "#FAFAFA",
-            }}
-          >
-            <a
-              href="/trust-center"
-              style={{
-                fontSize: "11px",
-                color: "#6B7280",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              {t("footer.disclosure")}
-            </a>
-          </div>
-        )}
       </div>
     </>
   );

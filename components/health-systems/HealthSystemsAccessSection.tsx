@@ -12,35 +12,35 @@ const PATHS = [
     title: "Health-system strategy briefing",
     description: "C-suite, CIO, CMIO, pharmacy leadership, access leaders, population health, strategy, procurement.",
     cta: "Request Health System Briefing",
-    href: "#",
+    href: "/request-a-briefing",
   },
   {
     icon: "person",
     title: "Care-team workflow review",
     description: "Discharge teams, care coordinators, patient navigators, outpatient operations, clinic support.",
     cta: "Explore Care Team Workflows",
-    href: "#",
+    href: "/care-team-access",
   },
   {
     icon: "code",
     title: "Integration & API evaluation",
     description: "Digital front door, patient portal, telehealth, data engineering, architecture, and product teams.",
     cta: "Discuss Integration",
-    href: "#",
+    href: "/integrations",
   },
   {
     icon: "lock",
     title: "Security & procurement review",
     description: "Security, privacy, compliance, legal, procurement, and enterprise architecture teams.",
     cta: "Request Security Pack",
-    href: "#",
+    href: "/security",
   },
   {
     icon: "search",
     title: "Patient or caregiver self-service",
     description: "People checking medicine availability for themselves or someone they support.",
     cta: "Search Medicines",
-    href: "#",
+    href: "/searchmed",
   },
 ] as const;
 
@@ -129,7 +129,7 @@ export default function HealthSystemsAccessSection() {
                   Request Health System Briefing
                 </Link>
                 <Link
-                  href="#"
+                  href="/care-team-access"
                   className="inline-flex items-center justify-center rounded-xl border border-white/25 px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/5 active:scale-[0.97]"
                 >
                   Explore Care Team Workflows

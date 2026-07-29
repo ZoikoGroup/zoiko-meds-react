@@ -142,7 +142,7 @@ export default function AccessibilityGovernanceSection() {
                 Report Accessibility Issue
               </a>
               <a
-                href="/contact-support"
+                href="/contact"
                 className="inline-flex items-center justify-center rounded-lg border border-white/20 px-5 py-2.5 text-[13.5px] font-semibold text-white transition-colors duration-150 hover:border-white/40"
               >
                 Contact Support

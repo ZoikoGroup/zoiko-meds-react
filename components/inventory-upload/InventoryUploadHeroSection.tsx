@@ -97,7 +97,7 @@ export default function InventoryUploadHeroSection() {
             {/* Text link */}
             <Reveal index={4} active={mounted}>
               <Link
-                href="#"
+                href="/join-the-network"
                 className="mt-4 inline-block text-[13px] font-medium transition-opacity hover:opacity-80"
                 style={{ color: ACCENT }}
               >

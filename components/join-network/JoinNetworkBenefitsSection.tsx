@@ -36,7 +36,7 @@ const BENEFITS = [
       "Use confidence-based signals instead of public exact stock quantities — giving patients guidance without exposing sensitive inventory.",
     cta: "View Data Controls",
     ctaStyle: "outline",
-    link:"#"
+    link:"#control"
   },
   {
     icon: "scale",

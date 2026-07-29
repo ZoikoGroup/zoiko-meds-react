@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useReducer, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useReducer, useCallback, useEffect, type ReactNode } from "react";
 import type { Message, Persona, PanelView, ZoiPageContext, ZoiError } from "./types";
 import { PAGE_CONFIGS } from "./types";
 import { GREETING_MESSAGE, generatePersonaResponse, submitEscalationApi, resetLowConfidenceCount } from "./mockAiService";
@@ -40,6 +40,7 @@ type ZoiAction =
   | { type: "SET_ERROR"; error: ZoiError }
   | { type: "TOGGLE_PANEL" }
   | { type: "RESET_SESSION" }
+  | { type: "HYDRATE_SESSION"; messages: Message[]; persona: Persona | null; personaSet: boolean }
   | { type: "ADD_AUDIT_ENTRY"; entry: AuditEntry };
 
 function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
@@ -51,6 +52,9 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
     case "SET_PAGE_CONTEXT":
       return { ...state, pageContext: action.context };
     case "ADD_MESSAGE":
+      if (state.messages.some((m) => m.id === action.message.id)) {
+        return state;
+      }
       return { ...state, messages: [...state.messages, action.message] };
     case "SET_STREAMING":
       return { ...state, isStreaming: action.isStreaming };
@@ -67,11 +71,30 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
     case "TOGGLE_PANEL":
       return { ...state, panelView: state.panelView === "open" ? "minimized" : "open" };
     case "RESET_SESSION":
+      if (typeof window !== "undefined") {
+        try { sessionStorage.removeItem("zoi_session"); } catch {}
+      }
       return {
         ...initialState,
         pageContext: state.pageContext,
         messages: state.messages.length === 0 ? [] : [GREETING_MESSAGE],
       };
+    case "HYDRATE_SESSION": {
+      const seenIds = new Set<string>();
+      const uniqueMsgs: Message[] = [];
+      for (const m of action.messages) {
+        if (!seenIds.has(m.id)) {
+          seenIds.add(m.id);
+          uniqueMsgs.push(m);
+        }
+      }
+      return {
+        ...state,
+        messages: uniqueMsgs.length > 0 ? uniqueMsgs : state.messages,
+        persona: action.persona ?? state.persona,
+        personaSet: action.personaSet ?? state.personaSet,
+      };
+    }
     case "ADD_AUDIT_ENTRY":
       return { ...state, auditTrail: [...state.auditTrail, action.entry] };
     default:
@@ -129,6 +152,46 @@ function addAudit(
 
 export function ZoiProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(zoiReducer, initialState);
+
+  // Hydrate session history from sessionStorage on client mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = sessionStorage.getItem("zoi_session");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+          dispatch({
+            type: "HYDRATE_SESSION",
+            messages: parsed.messages,
+            persona: parsed.persona ?? null,
+            personaSet: !!parsed.personaSet,
+          });
+        }
+      }
+    } catch {
+      // Ignore storage read/parse error
+    }
+  }, []);
+
+  // Save session state to sessionStorage when messages or persona change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (state.messages.length > 0) {
+      try {
+        sessionStorage.setItem(
+          "zoi_session",
+          JSON.stringify({
+            messages: state.messages,
+            persona: state.persona,
+            personaSet: state.personaSet,
+          })
+        );
+      } catch {
+        // Ignore storage write error
+      }
+    }
+  }, [state.messages, state.persona, state.personaSet]);
 
   const openPanel = useCallback(() => {
     initTelemetry();
@@ -282,13 +345,14 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
             if (targetMed) {
               import("./mockAiService").then(({ fetchAvailability }) => {
                 fetchAvailability(targetMed, targetReg).then((res) => {
-                  let pharmacyContent = `Here are stocking pharmacies for ${targetMed}${targetReg !== "any" ? ` in ${targetReg}` : ""}:\n\n`;
+                  let pharmacyContent = "";
                   if (res && res.card && res.card.pharmacies && res.card.pharmacies.length > 0) {
-                    pharmacyContent += res.card.pharmacies
-                      .map((p, i) => `${i + 1}. ${p.name}, ${p.city} — ${p.phone ? p.phone : "0700 123 456"} (${p.address})`)
-                      .join("\n");
+                    pharmacyContent = `Here are stocking pharmacies for ${targetMed}${targetReg !== "any" ? ` in ${targetReg}` : ""}:\n\n` +
+                      res.card.pharmacies
+                        .map((p, i) => `${i + 1}. ${p.name}, ${p.city} — ${p.phone ? p.phone : "N/A"} (${p.address})`)
+                        .join("\n");
                   } else {
-                    pharmacyContent += `1. HealthPlus Pharmacy, ${targetReg !== "any" ? targetReg : "Nakuru"} — 0700 123 456 (Kenyatta Ave)\n2. MediCare Chemist, ${targetReg !== "any" ? targetReg : "Nakuru"} — 0700 789 012 (Moi Rd)`;
+                    pharmacyContent = `No stocking pharmacies currently report active stock for ${targetMed}${targetReg !== "any" ? ` in ${targetReg}` : ""}. You can set an availability alert to be notified when stock becomes available, or search a nearby area.`;
                   }
                   dispatch({
                     type: "ADD_MESSAGE",

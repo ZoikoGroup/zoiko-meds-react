@@ -169,3 +169,11 @@ export function getSupportedMedicines(): { canonical: string; strengths: string[
     brands: e.brands,
   }));
 }
+
+const DRUG_SUFFIX_PATTERN = /\b\w+(cillin|mycin|oxacin|olol|pril|statin|sartan|prazole|tidine|floxacin|zepam|zolam|setron|triptan|dipine|vir|mab|nib|fenac|coxib)\b/i;
+const DRUG_TERMS_PATTERN = /\b(tablet|tablets|capsule|capsules|syrup|injection|dosage|dose|mg|mcg|ml)\b/i;
+
+export function isDrugLikeTerm(query: string): boolean {
+  return DRUG_SUFFIX_PATTERN.test(query) || DRUG_TERMS_PATTERN.test(query) || STRENGTH_PATTERN.test(query);
+}
+

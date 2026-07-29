@@ -22,7 +22,7 @@ const ROLES = [
       "Support discharge conversations with availability search guidance and pharmacy confirmation reminders.",
     cta: "Explore Discharge Workflow Support",
     ctaStyle: "outline",
-    link:"#"
+    link:"/patient-support"
   },
   {
     icon: "monitor",
@@ -31,7 +31,7 @@ const ROLES = [
       "Route patients toward availability search, saved searches, alerts, and pharmacy confirmation.",
     cta: "Request Workflow Briefing",
     ctaStyle: "outline",
-    link:"#"
+    link:"/request-a-briefing"
   },
   {
     icon: "gear",
@@ -40,7 +40,7 @@ const ROLES = [
       "Evaluate organization-wide access, SSO readiness, governance, auditability, and support escalation.",
     cta: "Request Organization Review",
     ctaStyle: "outline",
-    link:"#"
+    link:"/provider-support"
   },
 ] as const;
 

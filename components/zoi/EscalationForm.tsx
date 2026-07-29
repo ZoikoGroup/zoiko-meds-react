@@ -22,37 +22,40 @@ export default function EscalationForm() {
       <div
         style={{
           border: "1px solid #E5E7EB",
-          borderRadius: "12px",
+          borderRadius: "14px",
           padding: "16px",
           background: "#F9FAFB",
+          boxSizing: "border-box",
         }}
       >
         <form onSubmit={handleSubmit}>
-          <div style={{ fontSize: "12px", fontWeight: 600, color: "#4B5563", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          <div style={{ fontSize: "11px", fontWeight: 600, color: "#4B5563", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
             Email or phone
           </div>
           <input
             type="text"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            placeholder="you@example.com or 0700 123 456"
+            placeholder="0700 123 456 or name@domain.com"
             disabled={submitted}
             style={{
               width: "100%",
+              boxSizing: "border-box",
               padding: "10px 14px",
-              fontSize: "14px",
+              fontSize: "13.5px",
               border: "1.5px solid #D1D5DB",
               borderRadius: "10px",
               outline: "none",
               background: submitted ? "#F9FAFB" : "#FFFFFF",
               color: "#111827",
               fontFamily: "var(--font-jakarta), sans-serif",
+              transition: "all 0.2s ease",
             }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,136,130,0.12)"; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = "#D1D5DB"; e.currentTarget.style.boxShadow = "none"; }}
           />
 
-          <div style={{ fontSize: "12px", fontWeight: 600, color: "#4B5563", marginTop: "12px", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          <div style={{ fontSize: "11px", fontWeight: 600, color: "#4B5563", marginTop: "12px", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
             Describe your issue (optional)
           </div>
           <textarea
@@ -63,18 +66,20 @@ export default function EscalationForm() {
             disabled={submitted}
             style={{
               width: "100%",
+              boxSizing: "border-box",
               padding: "10px 14px",
               fontSize: "13px",
               border: "1.5px solid #D1D5DB",
               borderRadius: "10px",
               outline: "none",
-              resize: "vertical",
+              resize: "none",
               background: submitted ? "#F9FAFB" : "#FFFFFF",
               color: "#111827",
               fontFamily: "var(--font-jakarta), sans-serif",
+              transition: "all 0.2s ease",
             }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = "#008882"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,136,130,0.12)"; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = "#D1D5DB"; e.currentTarget.style.boxShadow = "none"; }}
           />
 
           <label
@@ -85,7 +90,7 @@ export default function EscalationForm() {
               marginTop: "12px",
               cursor: submitted ? "default" : "pointer",
               fontSize: "13px",
-              color: "#6B7280",
+              color: "#4B5563",
             }}
           >
             <input
@@ -104,17 +109,22 @@ export default function EscalationForm() {
               disabled={!contact.trim()}
               style={{
                 width: "100%",
+                boxSizing: "border-box",
                 marginTop: "12px",
-                padding: "11px",
+                padding: "12px",
                 fontSize: "14px",
                 fontWeight: 600,
                 border: "none",
                 borderRadius: "10px",
-                background: !contact.trim() ? "#D1D5DB" : "#263D88",
-                color: "#FFFFFF",
+                background: !contact.trim()
+                  ? "#CBD5E1"
+                  : "linear-gradient(135deg, #263D88 0%, #1A2B66 100%)",
+                color: !contact.trim() ? "#64748B" : "#FFFFFF",
                 cursor: !contact.trim() ? "not-allowed" : "pointer",
                 fontFamily: "var(--font-jakarta), sans-serif",
                 lineHeight: 1,
+                boxShadow: !contact.trim() ? "none" : "0 3px 10px rgba(38,61,136,0.25)",
+                transition: "all 0.2s ease",
               }}
             >
               Submit request

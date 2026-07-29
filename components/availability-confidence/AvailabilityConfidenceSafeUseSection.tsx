@@ -13,6 +13,7 @@ type SafeUseRowData = {
   badge: string;
   description: string;
   cta: string;
+  href:string;
 };
 
 // Explicitly typed as SafeUseRowData[] so every field (icon, tone)
@@ -28,6 +29,7 @@ const ROWS: SafeUseRowData[] = [
     description:
       "Review pharmacy details, check distance and hours, then confirm before traveling.",
     cta: "View Pharmacy Details",
+    href:"/pharmacy",
   },
   {
     tone: "amber",
@@ -36,6 +38,7 @@ const ROWS: SafeUseRowData[] = [
     description:
       "Contact the pharmacy before making a trip. Consider expanding the search radius or creating an alert.",
     cta: "Create Availability Alert",
+    href:"/availability-alert",
   },
   {
     tone: "blue",
@@ -43,6 +46,7 @@ const ROWS: SafeUseRowData[] = [
     badge: "Confirmation needed",
     description: "Use the pharmacy contact or confirmation option where supported.",
     cta: "Request Confirmation",
+    href:"/confirmation-requests",
   },
   {
     tone: "gray",
@@ -51,6 +55,7 @@ const ROWS: SafeUseRowData[] = [
     description:
       "Try a wider radius, check the medicine spelling, add strength or form, or create an alert for future changes.",
     cta: "Search Again",
+    href:"/searchmed",
   },
 ];
 
@@ -167,6 +172,7 @@ function SafeUseRow({
   description,
   cta,
   index,
+  href
 }: SafeUseRowData & { index: number }) {
   const colors = TONE_STYLES[tone];
 
@@ -200,7 +206,7 @@ function SafeUseRow({
       </p>
 
       <a
-        href="#"
+        href={href}
         className="inline-flex w-fit flex-shrink-0 items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}

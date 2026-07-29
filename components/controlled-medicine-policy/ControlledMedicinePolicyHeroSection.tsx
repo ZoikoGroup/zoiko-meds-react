@@ -83,7 +83,7 @@ export default function ControlledMedicinePolicyHeroSection() {
 
                 <Reveal index={4}>
                   <a
-                    href="#"
+                    href="/medical-disclaimer"
                     className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
                     style={{ color: ACCENT }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}

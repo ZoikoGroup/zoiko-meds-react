@@ -1,14 +1,24 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const roles = [
   {
     id: 1,
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+        />
       </svg>
     ),
     iconBg: "#e6faf5",
@@ -20,13 +30,23 @@ const roles = [
     hoverBorder: "#2DC9A0",
     hoverBg: "linear-gradient(145deg, #f0fdf9 0%, #e6faf5 100%)",
     active: true,
+    href: "/searchmed",
   },
   {
     id: 2,
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+        />
       </svg>
     ),
     iconBg: "#eff6ff",
@@ -37,13 +57,23 @@ const roles = [
     linkColor: "#60a5fa",
     hoverBorder: "#60a5fa",
     hoverBg: "linear-gradient(145deg, #f0f7ff 0%, #e8f2ff 100%)",
+    href: "/join-the-network",
   },
   {
     id: 3,
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+        />
       </svg>
     ),
     iconBg: "#fdf4ff",
@@ -54,13 +84,23 @@ const roles = [
     linkColor: "#a78bfa",
     hoverBorder: "#a78bfa",
     hoverBg: "linear-gradient(145deg, #fdf4ff 0%, #f5eeff 100%)",
+    href: "/integrations",
   },
   {
     id: 4,
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
       </svg>
     ),
     iconBg: "#fffbeb",
@@ -71,13 +111,23 @@ const roles = [
     linkColor: "#f59e0b",
     hoverBorder: "#f59e0b",
     hoverBg: "linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%)",
+    href: "/request-a-briefing",
   },
   {
     id: 5,
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253M3.284 14.253A8.959 8.959 0 0 1 3 12c0-1.064.174-2.086.494-3.042" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="w-6 h-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253M3.284 14.253A8.959 8.959 0 0 1 3 12c0-1.064.174-2.086.494-3.042"
+        />
       </svg>
     ),
     iconBg: "#eff6ff",
@@ -88,6 +138,7 @@ const roles = [
     linkColor: "#3b82f6",
     hoverBorder: "#3b82f6",
     hoverBg: "linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%)",
+    href: "/health-systems",
   },
 ];
 
@@ -96,18 +147,24 @@ export default function MedicineAccessChain() {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [activeId, setActiveId] = useState(1);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
-      { threshold: 0.12 }
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.12 },
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full bg-[#f0f4f8] py-16 lg:py-24 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="w-full bg-[#f0f4f8] py-16 lg:py-24 overflow-hidden"
+    >
       <style>{`
         /* shimmer skeleton */
         @keyframes shimmerLight {
@@ -156,7 +213,6 @@ export default function MedicineAccessChain() {
       `}</style>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-
         {/* ── HEADER ── */}
         <div className="text-center mb-12">
           {/* eyebrow */}
@@ -176,7 +232,9 @@ export default function MedicineAccessChain() {
               ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
           >
             Built for every role in the{" "}
-            <em className="not-italic text-[#2DC9A0]">medicine access chain.</em>
+            <em className="not-italic text-[#2DC9A0]">
+              medicine access chain.
+            </em>
           </h2>
         </div>
 
@@ -191,8 +249,15 @@ export default function MedicineAccessChain() {
             /* skeleton before visible */
             if (!isVisible) {
               return (
-                <div key={role.id} className="flex flex-col gap-3" style={{ animationDelay: delay }}>
-                  <div className="skel h-52" style={{ animationDelay: delay }} />
+                <div
+                  key={role.id}
+                  className="flex flex-col gap-3"
+                  style={{ animationDelay: delay }}
+                >
+                  <div
+                    className="skel h-52"
+                    style={{ animationDelay: delay }}
+                  />
                 </div>
               );
             }
@@ -200,7 +265,11 @@ export default function MedicineAccessChain() {
             return (
               <div
                 key={role.id}
-                onMouseEnter={() => { setHoveredId(role.id); setActiveId(role.id); }}
+                onClick={()=>router.push(role.href)}
+                onMouseEnter={() => {
+                  setHoveredId(role.id);
+                  setActiveId(role.id);
+                }}
                 onMouseLeave={() => setHoveredId(null)}
                 className="card-rise relative rounded-2xl p-5 flex flex-col overflow-hidden cursor-pointer
                   transition-all duration-400 ease-out"
@@ -256,7 +325,7 @@ export default function MedicineAccessChain() {
 
                 {/* link */}
                 <a
-                  href="#"
+                  href={role.href}
                   className="link-hover inline-flex items-center gap-1 text-xs font-semibold transition-all duration-300"
                   style={{ color: role.linkColor }}
                   onClick={(e) => e.preventDefault()}

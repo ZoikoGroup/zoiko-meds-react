@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
-import { resolveMedicine } from "@/lib/medibase";
+import { isDrugLikeTerm } from "@/lib/medibase";
 import { searchContent, type ContentDocument } from "@/lib/site-content";
-import { lookupAvailability, findMedicineInQuery, extractRegion } from "@/lib/availability";
+import { lookupAvailabilityAsync, findMedicineInQuery, extractRegion } from "@/lib/availability";
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -95,29 +95,42 @@ function resetRetrievedSources(): void {
 
 const GUARDRAIL_TEXTS: Record<string, string> = {
   medical_advice:
-    "That's an important question, and it's one for a clinical professional \u2014 " +
-    "drug interactions depend on your specific situation, and I'm not able to advise on them safely.\n\n" +
-    "Your pharmacist can answer this when you collect your medicine. If you'd like, " +
-    "I can show you the stocking pharmacies' contact details now.",
+    "I can't make medical decisions, provide diagnosis, recommend treatments, or give personalized dosage advice. " +
+    "A qualified pharmacist or prescriber can review your situation safely. " +
+    "I can still help you search for medicine availability or nearby verified pharmacies.",
   crisis:
-    "It sounds like you may need urgent help. Please contact your local emergency services or a crisis helpline right away.\n\n" +
-    "If this is a medical emergency, call 911 or your local emergency number immediately.",
+    "CRITICAL SAFETY NOTICE: It appears you may need urgent medical assistance or emergency guidance.\n\n" +
+    "• Medical Emergency / Overdose: Call 911 (US) or 999/111 (UK) immediately.\n" +
+    "• Poison Control: Call 1-800-222-1222 (US) or contact NHS 111 (UK).\n" +
+    "• Mental Health & Crisis Line: Call or text 988 (US) or 111 (UK).\n\n" +
+    "ZoikoMeds is an availability search tool and does not provide emergency medical treatment.",
   abuse:
-    "I can't help with that request. ZoikoMeds supports responsible use of medicines under professional guidance. " +
-    "If you need help with substance use, please contact a healthcare professional or a support service.",
+    "I cannot assist with requests attempting to misuse, abuse, or bypass prescription requirements for controlled substances. " +
+    "ZoikoMeds operates strictly under professional healthcare and legal compliance doctrines.",
 };
 
 const GUARDRAIL_CHIPS: Record<string, string[]> = {
-  medical_advice: ["show_pharmacies", "continue_availability"],
+  medical_advice: ["check_availability", "escalate"],
   crisis: ["escalate"],
   abuse: ["escalate"],
 };
 
-function formatSourceMessage(sources: ContentDocument[]): string | null {
+function formatSourceMessage(sources: ContentDocument[]): { text: string; citations: Array<{ id: string; title: string; url?: string; sourceType: string; authorityLevel: "A1" | "A2" | "A3" | "A4" | "A5" | "A6" }> } | null {
   if (sources.length === 0) return null;
   const primary = sources[0];
-  const followUp = sources.length > 1 ? ` You can also learn more on the ${sources.slice(1).map((s) => s.title).join(", ")} page.` : "";
-  return `${primary.body}${followUp}`;
+  const citations = sources.map((s) => ({
+    id: s.id,
+    title: s.title,
+    url: s.url || `https://zoikomeds.com${s.url || "/platform"}`,
+    sourceType: s.section,
+    authorityLevel: (s.id.startsWith("spec-") ? "A2" : "A5") as "A2" | "A5",
+  }));
+
+  const followUp = sources.length > 1 ? ` (Referenced: ${sources.map((s) => s.title).join("; ")})` : "";
+  return {
+    text: `${primary.body}${followUp}`,
+    citations,
+  };
 }
 
 // ── Response model (layer 4) ────────────────────────────────────────────
@@ -126,10 +139,18 @@ type ResponsePlan = {
   text: string;
   chips: string[];
   sources?: RetrievedSource[];
+  citations?: Array<{ id: string; title: string; url?: string; sourceType: string; authorityLevel: "A1" | "A2" | "A3" | "A4" | "A5" | "A6" }>;
   availabilityCard?: unknown;
+  emergencyTemplate?: {
+    templateId: string;
+    market: "US" | "UK";
+    headline: string;
+    bodyText: string;
+    emergencyActions: Array<{ label: string; actionUrl: string }>;
+  };
 };
 
-function getResponsePlan(query: string, persona: string, classification: ClassifierVerdict): ResponsePlan {
+async function getResponsePlan(query: string, persona: string, classification: ClassifierVerdict): Promise<ResponsePlan> {
   resetRetrievedSources();
 
   if (checkPromptInjection(query)) {
@@ -157,12 +178,12 @@ function getResponsePlan(query: string, persona: string, classification: Classif
 
     if (!region) {
       return {
-        text: `I found ${displayName} in our system. Which location or city should I check availability for? (e.g. Nakuru, Nairobi, Kisumu)`,
+        text: `I found ${displayName} in our system. Which location or city should I check availability for? (e.g. London, New York, Chicago)`,
         chips: ["check_availability", "escalate"],
       };
     }
 
-    const availResult = lookupAvailability({ medicine: foundMed, region });
+    const availResult = await lookupAvailabilityAsync({ medicine: foundMed, region });
 
     if (availResult) {
       return {
@@ -195,11 +216,16 @@ function getResponsePlan(query: string, persona: string, classification: Classif
       section: c.section,
       score: scoreForSource(query, c),
     }));
-    const msg = formatSourceMessage(contentResults);
-    if (msg) {
+    const formatted = formatSourceMessage(contentResults);
+    if (formatted) {
       const chips: string[] = ["check_availability"];
       if (classification.verdict === "safe" && classification.intent === "commercial") chips.push("escalate");
-      return { text: msg, chips: chips.length > 3 ? chips.slice(0, 3) : chips, sources: retrievedSources };
+      return {
+        text: formatted.text,
+        chips: chips.length > 3 ? chips.slice(0, 3) : chips,
+        sources: retrievedSources,
+        citations: formatted.citations,
+      };
     }
   }
 
@@ -238,19 +264,224 @@ function scoreForSource(query: string, doc: { id: string; title: string }): numb
 
 const DRUG_SUFFIX_PATTERN = /\b\w+(?:ine|am|ol|ate|ide|ium|pam|zep|barb|caine|vir|mab|zole|zone|pam|tan|cet|dip|pram|lol|pine|xide|pril|sart|vastatin|oxacin|mycin|cillin|conazole)\b/i;
 
-function isDrugLikeTerm(query: string): boolean {
-  const words = query.toLowerCase().split(/\s+/);
-  return words.some((w) => w.length >= 5 && DRUG_SUFFIX_PATTERN.test(w));
-}
+const VALID_PERSONAS = ["patient", "pharmacy", "enterprise", "wholesale", "other"];
 
 async function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-const VALID_PERSONAS = ["patient", "pharmacy", "enterprise", "wholesale", "other"];
+async function streamGeminiResponse(
+  query: string,
+  persona: string,
+  ragSources: ContentDocument[],
+  apiKey: string,
+  plan: ResponsePlan
+): Promise<Response | null> {
+  try {
+    const systemPrompt = `You are Zoi, the intelligent medicine availability assistant for ZoikoMeds.
+Your core mission is to help users discover medicine availability and navigate the platform safely.
+CRITICAL SAFETY BOUNDARIES:
+- DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
+- Refer clinical questions to a doctor or qualified pharmacist.
+- For medical emergencies, direct users to call 911 (US) or 999 (UK).
+CONTEXT (Site Knowledge Base):
+${ragSources.map((s) => `[${s.title} (${s.section})]: ${s.body}`).join("\n")}
+
+USER PERSONA: ${persona}
+Respond concisely, helpfully, and professionally. Limit response to 3-4 sentences. Do NOT invent fake availability data.`;
+
+    const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:streamGenerateContent?key=${apiKey}&alt=sse`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: query }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { maxOutputTokens: 300, temperature: 0.3 },
+      }),
+    });
+
+    if (!res.ok || !res.body) {
+      console.warn(`[Zoi Gemini API] API request failed with status ${res.status}, falling back to local engine.`);
+      return null;
+    }
+
+    const encoder = new TextEncoder();
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const rawJson = line.slice(6).trim();
+                if (!rawJson || rawJson === "[DONE]") continue;
+                try {
+                  const parsed = JSON.parse(rawJson);
+                  const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (textChunk) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ type: "token", content: textChunk })}\n\n`)
+                    );
+                  }
+                } catch {
+                  // JSON parse catch
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[Zoi Gemini Stream] Error reading stream:", err);
+        } finally {
+          const donePayload: Record<string, unknown> = { type: "done", chips: plan.chips };
+          if (plan.availabilityCard) donePayload.availabilityCard = plan.availabilityCard;
+          if (plan.citations && plan.citations.length > 0) {
+            donePayload.citations = plan.citations;
+            donePayload.evidenceState = "SUFFICIENT_SINGLE";
+          }
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(donePayload)}\n\n`));
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[Zoi Gemini API] Error:", err);
+    return null;
+  }
+}
+
+async function streamGroqResponse(
+  query: string,
+  persona: string,
+  ragSources: ContentDocument[],
+  apiKey: string,
+  plan: ResponsePlan
+): Promise<Response | null> {
+  try {
+    const systemPrompt = `You are Zoi, the intelligent medicine availability assistant for ZoikoMeds.
+Your core mission is to help users discover medicine availability and navigate the platform safely.
+CRITICAL SAFETY BOUNDARIES:
+- DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
+- Refer clinical questions to a doctor or qualified pharmacist.
+- For medical emergencies, direct users to call 911 (US) or 999 (UK).
+CONTEXT (Site Knowledge Base):
+${ragSources.map((s) => `[${s.title} (${s.section})]: ${s.body}`).join("\n")}
+
+USER PERSONA: ${persona}
+Respond concisely, helpfully, and professionally. Limit response to 3-4 sentences. Do NOT invent fake availability data.`;
+
+    const modelName = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    const url = "https://api.groq.com/openai/v1/chat/completions";
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: query },
+        ],
+        stream: true,
+        temperature: 0.3,
+        max_tokens: 300,
+      }),
+    });
+
+    if (!res.ok || !res.body) {
+      console.warn(`[Zoi Groq API] API request failed with status ${res.status}, falling back.`);
+      return null;
+    }
+
+    const encoder = new TextEncoder();
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith("data: ")) {
+                const rawJson = trimmed.slice(6).trim();
+                if (!rawJson || rawJson === "[DONE]") continue;
+                try {
+                  const parsed = JSON.parse(rawJson);
+                  const textChunk = parsed.choices?.[0]?.delta?.content;
+                  if (textChunk) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ type: "token", content: textChunk })}\n\n`)
+                    );
+                  }
+                } catch {
+                  // JSON parse catch
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[Zoi Groq Stream] Error reading stream:", err);
+        } finally {
+          const donePayload: Record<string, unknown> = { type: "done", chips: plan.chips };
+          if (plan.availabilityCard) donePayload.availabilityCard = plan.availabilityCard;
+          if (plan.citations && plan.citations.length > 0) {
+            donePayload.citations = plan.citations;
+            donePayload.evidenceState = "SUFFICIENT_SINGLE";
+          }
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(donePayload)}\n\n`));
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[Zoi Groq API] Error:", err);
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
-  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  try {
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const conversationId = crypto.randomUUID?.() ?? Date.now().toString(36);
   const rlKey = `zoi-stream:${clientIp}`;
   const rl = rateLimit(rlKey, 20, 60000);
@@ -385,7 +616,7 @@ export async function POST(req: NextRequest) {
       });
     } else if (foundMedicine) {
       const medName = foundMedicine.toUpperCase();
-      const promptText = `I can set an alert for ${medName}. Which location or city should I monitor? (e.g. Nakuru, Nairobi, Kisumu)`;
+      const promptText = `I can set an alert for ${medName}. Which location or city should I monitor? (e.g. London, New York, Chicago)`;
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {
@@ -423,7 +654,7 @@ export async function POST(req: NextRequest) {
   if (foundMedicine && foundRegion) {
     console.log(`[Zoi Debug] Calling lookupAvailability with medicine="${foundMedicine}" region="${foundRegion}"`);
 
-    const availResult = lookupAvailability({ medicine: foundMedicine, region: foundRegion });
+    const availResult = await lookupAvailabilityAsync({ medicine: foundMedicine, region: foundRegion });
 
     console.log(`[Zoi Debug] lookupAvailability returned: ${availResult ? "SUCCESS" : "NULL"}`);
 
@@ -471,7 +702,39 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Layer 2 + 3 + 4: injection check, RAG, response model ──
-  const plan = getResponsePlan(query, persona, classification);
+  const plan = await getResponsePlan(query, persona, classification);
+
+  // Check for Groq API key first, then Gemini API key
+  const groqApiKey = process.env.GROQ_API_KEY;
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+  if (!checkPromptInjection(query)) {
+    const rawDocs = searchContent(query);
+
+    if (groqApiKey) {
+      const groqRes = await streamGroqResponse(query, persona, rawDocs, groqApiKey, plan);
+      if (groqRes) {
+        console.log(`[Zoi Audit]`, JSON.stringify({
+          ...auditLog,
+          action: "response_sent_via_groq_llm",
+          model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+        }));
+        return groqRes;
+      }
+    }
+
+    if (geminiApiKey) {
+      const geminiRes = await streamGeminiResponse(query, persona, rawDocs, geminiApiKey, plan);
+      if (geminiRes) {
+        console.log(`[Zoi Audit]`, JSON.stringify({
+          ...auditLog,
+          action: "response_sent_via_gemini_llm",
+          model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
+        }));
+        return geminiRes;
+      }
+    }
+  }
 
   // Audit: final response
   console.log(`[Zoi Audit]`, JSON.stringify({
@@ -496,17 +759,28 @@ export async function POST(req: NextRequest) {
       if (plan.availabilityCard) {
         donePayload.availabilityCard = plan.availabilityCard;
       }
+      if (plan.citations && plan.citations.length > 0) {
+        donePayload.citations = plan.citations;
+        donePayload.evidenceState = "SUFFICIENT_SINGLE";
+      }
       controller.enqueue(encoder.encode(`data: ${JSON.stringify(donePayload)}\n\n`));
       controller.close();
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Connection": "keep-alive",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[Zoi Stream Fatal Error]:", err);
+    return new Response(
+      JSON.stringify({ success: false, error: "internal_server_error", detail: String(err) }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }

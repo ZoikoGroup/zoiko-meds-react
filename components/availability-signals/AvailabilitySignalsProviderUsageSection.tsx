@@ -31,7 +31,7 @@ const USAGE_CARDS = [
     donts: ["Don't use as official shortage declarations or a replacement for regulator, manufacturer, or wholesaler data."],
     cta: "Learn About Alerts",
     ctaFilled: false,
-    href: "#",
+    href: "/availability-alert",
   },
   {
     icon: "people",

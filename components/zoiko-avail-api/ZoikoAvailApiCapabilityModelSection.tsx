@@ -21,7 +21,7 @@ const CAPABILITIES = [
       "Freshness context and signal-quality info where approved, so platforms can show when direct confirmation is needed.",
     value: "reduce false certainty; improve user guidance.",
     cta: "View API Capabilities",
-    link:"#"
+    link:"#view"
   },
   {
     icon: "search",
@@ -39,7 +39,7 @@ const CAPABILITIES = [
       "Confirmation-aware flows where participating verified pharmacies allow structured confirmation options.",
     value: "guide users to the right next step without reservations.",
     cta: "Discuss Confirmation Workflows",
-    link:"#"
+    link:"/confirmation-requests"
   },
   {
     icon: "pin",
@@ -48,7 +48,7 @@ const CAPABILITIES = [
       "Radius, service-area, pharmacy-location, and jurisdiction-aware search workflows where approved.",
     value: "embed availability checks into patient, member, or care-team journeys.",
     cta: "Request Technical Briefing",
-    link:"#"
+    link:"/request-a-briefing"
   },
   {
     icon: "refresh",
@@ -57,7 +57,7 @@ const CAPABILITIES = [
       "Scheduled pulls, webhook/event patterns, or streaming-like workflows where product readiness and contracts allow.",
     value: "stay aligned with changing signals while respecting rate limits.",
     cta: "Discuss Integration",
-    link:"#"
+    link:"/integrations"
   },
 ] as const;
 

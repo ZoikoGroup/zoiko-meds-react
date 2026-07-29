@@ -6,15 +6,16 @@ import { useEffect, useState } from "react";
 const ACCENT = "#0FAA87";
 
 const CONTACT_ROWS = [
-  { label: "General corporate inquiries", cta: "Contact Zoiko Healthcare" },
+  { label: "General corporate inquiries", cta: "Contact Zoiko Healthcare",href:"/contact" },
   {
     label: "Enterprise, government, health-system, or API inquiries",
     cta: "Request Enterprise Briefing",
+    href:"/enterprise"
   },
-  { label: "Press and media inquiries", cta: "Press Inquiries" },
-  { label: "Pharmacy participation", cta: "Join the Verified Network" },
-  { label: "Provider workflows", cta: "Request Provider Briefing" },
-  { label: "Careers", cta: "View Careers" },
+  { label: "Press and media inquiries", cta: "Press Inquiries",href:"/press" },
+  { label: "Pharmacy participation", cta: "Join the Verified Network",href:"/join-the-network" },
+  { label: "Provider workflows", cta: "Request Provider Briefing",href:"/provider-overview" },
+  { label: "Careers", cta: "View Careers",href:"/careers" },
 ] as const;
 
 const ADDRESS_CARDS = [
@@ -151,11 +152,14 @@ function ContactRow({
   label,
   cta,
   isLast,
+  href
 }: {
   label: string;
   cta: string;
   isLast: boolean;
+  href:string;
 }) {
+  const router = useRouter();
   return (
     <div
       className={`group flex items-center justify-between gap-4 px-7 py-4.5 transition-colors duration-200 hover:bg-[#F7F9FC] ${
@@ -164,8 +168,9 @@ function ContactRow({
     >
       <span className="text-[13.5px] text-[#5B6478]">{label}</span>
       <button
+      onClick={()=>router.push(href)}
         type="button"
-        className="flex-shrink-0 rounded-xl border border-[#D7DCE6] bg-white px-4 py-2 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+        className="flex-shrink-0 rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-4 py-2 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}
       </button>

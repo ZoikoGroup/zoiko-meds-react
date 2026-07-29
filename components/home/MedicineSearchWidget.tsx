@@ -37,14 +37,43 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
 
 const CONFIDENCE_ORDER: Record<string, number> = { HIGH: 3, MODERATE: 2, LOW: 1 };
 
-/** Live medicine-name suggestions from the MediBase match endpoint. */
+/** Live medicine-name suggestions with strict substring/prefix filtering. */
 async function getMedicineSuggestions(query: string, limit = 8): Promise<string[]> {
   const q = query.trim();
   if (q.length < 2) return [];
   try {
-    const matches = await matchMedibase(q, limit);
-    const names = matches.map((m) => m.canonicalName).filter(Boolean);
-    return Array.from(new Set(names)).slice(0, limit);
+    const matches = await matchMedibase(q, limit * 2);
+    const qLower = q.toLowerCase();
+
+    // Gather candidate names from canonicalName, genericName, and brandNames
+    const candidateSet = new Set<string>();
+    for (const m of matches) {
+      if (m.canonicalName) candidateSet.add(m.canonicalName);
+      if (m.genericName) candidateSet.add(m.genericName);
+      if (Array.isArray(m.brandNames)) {
+        for (const brand of m.brandNames) {
+          if (brand) candidateSet.add(brand);
+        }
+      }
+    }
+
+    // Strict substring/prefix filtering: must contain the typed query (case-insensitive)
+    const filtered = Array.from(candidateSet).filter((name) =>
+      name.toLowerCase().includes(qLower)
+    );
+
+    // Ranking: prefix matches (name starts with query) rank above mid-string matches
+    filtered.sort((a, b) => {
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+      const aStarts = aLower.startsWith(qLower);
+      const bStarts = bLower.startsWith(qLower);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.localeCompare(b);
+    });
+
+    return filtered.slice(0, limit);
   } catch {
     return [];
   }
@@ -257,7 +286,7 @@ export default function MedicineSearchWidget() {
       if (seq !== medReqSeq.current) return; // a newer keystroke won
       setMedSuggestions(matches);
       setShowMedSuggestions(matches.length > 0);
-    }, 220);
+    }, 300);
   };
 
   const selectSuggestion = (name: string) => {
@@ -562,15 +591,37 @@ export default function MedicineSearchWidget() {
                     placeholder:text-[#b0b7c3] focus:outline-none focus:border-[#0D9A72] focus:ring-[3px] focus:ring-[#0D9A72]/10 transition"
                 />
               </div>
-              <button
-                onClick={() => handleGetMyLocation(setUserLat, setUserLng, setLocationText, setLocBtnLabel)}
-                className="flex items-center gap-1.5 text-[#0D9A72] text-[12.5px] font-semibold mt-1.5 hover:opacity-70 transition-opacity"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2.5} className="w-3 h-3">
-                  <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                </svg>
-                {locBtnLabel}
-              </button>
+              <div className="flex items-center gap-2 mt-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleGetMyLocation(setUserLat, setUserLng, setLocationText, setLocBtnLabel)}
+                  className="flex items-center gap-1.5 text-[#0D9A72] text-[12.5px] font-semibold hover:opacity-70 transition-opacity"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2.5} className="w-3 h-3">
+                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  {locBtnLabel}
+                </button>
+                {locBtnLabel === "Location set ✓" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocationText("");
+                      setUserLat(undefined);
+                      setUserLng(undefined);
+                      setLocBtnLabel("Use my current location");
+                      if (typeof window !== "undefined") {
+                        localStorage.removeItem("zoiko-user-loc");
+                        localStorage.removeItem("zoiko_location");
+                      }
+                    }}
+                    aria-label="Undo location selection"
+                    className="text-[12.5px] font-medium text-[#64748B] hover:text-[#111827] underline transition-colors"
+                  >
+                    Undo
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Search button */}

@@ -282,7 +282,7 @@ export default function AboutGovernance() {
               Visit the Trust Center
             </Link>
             <Link
-              href="/security-review"
+              href="/security"
               className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold whitespace-nowrap border-2 bg-white transition-colors hover:bg-[#F0F4FF]"
               style={{ color: NAVY, borderColor: "#dfe6f5" }}
             >
