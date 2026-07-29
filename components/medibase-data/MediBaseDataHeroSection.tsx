@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -23,25 +24,25 @@ export default function MediBaseDataHeroSection() {
         {mounted ? (
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <a
+              <Link
                 href="/"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Home
-              </a>
+              </Link>
               <span>/</span>
-              <a
+              <Link
                 href="/enterprise"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Enterprise &amp;
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/intelligence"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 intelligence
-              </a>
+              </Link>
               <span>/</span>
               <span className="text-[#0F1F4E]">MediBase™ data</span>
             </nav>

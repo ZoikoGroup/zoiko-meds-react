@@ -14,11 +14,13 @@ interface ConfidenceResult {
   sampleSize: number;
 }
 
+export type CardState = "available" | "limited" | "unavailable" | "insufficient-signal" | "stale-data";
+
 export interface AvailabilityResult {
   medicine: string;
   region: string;
   confidence: ConfidenceResult;
-  cardState: string;
+  cardState: CardState;
   stockingPharmacies: number;
   totalPharmacies: number;
   pharmacies: { id: number; name: string; address: string; city: string; phone: string; reportedAt: string }[];
@@ -221,7 +223,7 @@ function computeConfidence(stock: StockEntry[], region: string): ConfidenceResul
   return { tier, posterior: Math.round(posterior * 100) / 100, sampleSize };
 }
 
-function computeCardState(confidence: ConfidenceResult, stock: StockEntry[], region: string): string {
+function computeCardState(confidence: ConfidenceResult, stock: StockEntry[], region: string): CardState {
   const filtered = region !== "any"
     ? stock.filter((s) => s.city.toLowerCase() === region)
     : stock;

@@ -1,4 +1,4 @@
-import type { Message, Chip, Persona, AvailabilityPayload } from "./types";
+import type { Message, Chip, Persona, AvailabilityPayload, CardState } from "./types";
 import { searchContent } from "@/lib/site-content";
 import { lookupAvailability, findMedicineInQuery, extractRegion } from "@/lib/availability";
 import { isDrugLikeTerm } from "@/lib/medibase";
@@ -97,7 +97,7 @@ function generateFallbackPlan(query: string, _persona: Persona, messages: Messag
           medicine: avail.medicine,
           region: avail.region,
           confidence: avail.confidence.tier,
-          cardState: avail.cardState,
+          cardState: avail.cardState as CardState,
           stockingPharmacies: avail.stockingPharmacies,
           timestamp: avail.timestamp,
           source: avail.source,
@@ -311,7 +311,7 @@ export async function fetchAvailability(
           medicine: localResult.medicine,
           region: localResult.region,
           confidence: localResult.confidence.tier,
-          cardState: localResult.cardState,
+          cardState: localResult.cardState as CardState,
           stockingPharmacies: localResult.stockingPharmacies,
           timestamp: localResult.timestamp,
           source: localResult.source,
@@ -327,7 +327,7 @@ export async function fetchAvailability(
         medicine: json.data.medicine,
         region: json.data.region,
         confidence: json.data.confidence.tier,
-        cardState: json.data.cardState,
+        cardState: json.data.cardState as CardState,
         stockingPharmacies: json.data.stockingPharmacies,
         timestamp: json.data.timestamp,
         source: json.data.source,
@@ -343,7 +343,7 @@ export async function fetchAvailability(
         medicine: localResult.medicine,
         region: localResult.region,
         confidence: localResult.confidence.tier,
-        cardState: localResult.cardState,
+        cardState: localResult.cardState as CardState,
         stockingPharmacies: localResult.stockingPharmacies,
         timestamp: localResult.timestamp,
         source: localResult.source,
