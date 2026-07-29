@@ -31,18 +31,21 @@ const ACTIONS = [
     body: "Configure dose, refill, and medication-review reminders that fit your routine.",
     action: "Set reminder",
     icon: "bell",
+    href:"#"
   },
   {
     title: "Review details",
     body: "Check dosage, prescriber, and status before your refill window.",
     action: "Review details",
     icon: "eye",
+    href:"#"
   },
   {
     title: "Contact support",
     body: "Get help with your account, reminders, or medication organization — not clinical advice.",
     action: "Contact support",
     icon: "phone",
+    href:"/contact"
   },
 ] as const;
 
@@ -169,7 +172,7 @@ export default function PrescriptionsRefillTrackingSection() {
                         {action.body}
                       </p>
                       <a
-                        href="#"
+                        href={action.href}
                         className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold hover:underline"
                         style={{ color: ACCENT }}
                       >

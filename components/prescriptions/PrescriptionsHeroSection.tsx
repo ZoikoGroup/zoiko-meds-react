@@ -96,7 +96,7 @@ export default function PrescriptionsHeroSection() {
 
             <Reveal index={4} active={mounted}>
               <a
-                href="#find-medicines"
+                href="/searchmed"
                 className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
                 style={{ color: ACCENT }}
               >

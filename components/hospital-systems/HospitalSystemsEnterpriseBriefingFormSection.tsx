@@ -290,7 +290,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                   Request Enterprise Briefing
                 </button>
                 <Link
-                  href="/hospital-systems/talk-to-sales"
+                  href="/contact"
                   className="inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-200 hover:bg-[#F4F6FA]"
                   style={{ borderColor: "#D8DDE8" }}
                 >

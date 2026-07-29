@@ -23,7 +23,7 @@ const capabilityCards: CapabilityCard[] = [
       "Track structured signals indicating where medicine access may be available, uncertain, limited, or changing.",
     tags: ["Medicine", "Region", "Confidence tier", "Signal source", "Last updated"],
     linkLabel: "Explore Availability Intelligence",
-    href: "#availability",
+    href: "/searchmed",
   },
   {
     priority: "Priority 02",
@@ -33,7 +33,7 @@ const capabilityCards: CapabilityCard[] = [
       "Enable authorized pharmacy participation and confirmation workflows that strengthen availability confidence.",
     tags: ["Pharmacy status", "Verification flow", "Confirmation category", "Role access"],
     linkLabel: "View Pharmacy Network",
-    href: "#pharmacy-network",
+    href: "/pharmacy",
   },
   {
     priority: "Priority 03",
@@ -53,7 +53,7 @@ const capabilityCards: CapabilityCard[] = [
       "Provide role-based dashboards for regional access, demand patterns, pharmacy participation, and reporting.",
     tags: ["Dashboard views", "Filters", "Saved views", "Alerts"],
     linkLabel: "View Analytics",
-    href: "#analytics",
+    href: "/analytics",
   },
   {
     priority: "Priority 05",
@@ -63,7 +63,7 @@ const capabilityCards: CapabilityCard[] = [
       "Convert platform intelligence into compliance-conscious reports for leadership, operations, partners, and public-health stakeholders.",
     tags: ["Report type", "Frequency", "Recipient role", "Evidence notes"],
     linkLabel: "View Reports",
-    href: "#reports",
+    href: "/reports",
   },
   {
     priority: "Priority 06",
@@ -73,7 +73,7 @@ const capabilityCards: CapabilityCard[] = [
       "Support approved integrations with enterprise, pharmacy, analytics, reporting, identity, and partner systems.",
     tags: ["API", "SSO", "Data feed", "Audit log", "Status"],
     linkLabel: "Talk to Sales",
-    href: "#contact",
+    href: "/contact",
   },
 ];
 
