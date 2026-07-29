@@ -53,7 +53,8 @@ const INTEGRATION_FOUNDATIONS = [
   },
   {
     label: "No exact inventory",
-    description: "Confidence-based access, not unauthorized, exact public inventory.",
+    description:
+      "Confidence-based access, not unauthorized, exact public inventory.",
   },
   {
     label: "Sandboxes first",
@@ -95,14 +96,16 @@ export default function IntegrationsRequestBriefingSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
@@ -126,15 +129,20 @@ export default function IntegrationsRequestBriefingSection() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.workEmail.trim()) newErrors.workEmail = "Work email is required";
+    if (!formData.workEmail.trim())
+      newErrors.workEmail = "Work email is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.workEmail)) {
       newErrors.workEmail = "Valid email required";
     }
-    if (!formData.organization.trim()) newErrors.organization = "Organization is required";
+    if (!formData.organization.trim())
+      newErrors.organization = "Organization is required";
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
-    if (!formData.organizationType) newErrors.organizationType = "Organization type is required";
-    if (!formData.country.trim()) newErrors.country = "Country/region is required";
-    if (!formData.integrationObjective) newErrors.integrationObjective = "Integration objective is required";
+    if (!formData.organizationType)
+      newErrors.organizationType = "Organization type is required";
+    if (!formData.country.trim())
+      newErrors.country = "Country/region is required";
+    if (!formData.integrationObjective)
+      newErrors.integrationObjective = "Integration objective is required";
     if (formData.systemsToIntegrate.length === 0) {
       newErrors.systemsToIntegrate = "Select at least one system";
     }
@@ -153,24 +161,35 @@ export default function IntegrationsRequestBriefingSection() {
   };
 
   return (
-    <section id="request-an-integration-briefing" ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
+    <section
+      id="request-an-integration-briefing"
+      ref={ref}
+      className="relative w-full py-20 sm:py-24"
+      style={{ backgroundColor: BG }}
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
             className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: ACCENT }}
           >
-            <span className="opacity-60" style={{ color: NAVY }}>11</span>
-            <span className="opacity-40" style={{ color: NAVY }}>·</span>
+            <span className="opacity-60" style={{ color: NAVY }}>
+              11
+            </span>
+            <span className="opacity-40" style={{ color: NAVY }}>
+              ·
+            </span>
             Request an Integration Briefing
           </p>
         </Reveal>
 
         {/* ── Headline ── */}
         <Reveal index={1} active={mounted}>
-          <h2 className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]" style={{ color: NAVY }}>
+          <h2
+            className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]"
+            style={{ color: NAVY }}
+          >
             Tell us which systems{" "}
             <span style={{ color: ACCENT }}>you want to connect.</span>
           </h2>
@@ -178,25 +197,27 @@ export default function IntegrationsRequestBriefingSection() {
 
         {/* ── Subtext ── */}
         <Reveal index={2} active={mounted}>
-          <p className="mt-4 max-w-2xl text-[14px] leading-relaxed" style={{ color: `${NAVY}99` }}>
-            We route your request by organization type, system type, region, and integration objective so the right team can review systems, goals, security requirements, and data boundaries.
+          <p
+            className="mt-4 max-w-2xl text-[14px] leading-relaxed"
+            style={{ color: `${NAVY}99` }}
+          >
+            We route your request by organization type, system type, region, and
+            integration objective so the right team can review systems, goals,
+            security requirements, and data boundaries.
           </p>
         </Reveal>
 
         {/* ── Form + sidebar ── */}
         <div className="mt-10 grid grid-cols-1 gap-8 lg:mt-12 lg:grid-cols-[1fr_320px] lg:gap-10">
-
           {/* ── Form ── */}
           <Reveal index={3} active={mounted}>
-            <form onSubmit={handleSubmit} className="rounded-2xl border border-black/5 bg-white p-6 sm:p-8">
-
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-2xl border border-black/5 bg-white p-6 sm:p-8"
+            >
               {/* Row 1: Full name + Work email */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field
-                  label="Full name"
-                  required
-                  error={errors.fullName}
-                >
+                <Field label="Full name" required error={errors.fullName}>
                   <input
                     type="text"
                     name="fullName"
@@ -207,11 +228,7 @@ export default function IntegrationsRequestBriefingSection() {
                   />
                 </Field>
 
-                <Field
-                  label="Work email"
-                  required
-                  error={errors.workEmail}
-                >
+                <Field label="Work email" required error={errors.workEmail}>
                   <input
                     type="email"
                     name="workEmail"
@@ -236,7 +253,11 @@ export default function IntegrationsRequestBriefingSection() {
                   />
                 </Field>
 
-                <Field label="Organization" required error={errors.organization}>
+                <Field
+                  label="Organization"
+                  required
+                  error={errors.organization}
+                >
                   <input
                     type="text"
                     name="organization"
@@ -272,7 +293,6 @@ export default function IntegrationsRequestBriefingSection() {
                       value={formData.organizationType}
                       onChange={handleInputChange}
                       required
-                      defaultValue=""
                       className="integration-input appearance-none pr-9"
                     >
                       <option value="" disabled>
@@ -291,11 +311,7 @@ export default function IntegrationsRequestBriefingSection() {
 
               {/* Row 4: Country + Integration objective */}
               <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field
-                  label="Country / region"
-                  required
-                  error={errors.country}
-                >
+                <Field label="Country / region" required error={errors.country}>
                   <input
                     type="text"
                     name="country"
@@ -337,15 +353,24 @@ export default function IntegrationsRequestBriefingSection() {
 
               {/* Systems to integrate */}
               <div className="mt-5">
-                <p className="mb-3 text-[12.5px] font-semibold" style={{ color: NAVY }}>
-                  Systems to integrate <span style={{ color: "#E0555B" }}>*</span>
+                <p
+                  className="mb-3 text-[12.5px] font-semibold"
+                  style={{ color: NAVY }}
+                >
+                  Systems to integrate{" "}
+                  <span style={{ color: "#E0555B" }}>*</span>
                 </p>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {SYSTEMS_TO_INTEGRATE.map((system) => (
-                    <label key={system.id} className="flex cursor-pointer items-center gap-2">
+                    <label
+                      key={system.id}
+                      className="flex cursor-pointer items-center gap-2"
+                    >
                       <input
                         type="checkbox"
-                        checked={formData.systemsToIntegrate.includes(system.id)}
+                        checked={formData.systemsToIntegrate.includes(
+                          system.id,
+                        )}
                         onChange={() => handleSystemToggle(system.id)}
                         className="h-4 w-4 rounded border-[#D7DCE6] accent-[#13A594]"
                       />
@@ -397,7 +422,10 @@ export default function IntegrationsRequestBriefingSection() {
               </div>
 
               {/* Consent */}
-              <label className="mt-6 flex cursor-pointer items-start gap-2.5 text-[13px] leading-relaxed" style={{ color: `${NAVY}80` }}>
+              <label
+                className="mt-6 flex cursor-pointer items-start gap-2.5 text-[13px] leading-relaxed"
+                style={{ color: `${NAVY}80` }}
+              >
                 <input
                   type="checkbox"
                   name="consent"
@@ -407,8 +435,13 @@ export default function IntegrationsRequestBriefingSection() {
                   className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D7DCE6] accent-[#13A594]"
                 />
                 <span>
-                  I consent to be contacted about ZoikoMeds integrations and acknowledge the{" "}
-                  <a href="/privacy" className="font-semibold hover:underline" style={{ color: ACCENT }}>
+                  I consent to be contacted about ZoikoMeds integrations and
+                  acknowledge the{" "}
+                  <a
+                    href="/privacy"
+                    className="font-semibold hover:underline"
+                    style={{ color: ACCENT }}
+                  >
                     privacy notice.
                   </a>{" "}
                   <span style={{ color: "#E0555B" }}>*</span>
@@ -428,7 +461,9 @@ export default function IntegrationsRequestBriefingSection() {
                   className="rounded-lg px-6 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  {submitting ? "Submitting…" : "Request an Integration Briefing"}
+                  {submitting
+                    ? "Submitting…"
+                    : "Request an Integration Briefing"}
                 </button>
                 <button
                   type="button"
@@ -440,12 +475,16 @@ export default function IntegrationsRequestBriefingSection() {
               </div>
 
               {/* Footnote */}
-              <p className="mt-4 flex items-start gap-1.5 text-[12px] leading-relaxed" style={{ color: "#8A93A6" }}>
+              <p
+                className="mt-4 flex items-start gap-1.5 text-[12px] leading-relaxed"
+                style={{ color: "#8A93A6" }}
+              >
                 <InfoIcon />
                 <span>
-                  A ZoikoMeds representative will review your systems, goals, and security requirements. Not
-                  medical advice, financing, or a pharmacy service — don&apos;t include PHI, prescriptions, secrets, or
-                  exact stock.
+                  A ZoikoMeds representative will review your systems, goals,
+                  and security requirements. Not medical advice, financing, or a
+                  pharmacy service — don&apos;t include PHI, prescriptions,
+                  secrets, or exact stock.
                 </span>
               </p>
             </form>
@@ -460,7 +499,10 @@ export default function IntegrationsRequestBriefingSection() {
               <h3 className="mb-4 flex items-center gap-2 text-[14px] font-bold text-white">
                 <span
                   className="flex h-5 w-5 items-center justify-center rounded-full"
-                  style={{ backgroundColor: "rgba(19,165,148,0.18)", color: ACCENT }}
+                  style={{
+                    backgroundColor: "rgba(19,165,148,0.18)",
+                    color: ACCENT,
+                  }}
                 >
                   <CheckIcon />
                 </span>
@@ -474,7 +516,9 @@ export default function IntegrationsRequestBriefingSection() {
                       <CheckIcon small />
                     </span>
                     <div>
-                      <p className="text-[12.5px] font-bold text-white">{item.label}</p>
+                      <p className="text-[12.5px] font-bold text-white">
+                        {item.label}
+                      </p>
                       <p className="mt-0.5 text-[11.5px] leading-relaxed text-[#AEB6C9]">
                         {item.description}
                       </p>
@@ -484,9 +528,7 @@ export default function IntegrationsRequestBriefingSection() {
               </ul>
             </div>
           </Reveal>
-
         </div>
-
       </div>
 
       <style>{`
@@ -535,10 +577,15 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-center gap-1 text-[12.5px] font-semibold" style={{ color: "#0F1F4E" }}>
+      <span
+        className="mb-1.5 flex items-center gap-1 text-[12.5px] font-semibold"
+        style={{ color: "#0F1F4E" }}
+      >
         {label}
         {required && <span style={{ color: "#E0555B" }}>*</span>}
-        {optional && <span className="font-normal text-[#A6ADBD]">(optional)</span>}
+        {optional && (
+          <span className="font-normal text-[#A6ADBD]">(optional)</span>
+        )}
       </span>
       {children}
       {error && (
@@ -597,7 +644,12 @@ function InfoIcon() {
       className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#8A93A6]"
     >
       <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M8 7.2v4M8 5v.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path
+        d="M8 7.2v4M8 5v.01"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -618,7 +670,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `integrationsRequestBriefingFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `integrationsRequestBriefingFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}

@@ -67,7 +67,7 @@ export default function PatientPortalHeroSection() {
                   Create Free Account
                 </button>
                 <button
-                onClick={()=>router.push('/sign-in')}
+                onClick={()=>router.push('https://zoiko-meds-platform.vercel.app/login')}
                   type="button"
                   className="rounded-xl cursor-pointer border px-6 py-3.5 text-[14px] font-bold text-[#0F1F4E] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
                   style={{ borderColor: "#E7EAF1" }}

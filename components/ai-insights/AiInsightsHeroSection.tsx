@@ -19,7 +19,7 @@ export default function AiInsightsHeroSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -52,17 +52,17 @@ export default function AiInsightsHeroSection() {
           <HeroFadeUp show={isVisible} delay={160}>
             <p className="mt-6 max-w-xl text-[0.95rem] leading-relaxed text-[#4B5567]">
               Identify potential access risks, shortage movement, demand
-              anomalies, and confidence changes before they become
-              operational blind spots. ZoikoMeds AI Insights helps authorized
-              stakeholders interpret medicine availability signals through
-              governed, explainable, and compliance-conscious intelligence.
+              anomalies, and confidence changes before they become operational
+              blind spots. ZoikoMeds AI Insights helps authorized stakeholders
+              interpret medicine availability signals through governed,
+              explainable, and compliance-conscious intelligence.
             </p>
           </HeroFadeUp>
 
           <HeroFadeUp show={isVisible} delay={240}>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
-              onClick={()=>router.push("#ai-intelligence-briefing")}
+                onClick={() => router.push("#ai-intelligence-briefing")}
                 type="button"
                 className="rounded-xl cursor-pointer bg-[#0FAA87] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#0FAA87]/90 focus:outline-none"
               >
@@ -71,6 +71,7 @@ export default function AiInsightsHeroSection() {
 
               <button
                 type="button"
+                onClick={() => router.push("#how-it-works")}
                 className="rounded-xl cursor-pointer border border-[#E7EAF1] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-200 hover:border-[#0FAA87]/30 hover:shadow-sm focus:outline-none"
               >
                 See How AI Insights Work

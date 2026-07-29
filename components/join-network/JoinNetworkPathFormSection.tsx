@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -18,6 +19,7 @@ const PATHS = [
       "Single-location pharmacies, pharmacist-owned stores, and local operators ready to request verified participation.",
     cta: "Join the Verified Network",
     ctaStyle: "filled",
+    href: "#",
   },
   {
     icon: "branch",
@@ -26,6 +28,7 @@ const PATHS = [
       "Multi-branch operators, regional groups, and national chains needing branch controls and governance.",
     cta: "Request Chain Briefing",
     ctaStyle: "outline",
+    href: "/request-a-briefing",
   },
   {
     icon: "code",
@@ -34,6 +37,7 @@ const PATHS = [
       "PMS, POS, inventory, API, structured-feed, SSO, or operational integration discussions.",
     cta: "Discuss Integration",
     ctaStyle: "outline",
+    href: "/integrations",
   },
 ] as const;
 
@@ -79,7 +83,7 @@ export default function JoinNetworkPathFormSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(el);
@@ -102,8 +106,8 @@ export default function JoinNetworkPathFormSection() {
 
               <Reveal index={1}>
                 <p className="mx-auto mt-4 max-w-lg text-[14.5px] leading-relaxed text-[#5B6478]">
-                  Each path maps to a different operational intent — choose
-                  the one that fits your pharmacy.
+                  Each path maps to a different operational intent — choose the
+                  one that fits your pharmacy.
                 </p>
               </Reveal>
             </>
@@ -113,7 +117,10 @@ export default function JoinNetworkPathFormSection() {
         </div>
 
         {/* ---------------- Path cards ---------------- */}
-        <div id="verified-network" className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div
+          id="verified-network"
+          className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3"
+        >
           {mounted
             ? PATHS.map((p, i) => <PathCard key={p.title} {...p} index={i} />)
             : PATHS.map((_, i) => <PathCardSkeleton key={i} />)}
@@ -170,6 +177,7 @@ function PathCard({
   cta,
   ctaStyle,
   index,
+  href,
 }: {
   icon: "home" | "branch" | "code";
   title: string;
@@ -177,7 +185,9 @@ function PathCard({
   cta: string;
   ctaStyle: "filled" | "outline";
   index: number;
+  href: string;
 }) {
+  const router = useRouter();
   return (
     <div
       className="group rounded-2xl border border-[#E7EAF1] bg-white p-6 transition-all duration-300 ease-out animate-[joinNetworkPathFadeUp_0.6s_ease-out_forwards] hover:-translate-y-1 hover:border-[#9FE3D3] hover:shadow-[0_14px_32px_-16px_rgba(0,169,157,0.25)]"
@@ -195,10 +205,11 @@ function PathCard({
 
       <button
         type="button"
+        onClick={() => router.push(href)}
         className={
           ctaStyle === "filled"
-            ? "group relative mt-2 w-full overflow-hidden rounded-xl bg-[#00A99D] px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
-            : "mt-2 w-full rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+            ? "group relative mt-2 w-full cursor-pointer overflow-hidden rounded-xl bg-[#00A99D] px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+            : "mt-2 w-full rounded-xl border cursor-pointer border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
         }
       >
         {ctaStyle === "filled" && (
@@ -211,7 +222,11 @@ function PathCard({
 }
 
 function PathIcon({ name }: { name: "home" | "branch" | "code" }) {
-  const common = { viewBox: "0 0 24 24", fill: "none" as const, className: "h-5 w-5" };
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    className: "h-5 w-5",
+  };
 
   switch (name) {
     case "home":
@@ -229,9 +244,33 @@ function PathIcon({ name }: { name: "home" | "branch" | "code" }) {
     case "branch":
       return (
         <svg {...common}>
-          <rect x="4" y="14" width="4" height="6" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="10" y="9" width="4" height="11" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="16" y="4" width="4" height="16" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
+          <rect
+            x="4"
+            y="14"
+            width="4"
+            height="6"
+            rx="0.8"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="10"
+            y="9"
+            width="4"
+            height="11"
+            rx="0.8"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="16"
+            y="4"
+            width="4"
+            height="16"
+            rx="0.8"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
         </svg>
       );
     case "code":
@@ -358,8 +397,8 @@ function JoinForm() {
         Join the Verified Network
       </h3>
       <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
-        For new participation requests. Tell us a little about your
-        pharmacy — no documents needed yet.
+        For new participation requests. Tell us a little about your pharmacy —
+        no documents needed yet.
       </p>
 
       <div className="mt-5 space-y-4">
@@ -447,9 +486,8 @@ function JoinForm() {
       </button>
 
       <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
-        No exact stock, license documents, or sensitive data are
-        collected in this form. Verification happens later in a secure
-        workflow.
+        No exact stock, license documents, or sensitive data are collected in
+        this form. Verification happens later in a secure workflow.
       </p>
     </form>
   );
@@ -478,10 +516,7 @@ function ClaimForm() {
     return e;
   }
 
-  function handleChange<K extends keyof ClaimFormState>(
-    key: K,
-    val: string
-  ) {
+  function handleChange<K extends keyof ClaimFormState>(key: K, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
     if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
@@ -508,12 +543,15 @@ function ClaimForm() {
         Claim Your Pharmacy
       </h3>
       <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
-        Already in our directory? Search and claim your existing record
-        to start managing it.
+        Already in our directory? Search and claim your existing record to start
+        managing it.
       </p>
 
       <div className="mt-5 space-y-4">
-        <Field label="Pharmacy name, ZIP, city, or license number" error={errors.search}>
+        <Field
+          label="Pharmacy name, ZIP, city, or license number"
+          error={errors.search}
+        >
           <input
             type="text"
             value={values.search}
@@ -553,8 +591,8 @@ function ClaimForm() {
       </button>
 
       <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
-        Claiming a record starts ownership verification — it does not
-        publish exact stock or sensitive data.
+        Claiming a record starts ownership verification — it does not publish
+        exact stock or sensitive data.
       </p>
     </form>
   );
@@ -585,9 +623,24 @@ function Field({
       {children}
       {error && (
         <p className="mt-1.5 flex items-center gap-1 text-[12px] text-[#D14343]">
-          <svg className="h-3 w-3 flex-shrink-0" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
-            <path d="M8 5.5v3.2M8 11v.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <svg
+            className="h-3 w-3 flex-shrink-0"
+            viewBox="0 0 16 16"
+            fill="none"
+          >
+            <circle
+              cx="8"
+              cy="8"
+              r="6"
+              stroke="currentColor"
+              strokeWidth="1.4"
+            />
+            <path
+              d="M8 5.5v3.2M8 11v.01"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
           </svg>
           {error}
         </p>

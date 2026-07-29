@@ -19,7 +19,7 @@ export default function AiInsightsClosingCtaSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -38,13 +38,13 @@ export default function AiInsightsClosingCtaSection() {
 
             <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-[#8A93A6] sm:text-[0.95rem]">
               Request a ZoikoMeds AI Intelligence Briefing to see governed,
-              explainable shortage signals, access risk scoring, and
-              confidence movement for your organization.
+              explainable shortage signals, access risk scoring, and confidence
+              movement for your organization.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
-              onClick={()=>router.push("#ai-intelligence-briefing")}
+                onClick={() => router.push("#ai-intelligence-briefing")}
                 type="button"
                 className="w-full rounded-xl bg-[#1BC49B] px-6 py-3 text-sm font-semibold text-[#0B142E] transition-all duration-200 hover:bg-[#1BC49B]/90 focus:outline-none sm:w-auto"
               >
@@ -53,7 +53,8 @@ export default function AiInsightsClosingCtaSection() {
 
               <button
                 type="button"
-                className="w-full rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-white/40 hover:bg-white/5 focus:outline-none sm:w-auto"
+                onClick={()=>router.push("/government-public-health")}
+                className="w-full rounded-xl border border-white/20 cursor-pointer bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-white/40 hover:bg-white/5 focus:outline-none sm:w-auto"
               >
                 View Trust &amp; Governance Approach
               </button>
@@ -61,9 +62,8 @@ export default function AiInsightsClosingCtaSection() {
 
             <p className="mx-auto mt-6 max-w-xl text-xs leading-relaxed text-[#6B7488]">
               Operational intelligence only. ZoikoMeds does not diagnose,
-              prescribe, dispense, deliver, or provide medical advice, and
-              does not expose exact inventory quantities to unauthorized
-              users.
+              prescribe, dispense, deliver, or provide medical advice, and does
+              not expose exact inventory quantities to unauthorized users.
             </p>
           </div>
         </CtaFadeUp>

@@ -31,7 +31,7 @@ const PATH_CARDS = [
     title: "Returning patient",
     description: "Jump to sign-in, your saved medicine dashboard, and alert review.",
     ctaLabel: "Sign In",
-    href: "/sign-in",
+    href: "https://zoiko-meds-platform.vercel.app/login",
     variant: "outline",
     icon: (
       <>

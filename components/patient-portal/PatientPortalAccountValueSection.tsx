@@ -11,7 +11,7 @@ const ACCOUNT_VALUE_POINTS = [
     title: "Save medicine searches",
     description: "Keep priority medicines organized and easy to revisit.",
     linkLabel: "Create account",
-    href: "/patient-portal/create-account",
+    href: "/create-account",
     icon: (
       <path
         d="M4.5 3h7a1 1 0 011 1v9.2l-4.5-2.6-4.5 2.6V4a1 1 0 011-1z"
@@ -25,9 +25,10 @@ const ACCOUNT_VALUE_POINTS = [
   {
     id: "receive-availability-alerts",
     title: "Receive availability alerts",
-    description: "Get notified when availability confidence changes in relevant areas.",
+    description:
+      "Get notified when availability confidence changes in relevant areas.",
     linkLabel: "Set up alerts",
-    href: "/patient-portal/alerts",
+    href: "/availability-alert",
     icon: (
       <path
         d="M8 2.5a3.2 3.2 0 013.2 3.2v1.9c0 .9.35 1.76.98 2.4l.42.42H3.4l.42-.42c.63-.64.98-1.5.98-2.4V5.7A3.2 3.2 0 018 2.5zM6.6 12.3a1.4 1.4 0 002.8 0"
@@ -42,25 +43,47 @@ const ACCOUNT_VALUE_POINTS = [
   {
     id: "review-access-activity",
     title: "Review access activity",
-    description: "See recent searches, saved results, alert changes, and support interactions.",
+    description:
+      "See recent searches, saved results, alert changes, and support interactions.",
     linkLabel: "View portal preview",
-    href: "/patient-portal/preview",
+    href: "#preview",
     icon: (
       <>
-        <circle cx="8" cy="8" r="5.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M8 5.2V8l2 1.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+        <circle
+          cx="8"
+          cy="8"
+          r="5.5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
+        <path
+          d="M8 5.2V8l2 1.2"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          fill="none"
+        />
       </>
     ),
   },
   {
     id: "manage-preferences",
     title: "Manage preferences",
-    description: "Control communication channels, regions, saved medicines, and privacy settings.",
+    description:
+      "Control communication channels, regions, saved medicines, and privacy settings.",
     linkLabel: "Manage preferences",
     href: "/patient-portal/preferences",
     icon: (
       <>
-        <circle cx="8" cy="8" r="2.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <circle
+          cx="8"
+          cy="8"
+          r="2.2"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
         <path
           d="M8 2.5v1.6M8 11.9v1.6M13.5 8h-1.6M4.1 8H2.5M11.66 4.34l-1.13 1.13M5.47 10.53l-1.13 1.13M11.66 11.66l-1.13-1.13M5.47 5.47L4.34 4.34"
           stroke="currentColor"
@@ -73,9 +96,10 @@ const ACCOUNT_VALUE_POINTS = [
   {
     id: "connect-to-safe-next-steps",
     title: "Connect to safe next steps",
-    description: "Use responsible links to pharmacy information, support, and access education.",
+    description:
+      "Use responsible links to pharmacy information, support, and access education.",
     linkLabel: "Search medicines",
-    href: "/search",
+    href: "/searchmed",
     icon: (
       <path
         d="M8 2l5 2.2v3.3c0 3.3-2.1 5.7-5 6.5-2.9-.8-5-3.2-5-6.5V4.2L8 2z"
@@ -102,16 +126,18 @@ export default function PatientPortalAccountValueSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section
+      ref={ref}
+      className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
@@ -135,8 +161,8 @@ export default function PatientPortalAccountValueSection() {
         {/* ── Subtext ── */}
         <Reveal index={2} active={mounted}>
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#5B6478]">
-            A ZoikoMeds account turns a single medicine lookup into an organized, ongoing view
-            of the access that matters to you.
+            A ZoikoMeds account turns a single medicine lookup into an
+            organized, ongoing view of the access that matters to you.
           </p>
         </Reveal>
 
@@ -153,14 +179,19 @@ export default function PatientPortalAccountValueSection() {
               >
                 <div
                   className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-250 ease-out group-hover:scale-110"
-                  style={{ backgroundColor: "rgba(19,165,148,0.12)", color: ACCENT }}
+                  style={{
+                    backgroundColor: "rgba(19,165,148,0.12)",
+                    color: ACCENT,
+                  }}
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
                     {point.icon}
                   </svg>
                 </div>
 
-                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">{point.title}</h3>
+                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">
+                  {point.title}
+                </h3>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
                   {point.description}
                 </p>
@@ -185,7 +216,6 @@ export default function PatientPortalAccountValueSection() {
             </Reveal>
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -207,7 +237,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `patientPortalAccountValueFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `patientPortalAccountValueFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}
