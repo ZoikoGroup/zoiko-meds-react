@@ -334,7 +334,6 @@ export default function IntegrationsRequestBriefingSection() {
                       value={formData.integrationObjective}
                       onChange={handleInputChange}
                       required
-                      defaultValue=""
                       className="integration-input appearance-none pr-9"
                     >
                       <option value="" disabled>

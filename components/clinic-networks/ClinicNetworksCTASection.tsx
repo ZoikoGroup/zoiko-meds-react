@@ -67,6 +67,7 @@ export default function ClinicNetworksCTASection() {
               </button>
               <button
                 type="button"
+                onClick={()=>router.push("/enterprise")}
                 className="rounded-lg border px-6 py-3.5 text-[14px] font-bold text-[#AEB6C9] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-white"
                 style={{ borderColor: "rgba(19,165,148,0.4)" }}
               >

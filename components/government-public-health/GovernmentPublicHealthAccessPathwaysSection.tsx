@@ -12,6 +12,7 @@ const PATHWAYS = [
     description:
       "Government health agencies, public-health departments, medicine access teams, and policy leaders.",
     cta: "Request Public Health Briefing",
+    href:"#request"
   },
   {
     icon: "doc",
@@ -19,6 +20,7 @@ const PATHWAYS = [
     description:
       "Privacy, legal, security, data governance, and agency compliance reviewers.",
     cta: "Request Governance Review",
+    href:"#"
   },
   {
     icon: "pin",
@@ -26,6 +28,7 @@ const PATHWAYS = [
     description:
       "Teams evaluating a defined jurisdiction, medicine category, or public-health program.",
     cta: "Discuss Public Health Pilot",
+    href:"#"
   },
   {
     icon: "shield",
@@ -33,6 +36,7 @@ const PATHWAYS = [
     description:
       "Preparedness, resilience, emergency planning, and continuity teams.",
     cta: "Discuss Preparedness Workflow",
+    href:"#"
   },
   {
     icon: "doc",
@@ -40,6 +44,7 @@ const PATHWAYS = [
     description:
       "Public-sector procurement, contracts, legal, and commercial teams.",
     cta: "Request Procurement Pack",
+    href:"#"
   },
 ] as const;
 
@@ -151,12 +156,14 @@ function PathwayCard({
   description,
   cta,
   index,
+  href
 }: {
   icon: "home" | "doc" | "pin" | "shield";
   title: string;
   description: string;
   cta: string;
   index: number;
+  href:string;
 }) {
   return (
     <div
@@ -189,7 +196,7 @@ function PathwayCard({
       </p>
 
       <a
-        href="#"
+        href={href}
         className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
       >
         {cta}
