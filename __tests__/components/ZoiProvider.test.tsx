@@ -2,9 +2,8 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ZoiProvider, useZoi } from "@/components/zoi/ZoiProvider";
-import type { ReactNode } from "react";
 
-function TestConsumer({ onReady }: { onReady: (ctx: ReturnType<typeof useZoi>) => void }) {
+function TestConsumer() {
   const ctx = useZoi();
   return (
     <div>

@@ -4,7 +4,7 @@ import { useZoi } from "./ZoiProvider";
 import { t } from "./i18n";
 
 export default function ZoiHeader() {
-  const { state, minimizePanel, closePanel, startNewConversation, toggleHistoryView } = useZoi();
+  const { state, closePanel, startNewConversation, toggleHistoryView } = useZoi();
 
   const isHistoryView = state.viewMode === "history";
 

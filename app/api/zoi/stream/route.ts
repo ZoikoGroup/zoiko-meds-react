@@ -265,8 +265,6 @@ function scoreForSource(query: string, doc: { id: string; title: string }): numb
   return score;
 }
 
-const DRUG_SUFFIX_PATTERN = /\b\w+(?:ine|am|ol|ate|ide|ium|pam|zep|barb|caine|vir|mab|zole|zone|pam|tan|cet|dip|pram|lol|pine|xide|pril|sart|vastatin|oxacin|mycin|cillin|conazole)\b/i;
-
 const VALID_PERSONAS = ["patient", "pharmacy", "enterprise", "wholesale", "other"];
 
 async function delay(ms: number): Promise<void> {

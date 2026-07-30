@@ -577,7 +577,7 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
       content: message,
       timestamp: Date.now(),
     } });
-  }, [state.consentGiven, state.persona, state.messages.length]);
+  }, [state.consentGiven, state.persona, state.messages]);
 
   // Load saved history from localStorage on mount
   useEffect(() => {
