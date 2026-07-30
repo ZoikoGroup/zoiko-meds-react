@@ -6,6 +6,7 @@ import { useFocusTrap } from "./useFocusTrap";
 import ZoiHeader from "./ZoiHeader";
 import ZoiViewport from "./ZoiViewport";
 import ZoiComposer from "./ZoiComposer";
+import ZoiHistoryView from "./ZoiHistoryView";
 import { t } from "./i18n";
 
 export default function ZoiPanel() {
@@ -148,8 +149,15 @@ export default function ZoiPanel() {
         )}
 
         <ZoiHeader />
-        <ZoiViewport />
-        <ZoiComposer />
+
+        {state.viewMode === "history" ? (
+          <ZoiHistoryView />
+        ) : (
+          <>
+            <ZoiViewport />
+            <ZoiComposer />
+          </>
+        )}
       </div>
     </>
   );

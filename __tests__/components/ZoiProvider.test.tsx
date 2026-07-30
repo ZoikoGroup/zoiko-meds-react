@@ -2,9 +2,8 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ZoiProvider, useZoi } from "@/components/zoi/ZoiProvider";
-import type { ReactNode } from "react";
 
-function TestConsumer({ onReady }: { onReady: (ctx: ReturnType<typeof useZoi>) => void }) {
+function TestConsumer() {
   const ctx = useZoi();
   return (
     <div>
@@ -15,7 +14,11 @@ function TestConsumer({ onReady }: { onReady: (ctx: ReturnType<typeof useZoi>) =
       <button onClick={() => ctx.submitEscalation("test@example.com")}>Submit Escalation</button>
       <button onClick={() => ctx.setError("offline")}>Set Offline</button>
       <button onClick={() => ctx.clearError()}>Clear Error</button>
+      <button onClick={() => ctx.startNewConversation()}>New Conversation</button>
+      <button onClick={() => ctx.toggleHistoryView()}>Toggle History</button>
+      <button onClick={() => ctx.handleChipAction("set_alert")}>Set Alert Action</button>
       <div data-testid="panel-view">{ctx.state.panelView}</div>
+      <div data-testid="view-mode">{ctx.state.viewMode}</div>
       <div data-testid="persona">{ctx.state.persona ?? "none"}</div>
       <div data-testid="message-count">{ctx.state.messages.length}</div>
       <div data-testid="error">{String(ctx.state.error)}</div>
@@ -76,5 +79,23 @@ describe("ZoiProvider", () => {
     const initialCount = Number(screen.getByTestId("message-count").textContent);
     await userEvent.click(screen.getByText("Escalate"));
     expect(Number(screen.getByTestId("message-count").textContent)).toBe(initialCount + 1);
+  });
+
+  it("handleChipAction set_alert adds alert form message", async () => {
+    const initialCount = Number(screen.getByTestId("message-count").textContent);
+    await userEvent.click(screen.getByText("Set Alert Action"));
+    expect(Number(screen.getByTestId("message-count").textContent)).toBe(initialCount + 1);
+  });
+
+  it("toggles history view mode", async () => {
+    expect(screen.getByTestId("view-mode").textContent).toBe("chat");
+    await userEvent.click(screen.getByText("Toggle History"));
+    expect(screen.getByTestId("view-mode").textContent).toBe("history");
+  });
+
+  it("resets conversation when startNewConversation is called", async () => {
+    await userEvent.click(screen.getByText("Open Panel"));
+    await userEvent.click(screen.getByText("New Conversation"));
+    expect(screen.getByTestId("view-mode").textContent).toBe("chat");
   });
 });
