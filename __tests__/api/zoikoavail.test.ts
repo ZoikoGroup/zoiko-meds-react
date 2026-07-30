@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { NextRequest } from "next/server";
-import { POST } from "@/app/api/zoikoavail/route";
+import { POST } from "@/app/internal/zoikoavail/route";
 
 async function postZoikoAvail(body: unknown) {
   const req = new NextRequest("http://localhost:3456/api/zoikoavail", {
@@ -11,7 +11,7 @@ async function postZoikoAvail(body: unknown) {
   return POST(req);
 }
 
-describe("/api/zoikoavail", () => {
+describe("/internal/zoikoavail", () => {
   it("returns 400 when medicine is missing", async () => {
     const res = await postZoikoAvail({ region: "Nakuru" });
     expect(res.status).toBe(400);

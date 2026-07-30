@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
-import { POST as webhookPOST } from "@/app/api/zoikoavail/webhook/route";
-import { POST as zoikoavailPOST, GET as zoikoavailGET } from "@/app/api/zoikoavail/route";
+import { POST as webhookPOST } from "@/app/internal/zoikoavail/webhook/route";
+import { POST as zoikoavailPOST, GET as zoikoavailGET } from "@/app/internal/zoikoavail/route";
 import { clearLiveSignalStore } from "@/lib/availability";
 
 describe("Real Pharmacy Webhook & Live Signals (/api/zoikoavail/webhook)", () => {
