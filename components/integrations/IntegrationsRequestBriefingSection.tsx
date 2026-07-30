@@ -152,12 +152,41 @@ export default function IntegrationsRequestBriefingSection() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || submitting) return;
     setSubmitting(true);
-    // Wire up actual submission handler here
-    setTimeout(() => setSubmitting(false), 1200);
+    setStatus("idle");
+
+    try {
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Integrations Briefing (${formData.organizationType || "Integration"})`,
+          fullName: formData.fullName,
+          workEmail: formData.workEmail,
+          organization: formData.organization,
+          jobTitle: formData.jobTitle,
+          phone: formData.phoneNumber,
+          note: `Objective: ${formData.integrationObjective}\nSystems: ${formData.systemsToIntegrate.join(", ")}\nTimeline: ${formData.estimatedTimeline}\nCountry: ${formData.country}\nNotes: ${formData.message}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStatus("success");
+      } else {
+        setErrors((prev) => ({ ...prev, form: data.message || "Failed to submit briefing request." }));
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

@@ -46,7 +46,86 @@ const integrationTypes = [
 
 export default function RequestApiAccessBriefingSection() {
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [form, setForm] = useState({
+    fullName: "",
+    workEmail: "",
+    phone: "",
+    organization: "",
+    jobTitle: "",
+    orgType: "",
+    country: "",
+    useCase: "",
+    integrationType: "",
+    volume: "",
+    securityContact: "",
+    message: "",
+  });
+
   const router = useRouter();
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreed || submitting) return;
+
+    setSubmitting(true);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `API Access Briefing (${form.integrationType || "API"})`,
+          fullName: form.fullName,
+          workEmail: form.workEmail,
+          organization: form.organization,
+          jobTitle: form.jobTitle,
+          phone: form.phone,
+          note: `Org Type: ${form.orgType}\nCountry: ${form.country}\nIntegration Type: ${form.integrationType}\nUse Case: ${form.useCase}\nExpected Volume: ${form.volume}\nSecurity Contact: ${form.securityContact}\nMessage: ${form.message}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to submit API Access briefing request.");
+      }
+
+      setStatus("success");
+      setForm({
+        fullName: "",
+        workEmail: "",
+        phone: "",
+        organization: "",
+        jobTitle: "",
+        orgType: "",
+        country: "",
+        useCase: "",
+        integrationType: "",
+        volume: "",
+        securityContact: "",
+        message: "",
+      });
+      setAgreed(false);
+    } catch (err: unknown) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Submission failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <section
       id="api-access-briefing"
@@ -67,7 +146,19 @@ export default function RequestApiAccessBriefingSection() {
         </p>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <form className="rounded-2xl border border-[#D8E2EC] bg-white p-6 shadow-sm lg:col-span-2">
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-[#D8E2EC] bg-white p-6 shadow-sm lg:col-span-2">
+            {status === "success" && (
+              <div className="mb-6 rounded-xl border border-[#b2dfc8] bg-[#f7fdf9] p-4 text-sm text-[#0f7a53]">
+                <strong className="font-bold">Briefing Request Submitted!</strong> Thank you for your inquiry. Our integration team will review your requirements and reach out via email.
+              </div>
+            )}
+
+            {status === "error" && (
+              <div className="mb-6 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#b42318]">
+                <strong className="font-bold">Submission Error:</strong> {errorMessage}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               {/* Full Name */}
               <div>
@@ -76,6 +167,10 @@ export default function RequestApiAccessBriefingSection() {
                 </label>
                 <input
                   type="text"
+                  name="fullName"
+                  value={form.fullName}
+                  onChange={handleChange}
+                  required
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
                 />
               </div>
@@ -87,6 +182,10 @@ export default function RequestApiAccessBriefingSection() {
                 </label>
                 <input
                   type="email"
+                  name="workEmail"
+                  value={form.workEmail}
+                  onChange={handleChange}
+                  required
                   placeholder="name@organization.org"
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
                 />
@@ -100,6 +199,9 @@ export default function RequestApiAccessBriefingSection() {
                 </label>
                 <input
                   type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
                 />
               </div>
@@ -111,95 +213,117 @@ export default function RequestApiAccessBriefingSection() {
                 </label>
                 <input
                   type="text"
+                  name="organization"
+                  value={form.organization}
+                  onChange={handleChange}
+                  required
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
-              {/* Job title */}
+              {/* Role */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Job title <span className="text-red-500">*</span>
+                  Role / Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
+                  name="jobTitle"
+                  value={form.jobTitle}
+                  onChange={handleChange}
+                  required
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
-              {/* Organization type */}
+              {/* Org Type */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Organization type <span className="text-red-500">*</span>
                 </label>
-                <select className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#344054] outline-none focus:border-[#00A99D]">
-                  <option>Select type</option>
-                  <option>Hospital system</option>
-                  <option>Clinic network</option>
-                  <option>Pharmacy network</option>
-                  <option>Distributor / wholesaler</option>
-                  <option>Manufacturer</option>
-                  <option>Public health / government</option>
+                <select
+                  name="orgType"
+                  value={form.orgType}
+                  onChange={handleChange}
+                  required
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                >
+                  <option value="" disabled>Select type</option>
+                  <option value="Healthcare Provider">Healthcare Provider</option>
+                  <option value="Pharmacy Network">Pharmacy Network</option>
+                  <option value="Health System">Health System</option>
+                  <option value="Technology Platform">Technology Platform</option>
+                  <option value="Public Health">Public Health</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
-              {/* Integration type */}
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Integration type <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {integrationTypes.map((type) => (
-                    <label
-                      key={type}
-                      className="flex items-center gap-2.5 text-sm text-[#344054]"
-                    >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-[#00A99D] focus:ring-[#00A99D]"
-                      />
-                      {type}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Systems to integrate */}
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Systems to integrate{" "}
-                  <span className="font-normal text-[#98A2B3]">(optional)</span>
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="EHR, pharmacy system, BI tool, CRM, data warehouse, internal platform, other."
-                  className="w-full rounded-xl border border-[#D8E2EC] px-4 py-3 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
-                />
-              </div>
-
-              {/* Countries / regions */}
+              {/* Country */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Countries / regions <span className="text-red-500">*</span>
+                  Country / Region <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="Operating geography"
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
+                  name="country"
+                  value={form.country}
+                  onChange={handleChange}
+                  required
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
-              {/* Expected volume */}
+              {/* Integration Type */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Expected volume{" "}
-                  <span className="font-normal text-[#98A2B3]">(optional)</span>
+                  Integration area <span className="text-red-500">*</span>
                 </label>
-                <select className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#344054] outline-none focus:border-[#00A99D]">
-                  <option>Select</option>
-                  <option>Low (pilot / evaluation)</option>
-                  <option>Moderate</option>
-                  <option>High</option>
-                  <option>Enterprise scale</option>
+                <select
+                  name="integrationType"
+                  value={form.integrationType}
+                  onChange={handleChange}
+                  required
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                >
+                  <option value="" disabled>Select area</option>
+                  {integrationTypes.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Primary Use Case */}
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
+                  Primary use case <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="useCase"
+                  value={form.useCase}
+                  onChange={handleChange}
+                  required
+                  rows={3}
+                  placeholder="Describe your intended system integration..."
+                  className="w-full rounded-xl border border-[#D8E2EC] p-4 text-sm outline-none transition focus:border-[#00A99D]"
+                />
+              </div>
+
+              {/* Volume */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
+                  Expected query volume
+                </label>
+                <select
+                  name="volume"
+                  value={form.volume}
+                  onChange={handleChange}
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                >
+                  <option value="">Select expected volume</option>
+                  <option value="Low (< 1k/day)">Low (&lt; 1k/day)</option>
+                  <option value="Moderate (1k-50k/day)">Moderate (1k-50k/day)</option>
+                  <option value="High (50k+/day)">High (50k+/day)</option>
+                  <option value="Enterprise scale">Enterprise scale</option>
                 </select>
               </div>
 
@@ -211,19 +335,25 @@ export default function RequestApiAccessBriefingSection() {
                 </label>
                 <input
                   type="text"
+                  name="securityContact"
+                  value={form.securityContact}
+                  onChange={handleChange}
                   placeholder="Name or team"
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
                 />
               </div>
 
               {/* Message */}
-              <div>
+              <div className="sm:col-span-2">
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Message{" "}
+                  Additional context{" "}
                   <span className="font-normal text-[#98A2B3]">(optional)</span>
                 </label>
                 <input
                   type="text"
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
                   placeholder="Open context"
                   className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
                 />
@@ -241,7 +371,7 @@ export default function RequestApiAccessBriefingSection() {
               <span>
                 I agree to be contacted about API access and enterprise
                 integration, and acknowledge the{" "}
-                <a href="#" className="text-[#00A99D] hover:underline">
+                <a href="/privacy" className="text-[#00A99D] hover:underline">
                   privacy notice.
                 </a>{" "}
                 <span className="text-red-500">*</span>
@@ -252,9 +382,10 @@ export default function RequestApiAccessBriefingSection() {
             <div className="mt-6 flex flex-col gap-4 sm:flex-row">
               <button
                 type="submit"
-                className="h-12 flex-1 rounded-xl bg-[#00A99D] font-semibold text-white transition hover:bg-[#009487]"
+                disabled={!agreed || submitting}
+                className="h-12 flex-1 rounded-xl bg-[#00A99D] font-semibold text-white transition hover:bg-[#009487] disabled:opacity-50"
               >
-                Request API Access Briefing
+                {submitting ? "Submitting..." : "Request API Access Briefing"}
               </button>
 
               <button

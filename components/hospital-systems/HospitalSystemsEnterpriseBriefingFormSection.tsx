@@ -54,6 +54,21 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
 
   const [interestAreas, setInterestAreas] = useState<string[]>([]);
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [form, setForm] = useState({
+    fullName: "",
+    workEmail: "",
+    phone: "",
+    organization: "",
+    jobTitle: "",
+    systemSize: "",
+    region: "",
+    timeline: "",
+    note: "",
+  });
 
   useEffect(() => {
     const el = ref.current;
@@ -77,10 +92,59 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!agreed) return;
-    // TODO: wire up to enterprise briefing request endpoint
+    if (!agreed || submitting) return;
+
+    setSubmitting(true);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Hospital Systems Briefing (${form.systemSize || "Health System"})`,
+          fullName: form.fullName,
+          workEmail: form.workEmail,
+          organization: form.organization,
+          jobTitle: form.jobTitle,
+          phone: form.phone,
+          note: `Region: ${form.region}\nTimeline: ${form.timeline}\nInterests: ${interestAreas.join(", ")}\nNote: ${form.note}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to submit briefing request.");
+      }
+
+      setStatus("success");
+      setForm({
+        fullName: "",
+        workEmail: "",
+        phone: "",
+        organization: "",
+        jobTitle: "",
+        systemSize: "",
+        region: "",
+        timeline: "",
+        note: "",
+      });
+      setInterestAreas([]);
+      setAgreed(false);
+    } catch (err: unknown) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Submission failed.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (

@@ -142,15 +142,34 @@ export default function AnalyticsBriefingFormSection() {
     setErrors((prev) => ({ ...prev, needs: undefined }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const nextErrors = validate(form);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      // Wire this up to your actual submit endpoint.
-      // e.g. await fetch("/api/briefing-request", { method: "POST", body: JSON.stringify(form) });
+      try {
+        const res = await fetch("/api/briefing-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Analytics & Demand Briefing (${form.orgType || "Analytics"})`,
+            fullName: form.fullName,
+            workEmail: form.workEmail,
+            organization: form.organization,
+            jobTitle: form.role,
+            note: `Region: ${form.region}\nNeeds: ${form.needs.join(", ")}\nMessage: ${form.message}`,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setSubmitted(true);
+        } else {
+          setErrors({ message: data.message || "Failed to submit briefing request." });
+        }
+      } catch {
+        setErrors({ message: "Network error occurred while submitting." });
+      }
     } else {
       const firstErrorKey = Object.keys(nextErrors)[0];
       const el = document.getElementById(`field-${firstErrorKey}`);
