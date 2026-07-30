@@ -107,14 +107,21 @@ export default function GovernmentPublicHealthRequestBriefingSection() {
 
     setStatus("submitting");
     try {
-      // TODO: replace with the real public health briefing endpoint, e.g.
-      // const res = await fetch("/api/government-public-health/briefing", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Submission failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Government / Public Health Briefing (${form.organizationType || "Public Health"})`,
+          fullName: form.fullName,
+          workEmail: form.email,
+          organization: form.organizationName,
+          note: `Primary Interest: ${form.primaryInterest}\nNote: ${form.note}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Submission failed");
+
       setStatus("success");
       setForm({
         email: "",
