@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { internalApi } from "@/lib/config";
 import ProgressBar from "./ProgressBar";
 import StepTransition from "./StepTransition";
 import Step1FindPharmacy, { validateStep1, StepErrors } from "./Step1FindPharmacy";
@@ -65,7 +66,7 @@ export default function JoinNetworkForm() {
     setSubmitError("");
 
     try {
-      const res = await fetch("/api/pharmacy-registration", {
+      const res = await fetch(internalApi("pharmacy-registration"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(serializeForApi(data)),

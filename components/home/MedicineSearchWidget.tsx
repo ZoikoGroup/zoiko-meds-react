@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect, DragEvent, ChangeEvent } from "react";
 import { searchMedicines, matchMedibase, type Confidence } from "@/lib/api";
+import { internalApi } from "@/lib/config";
 
 /* ─── types ─── */
 interface Pharmacy {
@@ -323,7 +324,7 @@ export default function MedicineSearchWidget() {
 
   /* ─── Geocode helpers ─── */
   const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
-    const r = await fetch("/api/medicine/reverse-geocode", {
+    const r = await fetch(internalApi("medicine/reverse-geocode"), {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat, lng }),
     });
     const d = await r.json();
@@ -331,7 +332,7 @@ export default function MedicineSearchWidget() {
   }, []);
 
   const geocodeAddress = useCallback(async (address: string): Promise<{ lat: number; lng: number } | null> => {
-    const r = await fetch("/api/medicine/geocode", {
+    const r = await fetch(internalApi("medicine/geocode"), {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address }),
     });
     const d = await r.json();
@@ -464,7 +465,7 @@ export default function MedicineSearchWidget() {
     setScanning(true); setScannedMeds([]); setScanResults({});
     const fd = new FormData();
     fd.append("prescription", scanFile);
-    const r = await fetch("/api/medicine/scan", { method: "POST", body: fd });
+    const r = await fetch(internalApi("medicine/scan"), { method: "POST", body: fd });
     const d = await r.json();
     if (d.success) {
       const meds: string[] = d.data.medicines;

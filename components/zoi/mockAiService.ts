@@ -2,6 +2,7 @@ import type { Message, Chip, Persona, AvailabilityPayload, CardState } from "./t
 import { searchContent } from "@/lib/site-content";
 import { lookupAvailability, findMedicineInQuery, extractRegion } from "@/lib/availability";
 import { isDrugLikeTerm } from "@/lib/medibase";
+import { internalApi } from "@/lib/config";
 
 export type StreamCallback = (chunk: string) => void;
 
@@ -163,7 +164,7 @@ export async function streamResponse(
   }
 
   try {
-    const endpoint = typeof window !== "undefined" ? "/api/zoi/stream" : `${SELF_URL}/api/zoi/stream`;
+    const endpoint = typeof window !== "undefined" ? internalApi("zoi/stream") : `${SELF_URL}${internalApi("zoi/stream")}`;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -296,7 +297,7 @@ export async function fetchAvailability(
   region: string
 ): Promise<{ card: AvailabilityPayload & { pharmacies?: { id: number; name: string; address: string; city: string; phone?: string }[] }; stockingPharmacies: number } | null> {
   try {
-    const endpoint = typeof window !== "undefined" ? "/api/zoikoavail" : `${SELF_URL}/api/zoikoavail`;
+    const endpoint = typeof window !== "undefined" ? internalApi("zoikoavail") : `${SELF_URL}${internalApi("zoikoavail")}`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -363,7 +364,7 @@ export async function submitEscalationApi(
   issueMessage?: string
 ): Promise<string | null> {
   try {
-    const endpoint = typeof window !== "undefined" ? "/api/escalations" : `${SELF_URL}/api/escalations`;
+    const endpoint = typeof window !== "undefined" ? internalApi("escalations") : `${SELF_URL}${internalApi("escalations")}`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
