@@ -2,7 +2,6 @@
 
 import { useZoi } from "./ZoiProvider";
 import { usePageContext } from "./usePageContext";
-import { t } from "./i18n";
 
 export default function ZoiLauncher() {
   const { state, openPanel } = useZoi();
