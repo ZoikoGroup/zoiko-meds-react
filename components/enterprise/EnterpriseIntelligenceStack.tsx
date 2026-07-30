@@ -97,7 +97,7 @@ export default function IntelligenceStack() {
                       ZoikoSignal™
                     </h3>
                     <a
-                      href="#"
+                      href="/zoikosignal-intelligence"
                       className="flex-shrink-0 hover:opacity-80 transition-opacity"
                       style={{
                         fontFamily: 'Inter, sans-serif',
@@ -155,7 +155,7 @@ export default function IntelligenceStack() {
                       ZoikoAvail™ API
                     </h3>
                     <a
-                      href="#"
+                      href="/api-access"
                       className="flex-shrink-0 hover:opacity-80 transition-opacity"
                       style={{
                         fontFamily: 'Inter, sans-serif',
@@ -271,7 +271,7 @@ export default function IntelligenceStack() {
                       MediBase™
                     </h3>
                     <a
-                      href="#"
+                      href="/medibase-data"
                       className="flex-shrink-0 hover:opacity-80 transition-opacity"
                       style={{
                         fontFamily: 'Inter, sans-serif',

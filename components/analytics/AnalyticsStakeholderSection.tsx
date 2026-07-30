@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 type Stakeholder = {
@@ -7,6 +8,7 @@ type Stakeholder = {
   painPoint: string;
   value: string;
   ctaLabel: string;
+  href:string;
 };
 
 const STAKEHOLDERS: Stakeholder[] = [
@@ -16,36 +18,42 @@ const STAKEHOLDERS: Stakeholder[] = [
       "Limited visibility into demand patterns and confirmation gaps across service areas.",
     value: "Track confirmation coverage, regional demand, and confidence movement.",
     ctaLabel: "Optimize network visibility",
+    href:"/pharmacy-support"
   },
   {
     role: "Healthcare organizations",
     painPoint: "Difficulty identifying access barriers across patient communities.",
     value: "Review regional medicine access patterns and operational attention areas.",
     ctaLabel: "Discuss healthcare access analytics",
+    href:"/health-systems"
   },
   {
     role: "Wholesalers & distributors",
     painPoint: "Need better demand and access intelligence without exposing sensitive inventory.",
     value: "Use aggregated signals to understand market pressure and geographic access conditions.",
     ctaLabel: "Request partner briefing",
+    href:"/request-a-briefing"
   },
   {
     role: "Public-health stakeholders",
     painPoint: "Need early visibility into potential access concerns.",
     value: "Monitor regional access signals, shortage movement, and summary reports.",
     ctaLabel: "Explore public-health reporting",
+    href:"/government-public-health"
   },
   {
     role: "Enterprise partners",
     painPoint: "Need governed, role-based analytics for internal workflows.",
     value: "Use dashboards, saved views, exports, and audit-ready summaries.",
     ctaLabel: "Plan enterprise deployment",
+    href:"/enterprise-solutions"
   },
 ];
 
 export default function AnalyticsStakeholderSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -106,7 +114,8 @@ export default function AnalyticsStakeholderSection() {
                 <div className="lg:flex-shrink-0">
                   <button
                     type="button"
-                    className="w-full whitespace-nowrap rounded-lg border border-[#D8DEE8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 hover:border-[#0FAA87] hover:text-[#0FAA87] hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2 lg:w-auto"
+                    onClick={()=>router.push(s.href)}
+                    className="w-full whitespace-nowrap cursor-pointer rounded-lg border border-[#D8DEE8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 hover:border-[#0FAA87] hover:text-[#0FAA87] hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2 lg:w-auto"
                   >
                     {s.ctaLabel}
                   </button>

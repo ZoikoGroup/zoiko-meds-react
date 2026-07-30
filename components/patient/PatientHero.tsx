@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -10,21 +10,33 @@ export default function HeroSection() {
         {/* Left: Headline + subtext + CTAs */}
         <div className="min-h-[420px]">
           <h1 className="text-4xl sm:text-[42px] md:min-w-[560px] font-bold text-[#0A1628] leading-[56px] mb-4">
-            Find out if your medicine is in <span className="text-[#00B7A8]">stock before you make the trip.</span>
+            Find out if your medicine is in{" "}
+            <span className="text-[#00B7A8]">
+              stock before you make the trip.
+            </span>
           </h1>
           <p className="text-[16px] text-[#44474D] md:min-w-[560px] leading-relaxed mb-8 max-w-[420px]">
             We connect directly to pharmacy inventory data to show you real-time
-            signals of medicine availability in your area. No more wasted trips or
-            unnecessary phone calls.
+            signals of medicine availability in your area. No more wasted trips
+            or unnecessary phone calls.
           </p>
           <div className="flex flex-wrap gap-3">
-            <button className="flex items-center gap-2 bg-[#00B7A8] hover:bg-[#028e83] text-white text-[14px] font-inter px-[32px] py-[17px] rounded-full transition-colors duration-200 cursor-pointer">
+            <button
+              onClick={() => router.push("/searchmed")}
+              className="flex items-center gap-2 bg-[#00B7A8] hover:bg-[#028e83] text-white text-[14px] font-inter px-[32px] py-[17px] rounded-full transition-colors duration-200 cursor-pointer"
+            >
               Check Medicine Availability
-              <img src="/patient/arrow.png" alt="image" height="16px" width="16px" />
+              <img
+                src="/patient/arrow.png"
+                alt="image"
+                height="16px"
+                width="16px"
+              />
             </button>
             <button
-            onClick={()=>router.push("/patient-portal")}
-             className="text-[14px] cursor-pointer font-inter text-[#151C27] font-medium border border-[#C4C6CE] px-[32px] py-[16px] rounded-full hover:bg-[#F4F6FA] transition-colors duration-200">
+              onClick={() => router.push("/patient-portal")}
+              className="text-[14px] cursor-pointer font-inter text-[#151C27] font-medium border border-[#C4C6CE] px-[32px] py-[16px] rounded-full hover:bg-[#F4F6FA] transition-colors duration-200"
+            >
               How It Works
             </button>
           </div>
@@ -32,7 +44,7 @@ export default function HeroSection() {
 
         {/* Right: Image */}
         <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-[0_4px_6px_rgba(0,0,0,0.1)]">
-          <Image src='/patient/hero.png' alt="hero" height={420} width={560} />
+          <Image src="/patient/hero.png" alt="hero" height={420} width={560} />
         </div>
       </div>
     </section>

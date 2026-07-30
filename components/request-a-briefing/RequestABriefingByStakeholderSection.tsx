@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#0FAA87";
@@ -7,7 +8,8 @@ const ACCENT = "#0FAA87";
 const STAKEHOLDER_BRIEFINGS = [
   {
     id: "pharmacy-network",
-    description: "Strengthen availability confidence through verified participation.",
+    description:
+      "Strengthen availability confidence through verified participation.",
     cta: "Request Pharmacy Network Briefing",
     icon: (
       <path
@@ -18,10 +20,12 @@ const STAKEHOLDER_BRIEFINGS = [
         fill="none"
       />
     ),
+    href:"/pharmacy"
   },
   {
     id: "healthcare-access",
-    description: "Identify access patterns before they become operational blind spots.",
+    description:
+      "Identify access patterns before they become operational blind spots.",
     cta: "Request Healthcare Access Briefing",
     icon: (
       <path
@@ -32,21 +36,37 @@ const STAKEHOLDER_BRIEFINGS = [
         fill="none"
       />
     ),
+    href:"/health-systems"
   },
   {
     id: "wholesale",
-    description: "Understand responsible intelligence signals without exposing sensitive inventory data.",
+    description:
+      "Understand responsible intelligence signals without exposing sensitive inventory data.",
     cta: "Request Wholesale Briefing",
     icon: (
       <>
-        <path d="M8 1.5l6 3.5v6L8 14.5 2 11v-6z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
-        <path d="M2 5l6 3.5L14 5M8 8.5v6" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" fill="none" />
+        <path
+          d="M8 1.5l6 3.5v6L8 14.5 2 11v-6z"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <path
+          d="M2 5l6 3.5L14 5M8 8.5v6"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinejoin="round"
+          fill="none"
+        />
       </>
     ),
+    href:"/enterprise-solutions"
   },
   {
     id: "public-health",
-    description: "Review regional medicine access patterns and shortage awareness signals.",
+    description:
+      "Review regional medicine access patterns and shortage awareness signals.",
     cta: "Request Public Health Briefing",
     icon: (
       <path
@@ -57,10 +77,12 @@ const STAKEHOLDER_BRIEFINGS = [
         fill="none"
       />
     ),
+    href:"/government-public-health"
   },
   {
     id: "enterprise",
-    description: "Explore secure integrations, data governance, and strategic partnership models.",
+    description:
+      "Explore secure integrations, data governance, and strategic partnership models.",
     cta: "Request Enterprise Briefing",
     icon: (
       <path
@@ -72,6 +94,7 @@ const STAKEHOLDER_BRIEFINGS = [
         fill="none"
       />
     ),
+    href:"/enterprise"
   },
 ] as const;
 
@@ -89,11 +112,12 @@ export default function RequestABriefingByStakeholderSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+  const router = useRouter();
 
   return (
     <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
@@ -131,7 +155,10 @@ export default function RequestABriefingByStakeholderSection() {
               >
                 <div
                   className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-250 ease-out group-hover:scale-110"
-                  style={{ backgroundColor: "rgba(15,170,135,0.12)", color: ACCENT }}
+                  style={{
+                    backgroundColor: "rgba(15,170,135,0.12)",
+                    color: ACCENT,
+                  }}
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
                     {item.icon}
@@ -144,7 +171,8 @@ export default function RequestABriefingByStakeholderSection() {
 
                 <button
                   type="button"
-                  className="mt-5 w-fit rounded-lg border px-4 py-2.5 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-200 ease-out hover:border-[#0FAA87] hover:text-[#0FAA87]"
+                  onClick={()=>router.push(item.href)}
+                  className="mt-5 w-fit rounded-lg cursor-pointer border px-4 py-2.5 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-200 ease-out hover:border-[#0FAA87] hover:text-[#0FAA87]"
                   style={{ borderColor: "#E7EAF1" }}
                 >
                   {item.cta}
@@ -174,7 +202,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `requestBriefingStakeholderFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `requestBriefingStakeholderFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}

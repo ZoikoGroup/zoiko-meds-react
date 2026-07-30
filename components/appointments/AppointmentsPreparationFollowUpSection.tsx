@@ -58,6 +58,7 @@ const FOLLOWUP_ACTIONS = [
         fill="none"
       />
     ),
+    href:"#"
   },
   {
     id: "prescription-review",
@@ -73,6 +74,7 @@ const FOLLOWUP_ACTIONS = [
         fill="none"
       />
     ),
+    href:"#"
   },
   {
     id: "next-visit",
@@ -88,6 +90,7 @@ const FOLLOWUP_ACTIONS = [
         fill="none"
       />
     ),
+    href:"#"
   },
   {
     id: "message-support",
@@ -101,6 +104,7 @@ const FOLLOWUP_ACTIONS = [
         <path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
       </>
     ),
+    href:"/contact"
   },
 ];
 
@@ -253,7 +257,7 @@ export default function AppointmentsPreparationFollowUpSection() {
                       {action.description}
                     </p>
                     <a
-                      href="#"
+                      href={action.href}
                       className="mt-3 inline-flex items-center text-[13px] font-semibold hover:underline"
                       style={{ color: ACCENT }}
                     >

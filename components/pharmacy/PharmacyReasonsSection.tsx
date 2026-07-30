@@ -16,6 +16,7 @@ const REASONS = [
     linkLabel: "See how it works",
     icon: "phone",
     tone: "teal",
+    href:"#"
   },
   {
     title: "Capture local demand",
@@ -24,6 +25,7 @@ const REASONS = [
     linkLabel: "Claim your pharmacy",
     icon: "person",
     tone: "indigo",
+    href:"#hero"
   },
   {
     title: "Understand unmet demand",
@@ -32,6 +34,7 @@ const REASONS = [
     linkLabel: "Explore Intelligence Pro",
     icon: "bars",
     tone: "amber",
+    href:"#"
   },
 ] as const;
 
@@ -144,6 +147,7 @@ function ReasonCard({
   icon,
   tone,
   index,
+  href
 }: {
   title: string;
   description: string;
@@ -151,6 +155,7 @@ function ReasonCard({
   icon: "phone" | "person" | "bars";
   tone: "teal" | "indigo" | "amber";
   index: number;
+  href:string;
 }) {
   const iconBg =
     tone === "teal"
@@ -182,7 +187,7 @@ function ReasonCard({
       </p>
 
       <a
-        href="#"
+        href={href}
         className={`mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200 ${linkColor}`}
       >
         {linkLabel}

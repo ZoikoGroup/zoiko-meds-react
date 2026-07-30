@@ -11,7 +11,7 @@ const INTEGRATION_POINTS = [
     title: "Identity & SSO",
     description: "Support enterprise authentication, permission control, and role-based access.",
     linkLabel: "Discuss SSO Requirements",
-    href: "/hospital-systems/sso",
+    href: "#",
     icon: (
       <>
         <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -24,7 +24,7 @@ const INTEGRATION_POINTS = [
     title: "Hospital operations & BI",
     description: "Export structured intelligence into approved analytics and reporting workflows.",
     linkLabel: "Request Integration Review",
-    href: "/hospital-systems/bi-integration",
+    href: "/integrations",
     icon: (
       <path
         d="M3.5 12.5V9M7 12.5V6M10.5 12.5V3.5"
@@ -39,7 +39,7 @@ const INTEGRATION_POINTS = [
     title: "Pharmacy & network systems",
     description: "Support authorized confirmation workflows and pharmacy participation signals.",
     linkLabel: "Review Pharmacy Workflows",
-    href: "/hospital-systems/pharmacy-workflows",
+    href: "/pharmacy",
     icon: (
       <path
         d="M3 6.2L8 3l5 3.2v6.6a.7.7 0 01-.7.7H3.7a.7.7 0 01-.7-.7V6.2z M6.3 12.5V9.2h3.4v3.3"
@@ -55,7 +55,7 @@ const INTEGRATION_POINTS = [
     title: "Procurement & supply chain",
     description: "Provide access-risk and availability intelligence to procurement stakeholders.",
     linkLabel: "Talk to Solutions Team",
-    href: "/hospital-systems/procurement",
+    href: "/contact",
     icon: (
       <path
         d="M8 2.4l4.8 2.8v5.6L8 13.6l-4.8-2.8V5.2L8 2.4z"
@@ -71,7 +71,7 @@ const INTEGRATION_POINTS = [
     title: "Compliance & audit",
     description: "Support evidence-ready reports, export controls, and audit histories.",
     linkLabel: "View Governance Controls",
-    href: "/hospital-systems/governance",
+    href: "/reports",
     icon: (
       <path d="M3.5 4.8h9M3.5 8h9M3.5 11.2h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     ),
@@ -81,7 +81,7 @@ const INTEGRATION_POINTS = [
     title: "API access",
     description: "Enable approved API pathways for enterprise integration and secure data exchange.",
     linkLabel: "Request API Briefing",
-    href: "/hospital-systems/api-access",
+    href: "/api-access",
     icon: (
       <path
         d="M6 4.5L2.5 8 6 11.5M10 4.5L13.5 8 10 11.5"

@@ -91,7 +91,7 @@ export default function SearchBuilt() {
                     </span>
                     <p className="text-sm sm:text-[15.5px] text-[#E7EEF6B2]/70 text-center max-w-[450px] leading-relaxed">Search first. Save searches and alerts only when you want to return or monitor changes.</p>
                     <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                        <button onClick={()=>router.push("#")}
+                        <button onClick={()=>router.push("#search")}
                          className="bg-[#13A594] hover:bg-[#11887a] border border-[#13A594] cursor-pointer text-white font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
                             Search Availability
                         </button>

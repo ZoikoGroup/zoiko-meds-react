@@ -45,7 +45,7 @@ const BENEFITS = [
       "Independents can begin with the portal. Groups and chains can discuss branch-level controls, integrations, SSO, and operational governance.",
     cta: "Request Chain Briefing",
     ctaStyle: "outline",
-    link:"#"
+    link:"/request-a-briefing"
   },
 ] as const;
 

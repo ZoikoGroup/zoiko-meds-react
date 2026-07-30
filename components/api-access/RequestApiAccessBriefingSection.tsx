@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { Shield, Check, LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Foundation {
   icon: LucideIcon;
@@ -18,8 +19,7 @@ const foundations: Foundation[] = [
   {
     icon: Check,
     title: "Governed & scoped",
-    description:
-      "Role-based permissions, audit logs, and approval workflows.",
+    description: "Role-based permissions, audit logs, and approval workflows.",
   },
   {
     icon: Check,
@@ -30,8 +30,7 @@ const foundations: Foundation[] = [
   {
     icon: Check,
     title: "Sandbox first",
-    description:
-      "Test with synthetic data before any production go-live.",
+    description: "Test with synthetic data before any production go-live.",
   },
 ];
 
@@ -47,9 +46,12 @@ const integrationTypes = [
 
 export default function RequestApiAccessBriefingSection() {
   const [agreed, setAgreed] = useState(false);
-
+  const router = useRouter();
   return (
-    <section id="api-access-briefing" className="bg-slate-50 px-6 py-16 sm:px-10 lg:px-16">
+    <section
+      id="api-access-briefing"
+      className="bg-slate-50 px-6 py-16 sm:px-10 lg:px-16"
+    >
       <div className="mx-auto max-w-6xl">
         <p className="mb-3 text-sm uppercase font-semibold tracking-[2px] text-[#13A594]">
           10 · Request an API Access Briefing
@@ -59,8 +61,8 @@ export default function RequestApiAccessBriefingSection() {
           <span className="text-[#0FAA87]">you want to integrate.</span>
         </h2>
         <p className="mt-4 max-w-160 leading-relaxed text-[#566476]">
-          Request an API Access Briefing so our enterprise and integration teams can
-          review your use case, systems, geography, data needs, and security
+          Request an API Access Briefing so our enterprise and integration teams
+          can review your use case, systems, geography, data needs, and security
           requirements.
         </p>
 
@@ -93,7 +95,8 @@ export default function RequestApiAccessBriefingSection() {
               {/* Phone */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Phone number <span className="font-normal text-[#98A2B3]">(optional)</span>
+                  Phone number{" "}
+                  <span className="font-normal text-[#98A2B3]">(optional)</span>
                 </label>
                 <input
                   type="tel"
@@ -163,7 +166,8 @@ export default function RequestApiAccessBriefingSection() {
               {/* Systems to integrate */}
               <div className="sm:col-span-2">
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Systems to integrate <span className="font-normal text-[#98A2B3]">(optional)</span>
+                  Systems to integrate{" "}
+                  <span className="font-normal text-[#98A2B3]">(optional)</span>
                 </label>
                 <textarea
                   rows={3}
@@ -187,7 +191,8 @@ export default function RequestApiAccessBriefingSection() {
               {/* Expected volume */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Expected volume <span className="font-normal text-[#98A2B3]">(optional)</span>
+                  Expected volume{" "}
+                  <span className="font-normal text-[#98A2B3]">(optional)</span>
                 </label>
                 <select className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#344054] outline-none focus:border-[#00A99D]">
                   <option>Select</option>
@@ -201,7 +206,8 @@ export default function RequestApiAccessBriefingSection() {
               {/* Security contact */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Security contact <span className="font-normal text-[#98A2B3]">(optional)</span>
+                  Security contact{" "}
+                  <span className="font-normal text-[#98A2B3]">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -213,7 +219,8 @@ export default function RequestApiAccessBriefingSection() {
               {/* Message */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
-                  Message <span className="font-normal text-[#98A2B3]">(optional)</span>
+                  Message{" "}
+                  <span className="font-normal text-[#98A2B3]">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -232,8 +239,8 @@ export default function RequestApiAccessBriefingSection() {
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-[#00A99D] focus:ring-[#00A99D]"
               />
               <span>
-                I agree to be contacted about API access and enterprise integration,
-                and acknowledge the{" "}
+                I agree to be contacted about API access and enterprise
+                integration, and acknowledge the{" "}
                 <a href="#" className="text-[#00A99D] hover:underline">
                   privacy notice.
                 </a>{" "}
@@ -252,6 +259,7 @@ export default function RequestApiAccessBriefingSection() {
 
               <button
                 type="button"
+                onClick={() => router.push("/integrations")}
                 className="h-12 flex-1 rounded-xl border border-[#D8E2EC] bg-white font-semibold text-[#0D1526] transition hover:bg-gray-50"
               >
                 Talk to Integration Team
@@ -262,10 +270,10 @@ export default function RequestApiAccessBriefingSection() {
             <div className="mt-5 flex items-start gap-2 text-xs leading-5 text-[#667085]">
               <span className="mt-1 h-2 w-2 rounded-full border border-[#00A99D]" />
               <p>
-                A ZoikoMeds representative will review your integration use case and
-                security requirements. Not medical advice, dispensing, or a pharmacy
-                service — don&apos;t include PHI, prescriptions, secrets, or exact
-                stock.
+                A ZoikoMeds representative will review your integration use case
+                and security requirements. Not medical advice, dispensing, or a
+                pharmacy service — don&apos;t include PHI, prescriptions,
+                secrets, or exact stock.
               </p>
             </div>
           </form>

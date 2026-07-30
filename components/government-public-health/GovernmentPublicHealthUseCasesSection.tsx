@@ -13,7 +13,7 @@ const USE_CASES = [
     description:
       "Identify emerging availability pressure patterns before they create wider access confusion.",
     cta: "Explore Shortage Signals",
-    href: "#",
+    href: "/searchmed",
   },
   {
     icon: "pin",
@@ -21,7 +21,7 @@ const USE_CASES = [
     description:
       "Understand where medicine availability friction may concentrate across jurisdictions, communities, or service areas.",
     cta: "Request Public Health Briefing",
-    href: "#",
+    href: "/government-public-health",
   },
   {
     icon: "shield",
@@ -29,7 +29,7 @@ const USE_CASES = [
     description:
       "Governed visibility into availability signals during disruption planning, seasonal demand, or public-health events.",
     cta: "Discuss Preparedness Workflow",
-    href: "#",
+    href: "/request-a-briefing",
   },
   {
     icon: "people",

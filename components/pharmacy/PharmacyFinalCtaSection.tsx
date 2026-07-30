@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -11,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 export default function PharmacyFinalCtaSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -23,7 +25,7 @@ export default function PharmacyFinalCtaSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
 
     observer.observe(el);
@@ -31,7 +33,10 @@ export default function PharmacyFinalCtaSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-white px-6 py-4 sm:py-6 lg:px-8">
+    <section
+      ref={ref}
+      className="relative w-full bg-white px-6 py-4 sm:py-6 lg:px-8"
+    >
       <div className="mx-auto max-w-7xl">
         <div className="relative overflow-hidden rounded-3xl bg-[#0A1330] px-8 py-14 sm:px-14 sm:py-16">
           {/* ambient glow */}
@@ -52,8 +57,8 @@ export default function PharmacyFinalCtaSection() {
 
                 <Reveal index={1}>
                   <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-white/55">
-                    Search for your pharmacy, claim your node, and start
-                    routing high-intent patients to your counter today.
+                    Search for your pharmacy, claim your node, and start routing
+                    high-intent patients to your counter today.
                   </p>
                 </Reveal>
 
@@ -61,14 +66,18 @@ export default function PharmacyFinalCtaSection() {
                   <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                     <button
                       type="button"
+                      onClick={() => router.push("#hero")}
                       className="group relative overflow-hidden rounded-xl bg-[#00A99D] px-6 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
                     >
                       <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-                      <span className="relative">Search &amp; Claim Your Pharmacy</span>
+                      <span className="relative">
+                        Search &amp; Claim Your Pharmacy
+                      </span>
                     </button>
 
                     <button
                       type="button"
+                      onClick={() => router.push("/enterprise")}
                       className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
                     >
                       Request Enterprise Architecture Briefing

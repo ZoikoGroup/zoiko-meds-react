@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#13A594";
@@ -55,6 +56,7 @@ export default function ClinicNetworksRequestBriefingSection() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const el = ref.current;
@@ -375,6 +377,7 @@ export default function ClinicNetworksRequestBriefingSection() {
                 </button>
                 <button
                   type="button"
+                  onClick={()=>router.push("/enterprise")}
                   className="rounded-lg border px-5 py-3 text-[13px] font-bold text-[#0F1F4E] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
                   style={{ borderColor: "#E7EAF1" }}
                 >

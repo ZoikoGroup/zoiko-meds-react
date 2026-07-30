@@ -35,7 +35,9 @@ export default function Hero() {
                                 Request API Access Briefing
                             </button>
 
-                            <button className="rounded-xl border border-[#D0D5DD] bg-white px-6 cursor-pointer py-3 font-semibold text-[#0D1B2E] transition hover:bg-gray-50">
+                            <button 
+                            onClick={()=>router.push("/integrations")}
+                            className="rounded-xl border border-[#D0D5DD] bg-white px-6 cursor-pointer py-3 font-semibold text-[#0D1B2E] transition hover:bg-gray-50">
                                 Talk to Integration Team
                             </button>
                         </div>

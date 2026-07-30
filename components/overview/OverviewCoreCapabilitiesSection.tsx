@@ -24,36 +24,42 @@ const CAPABILITIES = [
     body: "Track structured signals indicating where medicines may be available, limited, uncertain, or at risk.",
     action: "Explore Intelligence",
     icon: "check",
+    href:"/searchmed"
   },
   {
     title: "Pharmacy verification workflows",
     body: "Enable authorized pharmacy confirmation pathways that strengthen availability confidence.",
     action: "View Pharmacy Network",
     icon: "pharmacy",
+    href:"/pharmacy"
   },
   {
     title: "Shortage signal awareness",
     body: "Identify emerging shortage movement and access-risk patterns before they become operational blind spots.",
     action: "View AI Insights",
     icon: "alert",
+    href:"/ai-insights"
   },
   {
     title: "Regional access analytics",
     body: "Understand medicine access patterns by city, state, region, territory, or operating market.",
     action: "View Analytics",
     icon: "pin",
+    href:"/analytics"
   },
   {
     title: "Compliance-ready reporting",
     body: "Produce structured reports for leadership, operations, governance, and stakeholder communication.",
     action: "View Reports",
     icon: "document",
+    href:"/reports"
   },
   {
     title: "Enterprise collaboration",
     body: "Support role-based workflows across healthcare, pharmacy, wholesale, distribution, and public-health teams.",
     action: "Talk to Sales",
     icon: "people",
+    href:"#"
   },
 ] as const;
 
@@ -120,7 +126,7 @@ export default function OverviewCoreCapabilitiesSection() {
                   {card.body}
                 </p>
                 <a
-                  href="#"
+                  href={card.href}
                   className="mt-4 inline-flex items-center gap-1.5 text-[12.5px] font-semibold hover:underline"
                   style={{ color: ACCENT }}
                 >

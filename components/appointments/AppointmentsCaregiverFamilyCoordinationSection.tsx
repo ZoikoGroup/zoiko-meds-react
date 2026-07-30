@@ -190,8 +190,7 @@ export default function AppointmentsCaregiverFamilyCoordinationSection() {
                 />
 
                 {/* Invite caregiver */}
-                <button
-                  type="button"
+                <div
                   className="flex w-full items-center justify-between gap-3 rounded-lg p-3 transition-colors duration-200 ease-out hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center gap-3">
@@ -217,12 +216,12 @@ export default function AppointmentsCaregiverFamilyCoordinationSection() {
                   </div>
                   <button
                     type="button"
-                    className="rounded-lg border px-3 py-1.5 text-[11.5px] font-semibold whitespace-nowrap transition-colors duration-200 ease-out hover:bg-white/[0.08]"
+                    className="rounded-lg cursor-pointer border px-3 py-1.5 text-[11.5px] font-semibold whitespace-nowrap transition-colors duration-200 ease-out hover:bg-white/[0.08]"
                     style={{ borderColor: ACCENT, color: ACCENT }}
                   >
                     Invite
                   </button>
-                </button>
+                </div>
               </div>
             </div>
           </Reveal>
