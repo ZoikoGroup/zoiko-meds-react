@@ -5,6 +5,59 @@ import { lookupAvailabilityAsync, KNOW_MEDICINES, VALID_REGIONS, extractRegion }
 
 export const dynamic = "force-dynamic";
 
+export async function GET(req: NextRequest) {
+  try {
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const rl = rateLimit(`zoikoavail:${clientIp}`, 30, 60000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { success: false, error: "rate_limit_exceeded" },
+        { status: 429, headers: getRateLimitHeaders(rl) }
+      );
+    }
+
+    const { searchParams } = new URL(req.url);
+    const rawMedicine = searchParams.get("medicine")?.trim();
+    if (!rawMedicine) {
+      return errorResponse("medicine_required", 400);
+    }
+    if (rawMedicine.length > 100) {
+      return errorResponse("medicine_invalid", 400);
+    }
+
+    const rawRegion = searchParams.get("region")?.trim();
+    if (rawRegion && rawRegion.toLowerCase() !== "any") {
+      const isExtracted = extractRegion(rawRegion);
+      if (!isExtracted && !VALID_REGIONS.includes(rawRegion.toLowerCase())) {
+        return errorResponse("region_not_supported", 400);
+      }
+    }
+
+    const result = await lookupAvailabilityAsync({ medicine: rawMedicine, region: rawRegion || undefined });
+
+    if (!result) {
+      return errorResponse("medicine_not_found", 404, {
+        supported: KNOW_MEDICINES.slice(0, 10),
+        hint: `Medicine "${rawMedicine}" not found in ZoikoAvail\u2122 database`,
+      });
+    }
+
+    const res = successResponse({
+      ...result,
+      webhookSupported: true,
+      liveSignalIntegrated: true,
+    });
+    const rlHeaders = getRateLimitHeaders(rl);
+    for (const [k, v] of Object.entries(rlHeaders)) {
+      res.headers.set(k, v);
+    }
+    return res;
+  } catch (err) {
+    console.error("[ZoikoAvail GET] Internal error:", err);
+    return errorResponse("internal_error", 500);
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -50,14 +103,18 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const res = successResponse(result);
+    const res = successResponse({
+      ...result,
+      webhookSupported: true,
+      liveSignalIntegrated: true,
+    });
     const rlHeaders = getRateLimitHeaders(rl);
     for (const [k, v] of Object.entries(rlHeaders)) {
       res.headers.set(k, v);
     }
     return res;
   } catch (err) {
-    console.error("[ZoikoAvail] Internal error:", err);
+    console.error("[ZoikoAvail POST] Internal error:", err);
     return errorResponse("internal_error", 500);
   }
 }

@@ -105,6 +105,16 @@ export type PanelView = "closed" | "minimized" | "open";
 
 export type ZoiError = "offline" | "api-degraded" | null;
 
+export type ViewMode = "chat" | "history";
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  createdAt: number;
+  messages: Message[];
+  persona: Persona | null;
+}
+
 export const CONFIDENCE_COLORS: Record<ConfidenceTier, string> = {
   high: "#008882",
   moderate: "#B45309",

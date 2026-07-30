@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useReducer, useCallback, useEffect, type ReactNode } from "react";
-import type { Message, Persona, PanelView, ZoiPageContext, ZoiError } from "./types";
+import type { Message, Persona, PanelView, ZoiPageContext, ZoiError, ViewMode, ChatSession } from "./types";
 import { PAGE_CONFIGS } from "./types";
 import { GREETING_MESSAGE, generatePersonaResponse, submitEscalationApi, resetLowConfidenceCount } from "./mockAiService";
 import { trackEvent, initTelemetry } from "./telemetry";
@@ -25,6 +25,9 @@ interface ZoiState {
   escalationContact: string | null;
   error: ZoiError;
   auditTrail: AuditEntry[];
+  viewMode: ViewMode;
+  savedSessions: ChatSession[];
+  activeSessionId: string;
 }
 
 type ZoiAction =
@@ -41,7 +44,11 @@ type ZoiAction =
   | { type: "TOGGLE_PANEL" }
   | { type: "RESET_SESSION" }
   | { type: "HYDRATE_SESSION"; messages: Message[]; persona: Persona | null; personaSet: boolean }
-  | { type: "ADD_AUDIT_ENTRY"; entry: AuditEntry };
+  | { type: "ADD_AUDIT_ENTRY"; entry: AuditEntry }
+  | { type: "SET_VIEW_MODE"; mode: ViewMode }
+  | { type: "SET_SAVED_SESSIONS"; sessions: ChatSession[] }
+  | { type: "SET_ACTIVE_SESSION_ID"; id: string }
+  | { type: "LOAD_SESSION"; session: ChatSession };
 
 function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
   switch (action.type) {
@@ -76,6 +83,8 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
       }
       return {
         ...initialState,
+        panelView: state.panelView,
+        savedSessions: state.savedSessions,
         pageContext: state.pageContext,
         messages: state.messages.length === 0 ? [] : [GREETING_MESSAGE],
       };
@@ -97,6 +106,20 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
     }
     case "ADD_AUDIT_ENTRY":
       return { ...state, auditTrail: [...state.auditTrail, action.entry] };
+    case "SET_VIEW_MODE":
+      return { ...state, viewMode: action.mode };
+    case "SET_SAVED_SESSIONS":
+      return { ...state, savedSessions: action.sessions };
+    case "SET_ACTIVE_SESSION_ID":
+      return { ...state, activeSessionId: action.id };
+    case "LOAD_SESSION":
+      return {
+        ...state,
+        messages: action.session.messages,
+        persona: action.session.persona,
+        activeSessionId: action.session.id,
+        viewMode: "chat",
+      };
     default:
       return state;
   }
@@ -115,6 +138,9 @@ const initialState: ZoiState = {
   escalationContact: null,
   error: null,
   auditTrail: [],
+  viewMode: "chat",
+  savedSessions: [],
+  activeSessionId: "session-init",
 };
 
 interface ZoiContextValue {
@@ -130,6 +156,11 @@ interface ZoiContextValue {
   submitEscalation: (contact: string, issueMessage?: string) => void;
   setError: (error: ZoiError) => void;
   clearError: () => void;
+  startNewConversation: () => void;
+  toggleHistoryView: (show?: boolean) => void;
+  loadSession: (sessionId: string) => void;
+  deleteSession: (sessionId: string) => void;
+  clearAllHistory: () => void;
 }
 
 const ZoiContext = createContext<ZoiContextValue | null>(null);
@@ -548,6 +579,75 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
     } });
   }, [state.consentGiven, state.persona, state.messages.length]);
 
+  // Load saved history from localStorage on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const historyStr = localStorage.getItem("zoi_chat_history");
+      if (historyStr) {
+        const parsed = JSON.parse(historyStr);
+        if (Array.isArray(parsed)) {
+          dispatch({ type: "SET_SAVED_SESSIONS", sessions: parsed });
+        }
+      }
+    } catch {}
+  }, []);
+
+  const startNewConversation = useCallback(() => {
+    const userMsgs = state.messages.filter((m) => m.role === "user");
+    if (userMsgs.length > 0) {
+      const firstQuery = userMsgs[0]?.content ?? "Medicine inquiry";
+      const title = firstQuery.length > 35 ? firstQuery.substring(0, 35) + "..." : firstQuery;
+      const currentSession: ChatSession = {
+        id: state.activeSessionId || crypto.randomUUID(),
+        title,
+        createdAt: Date.now(),
+        messages: state.messages,
+        persona: state.persona,
+      };
+
+      const updated = [currentSession, ...state.savedSessions.filter((s) => s.id !== currentSession.id)];
+      dispatch({ type: "SET_SAVED_SESSIONS", sessions: updated });
+      try {
+        localStorage.setItem("zoi_chat_history", JSON.stringify(updated));
+      } catch {}
+    }
+
+    const newId = crypto.randomUUID();
+    dispatch({ type: "SET_ACTIVE_SESSION_ID", id: newId });
+    dispatch({ type: "RESET_SESSION" });
+    dispatch({ type: "SET_VIEW_MODE", mode: "chat" });
+  }, [state.messages, state.persona, state.activeSessionId, state.savedSessions]);
+
+  const toggleHistoryView = useCallback((show?: boolean) => {
+    dispatch({
+      type: "SET_VIEW_MODE",
+      mode: show !== undefined ? (show ? "history" : "chat") : state.viewMode === "chat" ? "history" : "chat",
+    });
+  }, [state.viewMode]);
+
+  const loadSession = useCallback((sessionId: string) => {
+    const found = state.savedSessions.find((s) => s.id === sessionId);
+    if (found) {
+      dispatch({ type: "LOAD_SESSION", session: found });
+    }
+  }, [state.savedSessions]);
+
+  const deleteSession = useCallback((sessionId: string) => {
+    const updated = state.savedSessions.filter((s) => s.id !== sessionId);
+    dispatch({ type: "SET_SAVED_SESSIONS", sessions: updated });
+    try {
+      localStorage.setItem("zoi_chat_history", JSON.stringify(updated));
+    } catch {}
+  }, [state.savedSessions]);
+
+  const clearAllHistory = useCallback(() => {
+    dispatch({ type: "SET_SAVED_SESSIONS", sessions: [] });
+    try {
+      localStorage.removeItem("zoi_chat_history");
+    } catch {}
+  }, []);
+
   return (
     <ZoiContext.Provider
       value={{
@@ -563,6 +663,11 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
         submitEscalation,
         setError,
         clearError,
+        startNewConversation,
+        toggleHistoryView,
+        loadSession,
+        deleteSession,
+        clearAllHistory,
       }}
     >
       {children}
