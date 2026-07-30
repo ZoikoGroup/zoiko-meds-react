@@ -12,12 +12,51 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
           script_stop: true
           command_timeout: 15m
           script: |
             cd /var/www/zoikomeds
             git fetch origin main
             git reset --hard origin/main
+            cat << EOF > .env
+            SMTP_HOST=$SMTP_HOST
+            SMTP_PORT=$SMTP_PORT
+            SMTP_USE_SSL=$SMTP_USE_SSL
+            SMTP_USER=$SMTP_USER
+            SMTP_PASSWORD=$SMTP_PASSWORD
+            SUPPORT_EMAIL=$SUPPORT_EMAIL
+            NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+            NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+            GROQ_API_KEY=$GROQ_API_KEY
+            GROQ_MODEL=$GROQ_MODEL
+            LIVE_INVENTORY_API_URL=$LIVE_INVENTORY_API_URL
+            LIVE_INVENTORY_API_KEY=$LIVE_INVENTORY_API_KEY
+            LIVE_INVENTORY_TIMEOUT_MS=$LIVE_INVENTORY_TIMEOUT_MS
+            DISABLE_LOCAL_FALLBACK=$DISABLE_LOCAL_FALLBACK
+            STRICT_LIVE_INVENTORY_ONLY=$STRICT_LIVE_INVENTORY_ONLY
+            GOOGLE_PLACES_API_KEY=$GOOGLE_PLACES_API_KEY
+            EOF
             npm install
             npm run build
             pm2 restart zoikomeds
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USE_SSL: ${{ secrets.SMTP_USE_SSL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SUPPORT_EMAIL: ${{ secrets.SUPPORT_EMAIL }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'llama-3.3-70b-versatile' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://zoiko-meds-platform.onrender.com/api' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://zoiko-meds-platform.vercel.app' }}
+          LIVE_INVENTORY_API_URL: ${{ secrets.LIVE_INVENTORY_API_URL || 'https://api.zoikomeds.com/v1/live-inventory' }}
+          LIVE_INVENTORY_API_KEY: ${{ secrets.LIVE_INVENTORY_API_KEY }}
+          LIVE_INVENTORY_TIMEOUT_MS: ${{ secrets.LIVE_INVENTORY_TIMEOUT_MS || '3000' }}
+          DISABLE_LOCAL_FALLBACK: ${{ secrets.DISABLE_LOCAL_FALLBACK || 'false' }}
+          STRICT_LIVE_INVENTORY_ONLY: ${{ secrets.STRICT_LIVE_INVENTORY_ONLY || 'true' }}
+          # Without this, lib/geocoding.ts silently falls back to Nominatim,
+          # which rate-limits requests from cloud IPs. Add the repo secret.
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+

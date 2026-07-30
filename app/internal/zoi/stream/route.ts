@@ -181,7 +181,7 @@ async function getResponsePlan(query: string, persona: string, classification: C
 
     if (!region) {
       return {
-        text: `I found ${displayName} in our system. Which location or city should I check availability for? (e.g. London, New York, Chicago)`,
+        text: `I found ${displayName} in our system. Which location or city should I check availability for?`,
         chips: ["check_availability", "escalate"],
       };
     }
@@ -264,8 +264,6 @@ function scoreForSource(query: string, doc: { id: string; title: string }): numb
   }
   return score;
 }
-
-const DRUG_SUFFIX_PATTERN = /\b\w+(?:ine|am|ol|ate|ide|ium|pam|zep|barb|caine|vir|mab|zole|zone|pam|tan|cet|dip|pram|lol|pine|xide|pril|sart|vastatin|oxacin|mycin|cillin|conazole)\b/i;
 
 const VALID_PERSONAS = ["patient", "pharmacy", "enterprise", "wholesale", "other"];
 
@@ -619,7 +617,7 @@ export async function POST(req: NextRequest) {
       });
     } else if (foundMedicine) {
       const medName = foundMedicine.toUpperCase();
-      const promptText = `I can set an alert for ${medName}. Which location or city should I monitor? (e.g. London, New York, Chicago)`;
+      const promptText = `I can set an alert for ${medName}. Which location or city should I monitor?`;
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {

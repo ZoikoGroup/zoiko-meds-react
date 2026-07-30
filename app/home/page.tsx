@@ -13,7 +13,7 @@ HomeGlobalExpansionSection
 
 } from "@/components/home";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "ZoikoMeds | Global Medicine Availability Platform",
   description:
     "ZoikoMeds helps users search medicines, check availability signals, and connect with verified pharmacy networks through a secure global platform.",

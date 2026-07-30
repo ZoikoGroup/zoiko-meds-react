@@ -158,35 +158,6 @@ export default function ZoiViewport() {
                     )}
                     <MessageText content={msg.content} />
 
-                    {msg.citations && msg.citations.length > 0 && (
-                      <div style={{ marginTop: "10px", padding: "10px 12px", background: "#FFFFFF", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                        <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#475569", marginBottom: "6px" }}>
-                          Verified Sources & Citations
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          {msg.citations.map((cit) => (
-                            <a
-                              key={cit.id}
-                              href={cit.url || "#"}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ fontSize: "12px", color: "#008882", textDecoration: "none", fontWeight: 500, display: "flex", alignItems: "center", gap: "6px" }}
-                            >
-                              <span style={{ fontSize: "10px", padding: "2px 6px", background: "#E0F2FE", color: "#0369A1", borderRadius: "4px", fontWeight: 700 }}>
-                                {cit.authorityLevel}
-                              </span>
-                              <span>{cit.title}</span>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                <polyline points="15 3 21 3 21 9"></polyline>
-                                <line x1="10" y1="14" x2="21" y2="3"></line>
-                              </svg>
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     {msg.role === "assistant" && msg.availabilityCard && (() => {
                       const validated = safeCardPayload(msg.availabilityCard);
                       return validated ? (

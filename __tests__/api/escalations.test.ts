@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { NextRequest } from "next/server";
-import { POST } from "@/app/api/escalations/route";
+import { POST } from "@/app/internal/escalations/route";
 
 let callIndex = 0;
 
@@ -17,7 +17,7 @@ async function postEscalation(body: unknown) {
   return POST(req);
 }
 
-describe("/api/escalations", () => {
+describe("/internal/escalations", () => {
   it("returns 400 when contact is missing", async () => {
     const res = await postEscalation({});
     expect(res.status).toBe(400);

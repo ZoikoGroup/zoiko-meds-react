@@ -2,6 +2,7 @@ import type { Message, Chip, Persona, AvailabilityPayload, CardState } from "./t
 import { searchContent } from "@/lib/site-content";
 import { lookupAvailability, findMedicineInQuery, extractRegion } from "@/lib/availability";
 import { isDrugLikeTerm } from "@/lib/medibase";
+import { internalApi } from "@/lib/config";
 
 export type StreamCallback = (chunk: string) => void;
 
@@ -106,8 +107,8 @@ function generateFallbackPlan(query: string, _persona: Persona, messages: Messag
     }
   } else if (foundMed) {
     return {
-      text: `I found ${foundMed.toUpperCase()} in our signal network. Which location or city should I check availability for? (e.g. London, New York, Nairobi, Chicago)`,
-      chips: [{ label: "Nairobi", action: "location_nairobi" }, { label: "London", action: "location_london" }, { label: "New York", action: "location_newyork" }],
+      text: `I found ${foundMed.toUpperCase()} in our signal network. Which location or city should I check availability for?`,
+      chips: [{ label: "Talk to team", action: "escalate" }],
     };
   }
 
@@ -163,7 +164,7 @@ export async function streamResponse(
   }
 
   try {
-    const endpoint = typeof window !== "undefined" ? "/api/zoi/stream" : `${SELF_URL}/api/zoi/stream`;
+    const endpoint = typeof window !== "undefined" ? internalApi("zoi/stream") : `${SELF_URL}${internalApi("zoi/stream")}`;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -184,6 +185,7 @@ export async function streamResponse(
 
     const decoder = new TextDecoder();
     let buffer = "";
+    let accumulatedContent = "";
 
     while (true) {
       const { done, value } = await reader.read();
@@ -199,6 +201,7 @@ export async function streamResponse(
         try {
           const data = JSON.parse(trimmed.slice(6));
           if (data.type === "token") {
+            accumulatedContent += data.content;
             onChunk(data.content);
           } else if (data.type === "done") {
             const chips: Chip[] = [];
@@ -217,10 +220,14 @@ export async function streamResponse(
               }
             }
 
+            const finalContent = (data.text && typeof data.text === "string" && data.text.trim().length > 0)
+              ? data.text
+              : accumulatedContent;
+
             const completeMsg: Message = {
               id: crypto.randomUUID(),
               role: "assistant",
-              content: data.text ?? "",
+              content: finalContent,
               timestamp: Date.now(),
             };
 
@@ -296,7 +303,7 @@ export async function fetchAvailability(
   region: string
 ): Promise<{ card: AvailabilityPayload & { pharmacies?: { id: number; name: string; address: string; city: string; phone?: string }[] }; stockingPharmacies: number } | null> {
   try {
-    const endpoint = typeof window !== "undefined" ? "/api/zoikoavail" : `${SELF_URL}/api/zoikoavail`;
+    const endpoint = typeof window !== "undefined" ? internalApi("zoikoavail") : `${SELF_URL}${internalApi("zoikoavail")}`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -363,7 +370,7 @@ export async function submitEscalationApi(
   issueMessage?: string
 ): Promise<string | null> {
   try {
-    const endpoint = typeof window !== "undefined" ? "/api/escalations" : `${SELF_URL}/api/escalations`;
+    const endpoint = typeof window !== "undefined" ? internalApi("escalations") : `${SELF_URL}${internalApi("escalations")}`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
