@@ -105,14 +105,21 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
 
     setStatus("submitting");
     try {
-      // TODO: replace with the real ZoikoSignal briefing endpoint, e.g.
-      // const res = await fetch("/api/zoiko-signal/briefing", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Submission failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `ZoikoSignal Intelligence Briefing (${form.organizationType || "General"})`,
+          fullName: form.fullName,
+          workEmail: form.email,
+          organization: form.organizationName,
+          note: `Primary Interest: ${form.primaryInterest}\nNote: ${form.note}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Submission failed");
+
       setStatus("success");
       setForm({
         email: "",

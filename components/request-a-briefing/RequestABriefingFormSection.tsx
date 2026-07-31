@@ -54,6 +54,22 @@ export default function RequestABriefingFormSection() {
   const [mounted, setMounted] = useState(false);
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [form, setForm] = useState({
+    fullName: "",
+    workEmail: "",
+    phone: "",
+    organization: "",
+    role: "",
+    orgType: "",
+    country: "",
+    objective: "",
+    format: "",
+    timeZone: "",
+  });
+
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,12 +88,59 @@ export default function RequestABriefingFormSection() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!consent) return;
+    if (!consent || submitting) return;
+
     setSubmitting(true);
-    // Wire up actual submission handler here.
-    setTimeout(() => setSubmitting(false), 1200);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Executive Briefing (${form.orgType || "General"})`,
+          fullName: form.fullName,
+          workEmail: form.workEmail,
+          organization: form.organization,
+          jobTitle: form.role,
+          phone: form.phone,
+          note: `Objective: ${form.objective}\nCountry: ${form.country}\nFormat: ${form.format}\nTimezone: ${form.timeZone}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to submit briefing request.");
+      }
+
+      setStatus("success");
+      setForm({
+        fullName: "",
+        workEmail: "",
+        phone: "",
+        organization: "",
+        role: "",
+        orgType: "",
+        country: "",
+        objective: "",
+        format: "",
+        timeZone: "",
+      });
+      setConsent(false);
+    } catch (err: unknown) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Submission failed.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -120,10 +183,25 @@ export default function RequestABriefingFormSection() {
               className="rounded-2xl border bg-white p-6 sm:p-8"
               style={{ borderColor: "#E7EAF1", boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)" }}
             >
+              {status === "success" && (
+                <div className="mb-6 rounded-xl border border-[#b2dfc8] bg-[#f7fdf9] p-4 text-sm text-[#0f7a53]">
+                  <strong className="font-bold">Request Submitted!</strong> Your briefing request has been received and sent to our executive team. We will contact you via email shortly.
+                </div>
+              )}
+
+              {status === "error" && (
+                <div className="mb-6 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#b42318]">
+                  <strong className="font-bold">Submission Error:</strong> {errorMessage || "Something went wrong. Please try again."}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Field label="Full name" required>
                   <input
                     type="text"
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={handleChange}
                     required
                     className="briefing-input"
                   />
@@ -132,6 +210,9 @@ export default function RequestABriefingFormSection() {
                 <Field label="Work email" required>
                   <input
                     type="email"
+                    name="workEmail"
+                    value={form.workEmail}
+                    onChange={handleChange}
                     required
                     placeholder="name@organization.org"
                     className="briefing-input"
@@ -139,20 +220,20 @@ export default function RequestABriefingFormSection() {
                 </Field>
 
                 <Field label="Phone" optional>
-                  <input type="tel" className="briefing-input" />
+                  <input type="tel" name="phone" value={form.phone} onChange={handleChange} className="briefing-input" />
                 </Field>
 
                 <Field label="Organization" required>
-                  <input type="text" required className="briefing-input" />
+                  <input type="text" name="organization" value={form.organization} onChange={handleChange} required className="briefing-input" />
                 </Field>
 
                 <Field label="Role / title" required>
-                  <input type="text" required className="briefing-input" />
+                  <input type="text" name="role" value={form.role} onChange={handleChange} required className="briefing-input" />
                 </Field>
 
                 <Field label="Organization type" required>
                   <div className="relative">
-                    <select required defaultValue="" className="briefing-input appearance-none pr-9">
+                    <select required name="orgType" value={form.orgType} onChange={handleChange} className="briefing-input appearance-none pr-9">
                       <option value="" disabled>
                         Select type
                       </option>
@@ -171,6 +252,9 @@ export default function RequestABriefingFormSection() {
                 <Field label="Country / region of interest" required>
                   <input
                     type="text"
+                    name="country"
+                    value={form.country}
+                    onChange={handleChange}
                     required
                     placeholder="e.g. US, UK, EU, national, regional"
                     className="briefing-input"
@@ -182,6 +266,9 @@ export default function RequestABriefingFormSection() {
                 <Field label="Primary objective" required>
                   <textarea
                     required
+                    name="objective"
+                    value={form.objective}
+                    onChange={handleChange}
                     rows={4}
                     placeholder="e.g. Evaluate regional availability signals for planning; explore pharmacy network participation; review shortage reporting for public health."
                     className="briefing-input resize-none"
@@ -192,7 +279,7 @@ export default function RequestABriefingFormSection() {
               <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Field label="Preferred format" optional>
                   <div className="relative">
-                    <select defaultValue="" className="briefing-input appearance-none pr-9">
+                    <select name="format" value={form.format} onChange={handleChange} className="briefing-input appearance-none pr-9">
                       <option value="" disabled>
                         Select format
                       </option>
@@ -208,7 +295,7 @@ export default function RequestABriefingFormSection() {
 
                 <Field label="Preferred time zone" optional>
                   <div className="relative">
-                    <select defaultValue="" className="briefing-input appearance-none pr-9">
+                    <select name="timeZone" value={form.timeZone} onChange={handleChange} className="briefing-input appearance-none pr-9">
                       <option value="" disabled>
                         Select time zone
                       </option>

@@ -113,11 +113,40 @@ export default function ClinicNetworksRequestBriefingSection() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (validateForm()) {
-      console.log("Form submitted:", formData);
-      // Handle form submission
+      setSubmitting(true);
+      try {
+        const res = await fetch("/api/briefing-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Clinic Networks Briefing (${formData.clinicNetworkSize || "Network"})`,
+            fullName: formData.fullName,
+            workEmail: formData.workEmail,
+            organization: formData.organizationName,
+            jobTitle: formData.jobTitle,
+            phone: formData.phoneNumber,
+            note: `Network Size: ${formData.clinicNetworkSize}\nRegion: ${formData.regionCountry}\nInterests: ${formData.primaryInterest.join(", ")}\nMessage: ${formData.message}`,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setSubmitted(true);
+        } else {
+          setErrors({ form: data.message || "Failed to submit briefing request." });
+        }
+      } catch {
+        setErrors({ form: "An error occurred while connecting to server." });
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 

@@ -107,14 +107,23 @@ export default function ContactFormSection() {
 
     setStatus("submitting");
     try {
-      // TODO: replace with the real contact-routing endpoint, e.g.
-      // const res = await fetch("/api/contact/route", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Submission failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: form.fullName,
+          email: form.email,
+          subject: form.contactReason,
+          organization: form.organizationName,
+          message: form.message,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Submission failed");
+      }
+
       setStatus("success");
       setForm({
         email: "",

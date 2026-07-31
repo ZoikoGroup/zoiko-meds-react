@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
 
 /**
  * JoinNetworkPathFormSection
@@ -402,7 +403,7 @@ function JoinForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/verified-network/register", {
+      const response = await fetch(internalApi("verified-network/register"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

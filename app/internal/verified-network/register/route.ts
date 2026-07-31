@@ -6,9 +6,21 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, message: "Invalid JSON payload in request body." },
+        { status: 400 }
+      );
+    }
 
-    const { workEmail, fullName, orgName, pharmacyType, note } = body || {};
+    const workEmail = String(body.workEmail || "").trim();
+    const fullName = String(body.fullName || "").trim();
+    const orgName = String(body.orgName || "").trim();
+    const pharmacyType = String(body.pharmacyType || "").trim();
+    const note = String(body.note || "").trim();
 
     // 1. Input Validation
     const errors: Record<string, string> = {};
