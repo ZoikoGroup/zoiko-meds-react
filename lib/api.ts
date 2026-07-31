@@ -188,3 +188,28 @@ export function getAvailability(medicineId: string): Promise<AvailabilityEntry[]
 export function listPharmacies(): Promise<PharmacyListItem[]> {
   return apiFetch<PharmacyListItem[]>("pharmacies");
 }
+
+/* ───────────────────── Password recovery endpoints ─────────────────────
+ * Unauthenticated by design: the emailed token is the only credential, so
+ * these two work here without any session handling. Everything else behind a
+ * login lives in the authenticated app (see APP_BASE_URL in lib/config).
+ */
+
+/** POST /auth/forgot-password — email a reset link. Always 200, even for an unknown address. */
+export function requestPasswordReset(email: string): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>("auth/forgot-password", {
+    method: "POST",
+    body: { email },
+  });
+}
+
+/** POST /auth/reset-password — set a new password using an emailed reset/invite token. */
+export function resetPassword(
+  token: string,
+  newPassword: string,
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>("auth/reset-password", {
+    method: "POST",
+    body: { token, newPassword },
+  });
+}
