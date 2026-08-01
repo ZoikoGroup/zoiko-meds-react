@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function SearchHero() {
   const [medicine, setMedicine] = useState("");
   const [location, setLocation] = useState("");
-  const [radius, setRadius] = useState("10 mi");
+  const [radius, setRadius] = useState("10 km");
   const router = useRouter();
 
   return (
@@ -86,11 +86,11 @@ export default function SearchHero() {
                 Search radius
               </span>
               <div className="flex gap-2">
-                {["5 mi", "10 mi", "25 mi", "50 mi"].map((r) => (
+                {["5 km", "10 km", "25 km", "50 km"].map((r) => (
                   <button
                     key={r}
                     onClick={() => setRadius(r)}
-                    className={`min-h-[40px] w-[66px] px-3.5 py-1.5 bg-[#FBFCFE] rounded-[9px] text-[13px] border transition-colors ${
+                    className={`min-h-[40px] w-[70px] px-3.5 py-1.5 bg-[#FBFCFE] rounded-[9px] text-[12px] border transition-colors ${
                       radius === r
                         ? "border-[#13A594] bg-[#13A5941A] border-2 text-[#0F8B7D] font-semibold"
                         : "border-[#D1D5E0] text-[#3A4A5C]"
