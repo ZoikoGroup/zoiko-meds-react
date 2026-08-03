@@ -168,8 +168,32 @@ function PharmacyCard({ p, origin }: { p: Pharmacy; origin?: { lat?: number; lng
   );
 }
 
-function ResultsBlock({ outcome, loading, origin }: {
+/** Dismisses the whole result set — both medicine matches and pharmacies. */
+function ClearResultsButton({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex justify-end">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Clear search results"
+        className="flex items-center gap-1.5 text-xs font-semibold text-[#6b7280] rounded-full px-2.5 py-1
+          transition-colors duration-200 cursor-pointer bg-transparent border-0
+          hover:text-[#b42318] hover:bg-[#fef2f2]
+          focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0D9A72]"
+      >
+        Clear results
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+function ResultsBlock({ outcome, loading, origin, onClose }: {
   outcome: SearchOutcome | null; loading: boolean; origin?: { lat?: number; lng?: number };
+  /** When provided, renders a control that clears the whole result set. */
+  onClose?: () => void;
 }) {
   if (loading) return (
     <div className="flex items-center gap-2.5 justify-center py-6 text-sm text-[#6b7280]">
@@ -180,13 +204,17 @@ function ResultsBlock({ outcome, loading, origin }: {
   const { medicines, pharmacies } = outcome;
   if (medicines.length === 0 && pharmacies.length === 0) {
     return (
-      <div className="text-center py-6 text-sm text-[#6b7280] mt-4">
-        No matches found. Try a different medicine name, location, or a larger distance.
+      <div className="mt-4">
+        {onClose && <ClearResultsButton onClose={onClose} />}
+        <div className="text-center py-6 text-sm text-[#6b7280]">
+          No matches found. Try a different medicine name, location, or a larger distance.
+        </div>
       </div>
     );
   }
   return (
     <div className="mt-4 space-y-5">
+      {onClose && <ClearResultsButton onClose={onClose} />}
       {medicines.length > 0 && (
         <div>
           <div className="flex items-center gap-2 flex-wrap mb-3 font-bold text-sm text-[#111827]">
@@ -450,6 +478,14 @@ export default function MedicineSearchWidget() {
     if (lastLat && lastLng && lastMedicine) handleSearch(val);
   }, [lastLat, lastLng, lastMedicine, handleSearch]);
 
+  /* dismiss results — also drops the last-search tracking so a later radius
+     change doesn't silently re-run the search and bring the list back. The
+     medicine and location inputs are left alone so the search can be repeated. */
+  const handleClearResults = useCallback(() => {
+    setResults(null);
+    setLastMedicine(""); setLastLat(undefined); setLastLng(undefined);
+  }, []);
+
   /* ─── Tab 2: file handling ─── */
   const handleFile = (file: File) => {
     setScanFile(file); setScannedMeds([]); setSelectedMeds(new Set()); setScanResults({});
@@ -669,7 +705,12 @@ export default function MedicineSearchWidget() {
 
           {/* Results */}
           {(searching || results !== null) && (
-            <ResultsBlock outcome={results} loading={searching} origin={{ lat: lastLat, lng: lastLng }} />
+            <ResultsBlock
+              outcome={results}
+              loading={searching}
+              origin={{ lat: lastLat, lng: lastLng }}
+              onClose={handleClearResults}
+            />
           )}
         </div>
       )}
