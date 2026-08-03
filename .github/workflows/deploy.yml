@@ -5,10 +5,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Lets the run's GITHUB_TOKEN read this private repo, so the server does not
-    # need its own stored credential to fetch (see the credential.helper below).
-    permissions:
-      contents: read
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -16,22 +12,12 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY,GH_DEPLOY_TOKEN
+          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
           script_stop: true
           command_timeout: 15m
           script: |
             cd /var/www/zoikomeds
-            # This repo is private. Rather than relying on a credential stored on
-            # the server (an expired PAT there is what broke deploys), supply the
-            # run's own short-lived token for this fetch only. -c keeps it out of
-            # .git/config, and the helper is single-quoted so the token is read
-            # from the environment at fetch time and never appears in argv.
-            # The first `credential.helper=` is empty on purpose: it clears any
-            # helper already configured on the server. Without it git would use
-            # that stale helper's expired PAT and never consult ours.
-            git -c credential.helper= \
-                -c credential.helper='!f() { echo username=x-access-token; echo "password=$GH_DEPLOY_TOKEN"; }; f' \
-                fetch origin main
+            git fetch origin main
             git reset --hard origin/main
             cat << EOF > .env
             SMTP_HOST=$SMTP_HOST
@@ -73,6 +59,4 @@ jobs:
           # Without this, lib/geocoding.ts silently falls back to Nominatim,
           # which rate-limits requests from cloud IPs. Add the repo secret.
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
-          # Auto-provided by Actions; valid only for the duration of this run.
-          GH_DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
