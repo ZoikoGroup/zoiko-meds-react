@@ -46,12 +46,21 @@ function YoutubeIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function PinterestIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.63 7.86 6.35 9.33-.09-.79-.17-2.01.04-2.88.19-.79 1.22-5.03 1.22-5.03s-.31-.62-.31-1.54c0-1.44.84-2.52 1.87-2.52.88 0 1.31.66 1.31 1.45 0 .88-.56 2.2-.85 3.42-.24 1.02.51 1.86 1.52 1.86 1.82 0 3.05-2.34 3.05-5.11 0-2.11-1.42-3.68-4-3.68-2.92 0-4.74 2.18-4.74 4.61 0 .84.25 1.43.63 1.89.18.21.2.3.14.54-.05.18-.16.63-.2.8-.07.26-.27.35-.5.25-1.39-.57-2.04-2.09-2.04-3.8 0-2.83 2.38-6.22 7.11-6.22 3.8 0 6.3 2.75 6.3 5.7 0 3.9-2.17 6.82-5.37 6.82-1.07 0-2.09-.58-2.43-1.24 0 0-.58 2.28-.7 2.72-.21.77-.63 1.54-1.01 2.15A10 10 0 1 0 12 2Z" />
+    </svg>
+  );
+}
+
 const socialLinks = [
   { label: "Facebook", href: "https://www.facebook.com/zoikomeds/", icon: FacebookIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/zoiko-meds/", icon: LinkedinIcon },
-  { label: "Instagram", href: "#", icon: InstagramIcon },
-  { label: "Twitter", href: "#", icon: TwitterXIcon },
-  { label: "YouTube", href: "#", icon: YoutubeIcon },
+  { label: "Instagram", href: "https://www.instagram.com/zoikomeds/", icon: InstagramIcon },
+  { label: "Twitter", href: "https://x.com/ZoikoMeds", icon: TwitterXIcon },
+  { label: "YouTube", href: "https://www.youtube.com/@ZoikoMeds", icon: YoutubeIcon },
+  { label: "Pinterest", href: "https://www.pinterest.com/zoikomeds/", icon: PinterestIcon },
 ];
 
 const platformLinks = [
