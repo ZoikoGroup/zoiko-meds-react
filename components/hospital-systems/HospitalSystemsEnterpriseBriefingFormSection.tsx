@@ -64,6 +64,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
     phone: "",
     organization: "",
     jobTitle: "",
+    organizationType: "",
     systemSize: "",
     region: "",
     timeline: "",
@@ -97,6 +98,14 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!agreed || submitting) return;
@@ -110,19 +119,25 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          briefingType: `Hospital Systems Briefing (${form.systemSize || "Health System"})`,
+          briefingType: `Hospital Systems Briefing (${form.organizationType || form.systemSize || "Health System"})`,
           fullName: form.fullName,
           workEmail: form.workEmail,
           organization: form.organization,
           jobTitle: form.jobTitle,
           phone: form.phone,
-          note: `Region: ${form.region}\nTimeline: ${form.timeline}\nInterests: ${interestAreas.join(", ")}\nNote: ${form.note}`,
+          note: `Organization Type: ${form.organizationType}\nFacilities: ${form.systemSize}\nRegion: ${form.region}\nInterests: ${interestAreas.join(", ")}\nNote: ${form.note}`,
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON responses
+      }
+
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to submit briefing request.");
+        throw new Error(data.message || `Submission failed (${res.status})`);
       }
 
       setStatus("success");
@@ -132,6 +147,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
         phone: "",
         organization: "",
         jobTitle: "",
+        organizationType: "",
         systemSize: "",
         region: "",
         timeline: "",
@@ -196,6 +212,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <Field label="Full name" required>
                   <input
                     type="text"
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={handleChange}
                     required
                     className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
                     style={{ borderColor: "#D8DDE8" }}
@@ -205,6 +224,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <Field label="Work email" required>
                   <input
                     type="email"
+                    name="workEmail"
+                    value={form.workEmail}
+                    onChange={handleChange}
                     required
                     placeholder="name@healthsystem.org"
                     className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
@@ -215,6 +237,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <Field label="Phone number" optional>
                   <input
                     type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
                     className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
                     style={{ borderColor: "#D8DDE8" }}
                   />
@@ -223,6 +248,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <Field label="Organization / health system" required>
                   <input
                     type="text"
+                    name="organization"
+                    value={form.organization}
+                    onChange={handleChange}
                     required
                     className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
                     style={{ borderColor: "#D8DDE8" }}
@@ -232,6 +260,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <Field label="Job title" required>
                   <input
                     type="text"
+                    name="jobTitle"
+                    value={form.jobTitle}
+                    onChange={handleChange}
                     required
                     className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
                     style={{ borderColor: "#D8DDE8" }}
@@ -240,8 +271,10 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
 
                 <Field label="Organization type" required>
                   <select
+                    name="organizationType"
+                    value={form.organizationType}
+                    onChange={handleChange}
                     required
-                    defaultValue=""
                     className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
                     style={{ borderColor: "#D8DDE8" }}
                   >
@@ -258,8 +291,10 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
 
                 <Field label="Number of facilities" required>
                   <select
+                    name="systemSize"
+                    value={form.systemSize}
+                    onChange={handleChange}
                     required
-                    defaultValue=""
                     className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
                     style={{ borderColor: "#D8DDE8" }}
                   >
@@ -277,6 +312,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <Field label="Region / market" required>
                   <input
                     type="text"
+                    name="region"
+                    value={form.region}
+                    onChange={handleChange}
                     required
                     placeholder="e.g. US Northeast, national"
                     className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
@@ -316,6 +354,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
               <div className="mt-5">
                 <Field label="Message" optional>
                   <textarea
+                    name="note"
+                    value={form.note}
+                    onChange={handleChange}
                     rows={3}
                     placeholder="Tell us about your deployment scope and objectives (no PHI, prescriptions, or exact stock)."
                     className="w-full resize-none rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
@@ -347,11 +388,21 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ backgroundColor: ACCENT }}
-                  disabled={!agreed}
+                  disabled={!agreed || submitting}
                 >
-                  Request Enterprise Briefing
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Request Enterprise Briefing"
+                  )}
                 </button>
                 <Link
                   href="/contact"
@@ -368,6 +419,30 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 security needs. Not medical advice, dispensing, or a pharmacy service — don&apos;t
                 include PHI, prescriptions, or exact stock.
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error message */}
+              {status === "error" && (
+                <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
             </form>
           </Reveal>
 

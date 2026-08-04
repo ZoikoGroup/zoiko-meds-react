@@ -55,10 +55,29 @@ export default function OverviewBookDemoSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const [form, setForm] = useState({
+    fullName: "",
+    workEmail: "",
+    phone: "",
+    organization: "",
+    jobTitle: "",
+    orgType: "",
+    country: "",
+    timeline: "",
+    message: "",
+  });
   const [interests, setInterests] = useState<string[]>([]);
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   useEffect(() => {
     const el = ref.current;
@@ -82,15 +101,63 @@ export default function OverviewBookDemoSection() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!consent) return;
+    if (!consent || submitting) return;
     setSubmitting(true);
-    // Wire this up to your form handler / API route.
-    setTimeout(() => {
+    setStatus("idle");
+
+    try {
+      const res = await fetch("/api/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Book a Demo (${form.orgType || "Overview"})`,
+          fullName: form.fullName,
+          workEmail: form.workEmail,
+          organization: form.organization,
+          jobTitle: form.jobTitle,
+          phone: form.phone,
+          note: `Country: ${form.country}\nInterests: ${interests.join(", ")}\nTimeline: ${form.timeline}\nMessage: ${form.message}`,
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.ok && (data.success || res.status === 200)) {
+        setStatus("success");
+        setForm({
+          fullName: "",
+          workEmail: "",
+          phone: "",
+          organization: "",
+          jobTitle: "",
+          orgType: "",
+          country: "",
+          timeline: "",
+          message: "",
+        });
+        setInterests([]);
+      } else {
+        setStatus("error");
+        setErrorMessage(data.message || "Failed to submit demo request.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error occurred.");
+    } finally {
       setSubmitting(false);
-      setSubmitted(true);
-    }, 600);
+    }
   }
 
   return (
@@ -138,27 +205,68 @@ export default function OverviewBookDemoSection() {
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Field label="Full name" required>
-                  <input type="text" required className="input" />
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={handleChange}
+                    required
+                    className="input"
+                  />
                 </Field>
 
                 <Field label="Work email" required>
-                  <input type="email" required placeholder="name@organization.org" className="input" />
+                  <input
+                    type="email"
+                    name="workEmail"
+                    value={form.workEmail}
+                    onChange={handleChange}
+                    required
+                    placeholder="name@organization.org"
+                    className="input"
+                  />
                 </Field>
 
                 <Field label="Phone number" hint="optional">
-                  <input type="tel" className="input" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className="input"
+                  />
                 </Field>
 
                 <Field label="Organization" required>
-                  <input type="text" required className="input" />
+                  <input
+                    type="text"
+                    name="organization"
+                    value={form.organization}
+                    onChange={handleChange}
+                    required
+                    className="input"
+                  />
                 </Field>
 
                 <Field label="Job title" required>
-                  <input type="text" required className="input" />
+                  <input
+                    type="text"
+                    name="jobTitle"
+                    value={form.jobTitle}
+                    onChange={handleChange}
+                    required
+                    className="input"
+                  />
                 </Field>
 
                 <Field label="Organization type" required>
-                  <select required defaultValue="" className="input appearance-none">
+                  <select
+                    name="orgType"
+                    value={form.orgType}
+                    onChange={handleChange}
+                    required
+                    className="input appearance-none"
+                  >
                     <option value="" disabled>
                       Select type
                     </option>
@@ -175,6 +283,9 @@ export default function OverviewBookDemoSection() {
                   <Field label="Country / region" required>
                     <input
                       type="text"
+                      name="country"
+                      value={form.country}
+                      onChange={handleChange}
                       required
                       placeholder="e.g. US, UK, EU, national, regional"
                       className="input"
@@ -184,43 +295,54 @@ export default function OverviewBookDemoSection() {
 
                 <div className="sm:col-span-2">
                   <span className="mb-2 block text-[12.5px] font-semibold" style={{ color: NAVY }}>
-                    Area of interest <span className="text-red-500">*</span>
+                    Areas of interest
                   </span>
-                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                    {AREAS_OF_INTEREST.map((label) => {
-                      const checked = interests.includes(label);
-                      return (
-                        <label
-                          key={label}
-                          className="flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-[12.5px] transition-colors"
-                          style={{
-                            borderColor: checked ? ACCENT : "rgba(15,31,78,0.14)",
-                            backgroundColor: checked ? `${ACCENT}0D` : "#fff",
-                            color: NAVY,
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleInterest(label)}
-                            className="h-3.5 w-3.5 rounded border-black/20 text-[#13A594] focus:ring-[#13A594]"
-                          />
-                          {label}
-                        </label>
-                      );
-                    })}
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+                    {AREAS_OF_INTEREST.map((label) => (
+                      <label
+                        key={label}
+                        className="flex cursor-pointer items-center gap-2.5 text-[13px]"
+                        style={{ color: `${NAVY}CC` }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={interests.includes(label)}
+                          onChange={() => toggleInterest(label)}
+                          className="h-4 w-4 rounded border-black/20 text-[#13A594] focus:ring-[#13A594]"
+                        />
+                        {label}
+                      </label>
+                    ))}
                   </div>
                 </div>
 
-                <div className="sm:col-span-2">
-                  <Field label="Message" hint="optional">
-                    <textarea
-                      rows={3}
-                      placeholder="Tell us about your use case (no PHI, prescriptions, or exact stock)."
-                      className="input resize-none"
-                    />
-                  </Field>
-                </div>
+                <Field label="Briefing timeline" hint="optional">
+                  <select
+                    name="timeline"
+                    value={form.timeline}
+                    onChange={handleChange}
+                    className="input appearance-none"
+                  >
+                    <option value="" disabled>
+                      Select timeline
+                    </option>
+                    <option>This week</option>
+                    <option>This month</option>
+                    <option>This quarter</option>
+                    <option>Just exploring</option>
+                  </select>
+                </Field>
+
+                <Field label="Message" hint="optional">
+                  <input
+                    type="text"
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    placeholder="Brief context"
+                    className="input"
+                  />
+                </Field>
               </div>
 
               <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}B3` }}>
@@ -232,8 +354,8 @@ export default function OverviewBookDemoSection() {
                   className="mt-0.5 h-4 w-4 shrink-0 rounded border-black/20 text-[#13A594] focus:ring-[#13A594]"
                 />
                 <span>
-                  I consent for ZoikoMeds to contact me about this request and acknowledge the{" "}
-                  <a href="/privacy" className="font-medium hover:underline" style={{ color: ACCENT }}>
+                  I consent to ZoikoMeds contacting me about demo and briefing requests, per the{" "}
+                  <a href="/privacy" className="font-medium text-[#13A594] hover:underline">
                     privacy notice
                   </a>
                   . <span className="text-red-500">*</span>
@@ -244,10 +366,20 @@ export default function OverviewBookDemoSection() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 rounded-xl py-3.5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  {submitted ? "Request sent" : submitting ? "Sending…" : "Book a Demo"}
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Book a Demo"
+                  )}
                 </button>
                 <a
                   href="#talk-to-sales"
@@ -257,6 +389,28 @@ export default function OverviewBookDemoSection() {
                   Talk to Sales
                 </a>
               </div>
+
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {status === "error" && (
+                <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
 
               <p className="mt-4 flex items-start gap-1.5 text-[11.5px] leading-relaxed" style={{ color: `${NAVY}73` }}>
                 <PinIcon />

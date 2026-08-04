@@ -2,16 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 
-
 const ACCENT = "#0FAA87";
 
-const FILTERS = ["Executive summary", "Availability confidence", "Shortage signals", "Pharmacy network", "Compliance notes"] as const;
+const FILTERS = [
+  "Executive summary",
+  "Availability confidence",
+  "Shortage signals",
+  "Pharmacy network",
+  "Compliance notes",
+  "All",
+] as const;
 
-const REPORTS = [
+type FilterType = (typeof FILTERS)[number];
+
+interface Report {
+  title: string;
+  description: string;
+  bestFor: string;
+  category: FilterType;
+  icon: React.ReactNode;
+}
+
+const REPORTS: Report[] = [
   {
     title: "Medicine availability report",
     description: "Summarizes availability confidence, geographic signal strength, and medicine access patterns.",
     bestFor: "operations, pharmacy networks",
+    category: "Availability confidence",
     icon: (
       <path d="M8 1.5l6 4v3c0 4-2.6 6.5-6 7.5-3.4-1-6-3.5-6-7.5v-3l6-4z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -20,6 +37,7 @@ const REPORTS = [
     title: "Shortage intelligence report",
     description: "Highlights emerging shortage risks, confidence movement, and demand signal changes.",
     bestFor: "public health, leadership",
+    category: "Shortage signals",
     icon: (
       <path d="M2 11l3.5-4 3 2.5L14 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     ),
@@ -28,6 +46,7 @@ const REPORTS = [
     title: "Pharmacy network report",
     description: "Reviews participation, verification activity, and confirmation coverage.",
     bestFor: "network & partner teams",
+    category: "Pharmacy network",
     icon: (
       <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
     ),
@@ -36,6 +55,7 @@ const REPORTS = [
     title: "Regional access report",
     description: "Shows access patterns by city, state, region, or operating territory.",
     bestFor: "regional & public-health teams",
+    category: "Availability confidence",
     icon: (
       <>
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -47,6 +67,7 @@ const REPORTS = [
     title: "Compliance evidence report",
     description: "Supports governance, oversight, auditability, and internal review.",
     bestFor: "compliance, legal, executive",
+    category: "Compliance notes",
     icon: (
       <>
         <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
@@ -58,15 +79,16 @@ const REPORTS = [
     title: "Executive briefing report",
     description: "Converts detailed intelligence into leadership-ready summaries.",
     bestFor: "executives, boards, partners",
+    category: "Executive summary",
     icon: (
       <path d="M2.5 13.5V8.5M6.5 13.5V5M10.5 13.5V9.5M14 13.5V3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
     ),
   },
-] as const;
+];
 
 export default function IntelligenceReportsSection() {
   const [mounted, setMounted] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<(typeof FILTERS)[number]>(FILTERS[0]);
+  const [activeFilter, setActiveFilter] = useState<FilterType>(FILTERS[0]);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,13 +96,21 @@ export default function IntelligenceReportsSection() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { setMounted(true); observer.disconnect(); }
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
       },
       { threshold: 0.05 }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Show all reports if "All" is selected, otherwise filter by category
+  const filteredReports = activeFilter === "All"
+    ? REPORTS
+    : REPORTS.filter((report) => report.category === activeFilter);
 
   return (
     <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
@@ -123,7 +153,7 @@ export default function IntelligenceReportsSection() {
                   key={filter}
                   type="button"
                   onClick={() => setActiveFilter(filter)}
-                  className="rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-200"
+                  className="rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-200 cursor-pointer"
                   style={
                     isActive
                       ? { backgroundColor: ACCENT, color: "#FFFFFF" }
@@ -139,9 +169,9 @@ export default function IntelligenceReportsSection() {
 
         {/* ── Report card grid ── */}
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {REPORTS.map((report, i) => (
-            <Reveal key={report.title} index={4 + i} active={mounted}>
-              <div className="flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.06)]">
+          {filteredReports.map((report, i) => (
+            <Reveal key={report.title} index={i} active={true}>
+              <div className="flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.06)] transition-all duration-300">
                 <div
                   className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg"
                   style={{ backgroundColor: "rgba(15,170,135,0.12)", color: ACCENT }}
@@ -170,11 +200,11 @@ export default function IntelligenceReportsSection() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Reveal                                                               */
+/*  Reveal                                                            */
 /* ------------------------------------------------------------------ */
 function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `intelligenceReportsFadeUp 0.6s ease-out ${index * 90}ms both` : "none" }}>
+    <div style={{ opacity: active ? undefined : 0, animation: active ? `intelligenceReportsFadeUp 0.4s ease-out ${index * 60}ms both` : "none" }}>
       {children}
       <style>{`
         @keyframes intelligenceReportsFadeUp {

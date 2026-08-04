@@ -56,6 +56,13 @@ export default function RequestABriefingFormSection() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -116,9 +123,15 @@ export default function RequestABriefingFormSection() {
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON responses
+      }
+
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to submit briefing request.");
+        throw new Error(data.message || `Submission failed (${res.status})`);
       }
 
       setStatus("success");
@@ -183,18 +196,6 @@ export default function RequestABriefingFormSection() {
               className="rounded-2xl border bg-white p-6 sm:p-8"
               style={{ borderColor: "#E7EAF1", boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)" }}
             >
-              {status === "success" && (
-                <div className="mb-6 rounded-xl border border-[#b2dfc8] bg-[#f7fdf9] p-4 text-sm text-[#0f7a53]">
-                  <strong className="font-bold">Request Submitted!</strong> Your briefing request has been received and sent to our executive team. We will contact you via email shortly.
-                </div>
-              )}
-
-              {status === "error" && (
-                <div className="mb-6 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#b42318]">
-                  <strong className="font-bold">Submission Error:</strong> {errorMessage || "Something went wrong. Please try again."}
-                </div>
-              )}
-
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Field label="Full name" required>
                   <input
@@ -332,13 +333,23 @@ export default function RequestABriefingFormSection() {
               <button
                 type="submit"
                 disabled={!consent || submitting}
-                className="mt-6 w-full rounded-xl px-6 py-3.5 text-[14.5px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(15,170,135,0.45)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[14.5px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(15,170,135,0.45)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 style={{ backgroundColor: ACCENT }}
               >
-                {submitting ? "Submitting…" : "Submit Briefing Request"}
+                {submitting ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  "Submit Briefing Request"
+                )}
               </button>
 
-              {/* Footnote */}
+              {/* Disclaimer */}
               <p className="mt-4 flex items-start gap-1.5 text-[12px] leading-relaxed text-[#8A93A6]">
                 <InfoIcon />
                 <span>
@@ -348,6 +359,30 @@ export default function RequestABriefingFormSection() {
                   review the request.
                 </span>
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#0FAA87]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error message */}
+              {status === "error" && (
+                <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
             </form>
           </Reveal>
 

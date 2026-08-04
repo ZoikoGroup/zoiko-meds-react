@@ -13,10 +13,11 @@ const CARDS = [
     description:
       "Search verified pharmacies, save medicines, get alerts — no clinical profile required.",
     cta: "Search now",
-    link:"/search",
+    link: "/search",
     ctaColor: "text-emerald-600",
     accent: "from-emerald-400 to-blue-500",
     highlighted: true,
+    href: "/searchmed",
   },
   {
     id: "pharmacies",
@@ -29,6 +30,7 @@ const CARDS = [
     cta: "Join network",
     ctaColor: "text-indigo-600",
     accent: "from-indigo-400 to-blue-500",
+    href: "/pharmacy",
   },
   {
     id: "health-systems",
@@ -41,6 +43,7 @@ const CARDS = [
     cta: "Request integration",
     ctaColor: "text-purple-600",
     accent: "from-purple-400 to-indigo-500",
+    href: "/health-systems",
   },
   {
     id: "governments",
@@ -53,6 +56,7 @@ const CARDS = [
     cta: "Request briefing",
     ctaColor: "text-amber-600",
     accent: "from-amber-400 to-orange-500",
+    href: "/request-a-briefing",
   },
   {
     id: "developers",
@@ -65,6 +69,7 @@ const CARDS = [
     cta: "View API docs",
     ctaColor: "text-blue-600",
     accent: "from-blue-400 to-cyan-500",
+    href: "/zoikosignal-intelligence",
   },
 ];
 
@@ -154,7 +159,7 @@ export default function HomeStakeholdersSection() {
                 </p>
 
                 <a
-                  href="#"
+                  href={card.href}
                   className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold ${card.ctaColor} transition-all duration-300`}
                 >
                   {card.cta}
