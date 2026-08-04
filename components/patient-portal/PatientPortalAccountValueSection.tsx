@@ -73,7 +73,7 @@ const ACCOUNT_VALUE_POINTS = [
     description:
       "Control communication channels, regions, saved medicines, and privacy settings.",
     linkLabel: "Manage preferences",
-    href: "/patient-portal/preferences",
+    href: "/features",
     icon: (
       <>
         <circle
