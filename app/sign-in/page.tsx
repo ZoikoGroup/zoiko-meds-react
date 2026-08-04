@@ -2,8 +2,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ApiError, login, register } from "@/lib/api";
+import { appUrl } from "@/lib/config";
 
 const ACCENT = "#13A594";
+
+/**
+ * Hand a freshly minted token to the authenticated app, which adopts it at
+ * /auth/callback and forwards the user to their dashboard. This site holds no
+ * session of its own, so a full-page navigation is the handoff.
+ */
+function enterApp(accessToken: string) {
+  window.location.href = appUrl(
+    `/auth/callback?token=${encodeURIComponent(accessToken)}`,
+  );
+}
 
 export default function SignInCreateAccountPage() {
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
@@ -26,6 +39,10 @@ export default function SignInCreateAccountPage() {
     confirmPassword: "",
     terms: false,
   });
+
+  // Request state shared by both tabs: only one can be in flight at a time.
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const [signInErrors, setSignInErrors] = useState<Record<string, string>>({});
   const [signUpErrors, setSignUpErrors] = useState<Record<string, string>>({});
@@ -66,17 +83,44 @@ export default function SignInCreateAccountPage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSignInSubmit = (e: React.FormEvent) => {
+  const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateSignIn()) {
-      console.log("Sign In:", signInData);
+    if (!validateSignIn()) return;
+    setFormError("");
+    setSubmitting(true);
+    try {
+      const session = await login(signInData.email.trim(), signInData.password);
+      enterApp(session.accessToken);
+    } catch (err) {
+      setFormError(
+        err instanceof ApiError
+          ? err.message
+          : "We could not reach ZoikoMeds. Please check your connection and try again.",
+      );
+      setSubmitting(false);
     }
   };
 
-  const handleSignUpSubmit = (e: React.FormEvent) => {
+  const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateSignUp()) {
-      console.log("Sign Up:", signUpData);
+    if (!validateSignUp()) return;
+    setFormError("");
+    setSubmitting(true);
+    try {
+      const session = await register({
+        email: signUpData.email.trim(),
+        fullName: signUpData.fullName.trim(),
+        password: signUpData.password,
+        phone: signUpData.phone.trim() || undefined,
+      });
+      enterApp(session.accessToken);
+    } catch (err) {
+      setFormError(
+        err instanceof ApiError
+          ? err.message
+          : "We could not create your account. Please check your connection and try again.",
+      );
+      setSubmitting(false);
     }
   };
 
@@ -178,7 +222,10 @@ export default function SignInCreateAccountPage() {
               style={{ backgroundColor: "#EEF1F6" }}
             >
               <button
-                onClick={() => setActiveTab("signin")}
+                onClick={() => {
+                  setActiveTab("signin");
+                  setFormError("");
+                }}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all duration-200"
                 style={{
                   color: activeTab === "signin" ? ACCENT : "#5B6478",
@@ -192,7 +239,10 @@ export default function SignInCreateAccountPage() {
                 Sign In
               </button>
               <button
-                onClick={() => setActiveTab("signup")}
+                onClick={() => {
+                  setActiveTab("signup");
+                  setFormError("");
+                }}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all duration-200"
                 style={{
                   color: activeTab === "signup" ? ACCENT : "#5B6478",
@@ -212,6 +262,8 @@ export default function SignInCreateAccountPage() {
             {/* ── Sign In Form ── */}
             {activeTab === "signin" && (
               <form onSubmit={handleSignInSubmit} className="space-y-5">
+                {formError && <FormError message={formError} />}
+
                 {/* Email */}
                 <div>
                   <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
@@ -287,10 +339,11 @@ export default function SignInCreateAccountPage() {
                 {/* Continue Button */}
                 <button
                   type="submit"
-                  className="w-full rounded-lg px-4 py-3 text-[14px] font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
+                  disabled={submitting}
+                  className="w-full rounded-lg px-4 py-3 text-[14px] font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  Continue securely
+                  {submitting ? "Signing you in…" : "Continue securely"}
                 </button>
 
                 {/* Divider */}
@@ -337,6 +390,8 @@ export default function SignInCreateAccountPage() {
             {/* ── Sign Up Form ── */}
             {activeTab === "signup" && (
               <form onSubmit={handleSignUpSubmit} className="space-y-5">
+                {formError && <FormError message={formError} />}
+
                 {/* Full Name */}
                 <div>
                   <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
@@ -469,10 +524,11 @@ export default function SignInCreateAccountPage() {
                 {/* Create Account Button */}
                 <button
                   type="submit"
-                  className="w-full rounded-lg px-4 py-3 text-[14px] font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
+                  disabled={submitting}
+                  className="w-full rounded-lg px-4 py-3 text-[14px] font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  Create account
+                  {submitting ? "Creating your account…" : "Create account"}
                 </button>
 
                 {/* Info */}
@@ -489,6 +545,19 @@ export default function SignInCreateAccountPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+/** Banner for a failed sign-in / sign-up — bad credentials, or the API being unreachable. */
+function FormError({ message }: { message: string }) {
+  return (
+    <div
+      className="rounded-lg px-3.5 py-3 text-[12px] font-medium leading-snug"
+      style={{ backgroundColor: "#FEF2F2", color: "#DC2626" }}
+      role="alert"
+    >
+      {message}
+    </div>
   );
 }
 

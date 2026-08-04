@@ -49,7 +49,11 @@ jobs:
           SUPPORT_EMAIL: ${{ secrets.SUPPORT_EMAIL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'llama-3.3-70b-versatile' }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://zoiko-meds-platform.onrender.com/api' }}
+          # Must be the backend that owns the accounts, since the same backend
+          # mints reset tokens and emails links back to this site. `envs:`
+          # exports this into the remote shell, where it overrides every .env
+          # file at build time — so this default wins unless the secret is set.
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://get.zoikomeds.com/api' }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://zoiko-meds-platform.vercel.app' }}
           LIVE_INVENTORY_API_URL: ${{ secrets.LIVE_INVENTORY_API_URL || 'https://api.zoikomeds.com/v1/live-inventory' }}
           LIVE_INVENTORY_API_KEY: ${{ secrets.LIVE_INVENTORY_API_KEY }}

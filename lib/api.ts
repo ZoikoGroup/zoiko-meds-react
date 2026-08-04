@@ -189,6 +189,45 @@ export function listPharmacies(): Promise<PharmacyListItem[]> {
   return apiFetch<PharmacyListItem[]>("pharmacies");
 }
 
+/* ─────────────────────────── Auth endpoints ───────────────────────────
+ * This site has no session of its own. Both calls return a bearer token that
+ * is handed to the authenticated app's /auth/callback, which adopts it and
+ * lands the user on their dashboard — the same handoff the OAuth flow uses.
+ */
+
+export interface AuthSession {
+  accessToken: string;
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+    role: string;
+  };
+}
+
+/** POST /auth/login — exchange credentials for a bearer token. */
+export function login(email: string, password: string): Promise<AuthSession> {
+  return apiFetch<AuthSession>("auth/login", {
+    method: "POST",
+    body: { email, password },
+  });
+}
+
+/** POST /auth/register — create a public account and receive a bearer token. */
+export function register(params: {
+  email: string;
+  fullName: string;
+  password: string;
+  phone?: string;
+}): Promise<AuthSession> {
+  const { phone, ...rest } = params;
+  return apiFetch<AuthSession>("auth/register", {
+    method: "POST",
+    // The API rejects unknown properties, so only send phone when present.
+    body: phone ? { ...rest, phone } : rest,
+  });
+}
+
 /* ───────────────────── Password recovery endpoints ─────────────────────
  * Unauthenticated by design: the emailed token is the only credential, so
  * these two work here without any session handling. Everything else behind a

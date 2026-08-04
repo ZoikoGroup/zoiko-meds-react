@@ -6,9 +6,17 @@
  * works even if the env vars are missing.
  */
 
-/** ZoikoMeds backend platform API base — e.g. `${API_BASE_URL}/search`. */
+/**
+ * ZoikoMeds backend platform API base — e.g. `${API_BASE_URL}/search`.
+ *
+ * This must be the backend that owns the user accounts, because the same
+ * backend mints password-reset tokens and emails links pointing back here.
+ * Aiming it at a second deployment with its own database makes every emailed
+ * reset link fail with "This link is invalid or has expired" — the token exists
+ * in one database and is looked up in the other.
+ */
 export const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL ?? "https://zoiko-meds-platform.onrender.com/api"
+  process.env.NEXT_PUBLIC_API_URL ?? "https://get.zoikomeds.com/api"
 ).replace(/\/+$/, "");
 
 /**

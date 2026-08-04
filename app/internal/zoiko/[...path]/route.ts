@@ -23,6 +23,19 @@ async function forward(req: NextRequest, path: string[]): Promise<Response> {
   const contentType = req.headers.get("content-type");
   if (contentType) headers["Content-Type"] = contentType;
 
+  // Carry the caller's identity through. The backend runs with Express
+  // `trust proxy` on, so without this every visitor arrives as this server's
+  // single IP — they would share the per-IP rate limits on login and
+  // forgot-password, and audit rows would all record the proxy instead of the
+  // user. Take the client from Cloudflare's header, else the first (original)
+  // entry of the inbound forwarded chain.
+  const clientIp =
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim();
+  if (clientIp) headers["X-Forwarded-For"] = clientIp;
+  const userAgent = req.headers.get("user-agent");
+  if (userAgent) headers["User-Agent"] = userAgent;
+
   const hasBody = !["GET", "HEAD"].includes(req.method);
 
   let upstream: Response;
