@@ -5,6 +5,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Lets GITHUB_TOKEN fetch this repo from the VM (see the git fetch below).
+    permissions:
+      contents: read
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -12,13 +15,18 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
+          envs: GH_TOKEN,GH_REPO,SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
           script_stop: true
           command_timeout: 15m
           script: |
             cd /var/www/zoikomeds
-            git fetch origin main
-            git reset --hard origin/main
+            # Fetch with this run's short-lived token instead of whatever
+            # credential the VM has stored. The stored one expired, so every
+            # deploy died on "could not read Username for 'https://github.com'"
+            # and the site silently stayed on an old build. The token is never
+            # written to .git/config because the URL is passed inline.
+            git fetch "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" main
+            git reset --hard FETCH_HEAD
             cat << EOF > .env
             SMTP_HOST=$SMTP_HOST
             SMTP_PORT=$SMTP_PORT
@@ -41,6 +49,10 @@ jobs:
             npm run build
             pm2 restart zoikomeds
         env:
+          # Scoped to this repo and expires with the job, so nothing long-lived
+          # has to live on the VM.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USE_SSL: ${{ secrets.SMTP_USE_SSL }}
