@@ -281,14 +281,59 @@ function SetupForm() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const nextErrors = validate(values);
     setErrors(nextErrors);
+
     if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      // Wire this up to your real submit handler / API call.
-      console.log("Set up confirmation requests submission:", values);
+      setSubmitting(true);
+      setStatus("idle");
+
+      try {
+        const res = await fetch("/api/briefing-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Confirmation Requests Setup (${values.pharmacyType || "Confirmation Setup"})`,
+            fullName: values.fullName,
+            workEmail: values.email,
+            organization: values.orgName,
+            note: `Workflow: ${values.workflowInterest}\nNote: ${values.note}`,
+          }),
+        });
+
+        let data: any = {};
+        try {
+          data = await res.json();
+        } catch {}
+
+        if (res.ok && (data.success || res.status === 200)) {
+          setStatus("success");
+          setValues({ email: "", fullName: "", orgName: "", pharmacyType: "", workflowInterest: "", note: "" });
+          setErrors({});
+        } else {
+          setStatus("error");
+          setErrorMessage(data.message || "Failed to submit request.");
+        }
+      } catch {
+        setStatus("error");
+        setErrorMessage("Network error occurred.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   }
 
@@ -297,101 +342,124 @@ function SetupForm() {
       className="mx-auto max-w-2xl rounded-2xl border border-[#E7EAF1] bg-white p-7 shadow-[0_16px_40px_-20px_rgba(15,31,78,0.15)] animate-[confirmPathFormFadeUp_0.6s_ease-out_forwards] sm:p-8"
       style={{ opacity: 0, animationDelay: "550ms" }}
     >
-      {submitted ? (
-        <SuccessState onReset={() => setSubmitted(false)} />
-      ) : (
-        <form onSubmit={handleSubmit} noValidate>
-          <h3 className="text-[16px] font-bold text-[#0F1F4E]">
-            Set up confirmation requests
-          </h3>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
-            Tell us about your pharmacy and workflow needs. No patient
-            data, request content, or exact stock — setup happens later
-            in the secure portal.
-          </p>
+      <form onSubmit={handleSubmit} noValidate>
+        <h3 className="text-[16px] font-bold text-[#0F1F4E]">
+          Set up confirmation requests
+        </h3>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
+          Tell us about your pharmacy and workflow needs. No patient
+          data, request content, or exact stock — setup happens later
+          in the secure portal.
+        </p>
 
-          <div className="mt-5 space-y-4">
-            <Field label="Work email" error={errors.email}>
-              <input
-                type="email"
-                value={values.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-                placeholder="you@yourpharmacy.com"
-                className={inputClasses(!!errors.email)}
-              />
-            </Field>
+        <div className="mt-5 space-y-4">
+          <Field label="Work email" error={errors.email}>
+            <input
+              type="email"
+              value={values.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              placeholder="you@yourpharmacy.com"
+              className={inputClasses(!!errors.email)}
+            />
+          </Field>
 
-            <Field label="Full name" error={errors.fullName}>
-              <input
-                type="text"
-                value={values.fullName}
-                onChange={(e) => handleChange("fullName", e.target.value)}
-                placeholder="Your full name"
-                className={inputClasses(!!errors.fullName)}
-              />
-            </Field>
+          <Field label="Full name" error={errors.fullName}>
+            <input
+              type="text"
+              value={values.fullName}
+              onChange={(e) => handleChange("fullName", e.target.value)}
+              placeholder="Your full name"
+              className={inputClasses(!!errors.fullName)}
+            />
+          </Field>
 
-            <Field label="Pharmacy or organization name" error={errors.orgName}>
-              <input
-                type="text"
-                value={values.orgName}
-                onChange={(e) => handleChange("orgName", e.target.value)}
-                placeholder="e.g. Riverside Community Pharmacy"
-                className={inputClasses(!!errors.orgName)}
-              />
-            </Field>
+          <Field label="Pharmacy or organization name" error={errors.orgName}>
+            <input
+              type="text"
+              value={values.orgName}
+              onChange={(e) => handleChange("orgName", e.target.value)}
+              placeholder="e.g. Riverside Community Pharmacy"
+              className={inputClasses(!!errors.orgName)}
+            />
+          </Field>
 
-            <Field label="Pharmacy type" error={errors.pharmacyType}>
-              <Select
-                value={values.pharmacyType}
-                onChange={(v) => handleChange("pharmacyType", v)}
-                placeholder="Select pharmacy type"
-                options={PHARMACY_TYPES}
-                hasError={!!errors.pharmacyType}
-              />
-            </Field>
+          <Field label="Pharmacy type" error={errors.pharmacyType}>
+            <Select
+              value={values.pharmacyType}
+              onChange={(v) => handleChange("pharmacyType", v)}
+              placeholder="Select pharmacy type"
+              options={PHARMACY_TYPES}
+              hasError={!!errors.pharmacyType}
+            />
+          </Field>
 
-            <Field label="Workflow interest" optional>
-              <Select
-                value={values.workflowInterest}
-                onChange={(v) => handleChange("workflowInterest", v)}
-                placeholder="Select workflow interest"
-                options={WORKFLOW_INTERESTS}
-                hasError={false}
-              />
-            </Field>
+          <Field label="Workflow interest" optional>
+            <Select
+              value={values.workflowInterest}
+              onChange={(v) => handleChange("workflowInterest", v)}
+              placeholder="Select workflow interest"
+              options={WORKFLOW_INTERESTS}
+              hasError={false}
+            />
+          </Field>
 
-            <Field label="Brief note" optional>
-              <textarea
-                value={values.note}
-                onChange={(e) => handleChange("note", e.target.value)}
-                placeholder="Anything about your confirmation workflow need"
-                rows={3}
-                className={`${inputClasses(false)} resize-none`}
-              />
-            </Field>
+          <Field label="Brief note" optional>
+            <textarea
+              value={values.note}
+              onChange={(e) => handleChange("note", e.target.value)}
+              placeholder="Anything about your confirmation workflow need"
+              rows={3}
+              className={`${inputClasses(false)} resize-none`}
+            />
+          </Field>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="group relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ backgroundColor: ACCENT }}
+        >
+          {submitting ? (
+            <>
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+              <span>Submitting...</span>
+            </>
+          ) : (
+            <span>Set Up Confirmation Requests</span>
+          )}
+        </button>
+
+        <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
+          No patient data, request content, exact stock, or credentials
+          are collected here. Setup happens later in the secure portal.
+        </p>
+
+        {status === "success" && (
+          <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+            <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+              <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                  Thank you! Our team will review your request and contact you soon.
+                </p>
+              </div>
+            </div>
           </div>
+        )}
 
-          <button
-            type="submit"
-            className="group relative mt-6 w-full overflow-hidden rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-            style={{ backgroundColor: ACCENT }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 8px 24px -4px rgba(15,170,135,0.45)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-          >
-            <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-            <span className="relative">Set Up Confirmation Requests</span>
-          </button>
-
-          <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
-            No patient data, request content, exact stock, or credentials
-            are collected here. Setup happens later in the secure portal.
-          </p>
-        </form>
-      )}
+        {status === "error" && (
+          <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+            <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+          </div>
+        )}
+      </form>
     </div>
   );
 }

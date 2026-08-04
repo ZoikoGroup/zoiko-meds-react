@@ -60,9 +60,21 @@ const SETUP_INTERESTS = [
   "Not sure yet",
 ];
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type FormErrors = {
+  email?: string;
+  name?: string;
+  org?: string;
+  pharmacyType?: string;
+};
+
+type FormStatus = "idle" | "submitting" | "success" | "error";
+
 export default function InventoryUploadGetStartedSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
     email: "",
@@ -72,6 +84,16 @@ export default function InventoryUploadGetStartedSection() {
     setupInterest: "",
     note: "",
   });
+
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [serverError, setServerError] = useState<string>("");
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   useEffect(() => {
     const el = ref.current;
@@ -85,6 +107,63 @@ export default function InventoryUploadGetStartedSection() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    const nextErrors: FormErrors = {};
+    if (!form.email.trim()) {
+      nextErrors.email = "Work email address is required.";
+    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
+      nextErrors.email = "Please enter a valid work email address.";
+    }
+
+    if (!form.name.trim()) {
+      nextErrors.name = "Full name is required.";
+    }
+
+    if (!form.org.trim()) {
+      nextErrors.org = "Pharmacy or organization name is required.";
+    }
+
+    if (!form.pharmacyType) {
+      nextErrors.pharmacyType = "Please select a pharmacy type.";
+    }
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setStatus("submitting");
+    setServerError("");
+
+    try {
+      // Send form payload to backend REST API route for email dispatch via GoDaddy SMTP & DB storage
+      const res = await fetch("/api/inventory-setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to submit request.");
+      }
+
+      setStatus("success");
+      setForm({
+        email: "",
+        name: "",
+        org: "",
+        pharmacyType: "",
+        setupInterest: "",
+        note: "",
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Submission failed.";
+      setServerError(msg);
+      setStatus("error");
+    }
+  }
 
   return (
     <section ref={ref} id="signal-setup" className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
@@ -145,47 +224,71 @@ export default function InventoryUploadGetStartedSection() {
               secure portal.
             </p>
 
-            <div id="signal-setup" className="mt-5 flex flex-col gap-4">
+            <form onSubmit={handleSubmit} noValidate id="signal-setup" className="mt-5 flex flex-col gap-4">
               {/* Work email */}
-              <FormField label="Work email">
+              <FormField label="Work email" required error={errors.email}>
                 <input
                   type="email"
                   placeholder="you@yourpharmacy.com"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  onChange={(e) => {
+                    setForm({ ...form, email: e.target.value });
+                    if (errors.email) setErrors({ ...errors, email: undefined });
+                    if (status !== "idle") setStatus("idle");
+                  }}
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${
+                    errors.email ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  }`}
                 />
               </FormField>
 
               {/* Full name */}
-              <FormField label="Full name">
+              <FormField label="Full name" required error={errors.name}>
                 <input
                   type="text"
                   placeholder="Your full name"
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  onChange={(e) => {
+                    setForm({ ...form, name: e.target.value });
+                    if (errors.name) setErrors({ ...errors, name: undefined });
+                    if (status !== "idle") setStatus("idle");
+                  }}
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${
+                    errors.name ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  }`}
                 />
               </FormField>
 
               {/* Pharmacy / org name */}
-              <FormField label="Pharmacy or organization name">
+              <FormField label="Pharmacy or organization name" required error={errors.org}>
                 <input
                   type="text"
                   placeholder="e.g. Riverside Community Pharmacy"
                   value={form.org}
-                  onChange={(e) => setForm({ ...form, org: e.target.value })}
-                  className="w-full rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  onChange={(e) => {
+                    setForm({ ...form, org: e.target.value });
+                    if (errors.org) setErrors({ ...errors, org: undefined });
+                    if (status !== "idle") setStatus("idle");
+                  }}
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${
+                    errors.org ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  }`}
                 />
               </FormField>
 
               {/* Pharmacy type */}
-              <FormField label="Pharmacy type">
+              <FormField label="Pharmacy type" required error={errors.pharmacyType}>
                 <div className="relative">
                   <select
                     value={form.pharmacyType}
-                    onChange={(e) => setForm({ ...form, pharmacyType: e.target.value })}
-                    className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    onChange={(e) => {
+                      setForm({ ...form, pharmacyType: e.target.value });
+                      if (errors.pharmacyType) setErrors({ ...errors, pharmacyType: undefined });
+                      if (status !== "idle") setStatus("idle");
+                    }}
+                    className={`w-full appearance-none rounded-xl border bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors ${
+                      errors.pharmacyType ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    }`}
                     style={{ color: form.pharmacyType ? "#0F1F4E" : "#B0B8CC" }}
                   >
                     <option value="" disabled>Select pharmacy type</option>
@@ -202,8 +305,11 @@ export default function InventoryUploadGetStartedSection() {
                 <div className="relative">
                   <select
                     value={form.setupInterest}
-                    onChange={(e) => setForm({ ...form, setupInterest: e.target.value })}
-                    className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    onChange={(e) => {
+                      setForm({ ...form, setupInterest: e.target.value });
+                      if (status !== "idle") setStatus("idle");
+                    }}
+                    className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                     style={{ color: form.setupInterest ? "#0F1F4E" : "#B0B8CC" }}
                   >
                     <option value="" disabled>Select setup interest</option>
@@ -221,18 +327,32 @@ export default function InventoryUploadGetStartedSection() {
                   placeholder="Anything about your inventory signal or integration need"
                   rows={3}
                   value={form.note}
-                  onChange={(e) => setForm({ ...form, note: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, note: e.target.value });
+                    if (status !== "idle") setStatus("idle");
+                  }}
                   className="w-full resize-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                 />
               </FormField>
 
               {/* Submit */}
               <button
-                type="button"
-                className="mt-1 w-full rounded-xl py-3 text-[14px] font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                type="submit"
+                disabled={status === "submitting"}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-[14px] font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
                 style={{ backgroundColor: ACCENT }}
               >
-                Discuss Inventory Signal Setup
+                {status === "submitting" ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  "Discuss Inventory Signal Setup"
+                )}
               </button>
 
               {/* Form footnote */}
@@ -241,7 +361,36 @@ export default function InventoryUploadGetStartedSection() {
                 credentials are collected here. Setup happens later in the
                 secure portal.
               </p>
-            </div>
+
+              {/* Success message in green color at down of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-2 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#0FAA87]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error message */}
+              {status === "error" && (
+                <div className="mt-2 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-[13px] text-[#C5453F]">
+                  <p className="flex items-center gap-2 font-medium">
+                    <svg className="h-4 w-4 flex-shrink-0 text-[#EF4444]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>{serverError || "Something went wrong. Please try again."}</span>
+                  </p>
+                </div>
+              )}
+            </form>
           </div>
         </Reveal>
 
@@ -255,22 +404,28 @@ export default function InventoryUploadGetStartedSection() {
 /* ------------------------------------------------------------------ */
 function FormField({
   label,
+  required,
   optional,
+  error,
   children,
 }: {
   label: string;
+  required?: boolean;
   optional?: boolean;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-[12.5px] font-medium text-[#0F1F4E]">
         {label}
+        {required && <span className="ml-0.5 text-[#C5453F]">*</span>}
         {optional && (
           <span className="ml-1 font-normal text-[#9AA3B5]">(optional)</span>
         )}
       </label>
       {children}
+      {error && <p className="text-[12px] font-medium text-[#C5453F]">{error}</p>}
     </div>
   );
 }

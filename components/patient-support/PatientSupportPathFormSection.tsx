@@ -59,13 +59,58 @@ const WORKFLOW_INTERESTS = [
   "Not sure yet",
 ];
 
+const ROLES = [
+  "Care Navigator / Nurse",
+  "Clinic Manager / Admin",
+  "Physician / Clinician",
+  "Executive / Director",
+  "Other",
+];
+
+const ACCESS_INTERESTS = [
+  "Medicine availability search",
+  "Shortage navigation & alternative sourcing",
+  "Pharmacy confirmation requests",
+  "Care coordination workflows",
+];
+
+const WORKFLOW_CONTEXTS = [
+  "High shortage impact in region",
+  "Manual pharmacy phone-call burden",
+  "Patient access delays",
+  "Exploring digital availability tools",
+];
+
 type FormState = {
   email: string;
   fullName: string;
   orgName: string;
   orgType: string;
+  jobTitle: string;
+  phone: string;
+  role: string;
+  country: string;
+  patientAccessInterest: string;
+  shortageWorkflow: string;
   workflowInterest: string;
   note: string;
+  message: string;
+};
+
+const INITIAL_FORM: FormState = {
+  email: "",
+  fullName: "",
+  orgName: "",
+  orgType: "",
+  jobTitle: "",
+  phone: "",
+  role: "",
+  country: "",
+  patientAccessInterest: "",
+  shortageWorkflow: "",
+  workflowInterest: "",
+  note: "",
+  message: "",
 };
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
@@ -279,14 +324,7 @@ function PathIcon({ name }: { name: "team" | "building" | "search" }) {
 /*  Briefing form                                                       */
 /* ----------------------------------------------------------------- */
 function BriefingForm() {
-  const [values, setValues] = useState<FormState>({
-    email: "",
-    fullName: "",
-    orgName: "",
-    orgType: "",
-    workflowInterest: "",
-    note: "",
-  });
+  const [values, setValues] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -301,21 +339,68 @@ function BriefingForm() {
     return e;
   }
 
+  
   function handleChange<K extends keyof FormState>(key: K, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
     if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
-  }
+  }  
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const nextErrors = validate(values);
     setErrors(nextErrors);
+
     if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      // Wire this up to your real submit handler / API call.
-      console.log("Request a workflow briefing submission:", values);
+      setSubmitting(true);
+      setStatus("idle");
+
+      try {
+        const res = await fetch("/api/briefing-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Patient Support Workflow Briefing (${values.orgType || "Patient Support"})`,
+            fullName: values.fullName,
+            workEmail: values.email,
+            organization: values.orgName,
+            jobTitle: values.jobTitle,
+            phone: values.phone,
+            note: `Role: ${values.role}\nCountry: ${values.country}\nPatient Access Interest: ${values.patientAccessInterest}\nShortage Workflow: ${values.shortageWorkflow}\nMessage: ${values.message}`,
+          }),
+        });
+
+        let data: any = {};
+        try {
+          data = await res.json();
+        } catch {}
+
+        if (res.ok && (data.success || res.status === 200)) {
+          setStatus("success");
+          setValues(INITIAL_FORM);
+          setErrors({});
+        } else {
+          setStatus("error");
+          setErrorMessage(data.message || "Failed to submit request.");
+        }
+      } catch {
+        setStatus("error");
+        setErrorMessage("Network error occurred.");
+      } finally {
+        setSubmitting(false);
+      }
     }
   }
 
@@ -324,101 +409,172 @@ function BriefingForm() {
       className="rounded-2xl border border-[#E7EAF1] bg-white p-7 shadow-[0_16px_40px_-20px_rgba(15,31,78,0.15)] animate-[patientPathFormFadeUp_0.6s_ease-out_forwards] sm:p-8"
       style={{ opacity: 0, animationDelay: "600ms" }}
     >
-      {submitted ? (
-        <SuccessState onReset={() => setSubmitted(false)} />
-      ) : (
-        <form onSubmit={handleSubmit} noValidate>
-          <h3 className="text-[16px] font-bold text-[#0F1F4E]">
-            Request a workflow briefing
-          </h3>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
-            Tell us about your organization and patient-support workflow.
-            No diagnosis, prescriptions, insurance, or patient identifiers
-            — this is a zero-PHI request.
-          </p>
+      <form onSubmit={handleSubmit} noValidate>
+        <h3 className="text-[16px] font-bold text-[#0F1F4E]">
+          Request a workflow briefing
+        </h3>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
+          Tell us about your organization and patient-support workflow.
+          No diagnosis, prescriptions, insurance, or patient identifiers
+          — this is a zero-PHI request.
+        </p>
 
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Work email" error={errors.email} full>
-              <input
-                type="email"
-                value={values.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-                placeholder="you@yourorganization.org"
-                className={inputClasses(!!errors.email)}
-              />
-            </Field>
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Work email" error={errors.email} full>
+            <input
+              type="email"
+              value={values.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              placeholder="you@yourorganization.org"
+              className={inputClasses(!!errors.email)}
+            />
+          </Field>
 
-            <Field label="Full name" error={errors.fullName} full>
-              <input
-                type="text"
-                value={values.fullName}
-                onChange={(e) => handleChange("fullName", e.target.value)}
-                placeholder="Your full name"
-                className={inputClasses(!!errors.fullName)}
-              />
-            </Field>
+          <Field label="Full name" error={errors.fullName} full>
+            <input
+              type="text"
+              value={values.fullName}
+              onChange={(e) => handleChange("fullName", e.target.value)}
+              placeholder="Your full name"
+              className={inputClasses(!!errors.fullName)}
+            />
+          </Field>
 
-            <Field label="Organization name" error={errors.orgName} full>
-              <input
-                type="text"
-                value={values.orgName}
-                onChange={(e) => handleChange("orgName", e.target.value)}
-                placeholder="e.g. Riverside Family Clinic"
-                className={inputClasses(!!errors.orgName)}
-              />
-            </Field>
+          <Field label="Organization name" error={errors.orgName}>
+            <input
+              type="text"
+              value={values.orgName}
+              onChange={(e) => handleChange("orgName", e.target.value)}
+              placeholder="Organization name"
+              className={inputClasses(!!errors.orgName)}
+            />
+          </Field>
 
-            <Field label="Organization type" error={errors.orgType} full>
-              <Select
-                value={values.orgType}
-                onChange={(v) => handleChange("orgType", v)}
-                placeholder="Select organization type"
-                options={ORG_TYPES}
-                hasError={!!errors.orgType}
-              />
-            </Field>
+          <Field label="Job title" error={errors.jobTitle}>
+            <input
+              type="text"
+              value={values.jobTitle}
+              onChange={(e) => handleChange("jobTitle", e.target.value)}
+              placeholder="Job title"
+              className={inputClasses(!!errors.jobTitle)}
+            />
+          </Field>
 
-            <Field label="Primary workflow interest" optional full>
-              <Select
-                value={values.workflowInterest}
-                onChange={(v) => handleChange("workflowInterest", v)}
-                placeholder="Select workflow interest"
-                options={WORKFLOW_INTERESTS}
-                hasError={false}
-              />
-            </Field>
+          <Field label="Role" error={errors.role}>
+            <Select
+              value={values.role}
+              onChange={(v) => handleChange("role", v)}
+              placeholder="Select your role"
+              options={ROLES}
+              hasError={!!errors.role}
+            />
+          </Field>
 
-            <Field label="Brief note" optional full>
-              <textarea
-                value={values.note}
-                onChange={(e) => handleChange("note", e.target.value)}
-                placeholder="Your patient-support workflow, care-team process, or integration interest"
-                rows={3}
-                className={`${inputClasses(false)} resize-none`}
-              />
-            </Field>
-          </div>
+          <Field label="Organization type" error={errors.orgType}>
+            <Select
+              value={values.orgType}
+              onChange={(v) => handleChange("orgType", v)}
+              placeholder="Select organization type"
+              options={ORG_TYPES}
+              hasError={!!errors.orgType}
+            />
+          </Field>
 
-          <button
-            type="submit"
-            className="group relative mt-6 w-full overflow-hidden rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-            style={{ backgroundColor: ACCENT }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 8px 24px -4px rgba(15,170,135,0.45)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+          <Field label="Country / region" error={errors.country} full>
+            <input
+              type="text"
+              value={values.country}
+              onChange={(e) => handleChange("country", e.target.value)}
+              placeholder="e.g. United States, United Kingdom"
+              className={inputClasses(!!errors.country)}
+            />
+          </Field>
+
+          <Field
+            label="Patient access interest"
+            error={errors.patientAccessInterest}
+            full
           >
-            <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-            <span className="relative">Request Workflow Briefing</span>
-          </button>
+            <Select
+              value={values.patientAccessInterest}
+              onChange={(v) => handleChange("patientAccessInterest", v)}
+              placeholder="Select primary interest"
+              options={ACCESS_INTERESTS}
+              hasError={!!errors.patientAccessInterest}
+            />
+          </Field>
 
-          <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
-            No diagnosis, symptoms, prescriptions, insurance, or patient
-            identifiers are collected here. This is a zero-PHI request.
-          </p>
-        </form>
-      )}
+          <Field
+            label="Shortage / availability workflow"
+            error={errors.shortageWorkflow}
+            full
+          >
+            <Select
+              value={values.shortageWorkflow}
+              onChange={(v) => handleChange("shortageWorkflow", v)}
+              placeholder="Select workflow context"
+              options={WORKFLOW_CONTEXTS}
+              hasError={!!errors.shortageWorkflow}
+            />
+          </Field>
+
+          <Field label="Message" optional full>
+            <textarea
+              rows={3}
+              value={values.message}
+              onChange={(e) => handleChange("message", e.target.value)}
+              placeholder="Brief context on your organization's patient access priorities."
+              className={`${inputClasses(false)} resize-none`}
+            />
+          </Field>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="group relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ backgroundColor: ACCENT }}
+        >
+          {submitting ? (
+            <>
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+              <span>Submitting...</span>
+            </>
+          ) : (
+            <span>Request Workflow Briefing</span>
+          )}
+        </button>
+
+        <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
+          No diagnosis, symptoms, prescriptions, insurance, or patient
+          identifiers are collected here. This is a zero-PHI request.
+        </p>
+
+        {status === "success" && (
+          <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+            <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+              <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                  Thank you! Our team will review your request and contact you soon.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+            <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+          </div>
+        )}
+      </form>
     </div>
   );
 }

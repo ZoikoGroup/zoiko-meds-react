@@ -3,8 +3,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ZoiProvider, useZoi } from "@/components/zoi/ZoiProvider";
 
-function TestConsumer() {
+function TestConsumer({ onReady }: { onReady?: (ctx: ReturnType<typeof useZoi>) => void }) {
   const ctx = useZoi();
+  if (onReady) {
+    onReady(ctx);
+  }
   return (
     <div>
       <button onClick={() => ctx.openPanel()}>Open Panel</button>

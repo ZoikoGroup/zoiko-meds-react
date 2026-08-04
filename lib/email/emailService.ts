@@ -32,12 +32,20 @@ export interface RegistrationEmailDetails {
 /**
   Generate modern, branded HTML email for ZoikoMeds notifications.
  */
-function renderHtmlEmail(title: string, fields: EmailField[], note?: string): string {
-  const timestamp = new Date().toLocaleString("en-US", {
+function formatLocalTimestamp(dateStr?: string): string {
+  const date = dateStr ? new Date(dateStr) : new Date();
+  if (isNaN(date.getTime())) return new Date().toLocaleString("en-US", { dateStyle: "full", timeStyle: "medium" });
+  return date.toLocaleString("en-US", {
     dateStyle: "full",
     timeStyle: "medium",
-    timeZone: "UTC",
   });
+}
+
+/**
+  Generate modern, branded HTML email for ZoikoMeds notifications.
+ */
+function renderHtmlEmail(title: string, fields: EmailField[], note?: string): string {
+  const timestamp = formatLocalTimestamp();
 
   const fieldRows = fields
     .map(
@@ -88,7 +96,7 @@ function renderHtmlEmail(title: string, fields: EmailField[], note?: string): st
                 <td style="padding: 32px;">
                   <h2 style="margin: 0 0 12px 0; color: #0D1A33; font-size: 20px; font-weight: 700;">${escapeHtml(title)}</h2>
                   <p style="margin: 0 0 24px 0; font-size: 14px; color: #64748b; line-height: 1.5;">
-                    A new submission was received on <strong>ZoikoMeds.com</strong> at <strong>${timestamp} (UTC)</strong>.
+                    A new submission was received on <strong>ZoikoMeds.com</strong> at <strong>${timestamp}</strong>.
                   </p>
 
                   <!-- Fields Table -->
@@ -141,7 +149,7 @@ function escapeHtml(str: string): string {
 }
 
 function renderTextEmail(title: string, fields: EmailField[], note?: string): string {
-  const timestamp = new Date().toISOString();
+  const timestamp = formatLocalTimestamp();
   let text = `=================================================================\n`;
   text += `${title.toUpperCase()}\n`;
   text += `=================================================================\n\n`;
@@ -292,7 +300,7 @@ export async function sendVerifiedNetworkRegistrationEmail(
       { label: "Work Email", value: details.workEmail },
       { label: "Organization / Pharmacy Name", value: details.orgName },
       { label: "Pharmacy Type", value: details.pharmacyType },
-      { label: "Submitted At", value: details.submittedAt },
+      { label: "Submitted At", value: formatLocalTimestamp(details.submittedAt) },
     ],
   });
 }
@@ -318,7 +326,7 @@ export async function sendContactFormEmail(details: {
       { label: "Email Address", value: details.email },
       { label: "Organization", value: details.organization || "N/A" },
       { label: "Inquiry Subject", value: details.subject || "General Inquiry" },
-      { label: "Submitted At", value: details.submittedAt || new Date().toISOString() },
+      { label: "Submitted At", value: formatLocalTimestamp(details.submittedAt) },
     ],
   });
 }
@@ -339,6 +347,7 @@ export async function sendBriefingRequestEmail(details: {
   return sendNotificationEmail({
     title: `New Briefing Request: ${details.briefingType}`,
     subject: `Briefing Request (${details.briefingType}): ${details.organization}`,
+    recipient: "info@zoikomeds.com",
     replyTo: details.workEmail,
     note: details.note,
     fields: [
@@ -348,7 +357,7 @@ export async function sendBriefingRequestEmail(details: {
       { label: "Organization", value: details.organization },
       { label: "Job Title", value: details.jobTitle || "Not specified" },
       { label: "Phone Number", value: details.phone || "Not specified" },
-      { label: "Submitted At", value: details.submittedAt || new Date().toISOString() },
+      { label: "Submitted At", value: formatLocalTimestamp(details.submittedAt) },
     ],
   });
 }

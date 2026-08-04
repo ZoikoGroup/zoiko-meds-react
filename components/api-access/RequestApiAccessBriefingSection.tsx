@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Shield, Check, LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -49,6 +49,13 @@ export default function RequestApiAccessBriefingSection() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -97,9 +104,15 @@ export default function RequestApiAccessBriefingSection() {
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON responses
+      }
+
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to submit API Access briefing request.");
+        throw new Error(data.message || `Submission failed (${res.status})`);
       }
 
       setStatus("success");
@@ -147,18 +160,6 @@ export default function RequestApiAccessBriefingSection() {
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
           <form onSubmit={handleSubmit} className="rounded-2xl border border-[#D8E2EC] bg-white p-6 shadow-sm lg:col-span-2">
-            {status === "success" && (
-              <div className="mb-6 rounded-xl border border-[#b2dfc8] bg-[#f7fdf9] p-4 text-sm text-[#0f7a53]">
-                <strong className="font-bold">Briefing Request Submitted!</strong> Thank you for your inquiry. Our integration team will review your requirements and reach out via email.
-              </div>
-            )}
-
-            {status === "error" && (
-              <div className="mb-6 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#b42318]">
-                <strong className="font-bold">Submission Error:</strong> {errorMessage}
-              </div>
-            )}
-
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               {/* Full Name */}
               <div>
@@ -171,7 +172,7 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.fullName}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -187,7 +188,7 @@ export default function RequestApiAccessBriefingSection() {
                   onChange={handleChange}
                   required
                   placeholder="name@organization.org"
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -202,7 +203,7 @@ export default function RequestApiAccessBriefingSection() {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -217,7 +218,7 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.organization}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -232,7 +233,7 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.jobTitle}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -246,15 +247,15 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.orgType}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] outline-none transition focus:border-[#00A99D]"
                 >
-                  <option value="" disabled>Select type</option>
-                  <option value="Healthcare Provider">Healthcare Provider</option>
-                  <option value="Pharmacy Network">Pharmacy Network</option>
-                  <option value="Health System">Health System</option>
-                  <option value="Technology Platform">Technology Platform</option>
-                  <option value="Public Health">Public Health</option>
-                  <option value="Other">Other</option>
+                  <option value="" disabled className="text-[#98A2B3] bg-white">Select type</option>
+                  <option value="Healthcare Provider" className="text-[#0F1F4E] bg-white">Healthcare Provider</option>
+                  <option value="Pharmacy Network" className="text-[#0F1F4E] bg-white">Pharmacy Network</option>
+                  <option value="Health System" className="text-[#0F1F4E] bg-white">Health System</option>
+                  <option value="Technology Platform" className="text-[#0F1F4E] bg-white">Technology Platform</option>
+                  <option value="Public Health" className="text-[#0F1F4E] bg-white">Public Health</option>
+                  <option value="Other" className="text-[#0F1F4E] bg-white">Other</option>
                 </select>
               </div>
 
@@ -269,7 +270,7 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.country}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -283,11 +284,11 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.integrationType}
                   onChange={handleChange}
                   required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] outline-none transition focus:border-[#00A99D]"
                 >
-                  <option value="" disabled>Select area</option>
+                  <option value="" disabled className="text-[#98A2B3] bg-white">Select area</option>
                   {integrationTypes.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t} className="text-[#0F1F4E] bg-white">{t}</option>
                   ))}
                 </select>
               </div>
@@ -304,7 +305,7 @@ export default function RequestApiAccessBriefingSection() {
                   required
                   rows={3}
                   placeholder="Describe your intended system integration..."
-                  className="w-full rounded-xl border border-[#D8E2EC] p-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="w-full rounded-xl border border-[#D8E2EC] bg-white p-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -317,13 +318,13 @@ export default function RequestApiAccessBriefingSection() {
                   name="volume"
                   value={form.volume}
                   onChange={handleChange}
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] outline-none transition focus:border-[#00A99D]"
                 >
-                  <option value="">Select expected volume</option>
-                  <option value="Low (< 1k/day)">Low (&lt; 1k/day)</option>
-                  <option value="Moderate (1k-50k/day)">Moderate (1k-50k/day)</option>
-                  <option value="High (50k+/day)">High (50k+/day)</option>
-                  <option value="Enterprise scale">Enterprise scale</option>
+                  <option value="" className="text-[#98A2B3] bg-white">Select expected volume</option>
+                  <option value="Low (< 1k/day)" className="text-[#0F1F4E] bg-white">Low (&lt; 1k/day)</option>
+                  <option value="Moderate (1k-50k/day)" className="text-[#0F1F4E] bg-white">Moderate (1k-50k/day)</option>
+                  <option value="High (50k+/day)" className="text-[#0F1F4E] bg-white">High (50k+/day)</option>
+                  <option value="Enterprise scale" className="text-[#0F1F4E] bg-white">Enterprise scale</option>
                 </select>
               </div>
 
@@ -339,7 +340,7 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.securityContact}
                   onChange={handleChange}
                   placeholder="Name or team"
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
 
@@ -355,7 +356,7 @@ export default function RequestApiAccessBriefingSection() {
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Open context"
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] px-4 text-sm outline-none transition placeholder:text-[#98A2B3] focus:border-[#00A99D]"
+                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
                 />
               </div>
             </div>
@@ -383,9 +384,19 @@ export default function RequestApiAccessBriefingSection() {
               <button
                 type="submit"
                 disabled={!agreed || submitting}
-                className="h-12 flex-1 rounded-xl bg-[#00A99D] font-semibold text-white transition hover:bg-[#009487] disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 h-12 flex-1 rounded-xl bg-[#00A99D] font-semibold text-white transition hover:bg-[#009487] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? "Submitting..." : "Request API Access Briefing"}
+                {submitting ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  "Request API Access Briefing"
+                )}
               </button>
 
               <button
@@ -396,6 +407,28 @@ export default function RequestApiAccessBriefingSection() {
                 Talk to Integration Team
               </button>
             </div>
+
+            {status === "success" && (
+              <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                  <svg className="h-6 w-6 text-[#00A99D]" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                    <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                      Thank you! Our team will review your request and contact you soon.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {status === "error" && (
+              <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+              </div>
+            )}
 
             {/* Footer Note */}
             <div className="mt-5 flex items-start gap-2 text-xs leading-5 text-[#667085]">
