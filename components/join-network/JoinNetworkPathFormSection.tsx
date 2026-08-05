@@ -360,12 +360,11 @@ function JoinForm() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
+  const successRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (submitted) {
-      const timer = setTimeout(() => {
-        setSubmitted(false);
-      }, 6000);
-      return () => clearTimeout(timer);
+    if (submitted && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [submitted]);
 
@@ -583,7 +582,7 @@ function JoinForm() {
       </button>
 
       {submitted && (
-        <div className="mt-3.5 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-left animate-[vnetSuccessFade_250ms_ease-out_forwards]">
+        <div ref={successRef} className="mt-3.5 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-left animate-[vnetSuccessFade_250ms_ease-out_forwards]">
           <div className="flex items-start gap-2.5">
             <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#16A34A] text-white">
               <svg className="h-2.5 w-2.5" viewBox="0 0 20 20" fill="none">
@@ -633,7 +632,16 @@ function ClaimForm() {
     fullName: "",
   });
   const [errors, setErrors] = useState<ClaimErrors>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   function validate(v: ClaimFormState): ClaimErrors {
     const e: ClaimErrors = {};
@@ -653,18 +661,49 @@ function ClaimForm() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting) return;
     const nextErrors = validate(values);
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      console.log("Claim Your Pharmacy submission:", values);
-    }
-  }
 
-  if (submitted) {
-    return <SuccessState onReset={() => setSubmitted(false)} />;
+    if (Object.keys(nextErrors).length === 0) {
+      setIsSubmitting(true);
+      setStatus("idle");
+
+      try {
+        const res = await fetch("/api/briefing-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Claim Pharmacy (${values.search || "Pharmacy Claim"})`,
+            fullName: values.fullName,
+            workEmail: values.email,
+            organization: values.search,
+            note: `Search/License: ${values.search}`,
+          }),
+        });
+
+        let data: any = {};
+        try {
+          data = await res.json();
+        } catch {}
+
+        if (res.ok && (data.success || res.status === 200)) {
+          setStatus("success");
+          setValues({ search: "", email: "", fullName: "" });
+          setErrors({});
+        } else {
+          setStatus("error");
+          setErrorMessage(data.message || "Failed to submit claim request.");
+        }
+      } catch {
+        setStatus("error");
+        setErrorMessage("Network error occurred.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
   }
 
   return (
@@ -714,16 +753,48 @@ function ClaimForm() {
 
       <button
         type="submit"
-        className="group relative mt-6 w-full overflow-hidden rounded-xl bg-[#00A99D] px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+        disabled={isSubmitting}
+        className="group relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#00A99D] px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-        <span className="relative">Claim &amp; Verify Pharmacy</span>
+        {isSubmitting ? (
+          <>
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+              <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            <span>Submitting...</span>
+          </>
+        ) : (
+          <span>Claim &amp; Verify Pharmacy</span>
+        )}
       </button>
 
       <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
         Claiming a record starts ownership verification — it does not publish
         exact stock or sensitive data.
       </p>
+
+      {status === "success" && (
+        <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+          <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+            <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+              <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                Thank you! Our team will review your request and contact you soon.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {status === "error" && (
+        <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+          <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+        </div>
+      )}
     </form>
   );
 }

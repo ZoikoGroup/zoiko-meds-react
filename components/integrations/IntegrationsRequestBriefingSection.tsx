@@ -153,6 +153,13 @@ export default function IntegrationsRequestBriefingSection() {
   };
 
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,11 +182,31 @@ export default function IntegrationsRequestBriefingSection() {
         }),
       });
 
-      const data = await res.json();
-      if (res.ok && data.success) {
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON response
+      }
+
+      if (res.ok && (data.success || res.status === 200)) {
         setStatus("success");
+        setFormData({
+          fullName: "",
+          workEmail: "",
+          phoneNumber: "",
+          organization: "",
+          jobTitle: "",
+          organizationType: "",
+          country: "",
+          integrationObjective: "",
+          systemsToIntegrate: [],
+          estimatedTimeline: "",
+          message: "",
+          consent: false,
+        });
+        setErrors({});
       } else {
-        setErrors((prev) => ({ ...prev, form: data.message || "Failed to submit briefing request." }));
         setStatus("error");
       }
     } catch {
@@ -486,12 +513,20 @@ export default function IntegrationsRequestBriefingSection() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-lg px-6 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  {submitting
-                    ? "Submitting…"
-                    : "Request an Integration Briefing"}
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Request an Integration Briefing"
+                  )}
                 </button>
                 <button
                   type="button"
@@ -515,6 +550,23 @@ export default function IntegrationsRequestBriefingSection() {
                   secrets, or exact stock.
                 </span>
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </form>
           </Reveal>
 
