@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
 import Link from "next/link";
 
 
@@ -107,7 +108,7 @@ export default function AvailabilitySignalsGetStartedSection() {
     setErrorMessage("");
 
     try {
-      const res = await fetch("/api/briefing-request", {
+      const res = await fetch(internalApi("availability-signals"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

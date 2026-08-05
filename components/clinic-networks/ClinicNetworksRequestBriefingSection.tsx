@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
 
 const ACCENT = "#13A594";
 
@@ -128,7 +129,7 @@ export default function ClinicNetworksRequestBriefingSection() {
     if (validateForm()) {
       setSubmitting(true);
       try {
-        const res = await fetch("/api/briefing-request", {
+        const res = await fetch(internalApi("briefing-request"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
