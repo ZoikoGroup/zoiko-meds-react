@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { internalApi } from "@/lib/config";
 
 
 const ACCENT = "#0FAA87";
@@ -112,7 +113,7 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
 
     setStatus("submitting");
     try {
-      const res = await fetch("/api/briefing-request", {
+      const res = await fetch(internalApi("briefing-request"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

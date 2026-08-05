@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
 
 
 const ACCENT = "#0FAA87";
@@ -77,7 +78,7 @@ export default function HealthSystemsContactSection() {
     setErrorMessage("");
 
     try {
-      const res = await fetch("/api/briefing-request", {
+      const res = await fetch(internalApi("health-systems"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

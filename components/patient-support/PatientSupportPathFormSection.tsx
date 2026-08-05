@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
 
 /**
  * PatientSupportPathFormSection
@@ -368,7 +369,7 @@ function BriefingForm() {
       setStatus("idle");
 
       try {
-        const res = await fetch("/api/briefing-request", {
+        const res = await fetch(internalApi("briefing-request"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
