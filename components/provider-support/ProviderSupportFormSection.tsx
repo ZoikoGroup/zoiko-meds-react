@@ -338,15 +338,17 @@ function SupportForm() {
         </button>
 
         {status === "success" && (
-          <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
-            <div className="flex flex-col items-center justify-center gap-1.5 text-center">
-              <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
+          <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center text-[13.5px] text-[#00786F]">
+            <div className="flex flex-col items-center justify-center gap-2 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#13A594]/15 text-[#13A594]">
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div>
-                <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
-                <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
-                  Thank you! Our team will review your request and contact you soon.
+                <h4 className="text-[15px] font-bold text-[#00786F]">Provider Briefing Request Submitted</h4>
+                <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
+                  Your request has been submitted. A ZoikoMeds representative will contact you soon
                 </p>
               </div>
             </div>
