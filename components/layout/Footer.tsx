@@ -6,7 +6,7 @@ import { Shield, BadgeCheck, Lock, Info } from "lucide-react";
 
 const platformLinks = [
   { label: "Search medicines", href: "/searchmed/" },
-  { label: "Create account", href: "/create-account/" },
+  { label: "Create account", href: "/register" },
   { label: "Saved searches", href: "/saved-searches/" },
   { label: "Availability alerts", href: "/availability-alert/" },
   { label: "Caregiver access", href: "/caregiver-access/" },

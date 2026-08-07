@@ -6,7 +6,7 @@ const actions = [
     {
         label: "Create Free Account",
         primary: true,
-        link:"/create-account"
+        link: "/register"
     },
     {
         label: "Search Medicines",

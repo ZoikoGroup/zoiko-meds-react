@@ -48,7 +48,7 @@ export default function AppointmentsFinalCTASection() {
               Schedule an Appointment
             </button>
             <button
-            onClick={()=>router.push('/create-account')}
+            onClick={()=>router.push('/register')}
               type="button"
               className="rounded-lg border border-white/25 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:border-white/50 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1733]"
             >

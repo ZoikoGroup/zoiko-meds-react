@@ -25,9 +25,9 @@ function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) 
   return u;
 }
 
-/** Great-circle distance in miles (used to sort/label fallback pharmacies). */
+/** Great-circle distance in km (used to sort/label fallback pharmacies). */
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 3958.8; // Earth radius in miles
+  const R = 6371; // Earth radius in km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
@@ -38,16 +38,36 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
 
 const CONFIDENCE_ORDER: Record<string, number> = { HIGH: 3, MODERATE: 2, LOW: 1 };
 
+const POPULAR_MEDICINES = [
+  "Amoxicillin 500mg", "Amoxicillin 250mg", "Amoxiclav 625mg", "Advil", "Aspirin 75mg", "Atorvastatin 10mg", "Azithromycin 500mg",
+  "Amlodipine 5mg", "Augmentin 625mg", "Aciloc 150mg", "Allegra 120mg",
+  "Dolo 650", "Doxycycline 100mg", "Dulcolax", "Disprin", "Diabeta",
+  "Ibuprofen 400mg", "Ibuprofen 200mg", "Isoniazid 300mg", "Isotretinoin 20mg", "Isosorbide Mononitrate 20mg", "Isosorbide Dinitrate 10mg", "Isabgol", "Isradipine 5mg", "Isoprenaline 10mg", "Isocarboxazid 10mg", "Isoflurane",
+  "Metformin 500mg", "Metformin 1000mg", "Montelukast 10mg", "Motrin", "Meftal Spas", "Multivitamin",
+  "Omeprazole 20mg", "Omeprazole 40mg", "Ocid 20mg", "Osetron 4mg", "Oflomac 200mg",
+  "Paracetamol 650mg", "Paracetamol 500mg", "Pantoprazole 40mg", "Pan-D", "Pan 40", "Pregabalin 75mg", "Prilosec 20mg",
+  "Telmisartan 40mg", "Telma 40", "Tylenol 500mg", "Trimox 500mg",
+  "Zyrtec 10mg", "Zithromax 500mg", "Zantac 150mg", "Zero-Dol SP", "Zincovit",
+];
+
 /** Live medicine-name suggestions with strict substring/prefix filtering. */
 async function getMedicineSuggestions(query: string, limit = 8): Promise<string[]> {
   const q = query.trim();
-  if (q.length < 2) return [];
-  try {
-    const matches = await matchMedibase(q, limit * 2);
-    const qLower = q.toLowerCase();
+  if (q.length < 1) return [];
+  const qLower = q.toLowerCase();
 
-    // Gather candidate names from canonicalName, genericName, and brandNames
+  try {
+    const matches = await matchMedibase(q, limit * 3);
     const candidateSet = new Set<string>();
+
+    // 1) Add candidates from master dictionary matching typed prefix
+    for (const pop of POPULAR_MEDICINES) {
+      if (pop.toLowerCase().includes(qLower)) {
+        candidateSet.add(pop);
+      }
+    }
+
+    // 2) Add candidates from backend API
     for (const m of matches) {
       if (m.canonicalName) candidateSet.add(m.canonicalName);
       if (m.genericName) candidateSet.add(m.genericName);
@@ -58,26 +78,70 @@ async function getMedicineSuggestions(query: string, limit = 8): Promise<string[
       }
     }
 
-    // Strict substring/prefix filtering: must contain the typed query (case-insensitive)
-    const filtered = Array.from(candidateSet).filter((name) =>
-      name.toLowerCase().includes(qLower)
+    const allCandidates = Array.from(candidateSet);
+
+    // STRICT PREFIX MATCHING: filter names that START with the typed query (case-insensitive)
+    const prefixMatches = allCandidates.filter((name) =>
+      name.toLowerCase().startsWith(qLower)
     );
 
-    // Ranking: prefix matches (name starts with query) rank above mid-string matches
-    filtered.sort((a, b) => {
-      const aLower = a.toLowerCase();
-      const bLower = b.toLowerCase();
-      const aStarts = aLower.startsWith(qLower);
-      const bStarts = bLower.startsWith(qLower);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
+    prefixMatches.sort((a, b) => a.localeCompare(b));
+
+    // If we have prefix matches starting with the typed letters, return ONLY prefix matches!
+    if (prefixMatches.length > 0) {
+      return prefixMatches.slice(0, limit);
+    }
+
+    // Fallback: word-boundary matches (e.g. "Ibuprofen" for "bu")
+    const wordBoundaryMatches = allCandidates.filter((name) => {
+      const words = name.toLowerCase().split(/\s+/);
+      return words.some((w) => w.startsWith(qLower));
+    });
+    wordBoundaryMatches.sort((a, b) => a.localeCompare(b));
+
+    if (wordBoundaryMatches.length > 0) {
+      return wordBoundaryMatches.slice(0, limit);
+    }
+
+    // Fallback: substring matches sorted by match index
+    const subMatches = allCandidates.filter((name) =>
+      name.toLowerCase().includes(qLower)
+    );
+    subMatches.sort((a, b) => {
+      const idxA = a.toLowerCase().indexOf(qLower);
+      const idxB = b.toLowerCase().indexOf(qLower);
+      if (idxA !== idxB) return idxA - idxB;
       return a.localeCompare(b);
     });
 
-    return filtered.slice(0, limit);
+    return subMatches.slice(0, limit);
   } catch {
-    return [];
+    const localPrefix = POPULAR_MEDICINES.filter((name) =>
+      name.toLowerCase().startsWith(qLower)
+    );
+    localPrefix.sort((a, b) => a.localeCompare(b));
+    return localPrefix.slice(0, limit);
   }
+}
+
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  const q = query.trim().toLowerCase();
+  if (!q) return <span>{text}</span>;
+  const lower = text.toLowerCase();
+  const index = lower.indexOf(q);
+  if (index === -1) return <span>{text}</span>;
+
+  const before = text.slice(0, index);
+  const match = text.slice(index, index + q.length);
+  const after = text.slice(index + q.length);
+
+  return (
+    <span>
+      {before}
+      <span className="text-[#0FAA87] font-extrabold bg-[#EAFAF4] px-0.5 rounded">{match}</span>
+      {after}
+    </span>
+  );
 }
 
 const CONFIDENCE_STYLE: Record<string, string> = {
@@ -132,8 +196,8 @@ function MedicineCard({ m }: { m: MedicineMatch }) {
 
 function PharmacyCard({ p, origin }: { p: Pharmacy; origin?: { lat?: number; lng?: number } }) {
   const url = p.mapsUrl || buildMapsUrl(p.lat, p.lng, origin?.lat, origin?.lng);
-  const distVal = p.distanceKm == null ? (origin?.lat && origin?.lng ? distanceKm(origin.lat, origin.lng, p.lat, p.lng) : null) : Math.round(p.distanceKm * 0.621371 * 10) / 10;
-  const dist = distVal == null ? "" : distVal < 0.1 ? "0 mi" : `${distVal} mi`;
+  const distVal = p.distanceKm == null ? (origin?.lat && origin?.lng ? distanceKm(origin.lat, origin.lng, p.lat, p.lng) : null) : Math.round(p.distanceKm * 10) / 10;
+  const dist = distVal == null ? "" : distVal < 0.1 ? "0 km" : `${distVal} km`;
   return (
     <a
       href={url} target="_blank" rel="noopener noreferrer"
@@ -305,7 +369,7 @@ export default function MedicineSearchWidget() {
     setMedicine(value);
     setActiveSuggestionIdx(-1);
     if (medDebounceRef.current) clearTimeout(medDebounceRef.current);
-    if (value.trim().length < 2) {
+    if (value.trim().length < 1) {
       setMedSuggestions([]);
       setShowMedSuggestions(false);
       return;
@@ -316,7 +380,7 @@ export default function MedicineSearchWidget() {
       if (seq !== medReqSeq.current) return; // a newer keystroke won
       setMedSuggestions(matches);
       setShowMedSuggestions(matches.length > 0);
-    }, 300);
+    }, 150);
   };
 
   const selectSuggestion = (name: string) => {
@@ -373,9 +437,7 @@ export default function MedicineSearchWidget() {
     med: string, lat: number, lng: number, rad: number
   ): Promise<SearchOutcome> => {
     try {
-      // Convert radius in miles to kilometers for backend API query
-      const radKm = Math.round(rad * 1.60934);
-      const res = await searchMedicines({ q: med, lat, lng, maxDistance: radKm });
+      const res = await searchMedicines({ q: med, lat, lng, maxDistance: rad });
 
       // 1) Matched medicines (with their best verified-availability signal).
       const medicines: MedicineMatch[] = (res.results ?? []).map((r) => {
@@ -615,7 +677,7 @@ export default function MedicineSearchWidget() {
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5 flex-shrink-0 opacity-60">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                       </svg>
-                      <span className="font-semibold">{name}</span>
+                      <span className="font-semibold"><HighlightMatch text={name} query={medicine} /></span>
                     </button>
                   ))}
                 </div>
@@ -706,7 +768,7 @@ export default function MedicineSearchWidget() {
               >
                 {RADII.map((r) => (
                   <option key={r} value={r}>
-                    {r} mi
+                    {r} km
                   </option>
                 ))}
               </select>
@@ -844,7 +906,7 @@ export default function MedicineSearchWidget() {
                 className="h-[34px] pl-3 pr-7 border-[1.5px] border-[#e5e7eb] rounded-lg text-[13.5px] font-semibold
                   text-[#111827] bg-white appearance-none cursor-pointer focus:outline-none focus:border-[#0D9A72] hover:border-[#0D9A72] transition min-w-[110px]"
               >
-                {RADII.map((r) => <option key={r} value={r}>{r} mi</option>)}
+                {RADII.map((r) => <option key={r} value={r}>{r} km</option>)}
               </select>
               <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6b7280]">
                 <svg viewBox="0 0 10 6" fill="currentColor" className="w-2.5 h-1.5"><path d="M0 0l5 6 5-6z"/></svg>
