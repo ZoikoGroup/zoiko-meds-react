@@ -23,7 +23,7 @@ const cards = [
     title: "Saved searches",
     desc: "Save a medicine, strength, location, and search radius so you can run the same search again quickly.",
     cta: "Create free account",
-    link:"/create-account",
+    link: "/register",
     primary: true
   },
   {

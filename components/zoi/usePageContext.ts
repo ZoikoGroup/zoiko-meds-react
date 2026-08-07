@@ -13,7 +13,7 @@ function resolvePageContext(path: string): ZoiPageContext {
   if (p.startsWith("/pharmacy") || p.startsWith("/join-the-network") || p.startsWith("/inventory")) return "pharmacies";
   if (p.startsWith("/enterprise") || p.startsWith("/hospital") || p.startsWith("/clinic")) return "enterprise";
   if (p.startsWith("/wholesale")) return "wholesale";
-  if (p.startsWith("/sign-in") || p.startsWith("/login") || p.startsWith("/create-account") || p.startsWith("/auth")) return "login";
+  if (p.startsWith("/sign-in") || p.startsWith("/register") || p.startsWith("/login") || p.startsWith("/create-account") || p.startsWith("/auth")) return "login";
   return "default";
 }
 

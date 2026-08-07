@@ -40,7 +40,7 @@ const CARDS = [
     title: "Accounts and alerts",
     description: "Accounts help users save searches, alerts, preferences, and caregiver labels. Users remain responsible for confirming with pharmacies.",
     link: "Create Account",
-    href: "/create-account",
+    href: "/register",
     icon: (
       <path d="M8 1.5c-2 0-3.5 1.6-3.5 3.6v2.7c0 .6-.2 1.2-.6 1.7L3 10.5h10l-.9-1c-.4-.5-.6-1.1-.6-1.7V5.1c0-2-1.5-3.6-3.5-3.6zM6.5 12.5a1.5 1.5 0 003 0" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" fill="none" />
     ),

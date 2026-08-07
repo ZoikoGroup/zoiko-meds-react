@@ -19,7 +19,7 @@ export default function PatientCta() {
            className="bg-[#00B7A8] hover:bg-[#05a89a] cursor-pointer text-white leading-[28px] text-[16px] sm:text-[18px] px-8 sm:px-12 py-4 sm:py-5 rounded-full transition-colors duration-200 w-full sm:w-auto">
             Start with a search
           </button>
-          <button onClick={()=>router.push("/create-account")}
+          <button onClick={()=>router.push("/register")}
            className="text-[16px] sm:text-[18px] leading-[28px] cursor-pointer text-[#000615] border border-[#C4C6CE] bg-white px-8 sm:px-12 py-4 sm:py-5 rounded-full hover:bg-[#F4F6FA] transition-colors duration-200 w-full sm:w-auto">
             Create Free Account
           </button>
