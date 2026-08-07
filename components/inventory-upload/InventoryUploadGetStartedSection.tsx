@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 /**
  * InventoryUploadGetStartedSection
@@ -112,10 +114,9 @@ export default function InventoryUploadGetStartedSection() {
     e.preventDefault();
 
     const nextErrors: FormErrors = {};
-    if (!form.email.trim()) {
-      nextErrors.email = "Work email address is required.";
-    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      nextErrors.email = "Please enter a valid work email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      nextErrors.email = emailCheck.error!;
     }
 
     if (!form.name.trim()) {
@@ -131,14 +132,18 @@ export default function InventoryUploadGetStartedSection() {
     }
 
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     setStatus("submitting");
     setServerError("");
 
     try {
       // Send form payload to backend REST API route for email dispatch via GoDaddy SMTP & DB storage
-      const res = await fetch("/api/inventory-setup", {
+      const res = await fetch(internalApi("inventory-setup"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -236,9 +241,8 @@ export default function InventoryUploadGetStartedSection() {
                     if (errors.email) setErrors({ ...errors, email: undefined });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${
-                    errors.email ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                  }`}
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${errors.email ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    }`}
                 />
               </FormField>
 
@@ -253,9 +257,8 @@ export default function InventoryUploadGetStartedSection() {
                     if (errors.name) setErrors({ ...errors, name: undefined });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${
-                    errors.name ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                  }`}
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${errors.name ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    }`}
                 />
               </FormField>
 
@@ -270,9 +273,8 @@ export default function InventoryUploadGetStartedSection() {
                     if (errors.org) setErrors({ ...errors, org: undefined });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${
-                    errors.org ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                  }`}
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${errors.org ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    }`}
                 />
               </FormField>
 
@@ -286,9 +288,8 @@ export default function InventoryUploadGetStartedSection() {
                       if (errors.pharmacyType) setErrors({ ...errors, pharmacyType: undefined });
                       if (status !== "idle") setStatus("idle");
                     }}
-                    className={`w-full appearance-none rounded-xl border bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors ${
-                      errors.pharmacyType ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                    }`}
+                    className={`w-full appearance-none rounded-xl border bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors ${errors.pharmacyType ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                      }`}
                     style={{ color: form.pharmacyType ? "#0F1F4E" : "#B0B8CC" }}
                   >
                     <option value="" disabled>Select pharmacy type</option>
@@ -371,8 +372,8 @@ export default function InventoryUploadGetStartedSection() {
                     </svg>
                     <div>
                       <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
-                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
-                        Thank you! Our team will review your request and contact you soon.
+                      <p className="mt-1 text-[13px] leading-relaxed font-medium text-[#056059]">
+                        Your inventory signal setup request has been submitted successfully. Our team will review your requirements and contact you shortly.
                       </p>
                     </div>
                   </div>
@@ -459,9 +460,9 @@ function PathIcon({ name }: { name: "home" | "branch" | "code" }) {
     case "branch":
       return (
         <svg {...common}>
-          <rect x="4"  y="14" width="4" height="6" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="10" y="9"  width="4" height="11" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="16" y="4"  width="4" height="16" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="4" y="14" width="4" height="6" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="10" y="9" width="4" height="11" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="16" y="4" width="4" height="16" rx="0.8" stroke="currentColor" strokeWidth="1.5" />
         </svg>
       );
     case "code":

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 import { Circle, Check } from "lucide-react";
 
 type FormState = {
@@ -137,10 +138,9 @@ export default function AiInsightsBriefingFormSection() {
 
     if (!form.fullName.trim()) next.fullName = "Full name is required.";
 
-    if (!form.workEmail.trim()) {
-      next.workEmail = "Work email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.workEmail)) {
-      next.workEmail = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) {
+      next.workEmail = emailCheck.error!;
     }
 
     if (!form.organization.trim())
@@ -168,6 +168,12 @@ export default function AiInsightsBriefingFormSection() {
     if (submitting) return;
     const validationErrors = validate();
     setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      const firstKey = validationErrors.workEmail ? "workEmail" : Object.keys(validationErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     if (Object.keys(validationErrors).length === 0) {
       setSubmitting(true);

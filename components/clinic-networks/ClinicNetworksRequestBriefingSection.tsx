@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#13A594";
 
@@ -78,7 +79,19 @@ export default function ClinicNetworksRequestBriefingSection() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.workEmail.trim()) newErrors.workEmail = "Work email is required";
+
+    const emailCheck = validateEmail(formData.workEmail);
+    if (!emailCheck.isValid) {
+      newErrors.workEmail = emailCheck.error!;
+    }
+
+    if (formData.phoneNumber.trim()) {
+      const phoneCheck = validatePhone(formData.phoneNumber);
+      if (!phoneCheck.isValid) {
+        newErrors.phoneNumber = phoneCheck.error!;
+      }
+    }
+
     if (!formData.organizationName.trim())
       newErrors.organizationName = "Organization name is required";
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
@@ -89,14 +102,29 @@ export default function ClinicNetworksRequestBriefingSection() {
     if (formData.primaryInterest.length === 0)
       newErrors.primaryInterest = "Select at least one area of interest";
     if (!formData.consent) newErrors.consent = "You must accept the privacy notice";
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    if (Object.keys(newErrors).length > 0) {
+      const firstKey = newErrors.workEmail
+        ? "workEmail"
+        : newErrors.fullName
+        ? "fullName"
+        : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return false;
+    }
+    return true;
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value, type } = e.target;
+    const { name, type } = e.target;
+    let value = e.target.value;
+    if (name === "phoneNumber") {
+      value = sanitizePhoneInput(value);
+    }
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       if (name === "consent") {
@@ -112,6 +140,9 @@ export default function ClinicNetworksRequestBriefingSection() {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const [submitting, setSubmitting] = useState(false);
@@ -123,6 +154,7 @@ export default function ClinicNetworksRequestBriefingSection() {
       successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [submitted]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -134,11 +166,11 @@ export default function ClinicNetworksRequestBriefingSection() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             briefingType: `Clinic Networks Briefing (${formData.clinicNetworkSize || "Network"})`,
-            fullName: formData.fullName,
-            workEmail: formData.workEmail,
-            organization: formData.organizationName,
-            jobTitle: formData.jobTitle,
-            phone: formData.phoneNumber,
+            fullName: formData.fullName.trim(),
+            workEmail: formData.workEmail.trim(),
+            organization: formData.organizationName.trim(),
+            jobTitle: formData.jobTitle.trim(),
+            phone: formData.phoneNumber.trim(),
             note: `Network Size: ${formData.clinicNetworkSize}\nRegion: ${formData.regionCountry}\nInterests: ${formData.primaryInterest.join(", ")}\nMessage: ${formData.message}`,
           }),
         });
@@ -160,7 +192,12 @@ export default function ClinicNetworksRequestBriefingSection() {
           });
           setErrors({});
         } else {
-          setErrors({ form: data.message || "Failed to submit briefing request." });
+          if (data.errors) {
+            setErrors(data.errors);
+            scrollToFirstError();
+          } else {
+            setErrors({ form: data.message || "Failed to submit briefing request." });
+          }
         }
       } catch {
         setErrors({ form: "An error occurred while connecting to server." });
@@ -214,7 +251,7 @@ export default function ClinicNetworksRequestBriefingSection() {
                 boxShadow: "0 4px 23px -10px rgba(15,31,78,0.06)",
               }}
             >
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
               {/* Row 1: Full name + Work email */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
@@ -263,9 +300,13 @@ export default function ClinicNetworksRequestBriefingSection() {
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleChange}
+                    placeholder="+91 9876543210"
                     className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: "#E7EAF1" }}
+                    style={{ borderColor: errors.phoneNumber ? "#DC2626" : "#E7EAF1" }}
                   />
+                  {errors.phoneNumber && (
+                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.phoneNumber}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">

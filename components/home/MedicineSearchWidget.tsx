@@ -25,9 +25,9 @@ function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) 
   return u;
 }
 
-/** Great-circle distance in km (used to sort/label fallback pharmacies). */
+/** Great-circle distance in miles (used to sort/label fallback pharmacies). */
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371;
+  const R = 3958.8; // Earth radius in miles
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
@@ -132,7 +132,8 @@ function MedicineCard({ m }: { m: MedicineMatch }) {
 
 function PharmacyCard({ p, origin }: { p: Pharmacy; origin?: { lat?: number; lng?: number } }) {
   const url = p.mapsUrl || buildMapsUrl(p.lat, p.lng, origin?.lat, origin?.lng);
-  const dist = p.distanceKm == null ? "" : p.distanceKm < 0.1 ? "0 km" : `${p.distanceKm} km`;
+  const distVal = p.distanceKm == null ? (origin?.lat && origin?.lng ? distanceKm(origin.lat, origin.lng, p.lat, p.lng) : null) : Math.round(p.distanceKm * 0.621371 * 10) / 10;
+  const dist = distVal == null ? "" : distVal < 0.1 ? "0 mi" : `${distVal} mi`;
   return (
     <a
       href={url} target="_blank" rel="noopener noreferrer"
@@ -142,8 +143,8 @@ function PharmacyCard({ p, origin }: { p: Pharmacy; origin?: { lat?: number; lng
     >
       <div className="min-w-0">
         <div className="text-sm font-bold text-[#111827]">{p.name}</div>
-        <div className="text-xs text-[#6b7280] mt-0.5 truncate">
-          {p.address}{p.phone ? ` · ${p.phone}` : ""}
+        <div className="text-xs text-[#5B6478] mt-0.5 truncate">
+          {dist ? `About ${dist} away · ` : ""}{p.address}{p.phone ? ` · ${p.phone}` : ""}
         </div>
         {(p.rating != null || p.openNow != null) && (
           <div className="text-[11px] text-[#6b7280] mt-1 flex items-center gap-2.5">
@@ -372,7 +373,9 @@ export default function MedicineSearchWidget() {
     med: string, lat: number, lng: number, rad: number
   ): Promise<SearchOutcome> => {
     try {
-      const res = await searchMedicines({ q: med, lat, lng, maxDistance: rad });
+      // Convert radius in miles to kilometers for backend API query
+      const radKm = Math.round(rad * 1.60934);
+      const res = await searchMedicines({ q: med, lat, lng, maxDistance: radKm });
 
       // 1) Matched medicines (with their best verified-availability signal).
       const medicines: MedicineMatch[] = (res.results ?? []).map((r) => {
@@ -588,16 +591,16 @@ export default function MedicineSearchWidget() {
                   onKeyDown={handleMedicineKeyDown}
                   placeholder="Enter a medicine name, brand, or generic"
                   autoComplete="off"
-                  className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#e5e7eb] rounded-[10px] text-sm text-[#111827]
-                    placeholder:text-[#b0b7c3] focus:outline-none focus:border-[#0D9A72] focus:ring-[3px] focus:ring-[#0D9A72]/10 transition"
+                  className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#CBD5E1] rounded-[10px] text-sm text-[#0F1F4E] font-semibold
+                    placeholder:text-[#64748B] placeholder:font-normal bg-white focus:outline-none focus:border-[#0FAA87] focus:ring-[3px] focus:ring-[#0FAA87]/15 transition"
                 />
               </div>
 
               {/* suggestions dropdown */}
               {showMedSuggestions && medSuggestions.length > 0 && (
                 <div
-                  className="absolute z-20 left-0 right-0 mt-1.5 bg-white border-[1.5px] border-[#e5e7eb] rounded-[10px]
-                    shadow-[0_8px_28px_rgba(0,0,0,0.12)] max-h-64 overflow-y-auto"
+                  className="absolute z-20 left-0 right-0 mt-1.5 bg-white border-[1.5px] border-[#CBD5E1] rounded-[10px]
+                    shadow-[0_8px_28px_rgba(15,31,78,0.12)] max-h-64 overflow-y-auto"
                 >
                   {medSuggestions.map((name, idx) => (
                     <button
@@ -606,28 +609,28 @@ export default function MedicineSearchWidget() {
                       onMouseDown={(e) => { e.preventDefault(); selectSuggestion(name); }}
                       onMouseEnter={() => setActiveSuggestionIdx(idx)}
                       className={`w-full flex items-center gap-2.5 text-left px-3.5 py-2.5 text-sm transition-colors
-                        ${idx === activeSuggestionIdx ? "bg-[#f0faf5] text-[#0D9A72]" : "text-[#111827] hover:bg-[#f8fafc]"}
+                        ${idx === activeSuggestionIdx ? "bg-[#f0faf5] text-[#0FAA87]" : "text-[#0F1F4E] hover:bg-[#f8fafc]"}
                         ${idx !== 0 ? "border-t border-[#f1f5f9]" : ""}`}
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5 flex-shrink-0 opacity-60">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                       </svg>
-                      <span className="font-medium">{name}</span>
+                      <span className="font-semibold">{name}</span>
                     </button>
                   ))}
                 </div>
               )}
 
-              <p className="text-[10px] text-[#b0b7c3] mt-1.5 leading-snug">
+              <p className="text-[11.5px] text-[#5B6478] mt-1.5 leading-snug font-medium">
                 Enter a medicine name only. Do not enter symptoms, diagnoses, insurance details, or prescription images.
               </p>
             </div>
 
             {/* Search Area */}
             <div>
-              <label className="block text-[11px] font-semibold tracking-wider uppercase text-[#64748B] mb-1.5">Search Area</label>
+              <label className="block text-[11px] font-bold tracking-wider uppercase text-[#334155] mb-1.5">Search Area</label>
               <div className="relative">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                   <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
                 </svg>
                 <input
@@ -635,8 +638,8 @@ export default function MedicineSearchWidget() {
                   onChange={(e) => { setLocationText(e.target.value); setUserLat(undefined); setUserLng(undefined); }}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="City, ZIP code, postcode, or current location"
-                  className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#e5e7eb] rounded-[10px] text-sm text-[#111827]
-                    placeholder:text-[#b0b7c3] focus:outline-none focus:border-[#0D9A72] focus:ring-[3px] focus:ring-[#0D9A72]/10 transition"
+                  className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#CBD5E1] rounded-[10px] text-sm text-[#0F1F4E] font-semibold
+                    placeholder:text-[#64748B] placeholder:font-normal bg-white focus:outline-none focus:border-[#0FAA87] focus:ring-[3px] focus:ring-[#0FAA87]/15 transition"
                 />
               </div>
               <div className="flex items-center gap-2 mt-1.5">
@@ -692,24 +695,28 @@ export default function MedicineSearchWidget() {
 
           {/* Radius + badges */}
           <div className="flex flex-wrap items-center gap-3 mt-4">
-            <span className="text-sm font-medium text-[#111827] whitespace-nowrap">Distance from me:</span>
+            <span className="text-sm font-bold text-[#0F1F4E] whitespace-nowrap">Search radius:</span>
             <div className="relative">
               <select
                 value={radius}
                 onChange={(e) => handleRadiusChange(parseInt(e.target.value))}
-                className="h-[34px] pl-3 pr-7 border-[1.5px] border-[#e5e7eb] rounded-lg text-[13.5px] font-semibold
-                  text-[#111827] bg-white appearance-none cursor-pointer focus:outline-none focus:border-[#0D9A72]
-                  hover:border-[#0D9A72] transition min-w-[110px]"
+                className="h-[38px] pl-3.5 pr-8 border-[1.5px] border-[#CBD5E1] rounded-xl text-[13.5px] font-bold
+                  text-[#0F1F4E] bg-white appearance-none cursor-pointer focus:outline-none focus:border-[#0FAA87]
+                  focus:ring-[3px] focus:ring-[#0FAA87]/15 hover:border-[#0FAA87] transition min-w-[105px]"
               >
-                {RADII.map((r) => <option key={r} value={r}>{r} km</option>)}
+                {RADII.map((r) => (
+                  <option key={r} value={r}>
+                    {r} mi
+                  </option>
+                ))}
               </select>
-              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6b7280]">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#64748B]">
                 <svg viewBox="0 0 10 6" fill="currentColor" className="w-2.5 h-1.5"><path d="M0 0l5 6 5-6z"/></svg>
               </span>
             </div>
             <div className="ml-auto flex flex-wrap gap-4">
               {["Verified pharmacy network","Privacy-safe search","No exact stock quantities"].map((b) => (
-                <span key={b} className="text-xs text-[#6b7280] whitespace-nowrap">{b}</span>
+                <span key={b} className="text-xs text-[#5B6478] font-medium whitespace-nowrap">{b}</span>
               ))}
             </div>
           </div>
@@ -837,7 +844,7 @@ export default function MedicineSearchWidget() {
                 className="h-[34px] pl-3 pr-7 border-[1.5px] border-[#e5e7eb] rounded-lg text-[13.5px] font-semibold
                   text-[#111827] bg-white appearance-none cursor-pointer focus:outline-none focus:border-[#0D9A72] hover:border-[#0D9A72] transition min-w-[110px]"
               >
-                {RADII.map((r) => <option key={r} value={r}>{r} km</option>)}
+                {RADII.map((r) => <option key={r} value={r}>{r} mi</option>)}
               </select>
               <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#6b7280]">
                 <svg viewBox="0 0 10 6" fill="currentColor" className="w-2.5 h-1.5"><path d="M0 0l5 6 5-6z"/></svg>

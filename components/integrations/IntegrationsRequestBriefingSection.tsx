@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#13A594";
 const NAVY = "#0F1F4E";
@@ -108,12 +109,19 @@ export default function IntegrationsRequestBriefingSection() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    const { name, value, type } = e.target;
+    const { name, type } = e.target;
+    let value = e.target.value;
+    if (name === "phoneNumber") {
+      value = sanitizePhoneInput(value);
+    }
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -124,17 +132,28 @@ export default function IntegrationsRequestBriefingSection() {
         ? prev.systemsToIntegrate.filter((id) => id !== systemId)
         : [...prev.systemsToIntegrate, systemId],
     }));
+    if (errors.systemsToIntegrate) {
+      setErrors((prev) => ({ ...prev, systemsToIntegrate: "" }));
+    }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.workEmail.trim())
-      newErrors.workEmail = "Work email is required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.workEmail)) {
-      newErrors.workEmail = "Valid email required";
+
+    const emailCheck = validateEmail(formData.workEmail);
+    if (!emailCheck.isValid) {
+      newErrors.workEmail = emailCheck.error!;
     }
+
+    if (formData.phoneNumber.trim()) {
+      const phoneCheck = validatePhone(formData.phoneNumber);
+      if (!phoneCheck.isValid) {
+        newErrors.phoneNumber = phoneCheck.error!;
+      }
+    }
+
     if (!formData.organization.trim())
       newErrors.organization = "Organization is required";
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
@@ -150,7 +169,13 @@ export default function IntegrationsRequestBriefingSection() {
     if (!formData.consent) newErrors.consent = "Consent is required";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    if (Object.keys(newErrors).length > 0) {
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return false;
+    }
+    return true;
   };
 
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
