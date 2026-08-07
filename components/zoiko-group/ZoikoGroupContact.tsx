@@ -1,6 +1,7 @@
 "use client"
 import React, { useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 const fadeUp = (delay: number): React.CSSProperties => ({
   animation: `fadeUp 0.6s ease-out ${delay}s both`,
@@ -42,10 +43,9 @@ export default function ZoikoGroupContact() {
 
   const validate = () => {
     const newErrors: { workEmail?: string; fullName?: string; orgName?: string; inquiryType?: string } = {};
-    if (!form.workEmail.trim()) {
-      newErrors.workEmail = "Work email is required.";
-    } else if (!EMAIL_REGEX.test(form.workEmail.trim())) {
-      newErrors.workEmail = "Please enter a valid email address.";
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) {
+      newErrors.workEmail = emailCheck.error!;
     }
     if (!form.fullName.trim()) {
       newErrors.fullName = "Full name is required.";
@@ -66,6 +66,8 @@ export default function ZoikoGroupContact() {
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
       return;
     }
 

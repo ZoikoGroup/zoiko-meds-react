@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { internalApi } from "@/lib/config";
 
 const ACCENT = "#0FAA87";
 
@@ -104,14 +105,21 @@ export default function PharmacySupportFormSection() {
 
     setStatus("submitting");
     try {
-      // TODO: replace with the real support-ticket endpoint, e.g.
-      // const res = await fetch("/api/pharmacy-support/ticket", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Submission failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch(internalApi("briefing-request"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Pharmacy Support (${form.category || "General"})`,
+          fullName: form.fullName,
+          workEmail: form.email,
+          organization: form.pharmacyName,
+          note: [
+            `Location: ${form.location || "N/A"}`,
+            `Description: ${form.description || "N/A"}`,
+          ].join("\n"),
+        }),
+      });
+      if (!res.ok) throw new Error("Submission failed");
       setStatus("success");
       setForm({
         email: "",

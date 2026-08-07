@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-
+import { internalApi } from "@/lib/config";
 
 const ACCENT = "#0FAA87";
 
@@ -133,14 +133,21 @@ export default function CareTeamAccessPathwaySection() {
 
     setStatus("submitting");
     try {
-      // TODO: replace with the real briefing-request endpoint, e.g.
-      // const res = await fetch("/api/care-team-access/briefing", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Submission failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch(internalApi("briefing-request"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Care Team Access (${form.organizationType})`,
+          fullName: form.fullName,
+          workEmail: form.email,
+          organization: form.organizationName,
+          note: [
+            `Access Interest: ${form.accessInterest || "General"}`,
+            form.note ? `Note: ${form.note}` : "",
+          ].filter(Boolean).join("\n"),
+        }),
+      });
+      if (!res.ok) throw new Error("Submission failed");
       setStatus("success");
       setForm({
         email: "",

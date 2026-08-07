@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { useZoi } from "./ZoiProvider";
+import { validateEmail, validatePhone, sanitizePhoneInput } from "@/lib/validation";
 
 interface Props {
   medicine?: string;
   region?: string;
 }
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const PHONE_REGEX = /^\+?[\d\s\-()]{7,15}$/;
 
 export default function AlertForm({ medicine, region }: Props) {
   const [email, setEmail] = useState("");
@@ -19,9 +17,8 @@ export default function AlertForm({ medicine, region }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const { submitEscalation } = useZoi();
 
-  const isEmailValid = EMAIL_REGEX.test(email.trim());
-  const phoneDigits = phone.replace(/\D/g, "");
-  const isPhoneValid = !phone.trim() || (PHONE_REGEX.test(phone.trim()) && phoneDigits.length >= 7 && phoneDigits.length <= 15);
+  const isEmailValid = validateEmail(email).isValid;
+  const isPhoneValid = validatePhone(phone).isValid;
 
   const isFormValid = isEmailValid && isPhoneValid;
 
@@ -105,7 +102,7 @@ export default function AlertForm({ medicine, region }: Props) {
             <input
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
               onBlur={() => setPhoneTouched(true)}
               placeholder="+254 700 123 456"
               disabled={submitted}

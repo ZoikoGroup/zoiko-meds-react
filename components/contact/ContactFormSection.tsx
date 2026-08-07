@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 
 const ACCENT = "#0FAA87";
@@ -94,10 +96,9 @@ export default function ContactFormSection() {
     e.preventDefault();
 
     const nextErrors: FormErrors = {};
-    if (!form.email.trim()) {
-      nextErrors.email = "Enter your email address.";
-    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      nextErrors.email = emailCheck.error!;
     }
     if (!form.fullName.trim()) {
       nextErrors.fullName = "Enter your full name.";
@@ -110,11 +111,15 @@ export default function ContactFormSection() {
     }
 
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     setStatus("submitting");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(internalApi("contact"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

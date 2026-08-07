@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveVerifiedNetworkRegistration } from "@/lib/db/verifiedNetworkDb";
 import { sendVerifiedNetworkRegistrationEmail } from "@/lib/email/emailService";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { validateEmail, validatePhone } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,31 +19,37 @@ export async function POST(req: NextRequest) {
     const fullName = String(body.fullName || "").trim();
     const orgName = String(body.orgName || "").trim();
     const pharmacyType = String(body.pharmacyType || "").trim();
+    const phone = String(body.phone || body.phoneNumber || "").trim();
     const note = String(body.note || "").trim();
 
     // 1. Input Validation
     const errors: Record<string, string> = {};
 
-    if (!workEmail || typeof workEmail !== "string" || !workEmail.trim()) {
-      errors.workEmail = "Work email is required.";
-    } else if (!EMAIL_REGEX.test(workEmail.trim())) {
-      errors.workEmail = "Please enter a valid email address.";
+    const emailCheck = validateEmail(workEmail);
+    if (!emailCheck.isValid) {
+      errors.workEmail = emailCheck.error!;
     }
 
-    if (!fullName || typeof fullName !== "string" || !fullName.trim()) {
+    if (!fullName) {
       errors.fullName = "Full name is required.";
     }
 
-    if (!orgName || typeof orgName !== "string" || !orgName.trim()) {
+    if (!orgName) {
       errors.orgName = "Pharmacy or organization name is required.";
     }
 
-    if (!pharmacyType || typeof pharmacyType !== "string" || !pharmacyType.trim()) {
+    if (!pharmacyType) {
       errors.pharmacyType = "Pharmacy type is required.";
     }
 
+    if (phone) {
+      const phoneCheck = validatePhone(phone);
+      if (!phoneCheck.isValid) {
+        errors.phone = phoneCheck.error!;
+      }
+    }
+
     if (Object.keys(errors).length > 0) {
-      console.warn("[POST /api/verified-network/register] Validation failed:", errors);
       return NextResponse.json(
         {
           success: false,
@@ -56,7 +61,6 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Save Registration to Database
-    console.log("[POST /api/verified-network/register] Saving registration record for:", orgName);
     const record = await saveVerifiedNetworkRegistration({
       workEmail,
       fullName,
@@ -66,7 +70,6 @@ export async function POST(req: NextRequest) {
     });
 
     // 3. Send Email Notification to info@zoikomeds.com
-    console.log("[POST /api/verified-network/register] Dispatching notification email...");
     const emailResult = await sendVerifiedNetworkRegistrationEmail({
       workEmail: record.workEmail,
       fullName: record.fullName,
@@ -77,7 +80,6 @@ export async function POST(req: NextRequest) {
     });
 
     if (!emailResult.success) {
-      console.error("[POST /api/verified-network/register] Email notification failed:", emailResult.error);
       return NextResponse.json(
         {
           success: false,
@@ -87,8 +89,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Return Success Response (Only after email dispatch succeeds)
-    console.log("[POST /api/verified-network/register] Registration & Email notification succeeded!");
+    // 4. Return Success Response
     return NextResponse.json(
       {
         success: true,
@@ -103,14 +104,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (err: unknown) {
-    console.error("[POST /api/verified-network/register] Server exception:", err);
     const errorMessage = err instanceof Error ? err.message : "An unexpected server error occurred.";
-    return NextResponse.json(
-      {
-        success: false,
-        message: errorMessage,
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
   }
 }
