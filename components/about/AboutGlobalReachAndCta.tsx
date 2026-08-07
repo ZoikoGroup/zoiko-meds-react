@@ -332,7 +332,7 @@ function CtaBanner() {
                 </button>
 
                 <button
-                onClick={()=>router.push("/create-account")}
+                onClick={()=>router.push("/register")}
                  className="group inline-flex cursor-pointer items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-white font-semibold text-sm transition-all duration-300 hover:border-white/50 hover:bg-white/5 hover:-translate-y-0.5">
                   Create Free Account
                 </button>

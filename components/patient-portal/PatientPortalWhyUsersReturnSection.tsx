@@ -182,7 +182,7 @@ export default function PatientPortalWhyUsersReturnSection() {
           {/* ── Start now (highlighted CTA card) ── */}
           <Reveal index={2 + RETURN_REASONS.length} active={mounted}>
             <Link
-              href="/create-account"
+              href="/register"
               className="flex h-full flex-col rounded-2xl border p-6 transition-all duration-250 ease-out hover:-translate-y-1"
               style={{
                 borderColor: "rgba(19,165,148,0.35)",

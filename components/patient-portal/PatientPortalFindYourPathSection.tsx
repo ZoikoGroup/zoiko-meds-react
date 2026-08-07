@@ -11,7 +11,7 @@ const PATH_CARDS = [
     title: "New patient",
     description: "Account value, saved searches, alerts, and privacy controls.",
     ctaLabel: "Create Free Account",
-    href: "/create-account",
+    href: "/register",
     variant: "filled",
     icon: (
       <>

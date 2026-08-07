@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 
 const searchTypes = [
@@ -49,6 +50,28 @@ const searchTypes = [
 ];
 
 export default function SearchByName() {
+    const handleStartSearch = (title: string) => {
+        const targetSection = document.getElementById("search") || document.querySelector("section");
+        if (targetSection) {
+            targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        setTimeout(() => {
+            if (title === "Location matters") {
+                const locationInput = document.querySelector<HTMLInputElement>('input[placeholder*="City"], input[placeholder*="location"]');
+                if (locationInput) {
+                    locationInput.focus();
+                    return;
+                }
+            }
+
+            const medicineInput = document.querySelector<HTMLInputElement>('input[placeholder*="medicine"], input[placeholder*="Medicine"]');
+            if (medicineInput) {
+                medicineInput.focus();
+            }
+        }, 400);
+    };
+
     return (
         <section className="bg-[#EEF2F7] py-20 font-sans">
             <div className="max-w-6xl mx-auto px-6">
@@ -84,7 +107,10 @@ export default function SearchByName() {
                                 </span>
                                 .
                             </p>
-                            <button className="text-[15px] px-[20.8px] py-[11px] font-semibold border border-[#CDD7E3] hover:bg-[#bacac831] cursor-pointer rounded-2xl text-[#0D1B2E] text-center">
+                            <button
+                                onClick={() => handleStartSearch(item.title)}
+                                className="text-[15px] px-[20.8px] py-[11px] font-semibold border border-[#CDD7E3] hover:bg-[#13A5941A] hover:border-[#13A594] transition-colors cursor-pointer rounded-2xl text-[#0D1B2E] text-center active:scale-[0.98]"
+                            >
                                 {item.cta}
                             </button>
                         </div>

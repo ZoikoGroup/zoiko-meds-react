@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/login", destination: appUrl("/login"), permanent: false },
       { source: "/dashboard", destination: appUrl("/dashboard"), permanent: false },
+      { source: "/register", destination: appUrl("/register"), permanent: false },
+      { source: "/create-account", destination: appUrl("/register"), permanent: false },
       { source: "/support", destination: "/contact", permanent: false },
     ];
   },

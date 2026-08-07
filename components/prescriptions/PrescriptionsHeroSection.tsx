@@ -78,7 +78,7 @@ export default function PrescriptionsHeroSection() {
             <Reveal index={3} active={mounted}>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <a
-                  href="/create-account"
+                  href="/register"
                   className="rounded-xl px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90"
                   style={{ backgroundColor: ACCENT }}
                 >

@@ -155,7 +155,7 @@ export default function HomeGlobalExpansionSection() {
             </a>
 
             <a
-              href="/create-account"
+              href="/register"
               className="rounded-full border border-slate-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:border-slate-300 hover:bg-white/5"
             >
               Create free account

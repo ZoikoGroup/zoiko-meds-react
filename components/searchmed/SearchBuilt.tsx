@@ -95,7 +95,7 @@ export default function SearchBuilt() {
                          className="bg-[#13A594] hover:bg-[#11887a] border border-[#13A594] cursor-pointer text-white font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
                             Search Availability
                         </button>
-                        <button onClick={()=>router.push("/create-account")}
+                        <button onClick={()=>router.push("/register")}
                          className="border border-[#FFFFFF40]/25 hover:bg-[#b6d1ce0a] text-white cursor-pointer font-semibold text-[15px] px-5 py-3.5 rounded-lg transition-colors duration-150">
                             Create Free Account
                         </button>

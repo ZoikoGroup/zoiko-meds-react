@@ -67,7 +67,7 @@ export default function SearchBuilt() {
                     <p className="text-[15px] sm:text-[15.5px] text-[#E7EEF6B2]/70 text-center max-w-[470px] leading-relaxed">Create a free account to save medicine availability searches, run
                         them again, and create alerts when signals change.</p>
                     <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                        <button onClick={()=>router.push("/create-account")}
+                        <button onClick={()=>router.push("/register")}
                         className="bg-[#13A594] hover:bg-[#11887a] border border-[#13A594] cursor-pointer text-white font-semibold text-[15px] px-5 py-3.5 rounded-[11px] transition-colors duration-150">
                             Create Free Account
                         </button>

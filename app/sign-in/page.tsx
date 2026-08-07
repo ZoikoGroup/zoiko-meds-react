@@ -5,8 +5,8 @@ import { useState } from "react";
 
 const ACCENT = "#13A594";
 
-export default function SignInCreateAccountPage() {
-  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+export default function SignInCreateAccountPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "signup" }) {
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 

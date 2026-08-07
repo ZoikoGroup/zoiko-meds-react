@@ -139,7 +139,7 @@ export default function HomeFreeAccountSection() {
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <button
-              onClick={() => router.push("/create-account")}
+              onClick={() => router.push("/register")}
               type="button"
               className="group cursor-pointer relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#0A9B74] px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#08825F] hover:shadow-lg hover:shadow-[#0A9B74]/25 active:scale-[0.98]"
             >
