@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, scrollToFirstError } from "@/lib/validation";
 
 /**
  * JoinNetworkPathFormSection
@@ -370,9 +371,8 @@ function JoinForm() {
 
   function validate(v: JoinFormState): JoinErrors {
     const e: JoinErrors = {};
-    if (!v.email.trim()) e.email = "Work email is required.";
-    else if (!EMAIL_REGEX.test(v.email.trim()))
-      e.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(v.email);
+    if (!emailCheck.isValid) e.email = emailCheck.error;
     if (!v.fullName.trim()) e.fullName = "Full name is required.";
     if (!v.orgName.trim())
       e.orgName = "Pharmacy or organization name is required.";
@@ -396,6 +396,8 @@ function JoinForm() {
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
       return;
     }
 
@@ -648,9 +650,8 @@ function ClaimForm() {
     if (!v.search.trim())
       e.search = "Enter your pharmacy name, ZIP, city, or license number.";
     if (!v.fullName.trim()) e.fullName = "Full name is required.";
-    if (!v.email.trim()) e.email = "Work email is required.";
-    else if (!EMAIL_REGEX.test(v.email.trim()))
-      e.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(v.email);
+    if (!emailCheck.isValid) e.email = emailCheck.error;
     return e;
   }
 

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
 import { sendBriefingRequestEmail } from "@/lib/email/emailService";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { validateEmail, validatePhone } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,14 +30,20 @@ export async function POST(req: NextRequest) {
       errors.fullName = "Full name is required.";
     }
 
-    if (!workEmail) {
-      errors.workEmail = "Work email address is required.";
-    } else if (!EMAIL_REGEX.test(workEmail)) {
-      errors.workEmail = "Please provide a valid work email address.";
+    const emailCheck = validateEmail(workEmail);
+    if (!emailCheck.isValid) {
+      errors.workEmail = emailCheck.error!;
     }
 
     if (!organization) {
       errors.organization = "Organization name is required.";
+    }
+
+    if (phone) {
+      const phoneCheck = validatePhone(phone);
+      if (!phoneCheck.isValid) {
+        errors.phone = phoneCheck.error!;
+      }
     }
 
     if (Object.keys(errors).length > 0) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 import { Check, Info } from "lucide-react";
 
 type FormState = {
@@ -102,10 +103,9 @@ export default function AnalyticsBriefingFormSection() {
       next.fullName = "Enter your full name.";
     }
 
-    if (!current.workEmail.trim()) {
-      next.workEmail = "Enter your work email.";
-    } else if (!EMAIL_PATTERN.test(current.workEmail.trim())) {
-      next.workEmail = "Enter a valid email address.";
+    const emailCheck = validateEmail(current.workEmail);
+    if (!emailCheck.isValid) {
+      next.workEmail = emailCheck.error!;
     }
 
     if (!current.organization.trim()) {
@@ -156,6 +156,12 @@ export default function AnalyticsBriefingFormSection() {
     if (submitting) return;
     const nextErrors = validate(form);
     setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.workEmail ? "workEmail" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     if (Object.keys(nextErrors).length === 0) {
       setSubmitting(true);

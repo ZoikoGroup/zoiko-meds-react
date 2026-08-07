@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 
 const ACCENT = "#0FAA87";
@@ -93,10 +94,9 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
     e.preventDefault();
 
     const nextErrors: FormErrors = {};
-    if (!form.email.trim()) {
-      nextErrors.email = "Enter your work email.";
-    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      nextErrors.email = emailCheck.error!;
     }
     if (!form.fullName.trim()) {
       nextErrors.fullName = "Enter your full name.";
@@ -109,7 +109,11 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
     }
 
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     setStatus("submitting");
     try {

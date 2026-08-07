@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import Link from "next/link";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 
 const ACCENT = "#0FAA87";
@@ -42,14 +44,11 @@ export default function MediBaseDataContactSection() {
   const [errors, setErrors] = useState<{ email?: string; name?: string; org?: string; orgType?: string }>({});
   const successRef = useRef<HTMLDivElement>(null);
 
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   const validate = () => {
     const newErrors: { email?: string; name?: string; org?: string; orgType?: string } = {};
-    if (!form.email.trim()) {
-      newErrors.email = "Work email is required.";
-    } else if (!EMAIL_REGEX.test(form.email.trim())) {
-      newErrors.email = "Please enter a valid email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      newErrors.email = emailCheck.error!;
     }
     if (!form.name.trim()) {
       newErrors.name = "Full name is required.";
@@ -70,6 +69,8 @@ export default function MediBaseDataContactSection() {
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      const firstKey = newErrors.email ? "email" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
       return;
     }
 

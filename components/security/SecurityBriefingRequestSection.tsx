@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 /**
  * SecurityBriefingRequestSection
@@ -122,10 +123,9 @@ export default function SecurityBriefingRequestSection() {
     const next: Errors = {};
     if (!form.fullName.trim()) next.fullName = "Full name is required.";
 
-    if (!form.workEmail.trim()) {
-      next.workEmail = "Work email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.workEmail.trim())) {
-      next.workEmail = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) {
+      next.workEmail = emailCheck.error!;
     }
 
     if (!form.organization.trim()) next.organization = "Organization is required.";
@@ -152,7 +152,12 @@ export default function SecurityBriefingRequestSection() {
     e.preventDefault();
     const nextErrors = validate();
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || submitting) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.workEmail ? "workEmail" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+    if (submitting) return;
 
     setSubmitting(true);
     setStatus("idle");

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 import { Shield, Check, LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -50,6 +51,7 @@ export default function RequestApiAccessBriefingSection() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,14 +80,52 @@ export default function RequestApiAccessBriefingSection() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    let value = e.target.value;
+    if (name === "phone") {
+      value = sanitizePhoneInput(value);
+    }
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.fullName.trim()) newErrors.fullName = "Full name is required.";
+
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) newErrors.workEmail = emailCheck.error!;
+
+    if (form.phone.trim()) {
+      const phoneCheck = validatePhone(form.phone);
+      if (!phoneCheck.isValid) newErrors.phone = phoneCheck.error!;
+    }
+
+    if (!form.organization.trim()) newErrors.organization = "Organization is required.";
+    if (!form.jobTitle.trim()) newErrors.jobTitle = "Role / Title is required.";
+    if (!form.orgType.trim()) newErrors.orgType = "Please select an organization type.";
+    if (!form.country.trim()) newErrors.country = "Country / Region is required.";
+    if (!form.integrationType.trim()) newErrors.integrationType = "Please select an integration area.";
+    if (!form.useCase.trim()) newErrors.useCase = "Primary use case description is required.";
+
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed || submitting) return;
 
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+
+    setErrors({});
     setSubmitting(true);
     setStatus("idle");
     setErrorMessage("");
@@ -96,11 +136,11 @@ export default function RequestApiAccessBriefingSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           briefingType: `API Access Briefing (${form.integrationType || "API"})`,
-          fullName: form.fullName,
-          workEmail: form.workEmail,
-          organization: form.organization,
-          jobTitle: form.jobTitle,
-          phone: form.phone,
+          fullName: form.fullName.trim(),
+          workEmail: form.workEmail.trim(),
+          organization: form.organization.trim(),
+          jobTitle: form.jobTitle.trim(),
+          phone: form.phone.trim(),
           note: `Org Type: ${form.orgType}\nCountry: ${form.country}\nIntegration Type: ${form.integrationType}\nUse Case: ${form.useCase}\nExpected Volume: ${form.volume}\nSecurity Contact: ${form.securityContact}\nMessage: ${form.message}`,
         }),
       });
@@ -113,6 +153,9 @@ export default function RequestApiAccessBriefingSection() {
       }
 
       if (!res.ok || !data.success) {
+        if (data.errors) {
+          setErrors(data.errors);
+        }
         throw new Error(data.message || `Submission failed (${res.status})`);
       }
 
@@ -140,6 +183,11 @@ export default function RequestApiAccessBriefingSection() {
     }
   };
 
+  const inputCls = (hasErr?: boolean) =>
+    `h-12 w-full rounded-xl border ${
+      hasErr ? "border-[#DC2626]" : "border-[#D8E2EC]"
+    } bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]`;
+
   return (
     <section
       id="api-access-briefing"
@@ -160,9 +208,8 @@ export default function RequestApiAccessBriefingSection() {
         </p>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-[#D8E2EC] bg-white p-6 shadow-sm lg:col-span-2">
+          <form onSubmit={handleSubmit} noValidate className="rounded-2xl border border-[#D8E2EC] bg-white p-6 shadow-sm lg:col-span-2">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {/* Full Name */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Full name <span className="text-red-500">*</span>
@@ -172,12 +219,11 @@ export default function RequestApiAccessBriefingSection() {
                   name="fullName"
                   value={form.fullName}
                   onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.fullName)}
                 />
+                {errors.fullName && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.fullName}</span>}
               </div>
 
-              {/* Work Email */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Work email <span className="text-red-500">*</span>
@@ -187,13 +233,12 @@ export default function RequestApiAccessBriefingSection() {
                   name="workEmail"
                   value={form.workEmail}
                   onChange={handleChange}
-                  required
                   placeholder="name@organization.org"
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.workEmail)}
                 />
+                {errors.workEmail && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.workEmail}</span>}
               </div>
 
-              {/* Phone */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Phone number{" "}
@@ -204,11 +249,11 @@ export default function RequestApiAccessBriefingSection() {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.phone)}
                 />
+                {errors.phone && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.phone}</span>}
               </div>
 
-              {/* Organization */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Organization <span className="text-red-500">*</span>
@@ -218,12 +263,11 @@ export default function RequestApiAccessBriefingSection() {
                   name="organization"
                   value={form.organization}
                   onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.organization)}
                 />
+                {errors.organization && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.organization}</span>}
               </div>
 
-              {/* Role */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Role / Title <span className="text-red-500">*</span>
@@ -233,12 +277,11 @@ export default function RequestApiAccessBriefingSection() {
                   name="jobTitle"
                   value={form.jobTitle}
                   onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.jobTitle)}
                 />
+                {errors.jobTitle && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.jobTitle}</span>}
               </div>
 
-              {/* Org Type */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Organization type <span className="text-red-500">*</span>
@@ -247,8 +290,7 @@ export default function RequestApiAccessBriefingSection() {
                   name="orgType"
                   value={form.orgType}
                   onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.orgType)}
                 >
                   <option value="" disabled className="text-[#98A2B3] bg-white">Select type</option>
                   <option value="Healthcare Provider" className="text-[#0F1F4E] bg-white">Healthcare Provider</option>
@@ -258,9 +300,9 @@ export default function RequestApiAccessBriefingSection() {
                   <option value="Public Health" className="text-[#0F1F4E] bg-white">Public Health</option>
                   <option value="Other" className="text-[#0F1F4E] bg-white">Other</option>
                 </select>
+                {errors.orgType && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.orgType}</span>}
               </div>
 
-              {/* Country */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Country / Region <span className="text-red-500">*</span>
@@ -270,12 +312,11 @@ export default function RequestApiAccessBriefingSection() {
                   name="country"
                   value={form.country}
                   onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.country)}
                 />
+                {errors.country && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.country}</span>}
               </div>
 
-              {/* Integration Type */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Integration area <span className="text-red-500">*</span>
@@ -284,17 +325,16 @@ export default function RequestApiAccessBriefingSection() {
                   name="integrationType"
                   value={form.integrationType}
                   onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-xl border border-[#D8E2EC] bg-white px-4 text-sm text-[#0F1F4E] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.integrationType)}
                 >
                   <option value="" disabled className="text-[#98A2B3] bg-white">Select area</option>
                   {integrationTypes.map((t) => (
                     <option key={t} value={t} className="text-[#0F1F4E] bg-white">{t}</option>
                   ))}
                 </select>
+                {errors.integrationType && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.integrationType}</span>}
               </div>
 
-              {/* Primary Use Case */}
               <div className="sm:col-span-2">
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Primary use case <span className="text-red-500">*</span>
@@ -303,14 +343,13 @@ export default function RequestApiAccessBriefingSection() {
                   name="useCase"
                   value={form.useCase}
                   onChange={handleChange}
-                  required
                   rows={3}
                   placeholder="Describe your intended system integration..."
-                  className="w-full rounded-xl border border-[#D8E2EC] bg-white p-4 text-sm text-[#0F1F4E] placeholder:text-[#98A2B3] outline-none transition focus:border-[#00A99D]"
+                  className={inputCls(!!errors.useCase)}
                 />
+                {errors.useCase && <span className="mt-1 block text-xs font-medium text-[#DC2626]">{errors.useCase}</span>}
               </div>
 
-              {/* Volume */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#0D1526]">
                   Expected query volume

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 /**
  * ReportsSampleRequestSection
@@ -68,6 +69,7 @@ export default function ReportsSampleRequestSection() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -103,11 +105,39 @@ export default function ReportsSampleRequestSection() {
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
+
+  function validate() {
+    const newErrors: Record<string, string> = {};
+    if (!form.fullName.trim()) newErrors.fullName = "Full name is required.";
+
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) newErrors.workEmail = emailCheck.error!;
+
+    if (!form.organization.trim()) newErrors.organization = "Organization is required.";
+    if (!form.role) newErrors.role = "Please select a role.";
+    if (!form.organizationType) newErrors.organizationType = "Please select an organization type.";
+    if (!form.region.trim()) newErrors.region = "Region of interest is required.";
+
+    return newErrors;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!consent || submitting) return;
+
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+
+    setErrors({});
     setSubmitting(true);
     setStatus("idle");
 
@@ -117,9 +147,9 @@ export default function ReportsSampleRequestSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           briefingType: `Sample Reports Request (${form.organizationType || "Reports"})`,
-          fullName: form.fullName,
-          workEmail: form.workEmail,
-          organization: form.organization,
+          fullName: form.fullName.trim(),
+          workEmail: form.workEmail.trim(),
+          organization: form.organization.trim(),
           jobTitle: form.role,
           note: `Region: ${form.region}\nInterests: ${interests.join(", ")}\nTimeline: ${form.timeline}\nMessage: ${form.message}`,
         }),
@@ -144,6 +174,9 @@ export default function ReportsSampleRequestSection() {
         });
         setInterests([]);
       } else {
+        if (data.errors) {
+          setErrors(data.errors);
+        }
         setStatus("error");
         setErrorMessage(data.message || "Failed to submit request.");
       }
@@ -194,50 +227,47 @@ export default function ReportsSampleRequestSection() {
           <Reveal index={3} active={mounted}>
             <form
               onSubmit={handleSubmit}
+              noValidate
               className="rounded-2xl border border-black/5 bg-white p-6 shadow-[0_1px_2px_rgba(15,31,78,0.04)] sm:p-8"
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Full name" required>
+                <Field label="Full name" required error={errors.fullName}>
                   <input
                     type="text"
                     name="fullName"
                     value={form.fullName}
                     onChange={handleChange}
-                    required
-                    className="input"
+                    className={`input ${errors.fullName ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Work email" required>
+                <Field label="Work email" required error={errors.workEmail}>
                   <input
                     type="email"
                     name="workEmail"
                     value={form.workEmail}
                     onChange={handleChange}
-                    required
                     placeholder="name@organization.org"
-                    className="input"
+                    className={`input ${errors.workEmail ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Organization" required>
+                <Field label="Organization" required error={errors.organization}>
                   <input
                     type="text"
                     name="organization"
                     value={form.organization}
                     onChange={handleChange}
-                    required
-                    className="input"
+                    className={`input ${errors.organization ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Role" required>
+                <Field label="Role" required error={errors.role}>
                   <select
                     name="role"
                     value={form.role}
                     onChange={handleChange}
-                    required
-                    className="input appearance-none"
+                    className={`input appearance-none ${errors.role ? "!border-[#DC2626]" : ""}`}
                   >
                     <option value="" disabled>
                       Select role
@@ -250,13 +280,12 @@ export default function ReportsSampleRequestSection() {
                   </select>
                 </Field>
 
-                <Field label="Organization type" required>
+                <Field label="Organization type" required error={errors.organizationType}>
                   <select
                     name="organizationType"
                     value={form.organizationType}
                     onChange={handleChange}
-                    required
-                    className="input appearance-none"
+                    className={`input appearance-none ${errors.organizationType ? "!border-[#DC2626]" : ""}`}
                   >
                     <option value="" disabled>
                       Select type
@@ -269,15 +298,14 @@ export default function ReportsSampleRequestSection() {
                   </select>
                 </Field>
 
-                <Field label="Region of interest" required>
+                <Field label="Region of interest" required error={errors.region}>
                   <input
                     type="text"
                     name="region"
                     value={form.region}
                     onChange={handleChange}
-                    required
                     placeholder="e.g. US, UK, EU, regional"
-                    className="input"
+                    className={`input ${errors.region ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
 
@@ -463,21 +491,28 @@ function Field({
   label,
   required,
   hint,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   hint?: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-center gap-1 text-[12.5px] font-semibold text-[#0F1F4E]">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-        {hint && <span className="font-normal text-[#0F1F4E]/40">({hint})</span>}
+      <span className="mb-1.5 flex items-center justify-between text-[12.5px] font-semibold text-[#0F1F4E]">
+        <span>
+          {label}
+          {required && <span className="text-red-500">*</span>}
+          {hint && <span className="font-normal text-[#0F1F4E]/40"> ({hint})</span>}
+        </span>
       </span>
       {children}
+      {error && (
+        <span className="mt-1 block text-xs font-medium text-[#DC2626]">{error}</span>
+      )}
     </label>
   );
 }
