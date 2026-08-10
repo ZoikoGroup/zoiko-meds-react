@@ -1,0 +1,9 @@
+export { default as PricingHeroSection } from "./PricingHeroSection";
+export { default as CommercialBoundariesSection } from "./CommercialBoundariesSection";
+export { default as PlansSection } from "./PlansSection";
+export { default as HowPricingWorksSection } from "./HowPricingWorksSection";
+export { default as CompareTiersSection } from "./CompareTiersSection";
+export { default as SearchNeutralitySection } from "./SearchNeutralitySection";
+export { default as ProAndEnterpriseDetailSection } from "./ProAndEnterpriseDetailSection";
+export { default as BillingAndTaxTransparencySection } from "./BillingAndTaxTransparencySection";
+export { default as CtaBannerSection } from "./CtaBannerSection";
