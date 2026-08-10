@@ -129,9 +129,8 @@ function formatSourceMessage(sources: ContentDocument[]): { text: string; citati
     authorityLevel: (s.id.startsWith("spec-") ? "A2" : "A5") as "A2" | "A5",
   }));
 
-  const followUp = sources.length > 1 ? ` (Referenced: ${sources.map((s) => s.title).join("; ")})` : "";
   return {
-    text: `${primary.body}${followUp}`,
+    text: primary.body,
     citations,
   };
 }
@@ -165,23 +164,23 @@ async function getResponsePlan(query: string, persona: string, classification: C
 
   const lower = query.toLowerCase().trim();
 
-  if (/^(hi|hello|hey|good morning)/i.test(lower)) {
+  if (/^(hi|hello|hey|good morning|good afternoon)/i.test(lower)) {
     return { text: "Hello. How can I help you today?", chips: ["check_availability", "escalate"] };
   }
-  if (/\b(thank|thanks)\b/i.test(lower)) {
-    return { text: "You're welcome. Is there anything else I can help you with?", chips: ["check_availability", "escalate"] };
+  if (/\b(thank|thanks|ok|okay|alright|got it|cool|fine|understood)\b/i.test(lower)) {
+    return { text: "You're welcome! Is there anything else I can help you with?", chips: ["check_availability", "escalate"] };
   }
 
   // MediBase & availability resolution
   const foundMed = findMedicineInQuery(query);
 
   if (foundMed) {
-    const displayName = foundMed.toUpperCase();
     const region = extractRegion(query);
 
     if (!region) {
+      const displayName = foundMed.toUpperCase();
       return {
-        text: `I found ${displayName} in our system. Which location or city should I check availability for?`,
+        text: `I found ${displayName} in our database. Which location or city should I check availability for?`,
         chips: ["check_availability", "escalate"],
       };
     }
@@ -190,7 +189,7 @@ async function getResponsePlan(query: string, persona: string, classification: C
 
     if (availResult) {
       return {
-        text: `Here's the availability information for ${availResult.medicine} in the ${availResult.region} region:`,
+        text: `Here's the availability information for ${availResult.medicine} in ${availResult.region}:`,
         chips: ["view_pharmacies", "set_alert"],
         availabilityCard: {
           medicine: availResult.medicine,
@@ -204,9 +203,19 @@ async function getResponsePlan(query: string, persona: string, classification: C
       };
     }
 
+    const displayName = foundMed.toUpperCase();
     return {
       text: `I found ${displayName} in our system. I'm having trouble checking availability right now. Try again in a moment or contact our team.`,
       chips: ["escalate"],
+    };
+  }
+
+  const foundReg = extractRegion(query);
+  if (!foundMed && foundReg) {
+    const formattedRegion = foundReg.charAt(0).toUpperCase() + foundReg.slice(1);
+    return {
+      text: `I can check medicine availability in ${formattedRegion}. Which medicine are you looking for?`,
+      chips: ["check_availability", "escalate"],
     };
   }
 
@@ -221,8 +230,17 @@ async function getResponsePlan(query: string, persona: string, classification: C
     }));
     const formatted = formatSourceMessage(contentResults);
     if (formatted) {
-      const chips: string[] = ["check_availability"];
-      if (classification.verdict === "safe" && classification.intent === "commercial") chips.push("escalate");
+      const chips: string[] = [];
+      if (persona === "enterprise" || /api|openapi|bff|integration|enterprise|organisation/i.test(query)) {
+        chips.push("escalate", "request_api_docs");
+      } else if (persona === "wholesale" || /wholesale|bulk|distributor|portal/i.test(query)) {
+        chips.push("wholesale_portal", "escalate");
+      } else if (/search|how to search|find medicine/i.test(query)) {
+        chips.push("check_availability");
+      } else {
+        chips.push("check_availability");
+        if (classification.verdict === "safe" && classification.intent === "commercial") chips.push("escalate");
+      }
       return {
         text: formatted.text,
         chips: chips.length > 3 ? chips.slice(0, 3) : chips,
@@ -235,7 +253,7 @@ async function getResponsePlan(query: string, persona: string, classification: C
   // Unknown/commercial intent — honest "I don't know" + escalate
   if (isDrugLikeTerm(query)) {
     return {
-      text: "That medicine isn't in our system yet. Our team can help you find availability or add it to the network.",
+      text: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
       chips: ["escalate"],
     };
   }
@@ -247,9 +265,9 @@ async function getResponsePlan(query: string, persona: string, classification: C
     };
   }
 
-  // Truly out-of-corpus — honest "I don't know"
+  // Truly out-of-corpus / unindexed medicine or city
   return {
-    text: "I'm not sure about that. I can only help with ZoikoMeds platform features and medicine availability. Our team can help with other questions.",
+    text: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
     chips: ["escalate"],
   };
 }
@@ -285,6 +303,8 @@ CRITICAL SAFETY BOUNDARIES:
 - DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
 - Refer clinical questions to a doctor or qualified pharmacist.
 - For medical emergencies, direct users to call 911 (US) or 999 (UK).
+- DO NOT append "(Referenced: ...)", document title lists, or technical codes (ZM-ZOI-*) to your response text. State information directly, cleanly, and naturally.
+- ONLY include "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask." when the requested medicine is NOT available in our database or when the user's location is NOT found in our data. Do NOT include this message or search link in standard greetings or when medicine/location are found.
 CONTEXT (Site Knowledge Base):
 ${ragSources.map((s) => `[${s.title} (${s.section})]: ${s.body}`).join("\n")}
 
@@ -385,6 +405,8 @@ CRITICAL SAFETY BOUNDARIES:
 - DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
 - Refer clinical questions to a doctor or qualified pharmacist.
 - For medical emergencies, direct users to call 911 (US) or 999 (UK).
+- DO NOT append "(Referenced: ...)", document title lists, or technical codes (ZM-ZOI-*) to your response text. State information directly, cleanly, and naturally.
+- ONLY include "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask." when the requested medicine is NOT available in our database or when the user's location is NOT found in our data. Do NOT include this message or search link in standard greetings or when medicine/location are found.
 CONTEXT (Site Knowledge Base):
 ${ragSources.map((s) => `[${s.title} (${s.section})]: ${s.body}`).join("\n")}
 
@@ -572,8 +594,20 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Layer 3: Availability grounding via ZoikoAvail™ ──
-  let foundMedicine = findMedicineInQuery(query);
-  let foundRegion = extractRegion(query);
+  const medInCurrentQuery = findMedicineInQuery(query);
+  const regInCurrentQuery = extractRegion(query);
+  const lowerQuery = query.toLowerCase().trim();
+
+  const isGreetingOrGeneral = /^(hi|hello|hey|good morning|good afternoon|greetings)\b/i.test(lowerQuery) ||
+    /\b(thank|thanks|ok|okay|alright|got it|cool|fine|understood|k)\b/i.test(lowerQuery) ||
+    /^(what is|who are|how does|tell me about|explain)\b/i.test(lowerQuery);
+
+  const isAffirmationOrFollowUp = /^(yes|yeah|yep|sure|proceed|check|do it|confirm)\b/i.test(lowerQuery) ||
+    /^(\d+\s*(mg|g|ml|mcg)|tablets?|capsules?)$/i.test(lowerQuery) ||
+    /availability|pharmacy|pharmacies|stock/i.test(lowerQuery);
+
+  let foundMedicine: string | null = medInCurrentQuery;
+  let foundRegion: string | null = regInCurrentQuery;
 
   // Check for Alert setup requests
   if (/alert|notify|notification|monitor/i.test(query)) {
@@ -636,23 +670,57 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Only check history for medicine if user's current query is ONLY a location
-  if (!foundMedicine && foundRegion && rawMessages.length > 0) {
-    for (let i = rawMessages.length - 1; i >= 0; i--) {
-      const prevContent = rawMessages[i]?.content;
-      if (prevContent) {
-        const prevMed = findMedicineInQuery(prevContent);
-        if (prevMed) {
-          foundMedicine = prevMed;
-          break;
+  // Multi-turn context extraction: ONLY search history if query is an availability follow-up or location/medicine input (NOT greetings or general queries)
+  if (!isGreetingOrGeneral && (medInCurrentQuery || regInCurrentQuery || isAffirmationOrFollowUp)) {
+    if (!foundMedicine && rawMessages.length > 0) {
+      for (let i = rawMessages.length - 1; i >= 0; i--) {
+        const prevContent = rawMessages[i]?.content;
+        if (prevContent) {
+          const prevMed = findMedicineInQuery(prevContent);
+          if (prevMed) {
+            foundMedicine = prevMed;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!foundRegion && !medInCurrentQuery && rawMessages.length > 0) {
+      for (let i = rawMessages.length - 1; i >= 0; i--) {
+        const prevContent = rawMessages[i]?.content;
+        if (prevContent) {
+          const prevReg = extractRegion(prevContent);
+          if (prevReg) {
+            foundRegion = prevReg;
+            break;
+          }
         }
       }
     }
   }
 
-  console.log(`[Zoi Debug] query="${query}" foundMedicine="${foundMedicine}" foundRegion="${foundRegion}"`);
+  // If medicine is found but region is missing (and current query is NOT a greeting), prompt user to specify location
+  if (!isGreetingOrGeneral && foundMedicine && !foundRegion) {
+    const medName = foundMedicine.toUpperCase();
+    const promptText = `I found ${medName} in our database. Which location or city should I check availability for?`;
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const words = promptText.split(" ");
+        for (let i = 0; i < words.length; i++) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "token", content: words[i] + (i < words.length - 1 ? " " : "") })}\n\n`));
+          await delay(20);
+        }
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done", chips: ["escalate"] })}\n\n`));
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive", "X-Content-Type-Options": "nosniff" },
+    });
+  }
 
-  if (foundMedicine && foundRegion) {
+  if (!isGreetingOrGeneral && foundMedicine && foundRegion) {
     console.log(`[Zoi Debug] Calling lookupAvailability with medicine="${foundMedicine}" region="${foundRegion}"`);
 
     const availResult = await lookupAvailabilityAsync({ medicine: foundMedicine, region: foundRegion });
@@ -668,7 +736,7 @@ export async function POST(req: NextRequest) {
       }));
 
       const intro = pick([
-        `Here's the availability information for ${availResult.medicine} in the ${availResult.region} region:`,
+        `Here's the availability information for ${availResult.medicine} in ${availResult.region}:`,
         `I found availability data for ${availResult.medicine} near ${availResult.region}:`,
         `Let me show you what I found for ${availResult.medicine} in ${availResult.region}:`,
       ]);

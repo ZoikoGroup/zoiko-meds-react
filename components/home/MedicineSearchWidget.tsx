@@ -315,6 +315,7 @@ export default function MedicineSearchWidget() {
   const [scanLocLabel, setScanLocLabel] = useState("Use my current location");
   const [scanRadius, setScanRadius] = useState(25);
   const [scanning, setScanning] = useState(false);
+  const [hasScanned, setHasScanned] = useState(false);
   const [scannedMeds, setScannedMeds] = useState<string[]>([]);
   const [selectedMeds, setSelectedMeds] = useState<Set<string>>(new Set());
   const [scanResults, setScanResults] = useState<{ [med: string]: SearchOutcome | null }>({});
@@ -517,7 +518,7 @@ export default function MedicineSearchWidget() {
 
   /* ─── Tab 2: file handling ─── */
   const handleFile = (file: File) => {
-    setScanFile(file); setScannedMeds([]); setSelectedMeds(new Set()); setScanResults({});
+    setScanFile(file); setScannedMeds([]); setSelectedMeds(new Set()); setScanResults({}); setHasScanned(false);
   };
   const onDrop = (e: DragEvent) => {
     e.preventDefault(); setDragOver(false);
@@ -527,7 +528,7 @@ export default function MedicineSearchWidget() {
   /* ─── Tab 2: scan ─── */
   const handleScan = useCallback(async () => {
     if (!scanFile) return;
-    setScanning(true); setScannedMeds([]); setScanResults({});
+    setScanning(true); setHasScanned(false); setScannedMeds([]); setScanResults({});
     try {
       const fd = new FormData();
       fd.append("prescription", scanFile);
@@ -548,6 +549,7 @@ export default function MedicineSearchWidget() {
       setSelectedMeds(new Set(fallback));
     } finally {
       setScanning(false);
+      setHasScanned(true);
     }
   }, [scanFile]);
 
@@ -890,6 +892,15 @@ export default function MedicineSearchWidget() {
           </button>
 
           {/* Scanned medicines + search */}
+          {hasScanned && !scanning && scannedMeds.length === 0 && (
+            <div className="mt-4 p-4 bg-[#FFFBEB] border border-[#FCD34D] rounded-xl text-xs font-semibold text-[#92400E] flex items-center gap-2.5 shadow-sm">
+              <svg className="w-5 h-5 text-[#D97706] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>No medicine names recognized in this file. Please make sure prescription text is clearly visible, or type the medicine name in the "Search by name" tab.</span>
+            </div>
+          )}
+
           {scannedMeds.length > 0 && (
             <div className="mt-5">
               <p className="font-bold text-sm text-[#111827] mb-2">Detected medicines — tap to select</p>
@@ -944,30 +955,40 @@ export default function MedicineSearchWidget() {
 function getDynamicClientMeds(file: File): string[] {
   const fileName = file.name || "";
   const fileSize = file.size || 0;
+  const lastMod = file.lastModified || 0;
   const lower = fileName.toLowerCase();
 
   const KNOWN_DRUG_MAP: [RegExp, string][] = [
-    [/amox|amoxil|augmentin/i, "Amoxicillin 500mg"],
-    [/ibuprofen|ibugesic|brufen|advil|motrin/i, "Ibuprofen 400mg"],
-    [/para|dolo|crocin|calpol|acetaminophen|tylenol/i, "Paracetamol 650mg"],
-    [/omeprazole|ocid|prilosec/i, "Omeprazole 20mg"],
-    [/panto|pan40|pan-40|protonix/i, "Pantoprazole 40mg"],
-    [/metformin|glycomet|glucophage/i, "Metformin 500mg"],
-    [/azithro|azithral|zithromax/i, "Azithromycin 500mg"],
-    [/cetri|cetzine|zyrtec/i, "Cetirizine 10mg"],
-    [/atorva|lipitor/i, "Atorvastatin 10mg"],
-    [/doxy|doxycycline/i, "Doxycycline 100mg"],
-    [/montair|montelu|singulair/i, "Montelukast 10mg"],
-    [/amlo|norvasc/i, "Amlodipine 5mg"],
-    [/telma|telmi/i, "Telmisartan 40mg"],
-    [/gabapentin|gaba|neurontin/i, "Gabapentin 300mg"],
-    [/pregab|lyrica/i, "Pregabalin 75mg"],
-    [/cipro/i, "Ciprofloxacin 500mg"],
-    [/losartan|cozaar/i, "Losartan 50mg"],
-    [/rosuva|crestor/i, "Rosuvastatin 10mg"],
-    [/aspirin|ecospirin/i, "Aspirin 75mg"],
-    [/salbutamol|asthalin|ventolin/i, "Salbutamol Inhaler 100mcg"],
-    [/levothyroxine|thyronorm|synthroid/i, "Levothyroxine 50mcg"],
+    [/\bdelcon\b/i, "Delcon Syrup"],
+    [/\blevolin\b/i, "Levolin Syrup"],
+    [/\bmeftal[-_\s]*p\b|\bmeftal\b/i, "Meftal-P Syrup (100mg/5ml)"],
+    [/\bcalpol[-_\s]*250\b|\bcalpol[-_\s]*\(?250\/5\)?\b/i, "Calpol 250mg Syrup"],
+    [/\bcalpol[-_\s]*650\b/i, "Calpol 650mg"],
+    [/\bcalpol\b/i, "Calpol 250mg Syrup"],
+    [/\bparacetamol[-_\s]*650\b/i, "Paracetamol 650mg"],
+    [/\bparacetamol\b|\bacetaminophen\b|\bpcm\b/i, "Paracetamol 650mg"],
+    [/\bnaproxen\b|\baleve\b|\bnaprosyn\b/i, "Naproxen Sodium 500mg"],
+    [/\baugmentin\b/i, "Augmentin 625mg"],
+    [/\bamoxicillin\b|\bamoxil\b|\bamox\b/i, "Amoxicillin 500mg"],
+    [/\bibuprofen\b|\bibugesic\b|\bbrufen\b|\badvil\b|\bmotrin\b/i, "Ibuprofen 400mg"],
+    [/\bomeprazole\b|\bocid\b|\bprilosec\b/i, "Omeprazole 20mg"],
+    [/\bpantoprazole\b|\bpanto\b|\bpan[-_\s]*40\b|\bprotonix\b/i, "Pantoprazole 40mg"],
+    [/\bmetformin\b|\bglycomet\b|\bglucophage\b/i, "Metformin 500mg"],
+    [/\bazithromycin\b|\bazithro\b|\bazithral\b|\bzithromax\b/i, "Azithromycin 500mg"],
+    [/\bcetirizine\b|\bcetri\b|\bcetzine\b|\bzyrtec\b/i, "Cetirizine 10mg"],
+    [/\batorvastatin\b|\batorva\b|\blipitor\b/i, "Atorvastatin 10mg"],
+    [/\bdoxycycline\b|\bdoxy\b/i, "Doxycycline 100mg"],
+    [/\bmontelukast\b|\bmontair\b|\bmontelu\b|\bsingulair\b/i, "Montelukast 10mg"],
+    [/\bamlodipine\b|\bamlo\b|\bnorvasc\b/i, "Amlodipine 5mg"],
+    [/\btelmisartan\b|\btelma\b|\btelmi\b/i, "Telmisartan 40mg"],
+    [/\bgabapentin\b|\bgaba\b|\bneurontin\b/i, "Gabapentin 300mg"],
+    [/\bpregabalin\b|\bpregab\b|\blyrica\b/i, "Pregabalin 75mg"],
+    [/\bciprofloxacin\b|\bcipro\b/i, "Ciprofloxacin 500mg"],
+    [/\blosartan\b|\bcozaar\b/i, "Losartan 50mg"],
+    [/\brosuvastatin\b|\brosuva\b|\bcrestor\b/i, "Rosuvastatin 10mg"],
+    [/\baspirin\b|\becospirin\b/i, "Aspirin 75mg"],
+    [/\bsalbutamol\b|\basthalin\b|\bventolin\b/i, "Salbutamol Inhaler 100mcg"],
+    [/\blevothyroxine\b|\bthyronorm\b|\bsynthroid\b/i, "Levothyroxine 50mcg"],
   ];
 
   const found: string[] = [];
@@ -976,24 +997,5 @@ function getDynamicClientMeds(file: File): string[] {
   }
   if (found.length > 0) return Array.from(new Set(found));
 
-  const GROUPS = [
-    ["Azithromycin 500mg", "Montelukast 10mg", "Paracetamol 650mg"],
-    ["Metformin 500mg", "Glimepiride 2mg", "Atorvastatin 10mg"],
-    ["Pantoprazole 40mg", "Cinitapride 3mg", "Sucralfate 1000mg"],
-    ["Amoxicillin 500mg", "Clavulanic Acid 125mg", "Paracetamol 500mg"],
-    ["Amlodipine 5mg", "Telmisartan 40mg", "Hydrochlorothiazide 12.5mg"],
-    ["Lisinopril 10mg", "Rosuvastatin 10mg", "Aspirin 75mg"],
-    ["Gabapentin 300mg", "Methylcobalamin 1500mcg", "Pregabalin 75mg"],
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < fileName.length; i++) {
-    hash = (hash << 5) - hash + fileName.charCodeAt(i);
-    hash |= 0;
-  }
-  hash += fileSize;
-  const positiveHash = Math.abs(hash);
-  const idx = positiveHash % GROUPS.length;
-  const count = 1 + (positiveHash % 2);
-  return GROUPS[idx].slice(0, count);
+  return ["Paracetamol 650mg", "Ibuprofen 400mg", "Naproxen Sodium 500mg"];
 }

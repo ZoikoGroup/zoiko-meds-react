@@ -218,7 +218,7 @@ export default function ZoiViewport() {
                 Assistant
               </span>
             </div>
-            <span>{state.streamedContent}</span>
+            <MessageText content={state.streamedContent} />
             <span style={{ display: "inline-block", width: "6px", height: "16px", background: "#008882", marginLeft: "2px", verticalAlign: "text-bottom", borderRadius: "1px" }} />
           </div>
         </div>

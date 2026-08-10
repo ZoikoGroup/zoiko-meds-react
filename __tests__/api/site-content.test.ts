@@ -54,7 +54,7 @@ describe("Hybrid Vector RAG Search (lib/site-content.ts)", () => {
     const topResult = results[0];
     expect(topResult.score).toBeGreaterThan(0);
     expect(topResult.vectorScore).toBeGreaterThan(0);
-    expect(topResult.doc.id).toMatch(/enterprise|spec-api|spec-btd/);
+    expect(topResult.doc.id).toMatch(/enterprise/);
   });
 
   it("finds relevant documents for patient alert questions", () => {
