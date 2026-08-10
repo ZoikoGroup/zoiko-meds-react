@@ -826,5 +826,46 @@
     },
     "submittedAt": "2026-08-07T07:38:21.014Z",
     "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786344673303_6ebuc",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Book a Demo (Retail pharmacy)",
+    "fullName": "Naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "Book a Demo (Retail pharmacy)",
+      "fullName": "Naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Country: USA\nInterests: Platform Overview, Pharmacy Network, Wholesale Portal\nTimeline: \nMessage:"
+    },
+    "submittedAt": "2026-08-10T06:51:13.303Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786346135063_x9g9y",
+    "type": "OTHER",
+    "title": "Appointment Request: naveen sangepu (Follow-up visit)",
+    "fullName": "naveen sangepu",
+    "email": "naveeen@gmail.com",
+    "payload": {
+      "refNumber": "APT-133846",
+      "fullName": "naveen sangepu",
+      "email": "naveeen@gmail.com",
+      "phone": "",
+      "appointmentType": "Follow-up visit",
+      "preferredDate": "2026-08-21",
+      "preferredTime": "Afternoon",
+      "visitMode": "In-person",
+      "providerLocation": "",
+      "reasonForVisit": "",
+      "reminderChannels": "Email"
+    },
+    "submittedAt": "2026-08-10T07:15:35.063Z",
+    "status": "RECEIVED"
   }
 ]

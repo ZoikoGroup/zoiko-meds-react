@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { appUrl, internalApi } from "@/lib/config";
 
 const ACCENT = "#13A594";
 
@@ -42,13 +43,40 @@ const VISIT_MODES = ["In-person", "Telehealth", "Not sure"] as const;
 
 const REMINDER_CHANNELS = ["Email", "SMS", "Push", "Calendar"] as const;
 
+interface SubmittedAppointmentData {
+  refNumber: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  appointmentType: string;
+  preferredDate: string;
+  preferredTime: string;
+  visitMode: string;
+  providerLocation: string;
+  reasonForVisit: string;
+  reminderChannels: string;
+  submittedAt: string;
+}
+
 export default function AppointmentsScheduleFormSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [appointmentType, setAppointmentType] = useState("");
+  const [preferredDate, setPreferredDate] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
   const [visitMode, setVisitMode] = useState<(typeof VISIT_MODES)[number] | "">("");
+  const [providerLocation, setProviderLocation] = useState("");
+  const [reasonForVisit, setReasonForVisit] = useState("");
   const [reminderChannels, setReminderChannels] = useState<string[]>([]);
   const [agreed, setAgreed] = useState(false);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [submittedData, setSubmittedData] = useState<SubmittedAppointmentData | null>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -72,10 +100,58 @@ export default function AppointmentsScheduleFormSection() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!agreed) return;
-    // TODO: wire up to appointment request endpoint
+    if (!agreed || submitting) return;
+
+    setSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch(internalApi("appointments"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          phone,
+          appointmentType,
+          preferredDate,
+          preferredTime,
+          visitMode,
+          providerLocation,
+          reasonForVisit,
+          reminderChannels,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success && json.data) {
+        setSubmittedData(json.data);
+      } else {
+        setErrorMessage(json.message || "Failed to schedule appointment. Please try again.");
+      }
+    } catch {
+      setErrorMessage("Network error occurred while submitting your appointment request.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function handleReset() {
+    setSubmittedData(null);
+    setFullName("");
+    setEmail("");
+    setPhone("");
+    setAppointmentType("");
+    setPreferredDate("");
+    setPreferredTime("");
+    setVisitMode("");
+    setProviderLocation("");
+    setReasonForVisit("");
+    setReminderChannels([]);
+    setAgreed(false);
+    setErrorMessage("");
   }
 
   return (
@@ -113,213 +189,334 @@ export default function AppointmentsScheduleFormSection() {
         {/* ── Form + Sidebar ── */}
         <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:mt-10 lg:grid-cols-[1fr_320px]">
 
-          {/* ── Form card ── */}
+          {/* ── Form or Confirmation card ── */}
           <Reveal index={3} active={mounted}>
-            <form
-              onSubmit={handleSubmit}
-              className="rounded-2xl border bg-white p-6 sm:p-8"
-              style={{
-                borderColor: "#E7EAF1",
-                boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
-              }}
-            >
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Full name" required>
-                  <input
-                    type="text"
-                    required
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
-                  />
-                </Field>
+            {submittedData ? (
+              <div
+                className="rounded-2xl border bg-white p-6 sm:p-8"
+                style={{
+                  borderColor: "#E7EAF1",
+                  boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
+                }}
+              >
+                {/* Success Header */}
+                <div className="flex items-center justify-between border-b pb-5" style={{ borderColor: "#E7EAF1" }}>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#13A594]/10 text-[#13A594]">
+                      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-[#0F1F4E]">Appointment Requested</h3>
+                      <p className="text-xs text-[#5B6478]">
+                        Confirmation email sent to <span className="font-semibold text-[#0F1F4E]">info@zoikomeds.com</span>
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-[#13A594]/10 px-3.5 py-1 text-xs font-bold text-[#13A594]">
+                    Ref: {submittedData.refNumber}
+                  </span>
+                </div>
 
-                <Field label="Email address" required>
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@email.com"
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
-                  />
-                </Field>
+                {/* Submitted Summary Details */}
+                <div className="mt-6 rounded-xl bg-[#F8FAFC] p-5 border" style={{ borderColor: "#E7EAF1" }}>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#5B6478] mb-4">Request Summary</h4>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-[13.5px]">
+                    <div>
+                      <span className="block text-xs text-[#8A93A8]">Full Name</span>
+                      <span className="font-semibold text-[#0F1F4E]">{submittedData.fullName}</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[#8A93A8]">Email Address</span>
+                      <span className="font-semibold text-[#0F1F4E]">{submittedData.email}</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[#8A93A8]">Phone Number</span>
+                      <span className="font-semibold text-[#0F1F4E]">{submittedData.phone || "Not provided"}</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[#8A93A8]">Appointment Type</span>
+                      <span className="font-semibold text-[#0F1F4E]">{submittedData.appointmentType}</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[#8A93A8]">Preferred Date & Time</span>
+                      <span className="font-semibold text-[#0F1F4E]">
+                        {submittedData.preferredDate} ({submittedData.preferredTime})
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[#8A93A8]">Visit Mode</span>
+                      <span className="font-semibold text-[#0F1F4E]">{submittedData.visitMode}</span>
+                    </div>
+                    {submittedData.providerLocation && (
+                      <div>
+                        <span className="block text-xs text-[#8A93A8]">Provider / Location</span>
+                        <span className="font-semibold text-[#0F1F4E]">{submittedData.providerLocation}</span>
+                      </div>
+                    )}
+                    {submittedData.reminderChannels && (
+                      <div>
+                        <span className="block text-xs text-[#8A93A8]">Reminder Preferences</span>
+                        <span className="font-semibold text-[#0F1F4E]">{submittedData.reminderChannels}</span>
+                      </div>
+                    )}
+                  </div>
 
-                <Field label="Phone number" optional hint="For SMS reminders">
-                  <input
-                    type="tel"
-                    placeholder="For SMS reminders"
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
-                  />
-                </Field>
+                  {submittedData.reasonForVisit && (
+                    <div className="mt-4 border-t pt-3" style={{ borderColor: "#E7EAF1" }}>
+                      <span className="block text-xs text-[#8A93A8]">Reason for Visit</span>
+                      <span className="text-[13px] text-[#0F1F4E]">{submittedData.reasonForVisit}</span>
+                    </div>
+                  )}
+                </div>
 
-                <Field label="Appointment type" required>
-                  <select
-                    required
-                    defaultValue=""
-                    className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    onClick={handleReset}
+                    className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 cursor-pointer"
+                    style={{ backgroundColor: ACCENT }}
+                  >
+                    Schedule Another Appointment
+                  </button>
+                  <a
+                    href={appUrl("/login")}
+                    className="inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors hover:bg-[#F4F6FA]"
                     style={{ borderColor: "#D8DDE8" }}
                   >
-                    <option value="" disabled>
-                      Select type
-                    </option>
-                    {APPOINTMENT_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
+                    Sign In to Portal
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="rounded-2xl border bg-white p-6 sm:p-8"
+                style={{
+                  borderColor: "#E7EAF1",
+                  boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
+                }}
+              >
+                {errorMessage && (
+                  <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+                    {errorMessage}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <Field label="Full name" required>
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    />
+                  </Field>
+
+                  <Field label="Email address" required>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@email.com"
+                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    />
+                  </Field>
+
+                  <Field label="Phone number" optional hint="For SMS reminders">
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="For SMS reminders"
+                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    />
+                  </Field>
+
+                  <Field label="Appointment type" required>
+                    <select
+                      required
+                      value={appointmentType}
+                      onChange={(e) => setAppointmentType(e.target.value)}
+                      className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    >
+                      <option value="" disabled>
+                        Select type
                       </option>
+                      {APPOINTMENT_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+
+                  <Field label="Preferred date" required>
+                    <input
+                      type="date"
+                      required
+                      value={preferredDate}
+                      onChange={(e) => setPreferredDate(e.target.value)}
+                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    />
+                  </Field>
+
+                  <Field label="Preferred time window" required>
+                    <select
+                      required
+                      value={preferredTime}
+                      onChange={(e) => setPreferredTime(e.target.value)}
+                      className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      {TIME_WINDOWS.map((window) => (
+                        <option key={window} value={window}>
+                          {window}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+
+                {/* Visit mode */}
+                <div className="mt-5">
+                  <Label required>Visit mode</Label>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {VISIT_MODES.map((mode) => (
+                      <label
+                        key={mode}
+                        className="flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E]"
+                        style={{
+                          borderColor: visitMode === mode ? ACCENT : "#D8DDE8",
+                          backgroundColor: visitMode === mode ? "rgba(19,165,148,0.06)" : "white",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="visit-mode"
+                          value={mode}
+                          required
+                          checked={visitMode === mode}
+                          onChange={() => setVisitMode(mode)}
+                          className="h-3.5 w-3.5 accent-[#13A594]"
+                        />
+                        {mode}
+                      </label>
                     ))}
-                  </select>
-                </Field>
+                  </div>
+                </div>
 
-                <Field label="Preferred date" required>
+                {/* Provider / location */}
+                <div className="mt-5">
+                  <Field label="Provider / location" optional>
+                    <input
+                      type="text"
+                      value={providerLocation}
+                      onChange={(e) => setProviderLocation(e.target.value)}
+                      placeholder="Search or enter a provider or location"
+                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    />
+                  </Field>
+                </div>
+
+                {/* Reason for visit */}
+                <div className="mt-5">
+                  <Field label="Reason for visit" optional>
+                    <textarea
+                      rows={3}
+                      value={reasonForVisit}
+                      onChange={(e) => setReasonForVisit(e.target.value)}
+                      placeholder="Brief context. Do not use for emergencies or urgent medical situations."
+                      className="w-full resize-none rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
+                      style={{ borderColor: "#D8DDE8" }}
+                    />
+                  </Field>
+                </div>
+
+                {/* Reminder preference */}
+                <div className="mt-5">
+                  <Label optional>Reminder preference</Label>
+                  <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {REMINDER_CHANNELS.map((channel) => (
+                      <label
+                        key={channel}
+                        className="flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E]"
+                        style={{
+                          borderColor: reminderChannels.includes(channel) ? ACCENT : "#D8DDE8",
+                          backgroundColor: reminderChannels.includes(channel)
+                            ? "rgba(19,165,148,0.06)"
+                            : "white",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={reminderChannels.includes(channel)}
+                          onChange={() => toggleReminderChannel(channel)}
+                          className="h-3.5 w-3.5 rounded accent-[#13A594]"
+                        />
+                        {channel}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Agreement */}
+                <div className="mt-6 flex items-start gap-2.5">
                   <input
-                    type="date"
+                    type="checkbox"
                     required
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 rounded accent-[#13A594]"
                   />
-                </Field>
+                  <p className="text-[12.5px] leading-relaxed text-[#5B6478]">
+                    I agree to appointment communications and acknowledge the{" "}
+                    <Link href="/privacy-center" className="font-medium underline" style={{ color: ACCENT }}>
+                      privacy notice
+                    </Link>
+                    . I understand ZoikoMeds is not an emergency service and does not provide
+                    medical advice. <span style={{ color: "#D0455A" }}>*</span>
+                  </p>
+                </div>
 
-                <Field label="Preferred time window" required>
-                  <select
-                    required
-                    defaultValue=""
-                    className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
+                {/* Actions */}
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                    style={{ backgroundColor: ACCENT }}
+                    disabled={!agreed || submitting}
+                  >
+                    {submitting ? "Scheduling…" : "Schedule an Appointment"}
+                  </button>
+                  <a
+                    href={appUrl("/login")}
+                    className="inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-200 hover:bg-[#F4F6FA]"
                     style={{ borderColor: "#D8DDE8" }}
                   >
-                    <option value="" disabled>
-                      Select
-                    </option>
-                    {TIME_WINDOWS.map((window) => (
-                      <option key={window} value={window}>
-                        {window}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-              </div>
-
-              {/* Visit mode */}
-              <div className="mt-5">
-                <Label required>Visit mode</Label>
-                <div className="mt-2 flex flex-wrap gap-3">
-                  {VISIT_MODES.map((mode) => (
-                    <label
-                      key={mode}
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E]"
-                      style={{
-                        borderColor: visitMode === mode ? ACCENT : "#D8DDE8",
-                        backgroundColor: visitMode === mode ? "rgba(19,165,148,0.06)" : "white",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="visit-mode"
-                        value={mode}
-                        checked={visitMode === mode}
-                        onChange={() => setVisitMode(mode)}
-                        className="h-3.5 w-3.5 accent-[#13A594]"
-                      />
-                      {mode}
-                    </label>
-                  ))}
+                    Sign In
+                  </a>
                 </div>
-              </div>
 
-              {/* Provider / location */}
-              <div className="mt-5">
-                <Field label="Provider / location" optional>
-                  <input
-                    type="text"
-                    placeholder="Search or enter a provider or location"
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
-                  />
-                </Field>
-              </div>
-
-              {/* Reason for visit */}
-              <div className="mt-5">
-                <Field label="Reason for visit" optional>
-                  <textarea
-                    rows={3}
-                    placeholder="Brief context. Do not use for emergencies or urgent medical situations."
-                    className="w-full resize-none rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
-                  />
-                </Field>
-              </div>
-
-              {/* Reminder preference */}
-              <div className="mt-5">
-                <Label optional>Reminder preference</Label>
-                <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {REMINDER_CHANNELS.map((channel) => (
-                    <label
-                      key={channel}
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E]"
-                      style={{
-                        borderColor: reminderChannels.includes(channel) ? ACCENT : "#D8DDE8",
-                        backgroundColor: reminderChannels.includes(channel)
-                          ? "rgba(19,165,148,0.06)"
-                          : "white",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={reminderChannels.includes(channel)}
-                        onChange={() => toggleReminderChannel(channel)}
-                        className="h-3.5 w-3.5 rounded accent-[#13A594]"
-                      />
-                      {channel}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Agreement */}
-              <div className="mt-6 flex items-start gap-2.5">
-                <input
-                  type="checkbox"
-                  required
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 rounded accent-[#13A594]"
-                />
-                <p className="text-[12.5px] leading-relaxed text-[#5B6478]">
-                  I agree to appointment communications and acknowledge the{" "}
-                  <Link href="/privacy" className="font-medium underline" style={{ color: ACCENT }}>
-                    privacy notice
-                  </Link>
-                  . I understand ZoikoMeds is not an emergency service and does not provide
-                  medical advice. <span style={{ color: "#D0455A" }}>*</span>
+                <p className="mt-4 flex items-start gap-1.5 text-[12px] leading-relaxed text-[#8A93A8]">
+                  <span style={{ color: ACCENT }}>○</span>
+                  ZoikoMeds coordinates appointment requests; confirmation depends on provider or
+                  platform configuration. Not medical advice or emergency care.
                 </p>
-              </div>
-
-              {/* Actions */}
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ backgroundColor: ACCENT }}
-                  disabled={!agreed}
-                >
-                  Schedule an Appointment
-                </button>
-                <Link
-                  href="/patient-portal/sign-in"
-                  className="inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-200 hover:bg-[#F4F6FA]"
-                  style={{ borderColor: "#D8DDE8" }}
-                >
-                  Sign In
-                </Link>
-              </div>
-
-              <p className="mt-4 flex items-start gap-1.5 text-[12px] leading-relaxed text-[#8A93A8]">
-                <span style={{ color: ACCENT }}>○</span>
-                ZoikoMeds coordinates appointment requests; confirmation depends on provider or
-                platform configuration. Not medical advice or emergency care.
-              </p>
-            </form>
+              </form>
+            )}
           </Reveal>
 
           {/* ── What to expect sidebar ── */}
