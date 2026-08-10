@@ -140,12 +140,14 @@ export default function ZoiHistoryView() {
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", flex: 1 }}>
           {sessions.map((sess: ChatSession) => {
             const isActive = sess.id === state.activeSessionId;
+            const userPrompts = sess.messages.filter((m) => m.role === "user").map((m) => m.content);
+
             return (
               <div
                 key={sess.id}
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   justifyContent: "space-between",
                   padding: "12px 14px",
                   borderRadius: "10px",
@@ -166,6 +168,21 @@ export default function ZoiHistoryView() {
                     <span>•</span>
                     <span>{sess.messages.length} messages</span>
                   </div>
+
+                  {userPrompts.length > 1 && (
+                    <div style={{ marginTop: "6px", paddingTop: "6px", borderTop: "1px stroke #F1F5F9", display: "flex", flexDirection: "column", gap: "3px" }}>
+                      {userPrompts.slice(0, 3).map((prompt, pIdx) => (
+                        <div key={pIdx} style={{ fontSize: "11px", color: "#475569", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          • {prompt}
+                        </div>
+                      ))}
+                      {userPrompts.length > 3 && (
+                        <div style={{ fontSize: "10.5px", color: "#94A3B8", fontStyle: "italic" }}>
+                          + {userPrompts.length - 3} more turns
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>

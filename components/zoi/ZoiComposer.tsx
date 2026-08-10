@@ -38,7 +38,7 @@ export default function ZoiComposer() {
     <div
       style={{
         borderTop: "1px solid #E2E8F0",
-        padding: "10px 14px 8px",
+        padding: "10px 14px max(10px, env(safe-area-inset-bottom, 10px))",
         background: "linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)",
         flexShrink: 0,
       }}

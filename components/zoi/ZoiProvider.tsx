@@ -43,7 +43,7 @@ type ZoiAction =
   | { type: "SET_ERROR"; error: ZoiError }
   | { type: "TOGGLE_PANEL" }
   | { type: "RESET_SESSION" }
-  | { type: "HYDRATE_SESSION"; messages: Message[]; persona: Persona | null; personaSet: boolean }
+  | { type: "HYDRATE_SESSION"; messages: Message[]; persona: Persona | null; personaSet: boolean; activeSessionId?: string }
   | { type: "ADD_AUDIT_ENTRY"; entry: AuditEntry }
   | { type: "SET_VIEW_MODE"; mode: ViewMode }
   | { type: "SET_SAVED_SESSIONS"; sessions: ChatSession[] }
@@ -58,11 +58,62 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
       return { ...state, persona: action.persona, personaSet: true };
     case "SET_PAGE_CONTEXT":
       return { ...state, pageContext: action.context };
-    case "ADD_MESSAGE":
+    case "ADD_MESSAGE": {
       if (state.messages.some((m) => m.id === action.message.id)) {
         return state;
       }
-      return { ...state, messages: [...state.messages, action.message] };
+      const newMessages = [...state.messages, action.message];
+      const userMsgs = newMessages.filter((m) => m.role === "user");
+
+      let updatedSessions = state.savedSessions;
+      let currentSessionId = state.activeSessionId;
+      if (currentSessionId === "session-init" && typeof window !== "undefined") {
+        currentSessionId = crypto.randomUUID();
+      }
+
+      if (userMsgs.length > 0) {
+        const firstQuery = userMsgs[0]?.content ?? "Medicine inquiry";
+        const title = firstQuery.length > 35 ? firstQuery.substring(0, 35) + "..." : firstQuery;
+
+        const existingSess = state.savedSessions.find((s) => s.id === currentSessionId);
+        const createdAt = existingSess ? existingSess.createdAt : Date.now();
+
+        const currentSession: ChatSession = {
+          id: currentSessionId,
+          title,
+          createdAt,
+          messages: newMessages,
+          persona: state.persona,
+        };
+
+        updatedSessions = [
+          currentSession,
+          ...state.savedSessions.filter((s) => s.id !== currentSession.id),
+        ];
+
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("zoi_chat_history", JSON.stringify(updatedSessions));
+            sessionStorage.setItem(
+              "zoi_session",
+              JSON.stringify({
+                messages: newMessages,
+                persona: state.persona,
+                personaSet: state.personaSet,
+                activeSessionId: currentSessionId,
+              })
+            );
+          } catch {}
+        }
+      }
+
+      return {
+        ...state,
+        messages: newMessages,
+        savedSessions: updatedSessions,
+        activeSessionId: currentSessionId,
+      };
+    }
     case "SET_STREAMING":
       return { ...state, isStreaming: action.isStreaming };
     case "APPEND_STREAM":
@@ -77,17 +128,20 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
       return { ...state, escalationReference: action.ref, escalationContact: action.contact ?? state.escalationContact };
     case "TOGGLE_PANEL":
       return { ...state, panelView: state.panelView === "open" ? "minimized" : "open" };
-    case "RESET_SESSION":
+    case "RESET_SESSION": {
       if (typeof window !== "undefined") {
         try { sessionStorage.removeItem("zoi_session"); } catch {}
       }
+      const newSessionId = typeof window !== "undefined" ? crypto.randomUUID() : "session-init";
       return {
         ...initialState,
         panelView: state.panelView,
         savedSessions: state.savedSessions,
         pageContext: state.pageContext,
+        activeSessionId: newSessionId,
         messages: state.messages.length === 0 ? [] : [GREETING_MESSAGE],
       };
+    }
     case "HYDRATE_SESSION": {
       const seenIds = new Set<string>();
       const uniqueMsgs: Message[] = [];
@@ -102,6 +156,7 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
         messages: uniqueMsgs.length > 0 ? uniqueMsgs : state.messages,
         persona: action.persona ?? state.persona,
         personaSet: action.personaSet ?? state.personaSet,
+        activeSessionId: action.activeSessionId ?? state.activeSessionId,
       };
     }
     case "ADD_AUDIT_ENTRY":
@@ -197,6 +252,7 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
             messages: parsed.messages,
             persona: parsed.persona ?? null,
             personaSet: !!parsed.personaSet,
+            activeSessionId: parsed.activeSessionId,
           });
         }
       }
@@ -205,24 +261,13 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Save session state to sessionStorage when messages or persona change
+  // Save session state to sessionStorage and update savedSessions history in real-time
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (state.messages.length > 0) {
-      try {
-        sessionStorage.setItem(
-          "zoi_session",
-          JSON.stringify({
-            messages: state.messages,
-            persona: state.persona,
-            personaSet: state.personaSet,
-          })
-        );
-      } catch {
-        // Ignore storage write error
-      }
+      // Logic handled within ADD_MESSAGE for robustness, but we preserve local effect for other state changes
     }
-  }, [state.messages, state.persona, state.personaSet]);
+  }, [state.messages, state.persona, state.personaSet, state.activeSessionId]);
 
   const openPanel = useCallback(() => {
     initTelemetry();
@@ -276,15 +321,29 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
     resetLowConfidenceCount();
     trackEvent("persona_selected", { persona });
     addAudit(dispatch, "persona_selected", { persona });
+
+    let chips = [
+      { label: "Check availability", action: "check_availability" },
+      { label: "Talk to team", action: "escalate" },
+    ];
+    if (persona === "enterprise") {
+      chips = [
+        { label: "Talk to team", action: "escalate" },
+        { label: "Request API Docs", action: "request_api_docs" },
+      ];
+    } else if (persona === "wholesale") {
+      chips = [
+        { label: "Access Wholesale Portal", action: "wholesale_portal" },
+        { label: "Talk to team", action: "escalate" },
+      ];
+    }
+
     const msg: Message = {
       id: crypto.randomUUID(),
       role: "assistant",
       content: generatePersonaResponse(persona),
       timestamp: Date.now(),
-      chips: [
-        { label: "Check availability", action: "check_availability" },
-        { label: "Talk to team", action: "escalate" },
-      ],
+      chips,
     };
     dispatch({ type: "ADD_MESSAGE", message: msg });
   }, []);
@@ -347,14 +406,70 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
         case "other":
           setPersona(action as Persona);
           break;
-        case "check_availability":
+        case "check_availability": {
+          const userMsgs = [...state.messages].reverse().filter((m) => m.role === "user");
+          let historyMed: string | null = null;
+          import("@/lib/availability").then(({ findMedicineInQuery }) => {
+            for (const u of userMsgs) {
+              const m = findMedicineInQuery(u.content);
+              if (m) { historyMed = m; break; }
+            }
+            if (historyMed) {
+              sendMessage(historyMed);
+            } else {
+              dispatch({ type: "ADD_MESSAGE", message: {
+                id: crypto.randomUUID(),
+                role: "assistant",
+                content: "I can help you check medicine availability. Tell me the name of the medicine and your location.",
+                timestamp: Date.now(),
+                chips: [
+                  { label: "Find a medicine", action: "patient" },
+                ],
+              } });
+            }
+          });
+          break;
+        }
+        case "request_api_docs":
+          if (typeof window !== "undefined") {
+            window.open("https://zoikomeds.com/enterprise", "_blank") || (window.location.href = "https://zoikomeds.com/enterprise");
+          }
           dispatch({ type: "ADD_MESSAGE", message: {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: "I can help you check medicine availability. Tell me the name of the medicine and your location.",
+            content: "Opening enterprise API documentation at [zoikomeds.com/enterprise](https://zoikomeds.com/enterprise)...",
             timestamp: Date.now(),
             chips: [
-              { label: "Find a medicine", action: "patient" },
+              { label: "Talk to team", action: "escalate" },
+            ],
+          } });
+          break;
+        case "wholesale_portal":
+          if (typeof window !== "undefined") {
+            window.open("https://zoikomeds.com/contact", "_blank") || (window.location.href = "https://zoikomeds.com/contact");
+          }
+          dispatch({ type: "ADD_MESSAGE", message: {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: "Wholesale partners can access bulk pricing, track orders, and manage supply chain planning through our partner network. Connecting you with our team at [zoikomeds.com/contact](https://zoikomeds.com/contact)...",
+            timestamp: Date.now(),
+            chips: [
+              { label: "Talk to team", action: "escalate" },
+            ],
+          } });
+          break;
+        case "open_search":
+          if (typeof window !== "undefined") {
+            window.open("https://zoikomeds.com/searchmed", "_blank") || (window.location.href = "https://zoikomeds.com/searchmed");
+          }
+          dispatch({ type: "ADD_MESSAGE", message: {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: "Opening the ZoikoMeds medicine search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed)...",
+            timestamp: Date.now(),
+            chips: [
+              { label: "Check availability", action: "check_availability" },
+              { label: "Talk to team", action: "escalate" },
             ],
           } });
           break;

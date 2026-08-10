@@ -6,15 +6,15 @@ import { successResponse, errorResponse, validateRequired } from "@/lib/api/help
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
-  secure: process.env.SMTP_USE_SSL === "true",
+  secure: process.env.SMTP_USE_SSL === "true" || process.env.SMTP_USE_TLS === "true" || Number(process.env.SMTP_PORT) === 465,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
+    user: process.env.SMTP_USER || process.env.SMTP_USERNAME,
+    pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS,
   },
 });
 
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL ?? "support@zoikomeds.com";
-const FROM_ADDRESS = process.env.SMTP_USER ?? "support@zoikomeds.com";
+const SUPPORT_EMAIL = process.env.RECIPIENT_EMAIL || process.env.SUPPORT_EMAIL || "info@zoikomeds.com";
+const FROM_ADDRESS = process.env.SMTP_FROM || process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER || "info@zoikomeds.com";
 
 interface ConversationMessage {
   id: string;
@@ -162,13 +162,15 @@ export async function POST(req: NextRequest) {
 
     // 1. Send notification to Support / Operations Team
     try {
-      await transporter.sendMail({
-        from: FROM_ADDRESS,
-        to: SUPPORT_EMAIL,
-        replyTo: contact,
-        subject: `[Zoi ${isStockAlert ? "Alert" : "Ticket"} #${ref}] ${personaLabel} ${isStockAlert ? "Stock Alert" : "Support Request"}`,
-        html,
-      });
+      if (process.env.NODE_ENV !== "test") {
+        await transporter.sendMail({
+          from: FROM_ADDRESS,
+          to: SUPPORT_EMAIL,
+          replyTo: contact,
+          subject: `[Zoi ${isStockAlert ? "Alert" : "Ticket"} #${ref}] ${personaLabel} ${isStockAlert ? "Stock Alert" : "Support Request"}`,
+          html,
+        });
+      }
       console.log(`[Escalation] Support email sent for #${ref} to ${SUPPORT_EMAIL}`);
     } catch (mailErr) {
       console.error(`[Escalation] Failed to send support email for #${ref}:`, mailErr);
@@ -290,12 +292,14 @@ export async function POST(req: NextRequest) {
             </div>
           </div>
         `;
-        await transporter.sendMail({
-          from: FROM_ADDRESS,
-          to: contact,
-          subject: `[ZoikoMeds] ${isStockAlert ? "Stock Alert Activated" : "Support Ticket Received"} — #${ref}`,
-          html: userConfirmationHtml,
-        });
+        if (process.env.NODE_ENV !== "test") {
+          await transporter.sendMail({
+            from: FROM_ADDRESS,
+            to: contact,
+            subject: `[ZoikoMeds] ${isStockAlert ? "Stock Alert Activated" : "Support Ticket Received"} — #${ref}`,
+            html: userConfirmationHtml,
+          });
+        }
         console.log(`[Escalation] Confirmation receipt sent to user: ${contact}`);
       } catch (userMailErr) {
         console.error(`[Escalation] Failed to send confirmation email to user ${contact}:`, userMailErr);

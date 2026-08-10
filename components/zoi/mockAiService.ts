@@ -69,6 +69,13 @@ function generateFallbackPlan(query: string, _persona: Persona, messages: Messag
     };
   }
 
+  if (/\b(thank|thanks|ok|okay|alright|got it|cool|fine|understood)\b/i.test(lower)) {
+    return {
+      text: "You're welcome! Is there anything else I can help you with?",
+      chips: [{ label: "Check availability", action: "check_availability" }, { label: "Talk to team", action: "escalate" }],
+    };
+  }
+
   // 3. Medicine & Region availability resolution
   let foundMed = findMedicineInQuery(query);
   let foundReg = extractRegion(query);
@@ -91,7 +98,7 @@ function generateFallbackPlan(query: string, _persona: Persona, messages: Messag
     const avail = lookupAvailability({ medicine: foundMed, region: foundReg });
     if (avail) {
       return {
-        text: `Here is the availability information for ${avail.medicine} in the ${avail.region} region:`,
+        text: `Here is the availability information for ${avail.medicine} in ${avail.region}:`,
         chips: [{ label: "Show pharmacy contacts", action: "show_pharmacies" }, { label: "Activate Alert", action: "set_alert" }],
         availabilityCard: {
           medicine: avail.medicine,
@@ -106,8 +113,20 @@ function generateFallbackPlan(query: string, _persona: Persona, messages: Messag
     }
   } else if (foundMed) {
     return {
-      text: `I found ${foundMed.toUpperCase()} in our signal network. Which location or city should I check availability for?`,
-      chips: [{ label: "Talk to team", action: "escalate" }],
+      text: `I found ${foundMed.toUpperCase()} in our database. Which location or city should I check availability for?`,
+      chips: [
+        { label: "Check availability", action: "check_availability" },
+        { label: "Talk to team", action: "escalate" },
+      ],
+    };
+  } else if (foundReg) {
+    const formattedRegion = foundReg.charAt(0).toUpperCase() + foundReg.slice(1);
+    return {
+      text: `I can check medicine availability in ${formattedRegion}. Which medicine are you looking for?`,
+      chips: [
+        { label: "Check availability", action: "check_availability" },
+        { label: "Talk to team", action: "escalate" },
+      ],
     };
   }
 
@@ -122,23 +141,38 @@ function generateFallbackPlan(query: string, _persona: Persona, messages: Messag
       sourceType: d.section,
       authorityLevel: (d.id.startsWith("spec-") ? "A2" : "A5") as "A2" | "A5",
     }));
+
+    const chips: Chip[] = [];
+    if (_persona === "enterprise" || /api|openapi|bff|integration|enterprise|organisation/i.test(query)) {
+      chips.push({ label: "Talk to team", action: "escalate" }, { label: "Request API Docs", action: "request_api_docs" });
+    } else if (_persona === "wholesale" || /wholesale|bulk|distributor|portal/i.test(query)) {
+      chips.push({ label: "Access Wholesale Portal", action: "wholesale_portal" }, { label: "Talk to team", action: "escalate" });
+    } else if (/search|how to search|find medicine/i.test(query)) {
+      chips.push({ label: "Check availability", action: "check_availability" }, { label: "Talk to team", action: "escalate" });
+    } else {
+      chips.push({ label: "Find a medicine", action: "patient" }, { label: "Talk to team", action: "escalate" });
+    }
+
     return {
-      text: `${primary.body}\n\nFor more details, see ${primary.title}.`,
-      chips: [{ label: "Find a medicine", action: "patient" }, { label: "Talk to team", action: "escalate" }],
+      text: primary.body,
+      chips,
       citations,
     };
   }
 
   if (isDrugLikeTerm(query)) {
     return {
-      text: "That medicine isn't in our immediate index yet. Our team can help you find availability or add it to the network.",
+      text: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
       chips: [{ label: "Talk to team", action: "escalate" }],
     };
   }
 
   return {
-    text: "I can help you search for medicine availability, set stock alerts, and navigate platform features. What medicine or location would you like to check?",
-    chips: [{ label: "Find a medicine", action: "patient" }, { label: "Talk to team", action: "escalate" }],
+    text: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
+    chips: [
+      { label: "Find a medicine", action: "patient" },
+      { label: "Talk to team", action: "escalate" },
+    ],
   };
 }
 
@@ -214,6 +248,9 @@ export async function streamResponse(
                   set_alert: "Activate Alert",
                   check_availability: "Check availability",
                   escalate: "Talk to team",
+                  request_api_docs: "Request API Docs",
+                  wholesale_portal: "Access Wholesale Portal",
+                  open_search: "Go to Search Page",
                 };
                 chips.push({ label: labels[action] ?? action, action });
               }
