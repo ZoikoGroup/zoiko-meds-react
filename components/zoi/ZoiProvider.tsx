@@ -432,7 +432,8 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
         }
         case "request_api_docs":
           if (typeof window !== "undefined") {
-            window.open("https://zoikomeds.com/enterprise", "_blank") || (window.location.href = "https://zoikomeds.com/enterprise");
+            const opened = window.open("https://zoikomeds.com/enterprise", "_blank");
+            if (!opened) window.location.href = "https://zoikomeds.com/enterprise";
           }
           dispatch({ type: "ADD_MESSAGE", message: {
             id: crypto.randomUUID(),
@@ -446,7 +447,8 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
           break;
         case "wholesale_portal":
           if (typeof window !== "undefined") {
-            window.open("https://zoikomeds.com/contact", "_blank") || (window.location.href = "https://zoikomeds.com/contact");
+            const opened = window.open("https://zoikomeds.com/contact", "_blank");
+            if (!opened) window.location.href = "https://zoikomeds.com/contact";
           }
           dispatch({ type: "ADD_MESSAGE", message: {
             id: crypto.randomUUID(),
@@ -460,7 +462,8 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
           break;
         case "open_search":
           if (typeof window !== "undefined") {
-            window.open("https://zoikomeds.com/searchmed", "_blank") || (window.location.href = "https://zoikomeds.com/searchmed");
+            const opened = window.open("https://zoikomeds.com/searchmed", "_blank");
+            if (!opened) window.location.href = "https://zoikomeds.com/searchmed";
           }
           dispatch({ type: "ADD_MESSAGE", message: {
             id: crypto.randomUUID(),

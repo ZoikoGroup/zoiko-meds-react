@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { lookupAvailability } from "@/lib/availability";
 import { searchContent } from "@/lib/site-content";
-import { POST } from "@/app/api/zoi/stream/route";
+import { POST } from "@/app/internal/zoi/stream/route";
 import { NextRequest } from "next/server";
 
 describe("Zoi Chatbot Bug Fixes (BUG-01 to BUG-06)", () => {
