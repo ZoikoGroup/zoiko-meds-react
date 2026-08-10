@@ -128,6 +128,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
     if (!form.organizationType) newErrors.organizationType = "Please select an organization type.";
     if (!form.systemSize) newErrors.systemSize = "Please select number of facilities.";
     if (!form.region.trim()) newErrors.region = "Region / market is required.";
+    if (interestAreas.length === 0) newErrors.interestAreas = "Please select at least one primary area of interest.";
 
     return newErrors;
   };
@@ -371,9 +372,15 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                   {INTEREST_AREAS.map((area) => (
                     <label
                       key={area}
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E]"
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E] ${
+                        errors.interestAreas ? "!border-[#DC2626]" : ""
+                      }`}
                       style={{
-                        borderColor: interestAreas.includes(area) ? ACCENT : "#D8DDE8",
+                        borderColor: errors.interestAreas
+                          ? "#DC2626"
+                          : interestAreas.includes(area)
+                          ? ACCENT
+                          : "#D8DDE8",
                         backgroundColor: interestAreas.includes(area)
                           ? "rgba(19,165,148,0.06)"
                           : "white",
@@ -389,6 +396,11 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                     </label>
                   ))}
                 </div>
+                {errors.interestAreas && (
+                  <span className="mt-1.5 block text-xs font-medium text-[#DC2626]">
+                    {errors.interestAreas}
+                  </span>
+                )}
               </div>
 
               {/* Message */}
