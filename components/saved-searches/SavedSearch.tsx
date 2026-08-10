@@ -11,7 +11,7 @@ const cards = [
         description:
             "Save medicine, location, radius, and selected preferences so you can run the same search later.",
         buttonText: "Create free account",
-        link:"/create-account",
+        link: "/register",
         primary: true,
     },
     {

@@ -13,6 +13,7 @@ const CARDS = [
     description:
       "Detect emerging availability gaps weeks before national shortage registers — built for public health authorities, pharmaceutical manufacturers, and distributors who need early-warning infrastructure.",
     cta: "Request ZoikoSignal™ briefing",
+    href:"/zoikosignal-intelligence"
   },
   {
     id: "zoikoavail-api",
@@ -23,6 +24,7 @@ const CARDS = [
     description:
       "Embed verified availability confidence into telehealth platforms, e-prescribing tools, and care pathway routing — with confidence-tier language and no exact stock exposure preserved throughout.",
     cta: "Request API access",
+    href:"/api-access"
   },
   {
     id: "medibase-data",
@@ -33,6 +35,7 @@ const CARDS = [
     description:
       "Normalize medicine identity across jurisdictions, brands, strengths, and local product codes — for health platforms, analytics teams, and regional health authorities building medicine intelligence products.",
     cta: "Discuss data licensing",
+    href:"/medibase-data"
   },
   {
     id: "verified-network",
@@ -43,6 +46,7 @@ const CARDS = [
     description:
       "Convert medicine demand into managed confirmation workflows, demand intelligence, and verified availability signals — for independent pharmacies, regional chains, and national pharmacy groups.",
     cta: "Join the network",
+    href:"/join-the-network"
   },
 ];
 
@@ -121,7 +125,7 @@ export default function HomeEnterpriseSection() {
               </p>
 
               <a
-                href="#"
+                href={card.href}
                 className="relative z-10 mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#0A9B74]"
               >
                 {card.cta}

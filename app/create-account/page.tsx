@@ -1,12 +1,6 @@
-import { ControlsSection, CTASection, HeroSection, ValueSection } from "@/components/create-account";
+import { redirect } from "next/navigation";
+import { appUrl } from "@/lib/config";
 
-export default function CreateAccount() {
-    return (
-        <main>
-            <HeroSection />
-            <ValueSection />
-            <ControlsSection />
-            <CTASection />
-        </main>
-    )
+export default function CreateAccountPage() {
+  redirect(appUrl("/register"));
 }

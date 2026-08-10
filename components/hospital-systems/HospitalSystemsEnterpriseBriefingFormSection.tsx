@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#13A594";
 
@@ -54,6 +56,23 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
 
   const [interestAreas, setInterestAreas] = useState<string[]>([]);
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [form, setForm] = useState({
+    fullName: "",
+    workEmail: "",
+    phone: "",
+    organization: "",
+    jobTitle: "",
+    organizationType: "",
+    systemSize: "",
+    region: "",
+    timeline: "",
+    note: "",
+  });
 
   useEffect(() => {
     const el = ref.current;
@@ -75,12 +94,119 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
     setInterestAreas((prev) =>
       prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
     );
+    if (errors.interestAreas) {
+      setErrors((prev) => ({ ...prev, interestAreas: "" }));
+    }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name } = e.target;
+    let value = e.target.value;
+    if (name === "phone") {
+      value = sanitizePhoneInput(value);
+    }
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.fullName.trim()) newErrors.fullName = "Full name is required.";
+
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) newErrors.workEmail = emailCheck.error!;
+
+    if (form.phone.trim()) {
+      const phoneCheck = validatePhone(form.phone);
+      if (!phoneCheck.isValid) newErrors.phone = phoneCheck.error!;
+    }
+
+    if (!form.organization.trim()) newErrors.organization = "Organization / health system is required.";
+    if (!form.jobTitle.trim()) newErrors.jobTitle = "Job title is required.";
+    if (!form.organizationType) newErrors.organizationType = "Please select an organization type.";
+    if (!form.systemSize) newErrors.systemSize = "Please select number of facilities.";
+    if (!form.region.trim()) newErrors.region = "Region / market is required.";
+
+    return newErrors;
+  };
+
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!agreed) return;
-    // TODO: wire up to enterprise briefing request endpoint
+    if (!agreed || submitting) return;
+
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+
+    setErrors({});
+    setSubmitting(true);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch(internalApi("briefing-request"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Hospital Systems Briefing (${form.organizationType || form.systemSize || "Health System"})`,
+          fullName: form.fullName.trim(),
+          workEmail: form.workEmail.trim(),
+          organization: form.organization.trim(),
+          jobTitle: form.jobTitle.trim(),
+          phone: form.phone.trim(),
+          note: `Organization Type: ${form.organizationType}\nFacilities: ${form.systemSize}\nRegion: ${form.region}\nInterests: ${interestAreas.join(", ")}\nNote: ${form.note}`,
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON responses
+      }
+
+      if (!res.ok || !data.success) {
+        if (data.errors) {
+          setErrors(data.errors);
+        }
+        throw new Error(data.message || `Submission failed (${res.status})`);
+      }
+
+      setStatus("success");
+      setForm({
+        fullName: "",
+        workEmail: "",
+        phone: "",
+        organization: "",
+        jobTitle: "",
+        organizationType: "",
+        systemSize: "",
+        region: "",
+        timeline: "",
+        note: "",
+      });
+      setInterestAreas([]);
+      setAgreed(false);
+    } catch (err: unknown) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Submission failed.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -122,6 +248,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
           <Reveal index={3} active={mounted}>
             <form
               onSubmit={handleSubmit}
+              noValidate
               className="rounded-2xl border bg-white p-6 sm:p-8"
               style={{
                 borderColor: "#E7EAF1",
@@ -129,57 +256,70 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
               }}
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Full name" required>
+                <Field label="Full name" required error={errors.fullName}>
                   <input
                     type="text"
-                    required
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.fullName ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.fullName ? "#DC2626" : "#D8DDE8" }}
                   />
                 </Field>
 
-                <Field label="Work email" required>
+                <Field label="Work email" required error={errors.workEmail}>
                   <input
                     type="email"
-                    required
+                    name="workEmail"
+                    value={form.workEmail}
+                    onChange={handleChange}
                     placeholder="name@healthsystem.org"
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594] ${errors.workEmail ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.workEmail ? "#DC2626" : "#D8DDE8" }}
                   />
                 </Field>
 
-                <Field label="Phone number" optional>
+                <Field label="Phone number" optional error={errors.phone}>
                   <input
                     type="tel"
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    placeholder="e.g. +1 555-123-4567"
+                    className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.phone ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.phone ? "#DC2626" : "#D8DDE8" }}
                   />
                 </Field>
 
-                <Field label="Organization / health system" required>
+                <Field label="Organization / health system" required error={errors.organization}>
                   <input
                     type="text"
-                    required
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    name="organization"
+                    value={form.organization}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.organization ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.organization ? "#DC2626" : "#D8DDE8" }}
                   />
                 </Field>
 
-                <Field label="Job title" required>
+                <Field label="Job title" required error={errors.jobTitle}>
                   <input
                     type="text"
-                    required
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    name="jobTitle"
+                    value={form.jobTitle}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.jobTitle ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.jobTitle ? "#DC2626" : "#D8DDE8" }}
                   />
                 </Field>
 
-                <Field label="Organization type" required>
+                <Field label="Organization type" required error={errors.organizationType}>
                   <select
-                    required
-                    defaultValue=""
-                    className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    name="organizationType"
+                    value={form.organizationType}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.organizationType ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.organizationType ? "#DC2626" : "#D8DDE8" }}
                   >
                     <option value="" disabled>
                       Select type
@@ -192,12 +332,13 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                   </select>
                 </Field>
 
-                <Field label="Number of facilities" required>
+                <Field label="Number of facilities" required error={errors.systemSize}>
                   <select
-                    required
-                    defaultValue=""
-                    className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    name="systemSize"
+                    value={form.systemSize}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.systemSize ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.systemSize ? "#DC2626" : "#D8DDE8" }}
                   >
                     <option value="" disabled>
                       Select
@@ -210,13 +351,15 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                   </select>
                 </Field>
 
-                <Field label="Region / market" required>
+                <Field label="Region / market" required error={errors.region}>
                   <input
                     type="text"
-                    required
+                    name="region"
+                    value={form.region}
+                    onChange={handleChange}
                     placeholder="e.g. US Northeast, national"
-                    className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                    style={{ borderColor: "#D8DDE8" }}
+                    className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594] ${errors.region ? "!border-[#DC2626]" : ""}`}
+                    style={{ borderColor: errors.region ? "#DC2626" : "#D8DDE8" }}
                   />
                 </Field>
               </div>
@@ -252,6 +395,9 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
               <div className="mt-5">
                 <Field label="Message" optional>
                   <textarea
+                    name="note"
+                    value={form.note}
+                    onChange={handleChange}
                     rows={3}
                     placeholder="Tell us about your deployment scope and objectives (no PHI, prescriptions, or exact stock)."
                     className="w-full resize-none rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
@@ -283,11 +429,21 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ backgroundColor: ACCENT }}
-                  disabled={!agreed}
+                  disabled={!agreed || submitting}
                 >
-                  Request Enterprise Briefing
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Request Enterprise Briefing"
+                  )}
                 </button>
                 <Link
                   href="/contact"
@@ -304,6 +460,30 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 security needs. Not medical advice, dispensing, or a pharmacy service — don&apos;t
                 include PHI, prescriptions, or exact stock.
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error message */}
+              {status === "error" && (
+                <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
             </form>
           </Reveal>
 
@@ -383,11 +563,13 @@ function Field({
   label,
   required,
   optional,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   optional?: boolean;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -396,6 +578,9 @@ function Field({
         {label}
       </Label>
       {children}
+      {error && (
+        <span className="text-xs font-medium text-[#DC2626]">{error}</span>
+      )}
     </div>
   );
 }

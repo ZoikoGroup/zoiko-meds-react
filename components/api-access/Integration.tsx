@@ -66,7 +66,7 @@ const cards: Card[] = [
     description:
       "Receive governed regional access reports and shortage-awareness feeds for approved operational review and public health planning.",
     action: "Request Public-Health API Review",
-    href: "/public-health-government",
+    href: "/government-public-health",
   },
 ];
 

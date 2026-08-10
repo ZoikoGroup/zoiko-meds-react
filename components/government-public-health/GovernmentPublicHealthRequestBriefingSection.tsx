@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 
 const ACCENT = "#0FAA87";
@@ -51,6 +53,13 @@ export default function GovernmentPublicHealthRequestBriefingSection() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   useEffect(() => {
     const el = ref.current;
@@ -84,10 +93,9 @@ export default function GovernmentPublicHealthRequestBriefingSection() {
     e.preventDefault();
 
     const nextErrors: FormErrors = {};
-    if (!form.email.trim()) {
-      nextErrors.email = "Enter your work email.";
-    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      nextErrors.email = emailCheck.error!;
     }
     if (!form.fullName.trim()) {
       nextErrors.fullName = "Enter your full name.";
@@ -103,18 +111,34 @@ export default function GovernmentPublicHealthRequestBriefingSection() {
     }
 
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     setStatus("submitting");
     try {
-      // TODO: replace with the real public health briefing endpoint, e.g.
-      // const res = await fetch("/api/government-public-health/briefing", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Submission failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch(internalApi("government-public-health"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Government / Public Health Briefing (${form.organizationType || "Public Health"})`,
+          fullName: form.fullName,
+          workEmail: form.email,
+          organization: form.organizationName,
+          note: `Primary Interest: ${form.primaryInterest}\nNote: ${form.note}`,
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON responses
+      }
+      if (!res.ok || !data.success) throw new Error(data.message || "Submission failed");
+
       setStatus("success");
       setForm({
         email: "",
@@ -171,6 +195,7 @@ export default function GovernmentPublicHealthRequestBriefingSection() {
               form={form}
               errors={errors}
               status={status}
+              successRef={successRef}
               onChange={handleChange}
               onSubmit={handleSubmit}
             />
@@ -222,12 +247,14 @@ function BriefingForm({
   form,
   errors,
   status,
+  successRef,
   onChange,
   onSubmit,
 }: {
   form: FormState;
   errors: FormErrors;
   status: FormStatus;
+  successRef: React.RefObject<HTMLDivElement | null>;
   onChange: (field: keyof FormState, value: string) => void;
   onSubmit: (e: FormEvent) => void;
 }) {
@@ -390,19 +417,19 @@ function BriefingForm({
         </p>
 
         {status === "success" && (
-          <p className="flex items-center gap-2 text-[13px] font-medium text-[#0E8F70]">
-            <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M3.5 8.5l3 3 6-6.5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Your public health briefing request has been submitted.
-            We&apos;ll follow up by email.
-          </p>
+          <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+            <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+              <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <p className="font-bold text-[#00786F]">Public Health Briefing Request Received</p>
+                <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                  Our public-sector team will review your request and contact you soon.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {status === "error" && (

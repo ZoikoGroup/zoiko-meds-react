@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#13A594";
 const NAVY = "#0F1F4E";
@@ -107,12 +109,19 @@ export default function IntegrationsRequestBriefingSection() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    const { name, value, type } = e.target;
+    const { name, type } = e.target;
+    let value = e.target.value;
+    if (name === "phoneNumber") {
+      value = sanitizePhoneInput(value);
+    }
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -123,17 +132,28 @@ export default function IntegrationsRequestBriefingSection() {
         ? prev.systemsToIntegrate.filter((id) => id !== systemId)
         : [...prev.systemsToIntegrate, systemId],
     }));
+    if (errors.systemsToIntegrate) {
+      setErrors((prev) => ({ ...prev, systemsToIntegrate: "" }));
+    }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.workEmail.trim())
-      newErrors.workEmail = "Work email is required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.workEmail)) {
-      newErrors.workEmail = "Valid email required";
+
+    const emailCheck = validateEmail(formData.workEmail);
+    if (!emailCheck.isValid) {
+      newErrors.workEmail = emailCheck.error!;
     }
+
+    if (formData.phoneNumber.trim()) {
+      const phoneCheck = validatePhone(formData.phoneNumber);
+      if (!phoneCheck.isValid) {
+        newErrors.phoneNumber = phoneCheck.error!;
+      }
+    }
+
     if (!formData.organization.trim())
       newErrors.organization = "Organization is required";
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
@@ -149,15 +169,77 @@ export default function IntegrationsRequestBriefingSection() {
     if (!formData.consent) newErrors.consent = "Consent is required";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    if (Object.keys(newErrors).length > 0) {
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return false;
+    }
+    return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || submitting) return;
     setSubmitting(true);
-    // Wire up actual submission handler here
-    setTimeout(() => setSubmitting(false), 1200);
+    setStatus("idle");
+
+    try {
+      const res = await fetch(internalApi("briefing-request"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Integrations Briefing (${formData.organizationType || "Integration"})`,
+          fullName: formData.fullName,
+          workEmail: formData.workEmail,
+          organization: formData.organization,
+          jobTitle: formData.jobTitle,
+          phone: formData.phoneNumber,
+          note: `Objective: ${formData.integrationObjective}\nSystems: ${formData.systemsToIntegrate.join(", ")}\nTimeline: ${formData.estimatedTimeline}\nCountry: ${formData.country}\nNotes: ${formData.message}`,
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON response
+      }
+
+      if (res.ok && (data.success || res.status === 200)) {
+        setStatus("success");
+        setFormData({
+          fullName: "",
+          workEmail: "",
+          phoneNumber: "",
+          organization: "",
+          jobTitle: "",
+          organizationType: "",
+          country: "",
+          integrationObjective: "",
+          systemsToIntegrate: [],
+          estimatedTimeline: "",
+          message: "",
+          consent: false,
+        });
+        setErrors({});
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -457,12 +539,20 @@ export default function IntegrationsRequestBriefingSection() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-lg px-6 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  {submitting
-                    ? "Submitting…"
-                    : "Request an Integration Briefing"}
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Request an Integration Briefing"
+                  )}
                 </button>
                 <button
                   type="button"
@@ -486,6 +576,23 @@ export default function IntegrationsRequestBriefingSection() {
                   secrets, or exact stock.
                 </span>
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </form>
           </Reveal>
 

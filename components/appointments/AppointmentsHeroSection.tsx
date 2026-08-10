@@ -96,7 +96,7 @@ export default function AppointmentsHeroSection() {
 
             <Reveal index={4} active={mounted}>
               <a
-                href="/create-account"
+                href="/register"
                 className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
                 style={{ color: ACCENT }}
               >

@@ -20,6 +20,7 @@ const CARDS = [
     cardBg: "from-blue-900/60 via-blue-950/60 to-slate-950",
     border: "border-blue-500/20 hover:border-blue-400/40",
     glow: "bg-blue-500/30",
+    href:"/medibase-data"
   },
   {
     id: "zoikoavail",
@@ -37,6 +38,7 @@ const CARDS = [
     cardBg: "from-emerald-900/50 via-emerald-950/50 to-slate-950",
     border: "border-emerald-500/20 hover:border-emerald-400/40",
     glow: "bg-emerald-500/30",
+    href:"/zoiko-avail-api"
   },
   {
     id: "zoikosignal",
@@ -54,6 +56,7 @@ const CARDS = [
     cardBg: "from-purple-900/50 via-purple-950/50 to-slate-950",
     border: "border-purple-500/20 hover:border-purple-400/40",
     glow: "bg-purple-500/30",
+    href:"/zoikosignal-intelligence"
   },
 ];
 
@@ -152,7 +155,7 @@ export default function HomeEnginesSection() {
                   </p>
 
                   <a
-                    href="#"
+                    href={card.href}
                     className={`mt-5 inline-flex items-center gap-1 text-sm font-semibold ${card.ctaColor}`}
                   >
                     {card.cta}

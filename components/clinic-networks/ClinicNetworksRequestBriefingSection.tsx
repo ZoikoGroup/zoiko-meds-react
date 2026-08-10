@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#13A594";
 
@@ -77,7 +79,19 @@ export default function ClinicNetworksRequestBriefingSection() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.workEmail.trim()) newErrors.workEmail = "Work email is required";
+
+    const emailCheck = validateEmail(formData.workEmail);
+    if (!emailCheck.isValid) {
+      newErrors.workEmail = emailCheck.error!;
+    }
+
+    if (formData.phoneNumber.trim()) {
+      const phoneCheck = validatePhone(formData.phoneNumber);
+      if (!phoneCheck.isValid) {
+        newErrors.phoneNumber = phoneCheck.error!;
+      }
+    }
+
     if (!formData.organizationName.trim())
       newErrors.organizationName = "Organization name is required";
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
@@ -88,14 +102,29 @@ export default function ClinicNetworksRequestBriefingSection() {
     if (formData.primaryInterest.length === 0)
       newErrors.primaryInterest = "Select at least one area of interest";
     if (!formData.consent) newErrors.consent = "You must accept the privacy notice";
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    if (Object.keys(newErrors).length > 0) {
+      const firstKey = newErrors.workEmail
+        ? "workEmail"
+        : newErrors.fullName
+        ? "fullName"
+        : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return false;
+    }
+    return true;
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value, type } = e.target;
+    const { name, type } = e.target;
+    let value = e.target.value;
+    if (name === "phoneNumber") {
+      value = sanitizePhoneInput(value);
+    }
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       if (name === "consent") {
@@ -111,13 +140,70 @@ export default function ClinicNetworksRequestBriefingSection() {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (submitted && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [submitted]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (validateForm()) {
-      console.log("Form submitted:", formData);
-      // Handle form submission
+      setSubmitting(true);
+      try {
+        const res = await fetch(internalApi("briefing-request"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Clinic Networks Briefing (${formData.clinicNetworkSize || "Network"})`,
+            fullName: formData.fullName.trim(),
+            workEmail: formData.workEmail.trim(),
+            organization: formData.organizationName.trim(),
+            jobTitle: formData.jobTitle.trim(),
+            phone: formData.phoneNumber.trim(),
+            note: `Network Size: ${formData.clinicNetworkSize}\nRegion: ${formData.regionCountry}\nInterests: ${formData.primaryInterest.join(", ")}\nMessage: ${formData.message}`,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setSubmitted(true);
+          setFormData({
+            fullName: "",
+            workEmail: "",
+            phoneNumber: "",
+            organizationName: "",
+            jobTitle: "",
+            clinicNetworkSize: "",
+            regionCountry: "",
+            primaryInterest: [],
+            message: "",
+            consent: false,
+          });
+          setErrors({});
+        } else {
+          if (data.errors) {
+            setErrors(data.errors);
+            scrollToFirstError();
+          } else {
+            setErrors({ form: data.message || "Failed to submit briefing request." });
+          }
+        }
+      } catch {
+        setErrors({ form: "An error occurred while connecting to server." });
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -165,7 +251,7 @@ export default function ClinicNetworksRequestBriefingSection() {
                 boxShadow: "0 4px 23px -10px rgba(15,31,78,0.06)",
               }}
             >
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
               {/* Row 1: Full name + Work email */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
@@ -214,9 +300,13 @@ export default function ClinicNetworksRequestBriefingSection() {
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleChange}
+                    placeholder="+91 9876543210"
                     className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: "#E7EAF1" }}
+                    style={{ borderColor: errors.phoneNumber ? "#DC2626" : "#E7EAF1" }}
                   />
+                  {errors.phoneNumber && (
+                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.phoneNumber}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
@@ -370,10 +460,21 @@ export default function ClinicNetworksRequestBriefingSection() {
               <div className="flex flex-col gap-3 sm:flex-row pt-2">
                 <button
                   type="submit"
-                  className="rounded-lg px-5 py-3 text-[13px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)]"
+                  disabled={submitting}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  Request a Clinic Network Briefing
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Request a Clinic Network Briefing"
+                  )}
                 </button>
                 <button
                   type="button"
@@ -393,6 +494,24 @@ export default function ClinicNetworksRequestBriefingSection() {
                   advice, dispensing, or a pharmacy service — not PHI, prescriptions, or exact stock.
                 </span>
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {submitted && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </form>
             </div>
           </Reveal>

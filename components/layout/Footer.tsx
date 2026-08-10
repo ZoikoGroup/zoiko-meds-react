@@ -4,9 +4,68 @@ import Image from "next/image";
 import Link from "next/link";
 import { Shield, BadgeCheck, Lock, Info } from "lucide-react";
 
+function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.89h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z" />
+    </svg>
+  );
+}
+
+function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.15 1.45-2.15 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.59 0 4.25 2.36 4.25 5.43v6.31ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z" />
+    </svg>
+  );
+}
+
+function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function TwitterXIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M18.9 2H22l-7.4 8.46L23.3 22h-6.9l-5.4-6.7L4.8 22H1.6l7.9-9.03L1 2h7.06l4.9 6.13L18.9 2Zm-1.2 18h1.9L7.4 3.9H5.36L17.7 20Z" />
+    </svg>
+  );
+}
+
+function YoutubeIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M22 12.06c0-1.9-.15-3.05-.44-4.14a2.94 2.94 0 0 0-2.06-2.06C18.24 5.5 12 5.5 12 5.5s-6.24 0-7.5.36a2.94 2.94 0 0 0-2.06 2.06C2.15 9.01 2 10.16 2 12.06c0 1.9.15 3.06.44 4.15a2.94 2.94 0 0 0 2.06 2.05c1.26.37 7.5.37 7.5.37s6.24 0 7.5-.37a2.94 2.94 0 0 0 2.06-2.05c.29-1.09.44-2.25.44-4.15Zm-11.75 2.9V9.16l5.15 2.9-5.15 2.9Z" />
+    </svg>
+  );
+}
+
+function PinterestIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.63 7.86 6.35 9.33-.09-.79-.17-2.01.04-2.88.19-.79 1.22-5.03 1.22-5.03s-.31-.62-.31-1.54c0-1.44.84-2.52 1.87-2.52.88 0 1.31.66 1.31 1.45 0 .88-.56 2.2-.85 3.42-.24 1.02.51 1.86 1.52 1.86 1.82 0 3.05-2.34 3.05-5.11 0-2.11-1.42-3.68-4-3.68-2.92 0-4.74 2.18-4.74 4.61 0 .84.25 1.43.63 1.89.18.21.2.3.14.54-.05.18-.16.63-.2.8-.07.26-.27.35-.5.25-1.39-.57-2.04-2.09-2.04-3.8 0-2.83 2.38-6.22 7.11-6.22 3.8 0 6.3 2.75 6.3 5.7 0 3.9-2.17 6.82-5.37 6.82-1.07 0-2.09-.58-2.43-1.24 0 0-.58 2.28-.7 2.72-.21.77-.63 1.54-1.01 2.15A10 10 0 1 0 12 2Z" />
+    </svg>
+  );
+}
+
+const socialLinks = [
+  { label: "Facebook", href: "https://www.facebook.com/zoikomeds/", icon: FacebookIcon },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/zoiko-meds/", icon: LinkedinIcon },
+  { label: "Instagram", href: "https://www.instagram.com/zoikomeds/", icon: InstagramIcon },
+  { label: "Twitter", href: "https://x.com/ZoikoMeds", icon: TwitterXIcon },
+  { label: "YouTube", href: "https://www.youtube.com/@ZoikoMeds", icon: YoutubeIcon },
+  { label: "Pinterest", href: "https://www.pinterest.com/zoikomeds/", icon: PinterestIcon },
+];
+
 const platformLinks = [
   { label: "Search medicines", href: "/searchmed/" },
-  { label: "Create account", href: "/create-account/" },
+  { label: "Create account", href: "/register" },
   { label: "Saved searches", href: "/saved-searches/" },
   { label: "Availability alerts", href: "/availability-alert/" },
   { label: "Caregiver access", href: "/caregiver-access/" },
@@ -141,19 +200,35 @@ export default function Footer() {
           </div>
 
           {/* Badges column */}
-          <div className="flex flex-shrink-0 flex-wrap items-start gap-3 lg:justify-end">
-            <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
-              <Shield className="h-3.5 w-3.5 text-slate-400" />
-              Privacy-led
-            </span>
-            <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
-              <BadgeCheck className="h-3.5 w-3.5 text-slate-400" />
-              Verified pharmacies
-            </span>
-            <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
-              <Lock className="h-3.5 w-3.5 text-slate-400" />
-              Zero stock exposed
-            </span>
+          <div className="flex flex-shrink-0 flex-col items-start gap-3 lg:items-end">
+            <div className="flex flex-wrap items-start gap-3 lg:justify-end">
+              <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
+                <Shield className="h-3.5 w-3.5 text-slate-400" />
+                Privacy-led
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
+                <BadgeCheck className="h-3.5 w-3.5 text-slate-400" />
+                Verified pharmacies
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-slate-600/60 px-4 py-2 text-xs font-medium text-slate-300">
+                <Lock className="h-3.5 w-3.5 text-slate-400" />
+                Zero stock exposed
+              </span>
+            </div>
+            <div className="flex w-full items-center gap-3 lg:justify-start">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-600/60 text-slate-400 transition-colors hover:border-slate-400 hover:text-slate-200"
+                >
+                  <Icon className="h-4 w-4" />
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

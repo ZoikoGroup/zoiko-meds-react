@@ -1,0 +1,830 @@
+[
+  {
+    "id": "sub_1785831698678_5sgyl",
+    "type": "OTHER",
+    "title": "Inventory Signal Setup: apollo",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apollo",
+    "payload": {
+      "email": "gdbdata3@gmail.com",
+      "name": "naveen",
+      "org": "apollo",
+      "pharmacyType": "Pharmacy chain / group",
+      "setupInterest": "API integration",
+      "note": ""
+    },
+    "submittedAt": "2026-08-04T08:21:38.678Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785831864222_kaqt2",
+    "type": "OTHER",
+    "title": "Inventory Signal Setup: apollo",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apollo",
+    "payload": {
+      "email": "gdbdata3@gmail.com",
+      "name": "naveen",
+      "org": "apollo",
+      "pharmacyType": "Pharmacy chain / group",
+      "setupInterest": "API integration",
+      "note": ""
+    },
+    "submittedAt": "2026-08-04T08:24:24.224Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785834736724_gntbx",
+    "type": "OTHER",
+    "title": "Inventory Signal Setup: Apple",
+    "fullName": "Naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "Apple",
+    "payload": {
+      "email": "gdbdata3@gmail.com",
+      "name": "Naveen",
+      "org": "Apple",
+      "pharmacyType": "Pharmacy chain / group",
+      "setupInterest": "PMS/POS integration",
+      "note": ""
+    },
+    "submittedAt": "2026-08-04T09:12:16.725Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785835332291_6ldys",
+    "type": "OTHER",
+    "title": "Inventory Signal Setup: Medplus Dup",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "Medplus Dup",
+    "payload": {
+      "email": "gdbdata3@gmail.com",
+      "name": "naveen",
+      "org": "Medplus Dup",
+      "pharmacyType": "Pharmacy chain / group",
+      "setupInterest": "API integration",
+      "note": ""
+    },
+    "submittedAt": "2026-08-04T09:22:12.295Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785836838495_x5g6t",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Pharmacy network)",
+    "fullName": "NAVEEN",
+    "email": "gdbdata3@gmail.com",
+    "organization": "Apple",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Pharmacy network)",
+      "fullName": "NAVEEN",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "Apple",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Organization Type: Pharmacy network\nFacilities: 2–5\nRegion: Indian\nInterests: Medicine Availability, Shortage Signals, Reports\nNote:"
+    },
+    "submittedAt": "2026-08-04T09:47:18.496Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785836998313_nkxqw",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Clinic Networks Briefing (1-5)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apple",
+    "payload": {
+      "briefingType": "Clinic Networks Briefing (1-5)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "apple",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Network Size: 1-5\nRegion: INDIAN\nInterests: access-visibility, pharmacy-network, integrations, partnership\nMessage:"
+    },
+    "submittedAt": "2026-08-04T09:49:58.314Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785837054337_wetsz",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Clinic Networks Briefing (1-5)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apple",
+    "payload": {
+      "briefingType": "Clinic Networks Briefing (1-5)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "apple",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Network Size: 1-5\nRegion: INDIAN\nInterests: access-visibility, pharmacy-network, integrations, partnership\nMessage:"
+    },
+    "submittedAt": "2026-08-04T09:50:54.338Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785837396453_svo8m",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Clinic Networks Briefing (1-5)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apple",
+    "payload": {
+      "briefingType": "Clinic Networks Briefing (1-5)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "apple",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Network Size: 1-5\nRegion: INDIAN\nInterests: access-visibility, pharmacy-network, integrations, partnership\nMessage:"
+    },
+    "submittedAt": "2026-08-04T09:56:36.456Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785838571188_rye2l",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Clinic Networks Briefing (1-5)",
+    "fullName": "NAVEEN",
+    "email": "gdbdata3@gmail.com",
+    "organization": "Microsoft",
+    "payload": {
+      "briefingType": "Clinic Networks Briefing (1-5)",
+      "fullName": "NAVEEN",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "Microsoft",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Network Size: 1-5\nRegion: INDIAN\nInterests: access-visibility, pharmacy-network, shortage-signals, reports\nMessage:"
+    },
+    "submittedAt": "2026-08-04T10:16:11.189Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785839374389_rv8su",
+    "type": "OTHER",
+    "title": "Inventory Signal Setup: apollo",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apollo",
+    "payload": {
+      "email": "gdbdata3@gmail.com",
+      "name": "naveen",
+      "org": "apollo",
+      "pharmacyType": "Hospital outpatient pharmacy",
+      "setupInterest": "Secure file exchange",
+      "note": ""
+    },
+    "submittedAt": "2026-08-04T10:29:34.389Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785839586899_clax9",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Health plan / payer)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "Apple",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Health plan / payer)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "Apple",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Organization Type: Health plan / payer\nFacilities: 2–5\nRegion: Indian\nInterests: Pharmacy Network, Medicine Availability\nNote:"
+    },
+    "submittedAt": "2026-08-04T10:33:06.906Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785840794039_xjve4",
+    "type": "BRIEFING",
+    "title": "Briefing Request: API Access Briefing (Reports)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "API Access Briefing (Reports)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Org Type: Health System\nCountry: India\nIntegration Type: Reports\nUse Case: mmmmmmmmmmmm\nExpected Volume: \nSecurity Contact: \nMessage:"
+    },
+    "submittedAt": "2026-08-04T10:53:14.040Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785841367639_deheq",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Government / Public Health Briefing (Public-health department)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "zoikomeds",
+    "payload": {
+      "briefingType": "Government / Public Health Briefing (Public-health department)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "zoikomeds",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Shortage and demand signals\nNote:"
+    },
+    "submittedAt": "2026-08-04T11:02:47.642Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785841747726_q4q1t",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Government / Public Health Briefing (Public-health department)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "zoikomeds",
+    "payload": {
+      "briefingType": "Government / Public Health Briefing (Public-health department)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "zoikomeds",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Regional access risk\nNote:"
+    },
+    "submittedAt": "2026-08-04T11:09:07.729Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785842435669_0e8ls",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Government / Public Health Briefing (Emergency preparedness office)",
+    "fullName": "Naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "zoiko",
+    "payload": {
+      "briefingType": "Government / Public Health Briefing (Emergency preparedness office)",
+      "fullName": "Naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "zoiko",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Emergency preparedness workflow\nNote:"
+    },
+    "submittedAt": "2026-08-04T11:20:35.674Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785843174771_22xh7",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Executive Briefing (Wholesale / Distributor)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "google",
+    "payload": {
+      "briefingType": "Executive Briefing (Wholesale / Distributor)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "google",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Objective: Nothing\nCountry: USA\nFormat: \nTimezone:"
+    },
+    "submittedAt": "2026-08-04T11:32:54.773Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785845112678_zhutf",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Executive Briefing (Healthcare Provider)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "Executive Briefing (Healthcare Provider)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Objective: nnnnnnnnnnnn\nCountry: India\nFormat: \nTimezone:"
+    },
+    "submittedAt": "2026-08-04T12:05:12.681Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785909889643_ydo07",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Provider Briefing",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apple",
+    "payload": {
+      "briefingType": "Provider Briefing",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "apple",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Organization Type: Individual clinician / care team\nPrimary Interest: Shortage-aware guidance"
+    },
+    "submittedAt": "2026-08-05T06:04:49.651Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785909937193_g7377",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Provider Briefing",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "apple",
+    "payload": {
+      "briefingType": "Provider Briefing",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "apple",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Organization Type: Outpatient / specialist clinic\nPrimary Interest: Chronic medication support"
+    },
+    "submittedAt": "2026-08-05T06:05:37.193Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785910599535_8jks3",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Signal Workflow Briefing",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "MEDSZOIKO",
+    "payload": {
+      "briefingType": "Signal Workflow Briefing",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "MEDSZOIKO",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Organization Type: Other\nPrimary Signal Workflow Interest: Other"
+    },
+    "submittedAt": "2026-08-05T06:16:39.536Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785910751925_eerut",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Enterprise Solutions Briefing (Pharmacy chain or group)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "ZOIKOMEDS",
+    "payload": {
+      "briefingType": "Enterprise Solutions Briefing (Pharmacy chain or group)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "ZOIKOMEDS",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Public-sector deployment\nNote:"
+    },
+    "submittedAt": "2026-08-05T06:19:11.925Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785910798265_nkn6i",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Enterprise Solutions Briefing (Pharmacy chain or group)",
+    "fullName": "naveeen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "ZOIKOMEDS",
+    "payload": {
+      "briefingType": "Enterprise Solutions Briefing (Pharmacy chain or group)",
+      "fullName": "naveeen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "ZOIKOMEDS",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Intelligence and analytics\nNote:"
+    },
+    "submittedAt": "2026-08-05T06:19:58.266Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785911007488_ryrwf",
+    "type": "BRIEFING",
+    "title": "Briefing Request: ZoikoSignal Intelligence Briefing (Manufacturer or life sciences company)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "ZOIKOMEDS",
+    "payload": {
+      "briefingType": "ZoikoSignal Intelligence Briefing (Manufacturer or life sciences company)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "ZOIKOMEDS",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Regional access risk\nNote:"
+    },
+    "submittedAt": "2026-08-05T06:23:27.490Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785911829580_nzp21",
+    "type": "BRIEFING",
+    "title": "Briefing Request: MediBase™ Data Briefing",
+    "fullName": "naveen",
+    "email": "gdbata3@gmail.com",
+    "organization": "ZOIKOMEDSIN",
+    "payload": {
+      "briefingType": "MediBase™ Data Briefing",
+      "fullName": "naveen",
+      "workEmail": "gdbata3@gmail.com",
+      "organization": "ZOIKOMEDSIN",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Organization Type: Pharmacy operator\nPrimary Interest: Shortage intelligence"
+    },
+    "submittedAt": "2026-08-05T06:37:09.581Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785912302450_gkjf1",
+    "type": "BRIEFING",
+    "title": "Briefing Request: MediBase™ Data Briefing",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "zoikomeds",
+    "payload": {
+      "briefingType": "MediBase™ Data Briefing",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "zoikomeds",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Organization Type: Health system / hospital\nPrimary Interest: Medicine identity & normalization"
+    },
+    "submittedAt": "2026-08-05T06:45:02.453Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785913384939_95qs1",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Health System Briefing",
+    "fullName": "naveen",
+    "email": "naveen@gmail.com",
+    "organization": "apple",
+    "payload": {
+      "briefingType": "Health System Briefing",
+      "fullName": "naveen",
+      "workEmail": "naveen@gmail.com",
+      "organization": "apple",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Organization Type: Hospital / health system"
+    },
+    "submittedAt": "2026-08-05T07:03:04.942Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785917197094_4fo9j",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Executive Briefing (Pharmacy)",
+    "fullName": "navee",
+    "email": "naveen@gmail.com",
+    "organization": "google",
+    "payload": {
+      "briefingType": "Executive Briefing (Pharmacy)",
+      "fullName": "navee",
+      "workEmail": "naveen@gmail.com",
+      "organization": "google",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Objective: kkkkkkkkkkkk\nCountry: India\nFormat: \nTimezone:"
+    },
+    "submittedAt": "2026-08-05T08:06:37.097Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785918626801_pslvc",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Executive Briefing (Pharmacy)",
+    "fullName": "naveen",
+    "email": "naveen@gmail.com",
+    "organization": "zoiko",
+    "payload": {
+      "briefingType": "Executive Briefing (Pharmacy)",
+      "fullName": "naveen",
+      "workEmail": "naveen@gmail.com",
+      "organization": "zoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Objective: okayyyyy\nCountry: USA\nFormat: \nTimezone:"
+    },
+    "submittedAt": "2026-08-05T08:30:26.801Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785919606459_e55hk",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Government / Public Health Briefing (Regulatory or licensing authority)",
+    "fullName": "naveen",
+    "email": "naveen@gmail.com",
+    "organization": "Amazon",
+    "payload": {
+      "briefingType": "Government / Public Health Briefing (Regulatory or licensing authority)",
+      "fullName": "naveen",
+      "workEmail": "naveen@gmail.com",
+      "organization": "Amazon",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Shortage and demand signals\nNote:"
+    },
+    "submittedAt": "2026-08-05T08:46:46.460Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785919685487_602ws",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Government / Public Health Briefing (Public-health department)",
+    "fullName": "naveenn",
+    "email": "naveen@gmail.com",
+    "organization": "ZOIKO",
+    "payload": {
+      "briefingType": "Government / Public Health Briefing (Public-health department)",
+      "fullName": "naveenn",
+      "workEmail": "naveen@gmail.com",
+      "organization": "ZOIKO",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Primary Interest: Emergency preparedness workflow\nNote:"
+    },
+    "submittedAt": "2026-08-05T08:48:05.487Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785920680189_h8i3c",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Security Briefing (Retail pharmacy)",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "HP",
+    "payload": {
+      "briefingType": "Security Briefing (Retail pharmacy)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "HP",
+      "jobTitle": "Pharmacist",
+      "phone": "",
+      "note": "Country: USA\nInterests: Access Control\nMessage:"
+    },
+    "submittedAt": "2026-08-05T09:04:40.191Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785921060101_tvtx3",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Health plan / payer)",
+    "fullName": "naveen sangepu",
+    "email": "naveeen@gmail.com",
+    "organization": "google",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Health plan / payer)",
+      "fullName": "naveen sangepu",
+      "workEmail": "naveeen@gmail.com",
+      "organization": "google",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Organization Type: Health plan / payer\nFacilities: 6–20\nRegion: Indian\nInterests: Medicine Availability, Pharmacy Network\nNote:"
+    },
+    "submittedAt": "2026-08-05T09:11:00.109Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785921558706_qlc2f",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Government / Public Health Briefing",
+    "fullName": "naveen sangepu",
+    "email": "naveeen@gmail.com",
+    "organization": "zoiko",
+    "payload": {
+      "briefingType": "Government / Public Health Briefing",
+      "fullName": "naveen sangepu",
+      "workEmail": "naveeen@gmail.com",
+      "organization": "zoiko",
+      "note": "Primary Interest: Regional access risk\nNote:"
+    },
+    "submittedAt": "2026-08-05T09:19:18.707Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785922714986_7rzei",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Corporate Inquiry (Press Inquiry)",
+    "fullName": "naveen",
+    "email": "gdbdata@gmail.com",
+    "organization": "applee",
+    "payload": {
+      "briefingType": "Corporate Inquiry (Press Inquiry)",
+      "fullName": "naveen",
+      "workEmail": "gdbdata@gmail.com",
+      "organization": "applee",
+      "jobTitle": "",
+      "phone": "",
+      "note": ""
+    },
+    "submittedAt": "2026-08-05T09:38:34.987Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785923789158_kgzfg",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Media Inquiry (Embargoed story)",
+    "fullName": "naveen sangepu",
+    "email": "naveeen@gmail.com",
+    "organization": "ZOIKO",
+    "payload": {
+      "briefingType": "Media Inquiry (Embargoed story)",
+      "fullName": "naveen sangepu",
+      "workEmail": "naveeen@gmail.com",
+      "organization": "ZOIKO",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Deadline: TODAYYYYYYYYYYY"
+    },
+    "submittedAt": "2026-08-05T09:56:29.158Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785923954336_cfusl",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Book a Demo (Distributor / Wholesaler)",
+    "fullName": "naveen",
+    "email": "n@gmail.com",
+    "organization": "google",
+    "payload": {
+      "briefingType": "Book a Demo (Distributor / Wholesaler)",
+      "fullName": "naveen",
+      "workEmail": "n@gmail.com",
+      "organization": "google",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Country: USA\nInterests: \nTimeline: \nMessage:"
+    },
+    "submittedAt": "2026-08-05T09:59:14.338Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785924226670_w2ior",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Claim Pharmacy (APOLLO)",
+    "fullName": "NAVEEN",
+    "email": "GBDDATA3@gmail.com",
+    "organization": "APOLLO",
+    "payload": {
+      "briefingType": "Claim Pharmacy (APOLLO)",
+      "fullName": "NAVEEN",
+      "workEmail": "GBDDATA3@gmail.com",
+      "organization": "APOLLO",
+      "jobTitle": "",
+      "phone": "",
+      "note": "Search/License: APOLLO"
+    },
+    "submittedAt": "2026-08-05T10:03:46.672Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1785925633190_603tp",
+    "type": "OTHER",
+    "title": "Inventory Signal Setup: APOLLO",
+    "fullName": "naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "APOLLO",
+    "payload": {
+      "email": "gdbdata3@gmail.com",
+      "name": "naveen",
+      "org": "APOLLO",
+      "pharmacyType": "Clinic-based pharmacy",
+      "setupInterest": "",
+      "note": ""
+    },
+    "submittedAt": "2026-08-05T10:27:13.190Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786079643162_9lo23",
+    "type": "BRIEFING",
+    "title": "Briefing Request: API Access Briefing (Pharmacy network)",
+    "fullName": "Naveen",
+    "email": "naveen@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "API Access Briefing (Pharmacy network)",
+      "fullName": "Naveen",
+      "workEmail": "naveen@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Org Type: Pharmacy Network\nCountry: USA\nIntegration Type: Pharmacy network\nUse Case: okkk\nExpected Volume: \nSecurity Contact: \nMessage:"
+    },
+    "submittedAt": "2026-08-07T05:14:03.162Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786079851770_04203",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Pharmacy network)",
+    "fullName": "Naveeen",
+    "email": "naveen@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Pharmacy network)",
+      "fullName": "Naveeen",
+      "workEmail": "naveen@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Organization Type: Pharmacy network\nFacilities: 2–5\nRegion: ind\nInterests: Integrations, API Access\nNote:"
+    },
+    "submittedAt": "2026-08-07T05:17:31.771Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786085609053_g4g6t",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Government / public health)",
+    "fullName": "Naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "APOLLO",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Government / public health)",
+      "fullName": "Naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "APOLLO",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Organization Type: Government / public health\nFacilities: 6–20\nRegion: ind\nInterests: Shortage Signals\nNote:"
+    },
+    "submittedAt": "2026-08-07T06:53:29.055Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786085844117_v4m44",
+    "type": "BRIEFING",
+    "title": "Briefing Request: API Access Briefing (Reports)",
+    "fullName": "naveen s",
+    "email": "naveen@org.com",
+    "organization": "google",
+    "payload": {
+      "briefingType": "API Access Briefing (Reports)",
+      "fullName": "naveen s",
+      "workEmail": "naveen@org.com",
+      "organization": "google",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Org Type: Health System\nCountry: India\nIntegration Type: Reports\nUse Case: nn\nExpected Volume: \nSecurity Contact: \nMessage:"
+    },
+    "submittedAt": "2026-08-07T06:57:24.118Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786087440118_9yuyi",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Executive Briefing (Wholesale / Distributor)",
+    "fullName": "naveen",
+    "email": "test@org.in",
+    "organization": "Apple",
+    "payload": {
+      "briefingType": "Executive Briefing (Wholesale / Distributor)",
+      "fullName": "naveen",
+      "workEmail": "test@org.in",
+      "organization": "Apple",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Country: USA\nObjective: nn\nFormat: \nTimeZone:"
+    },
+    "submittedAt": "2026-08-07T07:24:00.119Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786088301010_w5zyr",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Clinic Networks Briefing (6-20)",
+    "fullName": "naveen",
+    "email": "test@org.in",
+    "organization": "zoikomeds",
+    "payload": {
+      "briefingType": "Clinic Networks Briefing (6-20)",
+      "fullName": "naveen",
+      "workEmail": "test@org.in",
+      "organization": "zoikomeds",
+      "jobTitle": "pharmacist",
+      "phone": "+1 55694522155",
+      "note": "Network Size: 6-20\nRegion: INDIAN\nInterests: access-visibility\nMessage:"
+    },
+    "submittedAt": "2026-08-07T07:38:21.014Z",
+    "status": "RECEIVED"
+  }
+]

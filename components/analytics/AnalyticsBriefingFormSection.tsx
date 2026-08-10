@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 import { Check, Info } from "lucide-react";
 
 type FormState = {
@@ -66,7 +68,15 @@ export default function AnalyticsBriefingFormSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (submitted && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [submitted]);
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -93,10 +103,9 @@ export default function AnalyticsBriefingFormSection() {
       next.fullName = "Enter your full name.";
     }
 
-    if (!current.workEmail.trim()) {
-      next.workEmail = "Enter your work email.";
-    } else if (!EMAIL_PATTERN.test(current.workEmail.trim())) {
-      next.workEmail = "Enter a valid email address.";
+    const emailCheck = validateEmail(current.workEmail);
+    if (!emailCheck.isValid) {
+      next.workEmail = emailCheck.error!;
     }
 
     if (!current.organization.trim()) {
@@ -115,12 +124,12 @@ export default function AnalyticsBriefingFormSection() {
       next.region = "Enter a region of interest.";
     }
 
-    if (current.needs.length === 0) {
-      next.needs = "Select at least one analytics need.";
-    }
-
     if (!current.consent) {
       next.consent = "Consent is required to submit this request.";
+    }
+
+    if (current.needs.length === 0) {
+      next.needs = "Select at least one analytics need.";
     }
 
     return next;
@@ -142,15 +151,53 @@ export default function AnalyticsBriefingFormSection() {
     setErrors((prev) => ({ ...prev, needs: undefined }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const nextErrors = validate(form);
     setErrors(nextErrors);
 
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.workEmail ? "workEmail" : Object.keys(nextErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+
     if (Object.keys(nextErrors).length === 0) {
-      setSubmitted(true);
-      // Wire this up to your actual submit endpoint.
-      // e.g. await fetch("/api/briefing-request", { method: "POST", body: JSON.stringify(form) });
+      setSubmitting(true);
+      try {
+        const res = await fetch(internalApi("briefing-request"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            briefingType: `Analytics & Demand Briefing (${form.orgType || "Analytics"})`,
+            fullName: form.fullName,
+            workEmail: form.workEmail,
+            organization: form.organization,
+            jobTitle: form.role,
+            note: `Region: ${form.region}\nNeeds: ${form.needs.join(", ")}\nMessage: ${form.message}`,
+          }),
+        });
+        
+        let data: any = {};
+        try {
+          data = await res.json();
+        } catch {
+          // Fallback for non-JSON responses
+        }
+
+        if (res.ok && (data.success || res.status === 200)) {
+          setSubmitted(true);
+          setForm(INITIAL_FORM);
+          setErrors({});
+        } else {
+          setErrors({ message: data.message || "Failed to submit briefing request." });
+        }
+      } catch {
+        setErrors({ message: "Network error occurred while submitting." });
+      } finally {
+        setSubmitting(false);
+      }
     } else {
       const firstErrorKey = Object.keys(nextErrors)[0];
       const el = document.getElementById(`field-${firstErrorKey}`);
@@ -191,29 +238,7 @@ export default function AnalyticsBriefingFormSection() {
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
             {/* FORM CARD */}
             <div className="rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-sm sm:p-8">
-              {submitted ? (
-                <div className="flex flex-col items-start gap-3 py-8">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E1F5EE]">
-                    <Check className="h-5 w-5 text-[#0FAA87]" strokeWidth={2.5} />
-                  </span>
-                  <h3 className="text-lg font-bold text-[#0F1F4E]">Request received</h3>
-                  <p className="text-sm leading-relaxed text-[#4B5567]">
-                    Thanks — a member of our team will route your briefing request and follow
-                    up at the email address you provided.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setForm(INITIAL_FORM);
-                      setSubmitted(false);
-                    }}
-                    className="mt-2 text-sm font-semibold text-[#0FAA87] hover:underline"
-                  >
-                    Submit another request
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} noValidate>
+              <form onSubmit={handleSubmit} noValidate>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <Field
                       id="fullName"
@@ -394,9 +419,20 @@ export default function AnalyticsBriefingFormSection() {
                   {/* Submit */}
                   <button
                     type="submit"
-                    className="mt-6 w-full rounded-lg bg-[#0FAA87] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-[#00A99D] hover:shadow-lg hover:shadow-[#0FAA87]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2"
+                    disabled={submitting}
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0FAA87] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-[#00A99D] hover:shadow-lg hover:shadow-[#0FAA87]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Submit Briefing Request
+                    {submitting ? (
+                      <>
+                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                          <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                        </svg>
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      "Submit Briefing Request"
+                    )}
                   </button>
 
                   <p className="mt-4 flex items-start gap-1.5 text-xs leading-relaxed text-[#9AA2B1]">
@@ -405,8 +441,23 @@ export default function AnalyticsBriefingFormSection() {
                     pharmacy service. Don&apos;t include PHI, prescriptions, patient identifiers,
                     or exact stock.
                   </p>
+
+                  {submitted && (
+                    <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                      <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                        <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                          <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                            Thank you! Our team will review your request and contact you soon.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </form>
-              )}
             </div>
 
             {/* SIDEBAR CARD */}

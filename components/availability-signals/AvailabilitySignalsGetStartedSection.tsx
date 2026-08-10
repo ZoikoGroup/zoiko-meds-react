@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
 import Link from "next/link";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 
 const ACCENT = "#0FAA87";
@@ -67,6 +69,95 @@ export default function AvailabilitySignalsGetStartedSection() {
     email: "", name: "", org: "", orgType: "", interest: "", note: "",
   });
 
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; name?: string; org?: string }>({});
+  const successRef = useRef<HTMLDivElement>(null);
+
+  const validate = () => {
+    const newErrors: { email?: string; name?: string; org?: string } = {};
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      newErrors.email = emailCheck.error!;
+    }
+    if (!form.name.trim()) {
+      newErrors.name = "Full name is required.";
+    }
+    if (!form.org.trim()) {
+      newErrors.org = "Organization name is required.";
+    }
+    return newErrors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstKey = newErrors.email ? "email" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+
+    setErrors({});
+    setSubmitting(true);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch(internalApi("availability-signals"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: "Signal Workflow Briefing",
+          fullName: form.name.trim(),
+          workEmail: form.email.trim(),
+          organization: form.org.trim(),
+          note: [
+            form.orgType ? `Organization Type: ${form.orgType}` : "",
+            form.interest ? `Primary Signal Workflow Interest: ${form.interest}` : "",
+            form.note ? `Note: ${form.note.trim()}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.ok && (data.success || res.status === 200)) {
+        setStatus("success");
+        setForm({
+          email: "",
+          name: "",
+          org: "",
+          orgType: "",
+          interest: "",
+          note: "",
+        });
+        setTimeout(() => {
+          if (successRef.current) {
+            successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
+      } else {
+        setStatus("error");
+        setErrorMessage(data.message || "Failed to submit briefing request. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error occurred. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -122,37 +213,52 @@ export default function AvailabilitySignalsGetStartedSection() {
                 this is a zero-PHI request.
               </p>
 
-              <div className="mt-5 flex flex-1 flex-col gap-4">
+              <form onSubmit={handleSubmit} noValidate className="mt-5 flex flex-1 flex-col gap-4">
                 {/* Work email */}
-                <FormField label="Work email">
+                <FormField label="Work email" error={errors.email}>
                   <input
                     type="email"
                     placeholder="you@yourorganization.org"
                     value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    onChange={(e) => {
+                      setForm({ ...form, email: e.target.value });
+                      if (errors.email) setErrors({ ...errors, email: undefined });
+                    }}
+                    className={`w-full rounded-xl border ${
+                      errors.email ? "border-[#DC2626]" : "border-[#D8DCE8]"
+                    } bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15`}
                   />
                 </FormField>
 
                 {/* Full name */}
-                <FormField label="Full name">
+                <FormField label="Full name" error={errors.name}>
                   <input
                     type="text"
                     placeholder="Your full name"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    onChange={(e) => {
+                      setForm({ ...form, name: e.target.value });
+                      if (errors.name) setErrors({ ...errors, name: undefined });
+                    }}
+                    className={`w-full rounded-xl border ${
+                      errors.name ? "border-[#DC2626]" : "border-[#D8DCE8]"
+                    } bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15`}
                   />
                 </FormField>
 
                 {/* Organization name */}
-                <FormField label="Organization name">
+                <FormField label="Organization name" error={errors.org}>
                   <input
                     type="text"
                     placeholder="e.g. Riverside Family Clinic"
                     value={form.org}
-                    onChange={(e) => setForm({ ...form, org: e.target.value })}
-                    className="w-full rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    onChange={(e) => {
+                      setForm({ ...form, org: e.target.value });
+                      if (errors.org) setErrors({ ...errors, org: undefined });
+                    }}
+                    className={`w-full rounded-xl border ${
+                      errors.org ? "border-[#DC2626]" : "border-[#D8DCE8]"
+                    } bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15`}
                   />
                 </FormField>
 
@@ -202,18 +308,58 @@ export default function AvailabilitySignalsGetStartedSection() {
                 {/* Submit — pushed to bottom */}
                 <div className="mt-auto pt-2">
                   <button
-                    type="button"
-                    className="w-full rounded-xl py-3 text-[14px] font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                    type="submit"
+                    disabled={submitting}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-[14px] font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                     style={{ backgroundColor: ACCENT }}
                   >
-                    Request Signal Workflow Briefing
+                    {submitting ? (
+                      <>
+                        <svg className="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      "Request Signal Workflow Briefing"
+                    )}
                   </button>
                   <p className="mt-3 text-center text-[11.5px] leading-relaxed text-[#9AA3B5]">
                     No diagnosis, symptoms, prescriptions, insurance, or patient
                     identifiers are collected here. This is a zero-PHI request.
                   </p>
                 </div>
-              </div>
+              </form>
+
+              {/* Success Confirmation Message below the form */}
+              {status === "success" && (
+                <div
+                  ref={successRef}
+                  className="mt-5 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center transition-all duration-300"
+                >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#13A594]/15 text-[#13A594]">
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h4 className="mt-2 text-[15px] font-bold text-[#00786F]">
+                      Signal Workflow Request Submitted
+                    </h4>
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
+                      Thank you! Your signal workflow request has been received. Our team will contact you soon.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {status === "error" && (
+                <div className="mt-5 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
             </div>
 
           </div>
@@ -284,13 +430,28 @@ function PathCard({
 /* ------------------------------------------------------------------ */
 /*  FormField                                                            */
 /* ------------------------------------------------------------------ */
-function FormField({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) {
+function FormField({
+  label,
+  optional,
+  error,
+  children,
+}: {
+  label: string;
+  optional?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[12.5px] font-medium text-[#0F1F4E]">
-        {label}
-        {optional && <span className="ml-1 font-normal text-[#9AA3B5]">(optional)</span>}
-      </label>
+      <div className="flex items-center justify-between">
+        <label className="text-[12.5px] font-medium text-[#0F1F4E]">
+          {label}
+          {optional && <span className="ml-1 font-normal text-[#9AA3B5]">(optional)</span>}
+        </label>
+        {error && (
+          <span className="text-[11.5px] font-medium text-[#DC2626]">{error}</span>
+        )}
+      </div>
       {children}
     </div>
   );

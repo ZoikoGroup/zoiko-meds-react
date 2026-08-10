@@ -11,7 +11,7 @@ const ACCOUNT_VALUE_POINTS = [
     title: "Save medicine searches",
     description: "Keep priority medicines organized and easy to revisit.",
     linkLabel: "Create account",
-    href: "/create-account",
+    href: "/register",
     icon: (
       <path
         d="M4.5 3h7a1 1 0 011 1v9.2l-4.5-2.6-4.5 2.6V4a1 1 0 011-1z"
@@ -73,7 +73,7 @@ const ACCOUNT_VALUE_POINTS = [
     description:
       "Control communication channels, regions, saved medicines, and privacy settings.",
     linkLabel: "Manage preferences",
-    href: "/patient-portal/preferences",
+    href: "/features",
     icon: (
       <>
         <circle

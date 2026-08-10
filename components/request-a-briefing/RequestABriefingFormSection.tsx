@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { internalApi } from "@/lib/config";
+import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -54,6 +56,30 @@ export default function RequestABriefingFormSection() {
   const [mounted, setMounted] = useState(false);
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
+
+  const [form, setForm] = useState({
+    fullName: "",
+    workEmail: "",
+    phone: "",
+    organization: "",
+    role: "",
+    orgType: "",
+    country: "",
+    objective: "",
+    format: "",
+    timeZone: "",
+  });
+
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,12 +98,104 @@ export default function RequestABriefingFormSection() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name } = e.target;
+    let value = e.target.value;
+    if (name === "phone") {
+      value = sanitizePhoneInput(value);
+    }
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.fullName.trim()) newErrors.fullName = "Full name is required.";
+
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) newErrors.workEmail = emailCheck.error!;
+
+    if (form.phone.trim()) {
+      const phoneCheck = validatePhone(form.phone);
+      if (!phoneCheck.isValid) newErrors.phone = phoneCheck.error!;
+    }
+
+    if (!form.organization.trim()) newErrors.organization = "Organization is required.";
+    if (!form.role.trim()) newErrors.role = "Role is required.";
+    if (!form.orgType) newErrors.orgType = "Please select an organization type.";
+    if (!form.country.trim()) newErrors.country = "Country is required.";
+    if (!form.objective) newErrors.objective = "Please select a briefing objective.";
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!consent) return;
+    if (!consent || submitting) return;
+
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstKey = newErrors.workEmail ? "workEmail" : Object.keys(newErrors)[0];
+      scrollToFirstError(firstKey);
+      return;
+    }
+
+    setErrors({});
     setSubmitting(true);
-    // Wire up actual submission handler here.
-    setTimeout(() => setSubmitting(false), 1200);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch(internalApi("briefing-request"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Executive Briefing (${form.orgType || "General"})`,
+          fullName: form.fullName.trim(),
+          workEmail: form.workEmail.trim(),
+          organization: form.organization.trim(),
+          jobTitle: form.role.trim(),
+          phone: form.phone.trim(),
+          note: `Country: ${form.country}\nObjective: ${form.objective}\nFormat: ${form.format}\nTimeZone: ${form.timeZone}`,
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.ok && (data.success || res.status === 200)) {
+        setStatus("success");
+        setForm({
+          fullName: "",
+          workEmail: "",
+          phone: "",
+          organization: "",
+          role: "",
+          orgType: "",
+          country: "",
+          objective: "",
+          format: "",
+          timeZone: "",
+        });
+        setConsent(false);
+      } else {
+        if (data.errors) {
+          setErrors(data.errors);
+        }
+        setStatus("error");
+        setErrorMessage(data.message || "Failed to submit request.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error occurred.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -121,38 +239,65 @@ export default function RequestABriefingFormSection() {
               style={{ borderColor: "#E7EAF1", boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)" }}
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Full name" required>
+                <Field label="Full name" required error={errors.fullName}>
                   <input
                     type="text"
-                    required
-                    className="briefing-input"
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={handleChange}
+                    className={`briefing-input ${errors.fullName ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Work email" required>
+                <Field label="Work email" required error={errors.workEmail}>
                   <input
                     type="email"
-                    required
+                    name="workEmail"
+                    value={form.workEmail}
+                    onChange={handleChange}
                     placeholder="name@organization.org"
-                    className="briefing-input"
+                    className={`briefing-input ${errors.workEmail ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Phone" optional>
-                  <input type="tel" className="briefing-input" />
+                <Field label="Phone" optional error={errors.phone}>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className={`briefing-input ${errors.phone ? "!border-[#DC2626]" : ""}`}
+                  />
                 </Field>
 
-                <Field label="Organization" required>
-                  <input type="text" required className="briefing-input" />
+                <Field label="Organization" required error={errors.organization}>
+                  <input
+                    type="text"
+                    name="organization"
+                    value={form.organization}
+                    onChange={handleChange}
+                    className={`briefing-input ${errors.organization ? "!border-[#DC2626]" : ""}`}
+                  />
                 </Field>
 
-                <Field label="Role / title" required>
-                  <input type="text" required className="briefing-input" />
+                <Field label="Role / title" required error={errors.role}>
+                  <input
+                    type="text"
+                    name="role"
+                    value={form.role}
+                    onChange={handleChange}
+                    className={`briefing-input ${errors.role ? "!border-[#DC2626]" : ""}`}
+                  />
                 </Field>
 
-                <Field label="Organization type" required>
+                <Field label="Organization type" required error={errors.orgType}>
                   <div className="relative">
-                    <select required defaultValue="" className="briefing-input appearance-none pr-9">
+                    <select
+                      name="orgType"
+                      value={form.orgType}
+                      onChange={handleChange}
+                      className={`briefing-input appearance-none pr-9 ${errors.orgType ? "!border-[#DC2626]" : ""}`}
+                    >
                       <option value="" disabled>
                         Select type
                       </option>
@@ -168,23 +313,27 @@ export default function RequestABriefingFormSection() {
               </div>
 
               <div className="mt-5">
-                <Field label="Country / region of interest" required>
+                <Field label="Country / region of interest" required error={errors.country}>
                   <input
                     type="text"
-                    required
+                    name="country"
+                    value={form.country}
+                    onChange={handleChange}
                     placeholder="e.g. US, UK, EU, national, regional"
-                    className="briefing-input"
+                    className={`briefing-input ${errors.country ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
               </div>
 
               <div className="mt-5">
-                <Field label="Primary objective" required>
+                <Field label="Primary objective" required error={errors.objective}>
                   <textarea
-                    required
-                    rows={4}
-                    placeholder="e.g. Evaluate regional availability signals for planning; explore pharmacy network participation; review shortage reporting for public health."
-                    className="briefing-input resize-none"
+                    name="objective"
+                    value={form.objective}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="Briefly state your core objective or question."
+                    className={`briefing-input resize-none py-3 ${errors.objective ? "!border-[#DC2626]" : ""}`}
                   />
                 </Field>
               </div>
@@ -192,7 +341,7 @@ export default function RequestABriefingFormSection() {
               <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <Field label="Preferred format" optional>
                   <div className="relative">
-                    <select defaultValue="" className="briefing-input appearance-none pr-9">
+                    <select name="format" value={form.format} onChange={handleChange} className="briefing-input appearance-none pr-9">
                       <option value="" disabled>
                         Select format
                       </option>
@@ -208,7 +357,7 @@ export default function RequestABriefingFormSection() {
 
                 <Field label="Preferred time zone" optional>
                   <div className="relative">
-                    <select defaultValue="" className="briefing-input appearance-none pr-9">
+                    <select name="timeZone" value={form.timeZone} onChange={handleChange} className="briefing-input appearance-none pr-9">
                       <option value="" disabled>
                         Select time zone
                       </option>
@@ -245,13 +394,23 @@ export default function RequestABriefingFormSection() {
               <button
                 type="submit"
                 disabled={!consent || submitting}
-                className="mt-6 w-full rounded-xl px-6 py-3.5 text-[14.5px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(15,170,135,0.45)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[14.5px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(15,170,135,0.45)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 style={{ backgroundColor: ACCENT }}
               >
-                {submitting ? "Submitting…" : "Submit Briefing Request"}
+                {submitting ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
+                      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  "Submit Briefing Request"
+                )}
               </button>
 
-              {/* Footnote */}
+              {/* Disclaimer */}
               <p className="mt-4 flex items-start gap-1.5 text-[12px] leading-relaxed text-[#8A93A6]">
                 <InfoIcon />
                 <span>
@@ -261,6 +420,30 @@ export default function RequestABriefingFormSection() {
                   review the request.
                 </span>
               </p>
+
+              {/* Success message in green color centered at bottom of submission box */}
+              {status === "success" && (
+                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                    <svg className="h-6 w-6 text-[#0FAA87]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                        Thank you! Our team will review your request and contact you soon.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error message */}
+              {status === "error" && (
+                <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
             </form>
           </Reveal>
 
@@ -335,21 +518,28 @@ function Field({
   label,
   required,
   optional,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   optional?: boolean;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-center gap-1 text-[12.5px] font-semibold text-[#0F1F4E]">
-        {label}
-        {required && <span style={{ color: "#E0555B" }}>*</span>}
-        {optional && <span className="font-normal text-[#A6ADBD]">(optional)</span>}
+      <span className="mb-1.5 flex items-center justify-between text-[12.5px] font-semibold text-[#0F1F4E]">
+        <span>
+          {label}
+          {required && <span style={{ color: "#E0555B" }}>*</span>}
+          {optional && <span className="font-normal text-[#A6ADBD]"> (optional)</span>}
+        </span>
       </span>
       {children}
+      {error && (
+        <span className="mt-1 block text-xs font-medium text-[#DC2626]">{error}</span>
+      )}
     </label>
   );
 }

@@ -52,7 +52,7 @@ export default function SavedHero() {
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <button
-                            onClick={()=>router.push("/create-account")}
+                            onClick={()=>router.push("/register")}
                              className="rounded-xl bg-[#13A594] border border-[#13A594] px-6 cursor-pointer py-3 font-semibold text-white transition hover:bg-[#119485]">
                                 Create Free Account
                             </button>

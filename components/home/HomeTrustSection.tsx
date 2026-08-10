@@ -14,6 +14,7 @@ const CARDS = [
       "Search anonymously or create an account with full control over history, saved medicines, alerts, and deletion rights at any time.",
     cta: "Privacy Center",
     ctaColor: "text-emerald-600",
+    href:"/privacy-center"
   },
   {
     id: "verified-pharmacies",
@@ -25,6 +26,7 @@ const CARDS = [
       "Credential, license, and premises verification required before any pharmacy achieves public network visibility.",
     cta: "Verification Standards",
     ctaColor: "text-blue-600",
+    href:"/searchmed"
   },
   {
     id: "strict-role-boundaries",
@@ -36,6 +38,7 @@ const CARDS = [
       "ZoikoMeds does not prescribe, dispense, sell, deliver, or recommend medicines or therapeutic alternatives.",
     cta: "Medical & Legal Boundaries",
     ctaColor: "text-rose-600",
+    href:"/terms-of-use"
   },
   {
     id: "confidence-signals",
@@ -47,6 +50,7 @@ const CARDS = [
       "Availability is shown through confidence tiers — never exact inventory quantities or guaranteed stock levels.",
     cta: "Availability Safety Rules",
     ctaColor: "text-emerald-600",
+    href:"/availability-signal"
   },
   {
     id: "controlled-medicine",
@@ -58,6 +62,7 @@ const CARDS = [
       "Controlled medicines are excluded from public search by default unless a jurisdiction-specific approved pathway exists.",
     cta: "Controlled Medicine Policy",
     ctaColor: "text-amber-600",
+    href:"/medical-disclaimer"
   },
   {
     id: "enterprise-security",
@@ -69,6 +74,7 @@ const CARDS = [
       "HIPAA-aware, GDPR-aware, SOC 2-aligned, and region-aware infrastructure designed for regulated healthcare procurement.",
     cta: "Security Center",
     ctaColor: "text-indigo-600",
+    href:"/security"
   },
 ];
 
@@ -147,7 +153,7 @@ export default function HomeTrustSection() {
                 </p>
 
                 <a
-                  href="#"
+                  href={card.href}
                   className={`relative z-10 mt-4 inline-flex items-center gap-1 text-sm font-semibold ${card.ctaColor}`}
                 >
                   {card.cta}

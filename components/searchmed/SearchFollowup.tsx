@@ -10,7 +10,7 @@ const followUpCards = [
         title: "Save this search",
         desc: "Save a medicine and location so you can return without starting over — while respecting your privacy settings.",
         cta: "Create free account",
-        link:"/create-account",
+        link: "https://zoiko-meds-platform.vercel.app/register",
         primary: true,
     },
     {
@@ -64,7 +64,7 @@ export default function SearchFollowup() {
                             <h3 className="text-[17px] font-semibold leading-[26.78px] text-[#0D1B2E]">{card.title}</h3>
                             <p className="text-[14px] text-[#566476] leading-[21.12px] flex-1">{card.desc}</p>
                             <button
-                            onClick={()=>router.push(card.link)}
+                            onClick={()=> card.link.startsWith("http") ? (window.location.href = card.link) : router.push(card.link)}
                                 className={`mt-auto w-full py-4 rounded-lg text-[15.2px] cursor-pointer font-semibold transition-colors duration-150 ${card.primary
                                     ? "bg-[#13A594] hover:bg-[#0e8b7d] text-white"
                                     : "bg-white border border-[#CDD7E3] text-[#0D1B2E] hover:bg-[#F8FAFC]"

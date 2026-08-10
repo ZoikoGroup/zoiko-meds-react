@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 const ACCENT = "#13A594";
 
-export default function SignInCreateAccountPage() {
-  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+export default function SignInCreateAccountPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "signup" }) {
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -274,9 +275,13 @@ export default function SignInCreateAccountPage() {
                       Trust this device
                     </label>
                   </div>
-                  <a href="#" className="text-[12px] font-semibold" style={{ color: ACCENT }}>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[12px] font-semibold"
+                    style={{ color: ACCENT }}
+                  >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Continue Button */}

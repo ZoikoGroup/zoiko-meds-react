@@ -17,13 +17,14 @@ export default function CTASection() {
 
         <div className="flex w-full flex-col sm:w-auto sm:flex-row items-center justify-center gap-3">
           <button
-          onClick={()=>router.push("/create-account")}
+          onClick={()=>router.push("/register")}
             className="w-full sm:w-auto rounded-xl cursor-pointer bg-[#13A594] px-5 py-3 text-center text-[15px] font-semibold text-white transition-colors hover:bg-teal-600"
           >
             Create Free Account
           </button>
 
           <button
+            onClick={()=>router.push("/searchmed")}
             className="w-full sm:w-auto rounded-xl border cursor-pointer border-white/25 px-6 py-2.5 text-center text-[15px] font-semibold text-white transition-colors hover:bg-gray-800"
           >
             Search Without an Account
