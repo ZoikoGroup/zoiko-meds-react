@@ -29,6 +29,19 @@ export default function ZoiPanel() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [state.panelView, minimizePanel]);
 
+  // Prevent body scrolling on mobile when Zoi panel is open
+  useEffect(() => {
+    if (state.panelView !== "open") return;
+    const isMobile = window.innerWidth <= 767;
+    if (isMobile) {
+      const origOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = origOverflow;
+      };
+    }
+  }, [state.panelView]);
+
   if (state.panelView !== "open") return null;
 
   return (
@@ -42,10 +55,11 @@ export default function ZoiPanel() {
           position: fixed;
           bottom: 24px;
           right: 24px;
-          z-index: 48;
+          z-index: 1000;
           display: flex;
           flex-direction: column;
           width: 430px;
+          max-width: calc(100vw - 32px);
           max-height: 660px;
           height: min(660px, calc(100dvh - 110px));
           background: #FFFFFF;
@@ -60,23 +74,18 @@ export default function ZoiPanel() {
         @media (max-width: 767px) {
           .zoi-panel {
             position: fixed;
-            bottom: 0;
-            right: 0;
-            left: 0;
-            top: 0;
-            width: 100%;
-            max-height: none;
-            height: 100dvh;
-            border-radius: 0;
-            border: none;
-            animation: none;
-          }
-        }
-
-        @media (max-width: 500px) {
-          .zoi-panel {
-            width: calc(100vw - 24px);
-            right: 12px;
+            bottom: 0 !important;
+            right: 0 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            animation: none !important;
+            box-shadow: none !important;
           }
         }
 

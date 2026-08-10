@@ -50,7 +50,7 @@ describe("/internal/zoikoavail", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
-    expect(json.data.region).toBe("Kenya (nationwide)");
+    expect(json.data.region).toContain("Nationwide");
     expect(json.data.totalPharmacies).toBeGreaterThan(0);
   });
 

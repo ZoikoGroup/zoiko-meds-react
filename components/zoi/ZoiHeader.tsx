@@ -56,17 +56,17 @@ export default function ZoiHeader() {
             <span style={{ fontSize: "14.5px", fontWeight: 700, color: "#0F172A", lineHeight: 1.2, letterSpacing: "-0.01em" }}>
               {t("header.title")}
             </span>
-            <span style={{ fontSize: "9.5px", fontWeight: 700, padding: "2px 6px", borderRadius: "10px", background: "#E0F2FE", color: "#0369A1", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            <span style={{ fontSize: "9.5px", fontWeight: 700, padding: "2px 6px", borderRadius: "10px", background: "#E0F2FE", color: "#0369A1", textTransform: "uppercase", letterSpacing: "0.04em", flexShrink: 0 }}>
               Verified AI
             </span>
           </div>
-          <div style={{ fontSize: "11.5px", fontWeight: 500, color: "#64748B", lineHeight: 1.3, marginTop: "1px" }}>
+          <div style={{ fontSize: "11.5px", fontWeight: 500, color: "#64748B", lineHeight: 1.3, marginTop: "1px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {t("header.subtitle")}
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
         {/* New Conversation Button (+ icon) */}
         <button
           onClick={startNewConversation}
