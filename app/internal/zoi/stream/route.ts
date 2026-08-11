@@ -253,7 +253,7 @@ async function getResponsePlan(query: string, persona: string, classification: C
   // Unknown/commercial intent — honest "I don't know" + escalate
   if (isDrugLikeTerm(query)) {
     return {
-      text: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
+      text: "To use our medicine search feature, simply visit our search page and enter the name of the medicine you're looking for. You can search by medicine name, and our platform will show you availability information from verified pharmacies in your area. If you need assistance with searching or have any questions, feel free to ask. To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for.",
       chips: ["escalate"],
     };
   }
@@ -267,7 +267,7 @@ async function getResponsePlan(query: string, persona: string, classification: C
 
   // Truly out-of-corpus / unindexed medicine or city
   return {
-    text: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
+    text: "To use our medicine search feature, simply visit our search page and enter the name of the medicine you're looking for. You can search by medicine name, and our platform will show you availability information from verified pharmacies in your area. If you need assistance with searching or have any questions, feel free to ask. To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for.",
     chips: ["escalate"],
   };
 }
