@@ -19,7 +19,7 @@ function parseMarkdownLinksAndUrls(text: string): React.ReactNode[] {
 
     if (match[1] && match[2]) {
       const label = match[1];
-      let rawUrl = match[2];
+      const rawUrl = match[2];
       let href = rawUrl;
       if (!href.startsWith("http://") && !href.startsWith("https://") && !href.startsWith("/")) {
         href = "https://" + href;
