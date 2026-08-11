@@ -23,4 +23,15 @@ describe("MessageText component", () => {
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute("href", "https://zoikomeds.com/searchmed");
   });
+
+  it("renders domain-only text like zoikomeds.com/searchmed as clickable <a> elements", () => {
+    render(
+      <MessageText content="To get started, you can visit our search page at zoikomeds.com/searchmed and enter the name of the medicine." />
+    );
+
+    const link = screen.getByRole("link", { name: "zoikomeds.com/searchmed" });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "https://zoikomeds.com/searchmed");
+    expect(link).toHaveAttribute("target", "_blank");
+  });
 });
