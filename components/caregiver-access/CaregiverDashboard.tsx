@@ -346,9 +346,9 @@ export default function CaregiverDashboard() {
                                             <img src={card.src} alt="Image" height={18} width={18} />
                                         </div>
                                         <div>
-                                            <p className="text-base text-[#081B33">{card.labelName}</p>
+                                            <p className="text-base font-semibold text-[#081B33]">{card.labelName}</p>
                                             {card.note && (
-                                                <p className="text-xs text-[#75777E] italic">{card.note}</p>
+                                                <p className="text-xs text-[#566476] italic">{card.note}</p>
                                             )}
                                         </div>
                                     </div>
