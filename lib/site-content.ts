@@ -90,7 +90,7 @@ const CONTENT_INDEX: ContentDocument[] = [
     title: "How to use medicine search",
     section: "platform",
     keywords: ["search", "how to search", "medicine search feature", "use platform search", "find medicine"],
-    body: "To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for. If you need assistance with searching or have any questions, feel free to ask.",
+    body: "To use our medicine search feature, simply visit our search page and enter the name of the medicine you're looking for. You can search by medicine name, and our platform will show you availability information from verified pharmacies in your area. If you need assistance with searching or have any questions, feel free to ask. To get started, you can visit our search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed) and enter the name of the medicine you're looking for.",
     url: "/searchmed",
   },
   {

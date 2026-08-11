@@ -7,7 +7,7 @@ interface Props {
 }
 
 function parseMarkdownLinksAndUrls(text: string): React.ReactNode[] {
-  const regex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)|(https?:\/\/[^\s<>\,\"\']+)/g;
+  const regex = /\[([^\]]+)\]\(([^\s)]+)\)|(https?:\/\/[^\s<>\,\"\']+)|((?:[a-zA-Z0-9-]+\.)*zoikomeds\.com\/[^\s<>\,\"\']*|\bwww\.[^\s<>\,\"\']+)/g;
   const elements: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -19,12 +19,16 @@ function parseMarkdownLinksAndUrls(text: string): React.ReactNode[] {
 
     if (match[1] && match[2]) {
       const label = match[1];
-      const url = match[2];
-      const isExternal = url.startsWith("http");
+      const rawUrl = match[2];
+      let href = rawUrl;
+      if (!href.startsWith("http://") && !href.startsWith("https://") && !href.startsWith("/")) {
+        href = "https://" + href;
+      }
+      const isExternal = href.startsWith("http");
       elements.push(
         <a
           key={match.index}
-          href={url}
+          href={href}
           target={isExternal ? "_blank" : undefined}
           rel={isExternal ? "noopener noreferrer" : undefined}
           style={{
@@ -37,12 +41,22 @@ function parseMarkdownLinksAndUrls(text: string): React.ReactNode[] {
           {label}
         </a>
       );
-    } else if (match[3]) {
-      const url = match[3];
+    } else if (match[3] || match[4]) {
+      let url = match[3] || match[4];
+      let trailingPunct = "";
+      const punctMatch = url.match(/[.,!?;:]+$/);
+      if (punctMatch) {
+        trailingPunct = punctMatch[0];
+        url = url.slice(0, -trailingPunct.length);
+      }
+      let href = url;
+      if (!href.startsWith("http://") && !href.startsWith("https://") && !href.startsWith("/")) {
+        href = "https://" + href;
+      }
       elements.push(
         <a
           key={match.index}
-          href={url}
+          href={href}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -55,6 +69,9 @@ function parseMarkdownLinksAndUrls(text: string): React.ReactNode[] {
           {url}
         </a>
       );
+      if (trailingPunct) {
+        elements.push(trailingPunct);
+      }
     }
 
     lastIndex = regex.lastIndex;
