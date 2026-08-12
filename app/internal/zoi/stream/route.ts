@@ -35,9 +35,17 @@ const ABUSE_PATTERNS = [
   /without\s+(a\s+)?prescription|no\s+prescription\s+(needed|required)/i,
 ];
 
+const OUT_OF_SCOPE_PATTERNS = [
+  /\b(python|javascript|typescript|java|c\+\+|c#|php|ruby|golang|rust|html|css|sql|bash|powershell|react|vue|angular)\b/i,
+  /(write|give|generate|create|build|show|debug)\s+.*?\b(code|script|program|function|algorithm|class|import|app|website|page|component)\b/i,
+  /\b(code|coding|programmer|programming|script|scripting|function|algorithm|stack trace|syntax error)\b/i,
+  /(write|tell|recite)\s+.*?\b(essay|poem|joke|story|song|haiku)\b/i,
+  /(what is the capital|who is the president|who won the|solve this math|solve the equation|calculate \d+)/i,
+];
+
 type ClassifierVerdict =
   | { verdict: "safe"; intent: string }
-  | { verdict: "guardrail"; type: "medical_advice" | "crisis" | "abuse" };
+  | { verdict: "guardrail"; type: "medical_advice" | "crisis" | "abuse" | "out_of_scope" };
 
 function classifyQuery(query: string): ClassifierVerdict {
   if (ABUSE_PATTERNS.some((p) => p.test(query))) {
@@ -48,6 +56,9 @@ function classifyQuery(query: string): ClassifierVerdict {
   }
   if (MEDICAL_ADVICE_PATTERNS.some((p) => p.test(query))) {
     return { verdict: "guardrail", type: "medical_advice" };
+  }
+  if (OUT_OF_SCOPE_PATTERNS.some((p) => p.test(query))) {
+    return { verdict: "guardrail", type: "out_of_scope" };
   }
 
   let intent = "general";
@@ -110,12 +121,15 @@ const GUARDRAIL_TEXTS: Record<string, string> = {
   abuse:
     "I cannot assist with requests attempting to misuse, abuse, or bypass prescription requirements for controlled substances. " +
     "ZoikoMeds operates strictly under professional healthcare and legal compliance doctrines.",
+  out_of_scope:
+    "I am Zoi, the medicine availability assistant for ZoikoMeds. I am specialized in helping you check medicine availability, find verified pharmacies, and navigate platform features. I cannot write code, execute scripts, or answer general non-healthcare questions.",
 };
 
 const GUARDRAIL_CHIPS: Record<string, string[]> = {
   medical_advice: ["check_availability", "escalate"],
   crisis: ["escalate"],
   abuse: ["escalate"],
+  out_of_scope: ["check_availability", "escalate"],
 };
 
 function formatSourceMessage(sources: ContentDocument[]): { text: string; citations: Array<{ id: string; title: string; url?: string; sourceType: string; authorityLevel: "A1" | "A2" | "A3" | "A4" | "A5" | "A6" }> } | null {
@@ -300,6 +314,8 @@ async function streamGeminiResponse(
     const systemPrompt = `You are Zoi, the intelligent medicine availability assistant for ZoikoMeds.
 Your core mission is to help users discover medicine availability and navigate the platform safely.
 CRITICAL SAFETY BOUNDARIES:
+- STRICT DOMAIN SCOPE: You MUST ONLY answer questions related to ZoikoMeds, medicine availability, verified pharmacy searches, healthcare infrastructure, and platform features.
+- DECLINE out-of-scope requests such as writing code (Python, JavaScript, HTML, etc.), debugging software, answering general non-healthcare trivia, creative writing, or math problems. Politely explain that you are specialized only in medicine availability searches on ZoikoMeds.
 - DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
 - Refer clinical questions to a doctor or qualified pharmacist.
 - For medical emergencies, direct users to call 911 (US) or 999 (UK).
@@ -402,6 +418,8 @@ async function streamGroqResponse(
     const systemPrompt = `You are Zoi, the intelligent medicine availability assistant for ZoikoMeds.
 Your core mission is to help users discover medicine availability and navigate the platform safely.
 CRITICAL SAFETY BOUNDARIES:
+- STRICT DOMAIN SCOPE: You MUST ONLY answer questions related to ZoikoMeds, medicine availability, verified pharmacy searches, healthcare infrastructure, and platform features.
+- DECLINE out-of-scope requests such as writing code (Python, JavaScript, HTML, etc.), debugging software, answering general non-healthcare trivia, creative writing, or math problems. Politely explain that you are specialized only in medicine availability searches on ZoikoMeds.
 - DO NOT provide medical advice, diagnosis, treatment recommendations, or personalized dosage advice.
 - Refer clinical questions to a doctor or qualified pharmacist.
 - For medical emergencies, direct users to call 911 (US) or 999 (UK).

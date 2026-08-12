@@ -34,6 +34,17 @@ function isSafetyEscalation(query: string): boolean {
   return patterns.some((p) => p.test(query));
 }
 
+function isOutOfScope(query: string): boolean {
+  const patterns = [
+    /\b(python|javascript|typescript|java|c\+\+|c#|php|ruby|golang|rust|html|css|sql|bash|powershell|react|vue|angular)\b/i,
+    /(write|give|generate|create|build|show|debug)\s+.*?\b(code|script|program|function|algorithm|class|import|app|website|page|component)\b/i,
+    /\b(code|coding|programmer|programming|script|scripting|function|algorithm|stack trace|syntax error)\b/i,
+    /(write|tell|recite)\s+.*?\b(essay|poem|joke|story|song|haiku)\b/i,
+    /(what is the capital|who is the president|who won the|solve this math|solve the equation|calculate \d+)/i,
+  ];
+  return patterns.some((p) => p.test(query));
+}
+
 interface FallbackPlan {
   text: string;
   chips: Chip[];
@@ -45,7 +56,16 @@ interface FallbackPlan {
 function generateFallbackPlan(query: string, _persona: Persona, messages: Message[]): FallbackPlan {
   const lower = query.toLowerCase().trim();
 
-  // 1. Safety & Medical Advice refused
+  // 1. Out of Scope guardrail
+  if (isOutOfScope(query)) {
+    return {
+      text: "I am Zoi, the medicine availability assistant for ZoikoMeds. I am specialized in helping you check medicine availability, find verified pharmacies, and navigate platform features. I cannot write code, execute scripts, or answer general non-healthcare questions.",
+      chips: [{ label: "Check availability", action: "check_availability" }, { label: "Talk to team", action: "escalate" }],
+      guardrail: true,
+    };
+  }
+
+  // 2. Safety & Medical Advice refused
   if (isSafetyEscalation(query)) {
     return {
       text: "CRITICAL SAFETY NOTICE: It appears you may need urgent medical assistance or emergency guidance.\n\n• Medical Emergency / Overdose: Call 911 (US) or 999/111 (UK) immediately.\n• Poison Control: Call 1-800-222-1222 (US) or contact NHS 111 (UK).\n• Mental Health & Crisis Line: Call or text 988 (US) or 111 (UK).\n\nZoikoMeds is an availability search tool and does not provide emergency medical treatment.",
