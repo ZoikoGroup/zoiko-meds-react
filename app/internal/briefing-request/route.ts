@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
     const organization = String(body.organization || body.orgName || body.clinicName || body.hospitalName || "").trim();
     const jobTitle = String(body.jobTitle || body.title || body.role || "").trim();
     const phone = String(body.phone || body.phoneNumber || "").trim();
+    const orgType = String(body.orgType || body.organizationType || "").trim();
+    const country = String(body.country || body.region || "").trim();
     const note = String(body.note || body.comments || body.details || body.message || "").trim();
 
     // Validation
@@ -36,7 +38,19 @@ export async function POST(req: NextRequest) {
     }
 
     if (!organization) {
-      errors.organization = "Organization name is required.";
+      errors.organization = "Organization is required.";
+    }
+
+    if (!jobTitle) {
+      errors.jobTitle = "Job title is required.";
+    }
+
+    if (!orgType && briefingType.toLowerCase().includes("demo")) {
+      errors.orgType = "Please select an organization type.";
+    }
+
+    if (!country && briefingType.toLowerCase().includes("demo")) {
+      errors.country = "Country / region is required.";
     }
 
     if (phone) {

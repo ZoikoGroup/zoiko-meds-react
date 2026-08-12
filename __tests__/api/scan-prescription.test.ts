@@ -49,10 +49,33 @@ describe("Prescription Scan API (/internal/medicine/scan)", () => {
     expect(meds).toContain("Meftal-P Syrup (100mg/5ml)");
   });
 
-  it("returns fallback medicines array for image without explicit drug keywords when no Vision API key is set", () => {
+  it("returns empty array for image without explicit drug keywords when no Vision API key is set", () => {
     const buffer = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
     const meds = getDynamicMedsForFile("photo_123.png", buffer.length, buffer, "");
     expect(Array.isArray(meds)).toBe(true);
-    expect(meds.length).toBeGreaterThan(0);
+    expect(meds).toEqual([]);
+  });
+
+  it("never reads image bytes as text", () => {
+    // Compressed image data contains enough letter-shaped noise to trip short
+    // catalog abbreviations ("PcM"), so images must go to OCR, not the matcher.
+    const jpeg = Buffer.concat([
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+      Buffer.from(" PcM \x00\x01\x02 dolo "),
+    ]);
+    expect(getDynamicMedsForFile("upload", jpeg.length, jpeg, "")).toEqual([]);
+
+    const png = Buffer.concat([
+      Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+      Buffer.from(" advil brufen "),
+    ]);
+    expect(getDynamicMedsForFile("upload", png.length, png, "")).toEqual([]);
+  });
+
+  it("reads a plain-text upload from its bytes alone", () => {
+    const buffer = Buffer.from("Rx\nTab Azithromycin 500mg once daily\n");
+    expect(getDynamicMedsForFile("rx.txt", buffer.length, buffer, "")).toEqual([
+      "Azithromycin 500mg",
+    ]);
   });
 });

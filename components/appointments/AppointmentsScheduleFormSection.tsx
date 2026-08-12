@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { appUrl, internalApi } from "@/lib/config";
+import {
+  validateEmail,
+  validatePhone,
+  sanitizePhoneInput,
+  scrollToFirstError,
+} from "@/lib/validation";
 
 const ACCENT = "#13A594";
 
@@ -73,6 +79,7 @@ export default function AppointmentsScheduleFormSection() {
   const [reasonForVisit, setReasonForVisit] = useState("");
   const [reminderChannels, setReminderChannels] = useState<string[]>([]);
   const [agreed, setAgreed] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -100,9 +107,88 @@ export default function AppointmentsScheduleFormSection() {
     );
   }
 
+  function validateSingleField(name: string, value: string): string {
+    if (name === "fullName") return !value.trim() ? "Full name is required." : "";
+    if (name === "email") {
+      const res = validateEmail(value);
+      return res.isValid ? "" : res.error || "Please enter a valid email address.";
+    }
+    if (name === "phone") {
+      const res = validatePhone(value, false);
+      return res.isValid ? "" : res.error || "Please enter a valid phone number.";
+    }
+    if (name === "appointmentType") return !value.trim() ? "Please select an appointment type." : "";
+    if (name === "preferredDate") return !value.trim() ? "Preferred date is required." : "";
+    if (name === "preferredTime") return !value.trim() ? "Preferred time window is required." : "";
+    if (name === "visitMode") return !value.trim() ? "Please select a visit mode." : "";
+    return "";
+  }
+
+  function validateAllFields(): Record<string, string> {
+    const errs: Record<string, string> = {};
+    const fnErr = validateSingleField("fullName", fullName);
+    if (fnErr) errs.fullName = fnErr;
+
+    const emailErr = validateSingleField("email", email);
+    if (emailErr) errs.email = emailErr;
+
+    const phoneErr = validateSingleField("phone", phone);
+    if (phoneErr) errs.phone = phoneErr;
+
+    const atErr = validateSingleField("appointmentType", appointmentType);
+    if (atErr) errs.appointmentType = atErr;
+
+    const pdErr = validateSingleField("preferredDate", preferredDate);
+    if (pdErr) errs.preferredDate = pdErr;
+
+    const ptErr = validateSingleField("preferredTime", preferredTime);
+    if (ptErr) errs.preferredTime = ptErr;
+
+    const vmErr = validateSingleField("visitMode", visitMode);
+    if (vmErr) errs.visitMode = vmErr;
+
+    if (!agreed) {
+      errs.agreed = "You must acknowledge and consent to proceed.";
+    }
+
+    return errs;
+  }
+
+  const handleBlur = (name: string, value: string) => {
+    const err = validateSingleField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: err }));
+  };
+
+  const handlePhoneChange = (val: string) => {
+    const sanitized = sanitizePhoneInput(val);
+    setPhone(sanitized);
+    if (errors.phone) {
+      const err = validateSingleField("phone", sanitized);
+      setErrors((prev) => ({ ...prev, phone: err }));
+    }
+  };
+
+  const handlePhonePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text");
+    const sanitized = sanitizePhoneInput(pasted);
+    setPhone(sanitized);
+    if (errors.phone) {
+      const err = validateSingleField("phone", sanitized);
+      setErrors((prev) => ({ ...prev, phone: err }));
+    }
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!agreed || submitting) return;
+    if (submitting) return;
+
+    const errs = validateAllFields();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      scrollToFirstError();
+      return;
+    }
 
     setSubmitting(true);
     setErrorMessage("");
@@ -128,8 +214,14 @@ export default function AppointmentsScheduleFormSection() {
       const json = await res.json();
       if (json.success && json.data) {
         setSubmittedData(json.data);
+        setErrors({});
       } else {
-        setErrorMessage(json.message || "Failed to schedule appointment. Please try again.");
+        if (json.errors && Object.keys(json.errors).length > 0) {
+          setErrors(json.errors);
+          scrollToFirstError();
+        } else {
+          setErrorMessage(json.message || "Failed to schedule appointment. Please try again.");
+        }
       }
     } catch {
       setErrorMessage("Network error occurred while submitting your appointment request.");
@@ -152,6 +244,7 @@ export default function AppointmentsScheduleFormSection() {
     setReminderChannels([]);
     setAgreed(false);
     setErrorMessage("");
+    setErrors({});
   }
 
   return (
@@ -291,61 +384,86 @@ export default function AppointmentsScheduleFormSection() {
             ) : (
               <form
                 onSubmit={handleSubmit}
+                noValidate
                 className="rounded-2xl border bg-white p-6 sm:p-8"
                 style={{
                   borderColor: "#E7EAF1",
                   boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
                 }}
               >
-                {errorMessage && (
+                {errorMessage && Object.keys(errors).length === 0 && (
                   <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
                     {errorMessage}
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <Field label="Full name" required>
+                  <Field label="Full name" required error={errors.fullName}>
                     <input
                       type="text"
-                      required
+                      name="fullName"
                       value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        if (errors.fullName) handleBlur("fullName", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("fullName", e.target.value)}
                       placeholder="Your full name"
-                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                      style={{ borderColor: "#D8DDE8" }}
+                      aria-invalid={!!errors.fullName}
+                      aria-describedby={errors.fullName ? "fullName-error" : undefined}
+                      className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.fullName ? "!border-red-500" : ""}`}
+                      style={{ borderColor: errors.fullName ? "#EF4444" : "#D8DDE8" }}
                     />
                   </Field>
 
-                  <Field label="Email address" required>
+                  <Field label="Email address" required error={errors.email}>
                     <input
                       type="email"
-                      required
+                      name="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (errors.email) handleBlur("email", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("email", e.target.value)}
                       placeholder="you@email.com"
-                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                      style={{ borderColor: "#D8DDE8" }}
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
+                      className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594] ${errors.email ? "!border-red-500" : ""}`}
+                      style={{ borderColor: errors.email ? "#EF4444" : "#D8DDE8" }}
                     />
                   </Field>
 
-                  <Field label="Phone number" optional hint="For SMS reminders">
+                  <Field label="Phone number" optional hint="For SMS reminders" error={errors.phone}>
                     <input
                       type="tel"
+                      inputMode="tel"
+                      name="phone"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      onBlur={(e) => handleBlur("phone", e.target.value)}
+                      onPaste={handlePhonePaste}
                       placeholder="For SMS reminders"
-                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594]"
-                      style={{ borderColor: "#D8DDE8" }}
+                      aria-invalid={!!errors.phone}
+                      aria-describedby={errors.phone ? "phone-error" : undefined}
+                      className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none placeholder:text-[#A6AEC0] focus:border-[#13A594] ${errors.phone ? "!border-red-500" : ""}`}
+                      style={{ borderColor: errors.phone ? "#EF4444" : "#D8DDE8" }}
                     />
                   </Field>
 
-                  <Field label="Appointment type" required>
+                  <Field label="Appointment type" required error={errors.appointmentType}>
                     <select
-                      required
+                      name="appointmentType"
                       value={appointmentType}
-                      onChange={(e) => setAppointmentType(e.target.value)}
-                      className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                      style={{ borderColor: "#D8DDE8" }}
+                      onChange={(e) => {
+                        setAppointmentType(e.target.value);
+                        if (errors.appointmentType) handleBlur("appointmentType", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("appointmentType", e.target.value)}
+                      aria-invalid={!!errors.appointmentType}
+                      aria-describedby={errors.appointmentType ? "appointmentType-error" : undefined}
+                      className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.appointmentType ? "!border-red-500" : ""}`}
+                      style={{ borderColor: errors.appointmentType ? "#EF4444" : "#D8DDE8" }}
                     >
                       <option value="" disabled>
                         Select type
@@ -358,24 +476,36 @@ export default function AppointmentsScheduleFormSection() {
                     </select>
                   </Field>
 
-                  <Field label="Preferred date" required>
+                  <Field label="Preferred date" required error={errors.preferredDate}>
                     <input
                       type="date"
-                      required
+                      name="preferredDate"
                       value={preferredDate}
-                      onChange={(e) => setPreferredDate(e.target.value)}
-                      className="w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                      style={{ borderColor: "#D8DDE8" }}
+                      onChange={(e) => {
+                        setPreferredDate(e.target.value);
+                        if (errors.preferredDate) handleBlur("preferredDate", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("preferredDate", e.target.value)}
+                      aria-invalid={!!errors.preferredDate}
+                      aria-describedby={errors.preferredDate ? "preferredDate-error" : undefined}
+                      className={`w-full rounded-lg border px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.preferredDate ? "!border-red-500" : ""}`}
+                      style={{ borderColor: errors.preferredDate ? "#EF4444" : "#D8DDE8" }}
                     />
                   </Field>
 
-                  <Field label="Preferred time window" required>
+                  <Field label="Preferred time window" required error={errors.preferredTime}>
                     <select
-                      required
+                      name="preferredTime"
                       value={preferredTime}
-                      onChange={(e) => setPreferredTime(e.target.value)}
-                      className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594]"
-                      style={{ borderColor: "#D8DDE8" }}
+                      onChange={(e) => {
+                        setPreferredTime(e.target.value);
+                        if (errors.preferredTime) handleBlur("preferredTime", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("preferredTime", e.target.value)}
+                      aria-invalid={!!errors.preferredTime}
+                      aria-describedby={errors.preferredTime ? "preferredTime-error" : undefined}
+                      className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none focus:border-[#13A594] ${errors.preferredTime ? "!border-red-500" : ""}`}
+                      style={{ borderColor: errors.preferredTime ? "#EF4444" : "#D8DDE8" }}
                     >
                       <option value="" disabled>
                         Select
@@ -398,7 +528,7 @@ export default function AppointmentsScheduleFormSection() {
                         key={mode}
                         className="flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-[13px] font-medium text-[#0F1F4E]"
                         style={{
-                          borderColor: visitMode === mode ? ACCENT : "#D8DDE8",
+                          borderColor: errors.visitMode ? "#EF4444" : visitMode === mode ? ACCENT : "#D8DDE8",
                           backgroundColor: visitMode === mode ? "rgba(19,165,148,0.06)" : "white",
                         }}
                       >
@@ -406,15 +536,22 @@ export default function AppointmentsScheduleFormSection() {
                           type="radio"
                           name="visit-mode"
                           value={mode}
-                          required
                           checked={visitMode === mode}
-                          onChange={() => setVisitMode(mode)}
+                          onChange={() => {
+                            setVisitMode(mode);
+                            if (errors.visitMode) handleBlur("visitMode", mode);
+                          }}
                           className="h-3.5 w-3.5 accent-[#13A594]"
                         />
                         {mode}
                       </label>
                     ))}
                   </div>
+                  {errors.visitMode && (
+                    <p className="mt-1.5 text-[12px] font-medium text-red-500" role="alert">
+                      {errors.visitMode}
+                    </p>
+                  )}
                 </div>
 
                 {/* Provider / location */}
@@ -422,6 +559,7 @@ export default function AppointmentsScheduleFormSection() {
                   <Field label="Provider / location" optional>
                     <input
                       type="text"
+                      name="providerLocation"
                       value={providerLocation}
                       onChange={(e) => setProviderLocation(e.target.value)}
                       placeholder="Search or enter a provider or location"
@@ -436,6 +574,7 @@ export default function AppointmentsScheduleFormSection() {
                   <Field label="Reason for visit" optional>
                     <textarea
                       rows={3}
+                      name="reasonForVisit"
                       value={reasonForVisit}
                       onChange={(e) => setReasonForVisit(e.target.value)}
                       placeholder="Brief context. Do not use for emergencies or urgent medical situations."
@@ -473,22 +612,34 @@ export default function AppointmentsScheduleFormSection() {
                 </div>
 
                 {/* Agreement */}
-                <div className="mt-6 flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    required
-                    checked={agreed}
-                    onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 rounded accent-[#13A594]"
-                  />
-                  <p className="text-[12.5px] leading-relaxed text-[#5B6478]">
-                    I agree to appointment communications and acknowledge the{" "}
-                    <Link href="/privacy-center" className="font-medium underline" style={{ color: ACCENT }}>
-                      privacy notice
-                    </Link>
-                    . I understand ZoikoMeds is not an emergency service and does not provide
-                    medical advice. <span style={{ color: "#D0455A" }}>*</span>
-                  </p>
+                <div className="mt-6">
+                  <div className="flex items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      name="agreed"
+                      checked={agreed}
+                      onChange={(e) => {
+                        setAgreed(e.target.checked);
+                        if (e.target.checked && errors.agreed) {
+                          setErrors((prev) => ({ ...prev, agreed: "" }));
+                        }
+                      }}
+                      className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 rounded accent-[#13A594]"
+                    />
+                    <p className="text-[12.5px] leading-relaxed text-[#5B6478]">
+                      I agree to appointment communications and acknowledge the{" "}
+                      <Link href="/privacy-center" className="font-medium underline" style={{ color: ACCENT }}>
+                        privacy notice
+                      </Link>
+                      . I understand ZoikoMeds is not an emergency service and does not provide
+                      medical advice. <span style={{ color: "#D0455A" }}>*</span>
+                    </p>
+                  </div>
+                  {errors.agreed && (
+                    <p className="mt-1 text-[12px] font-medium text-red-500" role="alert">
+                      {errors.agreed}
+                    </p>
+                  )}
                 </div>
 
                 {/* Actions */}
@@ -497,7 +648,7 @@ export default function AppointmentsScheduleFormSection() {
                     type="submit"
                     className="inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[13.5px] font-semibold text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                     style={{ backgroundColor: ACCENT }}
-                    disabled={!agreed || submitting}
+                    disabled={submitting}
                   >
                     {submitting ? "Scheduling…" : "Schedule an Appointment"}
                   </button>
@@ -596,12 +747,14 @@ function Field({
   required,
   optional,
   hint,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   optional?: boolean;
   hint?: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -610,6 +763,11 @@ function Field({
         {label}
       </Label>
       {children}
+      {error && (
+        <p className="text-[12px] font-medium text-red-500" role="alert" id={`${label.toLowerCase().replace(/\s+/g, "")}-error`}>
+          {error}
+        </p>
+      )}
       {hint && <span className="sr-only">{hint}</span>}
     </div>
   );

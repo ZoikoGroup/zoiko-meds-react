@@ -3,6 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
 import { CheckCircle2 } from "lucide-react";
+import {
+  validateEmail,
+  validatePhone,
+  sanitizePhoneInput,
+  scrollToFirstError,
+} from "@/lib/validation";
 
 type CapabilityOption =
   | "Availability Intelligence"
@@ -74,6 +80,7 @@ export default function FeaturesBookDemoSection() {
   const [capabilities, setCapabilities] = useState<Set<CapabilityOption>>(new Set());
   const [message, setMessage] = useState("");
   const [consent, setConsent] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -101,6 +108,9 @@ export default function FeaturesBookDemoSection() {
       } else {
         next.add(option);
       }
+      if (next.size > 0 && errors.capabilities) {
+        setErrors((p) => ({ ...p, capabilities: "" }));
+      }
       return next;
     });
   }
@@ -116,11 +126,96 @@ export default function FeaturesBookDemoSection() {
     }
   }, [status]);
 
+  function validateSingleField(name: string, value: string): string {
+    if (name === "fullName") return !value.trim() ? "Full name is required." : "";
+    if (name === "workEmail") {
+      const res = validateEmail(value);
+      return res.isValid ? "" : res.error || "Please enter a valid email address.";
+    }
+    if (name === "phone") {
+      const res = validatePhone(value, false);
+      return res.isValid ? "" : res.error || "Please enter a valid phone number.";
+    }
+    if (name === "organization") return !value.trim() ? "Organization is required." : "";
+    if (name === "jobTitle") return !value.trim() ? "Job title is required." : "";
+    if (name === "orgType") return !value.trim() ? "Please select an organization type." : "";
+    if (name === "country") return !value.trim() ? "Country / region is required." : "";
+    return "";
+  }
+
+  function validateAllFields(): Record<string, string> {
+    const errs: Record<string, string> = {};
+    const fnErr = validateSingleField("fullName", fullName);
+    if (fnErr) errs.fullName = fnErr;
+
+    const emailErr = validateSingleField("workEmail", workEmail);
+    if (emailErr) errs.workEmail = emailErr;
+
+    const phoneErr = validateSingleField("phone", phone);
+    if (phoneErr) errs.phone = phoneErr;
+
+    const orgErr = validateSingleField("organization", organization);
+    if (orgErr) errs.organization = orgErr;
+
+    const jtErr = validateSingleField("jobTitle", jobTitle);
+    if (jtErr) errs.jobTitle = jtErr;
+
+    const otErr = validateSingleField("orgType", orgType);
+    if (otErr) errs.orgType = otErr;
+
+    const cErr = validateSingleField("country", country);
+    if (cErr) errs.country = cErr;
+
+    if (capabilities.size === 0) {
+      errs.capabilities = "Please select at least one capability of interest.";
+    }
+
+    if (!consent) {
+      errs.consent = "Consent is required to proceed.";
+    }
+
+    return errs;
+  }
+
+  const handleBlur = (name: string, value: string) => {
+    const err = validateSingleField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: err }));
+  };
+
+  const handlePhoneChange = (val: string) => {
+    const sanitized = sanitizePhoneInput(val);
+    setPhone(sanitized);
+    if (errors.phone) {
+      const err = validateSingleField("phone", sanitized);
+      setErrors((prev) => ({ ...prev, phone: err }));
+    }
+  };
+
+  const handlePhonePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text");
+    const sanitized = sanitizePhoneInput(pasted);
+    setPhone(sanitized);
+    if (errors.phone) {
+      const err = validateSingleField("phone", sanitized);
+      setErrors((prev) => ({ ...prev, phone: err }));
+    }
+  };
+
   async function handleSubmit(e: React.FormEvent, intent: "demo" | "sales") {
     e.preventDefault();
-    if (!consent || submitting) return;
+    if (submitting) return;
+
+    const errs = validateAllFields();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      scrollToFirstError();
+      return;
+    }
+
     setSubmitting(true);
     setStatus("idle");
+    setErrorMessage("");
 
     try {
       const res = await fetch(internalApi("briefing-request"), {
@@ -133,11 +228,13 @@ export default function FeaturesBookDemoSection() {
           organization,
           jobTitle,
           phone,
+          orgType,
+          country,
           note: `Country: ${country}\nCapabilities: ${Array.from(capabilities).join(", ")}\nMessage: ${message}`,
         }),
       });
 
-      let data: any = {};
+      let data: { success?: boolean; errors?: Record<string, string>; message?: string } = {};
       try {
         data = await res.json();
       } catch {}
@@ -154,9 +251,15 @@ export default function FeaturesBookDemoSection() {
         setCapabilities(new Set());
         setMessage("");
         setConsent(false);
+        setErrors({});
       } else {
-        setStatus("error");
-        setErrorMessage(data.message || "Failed to submit request.");
+        if (data.errors && Object.keys(data.errors).length > 0) {
+          setErrors(data.errors);
+          scrollToFirstError();
+        } else {
+          setStatus("error");
+          setErrorMessage(data.message || "Failed to submit request.");
+        }
       }
     } catch {
       setStatus("error");
@@ -194,61 +297,103 @@ export default function FeaturesBookDemoSection() {
           <BookDemoFadeUp show={isVisible} delay={200}>
             <form
               onSubmit={(e) => handleSubmit(e, "demo")}
+              noValidate
               className="rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-sm sm:p-8"
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Full name" required>
+                <Field label="Full name" required error={errors.fullName}>
                   <input
                     type="text"
+                    name="fullName"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="input"
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      if (errors.fullName) handleBlur("fullName", e.target.value);
+                    }}
+                    onBlur={(e) => handleBlur("fullName", e.target.value)}
+                    aria-invalid={!!errors.fullName}
+                    aria-describedby={errors.fullName ? "fullName-error" : undefined}
+                    className={`input ${errors.fullName ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Work email" required>
+                <Field label="Work email" required error={errors.workEmail}>
                   <input
                     type="email"
+                    name="workEmail"
                     placeholder="name@organization.org"
                     value={workEmail}
-                    onChange={(e) => setWorkEmail(e.target.value)}
-                    className="input placeholder:text-[#A6ACBB]"
+                    onChange={(e) => {
+                      setWorkEmail(e.target.value);
+                      if (errors.workEmail) handleBlur("workEmail", e.target.value);
+                    }}
+                    onBlur={(e) => handleBlur("workEmail", e.target.value)}
+                    aria-invalid={!!errors.workEmail}
+                    aria-describedby={errors.workEmail ? "workEmail-error" : undefined}
+                    className={`input placeholder:text-[#A6ACBB] ${errors.workEmail ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Phone number" optional>
+                <Field label="Phone number" optional error={errors.phone}>
                   <input
                     type="tel"
+                    inputMode="tel"
+                    name="phone"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="input"
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    onBlur={(e) => handleBlur("phone", e.target.value)}
+                    onPaste={handlePhonePaste}
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? "phone-error" : undefined}
+                    className={`input ${errors.phone ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Organization" required>
+                <Field label="Organization" required error={errors.organization}>
                   <input
                     type="text"
+                    name="organization"
                     value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                    className="input"
+                    onChange={(e) => {
+                      setOrganization(e.target.value);
+                      if (errors.organization) handleBlur("organization", e.target.value);
+                    }}
+                    onBlur={(e) => handleBlur("organization", e.target.value)}
+                    aria-invalid={!!errors.organization}
+                    aria-describedby={errors.organization ? "organization-error" : undefined}
+                    className={`input ${errors.organization ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Job title" required>
+                <Field label="Job title" required error={errors.jobTitle}>
                   <input
                     type="text"
+                    name="jobTitle"
                     value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                    className="input"
+                    onChange={(e) => {
+                      setJobTitle(e.target.value);
+                      if (errors.jobTitle) handleBlur("jobTitle", e.target.value);
+                    }}
+                    onBlur={(e) => handleBlur("jobTitle", e.target.value)}
+                    aria-invalid={!!errors.jobTitle}
+                    aria-describedby={errors.jobTitle ? "jobTitle-error" : undefined}
+                    className={`input ${errors.jobTitle ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Organization type" required>
+                <Field label="Organization type" required error={errors.orgType}>
                   <div className="relative">
                     <select
+                      name="orgType"
                       value={orgType}
-                      onChange={(e) => setOrgType(e.target.value)}
-                      className="input appearance-none pr-9 text-[#0F1F4E]"
+                      onChange={(e) => {
+                        setOrgType(e.target.value);
+                        if (errors.orgType) handleBlur("orgType", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("orgType", e.target.value)}
+                      aria-invalid={!!errors.orgType}
+                      aria-describedby={errors.orgType ? "orgType-error" : undefined}
+                      className={`input appearance-none pr-9 text-[#0F1F4E] ${errors.orgType ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                     >
                       <option value="" disabled className="text-[#A6ACBB]">
                         Select type
@@ -276,13 +421,20 @@ export default function FeaturesBookDemoSection() {
                 </Field>
 
                 <div className="sm:col-span-2">
-                  <Field label="Country / region" required>
+                  <Field label="Country / region" required error={errors.country}>
                     <input
                       type="text"
+                      name="country"
                       placeholder="e.g. US, UK, EU, national, regional"
                       value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="input placeholder:text-[#A6ACBB]"
+                      onChange={(e) => {
+                        setCountry(e.target.value);
+                        if (errors.country) handleBlur("country", e.target.value);
+                      }}
+                      onBlur={(e) => handleBlur("country", e.target.value)}
+                      aria-invalid={!!errors.country}
+                      aria-describedby={errors.country ? "country-error" : undefined}
+                      className={`input placeholder:text-[#A6ACBB] ${errors.country ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                     />
                   </Field>
                 </div>
@@ -330,6 +482,11 @@ export default function FeaturesBookDemoSection() {
                     );
                   })}
                 </div>
+                {errors.capabilities && (
+                  <p className="mt-1.5 text-[12px] font-medium text-[#E14B4B]" role="alert">
+                    {errors.capabilities}
+                  </p>
+                )}
               </div>
 
               <div className="mt-5">
@@ -344,36 +501,48 @@ export default function FeaturesBookDemoSection() {
                 </Field>
               </div>
 
-              <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[0.8rem] leading-relaxed text-[#6B7385]">
-                <span
-                  className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-                    consent ? "border-[#0FAA87] bg-[#0FAA87]" : "border-[#CBD1DE] bg-white"
-                  }`}
-                >
-                  {consent && (
-                    <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="none">
-                      <path
-                        d="M2 6L4.8 8.8L10 3"
-                        stroke="currentColor"
-                        strokeWidth="1.75"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  )}
-                </span>
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
-                />
-                I consent for ZoikoMeds to contact me about this request and acknowledge the{" "}
-                <a href="#" className="font-semibold text-[#0FAA87] hover:underline">
-                  privacy notice
-                </a>
-                . <span className="text-[#E14B4B]">*</span>
-              </label>
+              <div>
+                <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[0.8rem] leading-relaxed text-[#6B7385]">
+                  <span
+                    className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                      consent ? "border-[#0FAA87] bg-[#0FAA87]" : "border-[#CBD1DE] bg-white"
+                    }`}
+                  >
+                    {consent && (
+                      <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="none">
+                        <path
+                          d="M2 6L4.8 8.8L10 3"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={consent}
+                    onChange={(e) => {
+                      setConsent(e.target.checked);
+                      if (e.target.checked && errors.consent) {
+                        setErrors((prev) => ({ ...prev, consent: "" }));
+                      }
+                    }}
+                  />
+                  I consent for ZoikoMeds to contact me about this request and acknowledge the{" "}
+                  <a href="#" className="font-semibold text-[#0FAA87] hover:underline">
+                    privacy notice
+                  </a>
+                  . <span className="text-[#E14B4B]">*</span>
+                </label>
+                {errors.consent && (
+                  <p className="mt-1 text-[12px] font-medium text-[#E14B4B]" role="alert">
+                    {errors.consent}
+                  </p>
+                )}
+              </div>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
@@ -425,7 +594,7 @@ export default function FeaturesBookDemoSection() {
                 </div>
               )}
 
-              {status === "error" && (
+              {status === "error" && Object.keys(errors).length === 0 && (
                 <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
                   <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
                 </div>
@@ -487,22 +656,29 @@ function Field({
   label,
   required,
   optional,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   optional?: boolean;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
+    <div className="block">
       <span className="text-[0.8rem] font-semibold text-[#0F1F4E]">
         {label}
         {required && <span className="text-[#E14B4B]"> *</span>}
         {optional && <span className="ml-1 font-normal text-[#A6ACBB]">(optional)</span>}
       </span>
       <div className="mt-1.5">{children}</div>
-    </label>
+      {error && (
+        <p className="mt-1.5 text-[12px] font-medium text-[#E14B4B]" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 
