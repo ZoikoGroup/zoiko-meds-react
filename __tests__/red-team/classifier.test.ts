@@ -23,6 +23,14 @@ const ABUSE_PATTERNS = [
   /without\s+(a\s+)?prescription|no\s+prescription\s+(needed|required)/i,
 ];
 
+const OUT_OF_SCOPE_PATTERNS = [
+  /\b(python|javascript|typescript|java|c\+\+|c#|php|ruby|golang|rust|html|css|sql|bash|powershell|react|vue|angular)\b/i,
+  /(write|give|generate|create|build|show|debug)\s+.*?\b(code|script|program|function|algorithm|class|import|app|website|page|component)\b/i,
+  /\b(code|coding|programmer|programming|script|scripting|function|algorithm|stack trace|syntax error)\b/i,
+  /(write|tell|recite)\s+.*?\b(essay|poem|joke|story|song|haiku)\b/i,
+  /(what is the capital|who is the president|who won the|solve this math|solve the equation|calculate \d+)/i,
+];
+
 const INJECTION_PATTERNS = [
   /ignore\s+(all\s+)?(previous|above|below)\s+(instructions|prompts|directions)/i,
   /you\s+are\s+(now|free|a\s+human|not\s+(an\s+)?ai|a\s+real\s+person)/i,
@@ -177,3 +185,35 @@ describe("Red-team: Persona confusion", () => {
     expect(mapped).toBe("other");
   });
 });
+
+describe("Red-team: Out-of-scope query detection", () => {
+  const offTopicQueries = [
+    "give a python code",
+    "write a python script to parse JSON",
+    "write a javascript function",
+    "how to center a div in CSS",
+    "write an essay about space",
+    "tell me a joke",
+    "what is the capital of France?",
+    "solve this math problem: 2+2*4",
+  ];
+
+  for (const query of offTopicQueries) {
+    it(`detects out-of-scope query: "${query}"`, () => {
+      expect(matchesAny(query, OUT_OF_SCOPE_PATTERNS)).toBe(true);
+    });
+  }
+
+  it("does not falsely flag legitimate availability query", () => {
+    expect(matchesAny("Do you have paracetamol in London?", OUT_OF_SCOPE_PATTERNS)).toBe(false);
+  });
+
+  it("does not falsely flag platform sign up query", () => {
+    expect(matchesAny("How do I sign up my pharmacy?", OUT_OF_SCOPE_PATTERNS)).toBe(false);
+  });
+
+  it("does not falsely flag general platform query", () => {
+    expect(matchesAny("What is ZoikoMeds?", OUT_OF_SCOPE_PATTERNS)).toBe(false);
+  });
+});
+
