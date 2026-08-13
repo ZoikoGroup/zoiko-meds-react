@@ -192,13 +192,7 @@ function ControlCard({
       <p className="mt-2 flex-1 text-[13px] leading-relaxed text-[#5B6478]">
         {description}
       </p>
-
-      <a
-        href="#"
-        className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        {cta}
-      </a>
+      
     </div>
   );
 }

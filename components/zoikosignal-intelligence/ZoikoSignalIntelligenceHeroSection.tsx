@@ -109,31 +109,6 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                   </div>
                 </Reveal>
 
-                <Reveal index={5}>
-                  <a
-                    href="#"
-                    className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
-                    style={{ color: ACCENT }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = ACCENT)}
-                  >
-                    View Governance Standards
-                    <svg
-                      className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M3 8H13M13 8L9 4M13 8L9 12"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
-                </Reveal>
-
                 <Reveal index={6}>
                   <p className="mt-1 flex max-w-lg items-start gap-2.5 text-[12.5px] leading-relaxed text-[#8891A4]">
                     <svg

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-
 const ACCENT = "#0FAA87";
 
 const MODULES = [
@@ -65,7 +64,7 @@ export default function ZoikoSignalIntelligenceModulesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(el);
@@ -96,8 +95,8 @@ export default function ZoikoSignalIntelligenceModulesSection() {
             <Reveal index={2}>
               <p className="mt-3 max-w-xl text-[14.5px] leading-relaxed text-[#5B6478]">
                 Institutional outputs — each showing data freshness,
-                jurisdiction scope, confidence, and governance status
-                where relevant.
+                jurisdiction scope, confidence, and governance status where
+                relevant.
               </p>
             </Reveal>
           </>
@@ -195,13 +194,6 @@ function ModuleCard({
       <p className="mt-2 flex-1 text-[13px] leading-relaxed text-[#5B6478]">
         {description}
       </p>
-
-      <a
-        href="#"
-        className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        {cta}
-      </a>
     </div>
   );
 }
@@ -211,7 +203,11 @@ function ModuleIcon({
 }: {
   name: "pulse" | "pin" | "trend" | "refresh" | "monitor" | "doc";
 }) {
-  const common = { viewBox: "0 0 24 24", fill: "none" as const, className: "h-5 w-5" };
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    className: "h-5 w-5",
+  };
 
   switch (name) {
     case "pulse":
@@ -235,7 +231,13 @@ function ModuleIcon({
             strokeWidth="1.6"
             strokeLinejoin="round"
           />
-          <circle cx="12" cy="8.5" r="2.2" stroke="currentColor" strokeWidth="1.6" />
+          <circle
+            cx="12"
+            cy="8.5"
+            r="2.2"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
         </svg>
       );
     case "trend":
@@ -248,7 +250,13 @@ function ModuleIcon({
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <path d="M15 6h5v5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M15 6h5v5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       );
     case "refresh":
@@ -266,15 +274,41 @@ function ModuleIcon({
     case "monitor":
       return (
         <svg {...common}>
-          <rect x="3.5" y="5" width="17" height="11" rx="1.4" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.5 20h7M12 16v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <rect
+            x="3.5"
+            y="5"
+            width="17"
+            height="11"
+            rx="1.4"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M8.5 20h7M12 16v4"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
     case "doc":
       return (
         <svg {...common}>
-          <rect x="5.5" y="3.5" width="13" height="17" rx="1.4" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <rect
+            x="5.5"
+            y="3.5"
+            width="13"
+            height="17"
+            rx="1.4"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
   }
@@ -292,14 +326,19 @@ function NoteBar() {
       <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#E3E8FB] text-[#3B5BDB]">
         <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M8 5.5v.01M8 7.5v3.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <path
+            d="M8 5.5v.01M8 7.5v3.2"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
         </svg>
       </span>
       <p className="text-[13px] leading-relaxed text-[#5B6478]">
-        Dashboard numbers are illustrative until verified for production.
-        No customer, pharmacy, patient, exact-stock, or partner-sensitive
-        information appears in public mockups; charts include
-        plain-language summaries.
+        Dashboard numbers are illustrative until verified for production. No
+        customer, pharmacy, patient, exact-stock, or partner-sensitive
+        information appears in public mockups; charts include plain-language
+        summaries.
       </p>
     </div>
   );

@@ -82,17 +82,6 @@ export default function OverviewHeroSection() {
               </div>
             </Reveal>
 
-            <Reveal index={4} active={mounted}>
-              <a
-                href="#platform-capabilities"
-                className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
-                style={{ color: ACCENT }}
-              >
-                Explore platform capabilities
-                <ArrowRightIcon />
-              </a>
-            </Reveal>
-
             <Reveal index={5} active={mounted}>
               <p
                 className="mt-6 flex items-center gap-1.5 text-[12px] leading-relaxed"

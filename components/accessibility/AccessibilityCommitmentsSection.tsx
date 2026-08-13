@@ -132,14 +132,6 @@ export default function AccessibilityCommitmentsSection() {
                 <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-[#5B6478]">
                   {card.description}
                 </p>
-
-                <a
-                  href={card.href}
-                  className="mt-4 inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold transition-opacity duration-150 hover:opacity-80"
-                  style={{ color: ACCENT }}
-                >
-                  {card.link} <span aria-hidden>→</span>
-                </a>
               </div>
             </Reveal>
           ))}

@@ -93,17 +93,6 @@ export default function IntegrationsHeroSection() {
               </div>
             </Reveal>
 
-            <Reveal index={4} active={mounted}>
-              <a
-                href="#integration-categories"
-                className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold hover:underline"
-                style={{ color: ACCENT }}
-              >
-                Explore integration categories
-                <ArrowRightIcon />
-              </a>
-            </Reveal>
-
             <Reveal index={5} active={mounted}>
               <p
                 className="mt-6 flex items-start gap-1.5 text-[12px] leading-relaxed"

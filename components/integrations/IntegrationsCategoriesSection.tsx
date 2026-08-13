@@ -24,7 +24,8 @@ const CARDS = [
   {
     title: "Pharmacy systems",
     body: "Pharmacy participation, verified confirmation workflows, availability confidence updates, and network status.",
-    value: "strengthens availability signals without unsafe public inventory exposure.",
+    value:
+      "strengthens availability signals without unsafe public inventory exposure.",
     action: "Explore Pharmacy Integration",
     icon: "portal",
   },
@@ -66,7 +67,8 @@ const CARDS = [
   {
     title: "Partner APIs",
     body: "Approved data exchange, custom workflows, sandbox testing, and partner-specific integrations.",
-    value: "creates flexible implementation pathways for enterprise and technology partners.",
+    value:
+      "creates flexible implementation pathways for enterprise and technology partners.",
     action: "Explore Partner APIs",
     icon: "code",
   },
@@ -86,31 +88,41 @@ export default function IntegrationsCategoriesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
+    <section
+      ref={ref}
+      className="relative w-full py-20 sm:py-24"
+      style={{ backgroundColor: BG }}
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
             className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: ACCENT }}
           >
-            <span className="opacity-60" style={{ color: NAVY }}>03</span>
-            <span className="opacity-40" style={{ color: NAVY }}>·</span>
+            <span className="opacity-60" style={{ color: NAVY }}>
+              03
+            </span>
+            <span className="opacity-40" style={{ color: NAVY }}>
+              ·
+            </span>
             Integration Categories
           </p>
         </Reveal>
 
         {/* ── Headline ── */}
         <Reveal index={1} active={mounted}>
-          <h2 className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]" style={{ color: NAVY }}>
+          <h2
+            className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]"
+            style={{ color: NAVY }}
+          >
             Connect the systems that power
             <br />
             <span style={{ color: ACCENT }}>medicine access.</span>
@@ -131,32 +143,32 @@ export default function IntegrationsCategoriesSection() {
                 <p className="text-[14px] font-bold" style={{ color: NAVY }}>
                   {card.title}
                 </p>
-                <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}99` }}>
+                <p
+                  className="mt-2 text-[12.5px] leading-relaxed"
+                  style={{ color: `${NAVY}99` }}
+                >
                   {card.body}
                 </p>
 
                 <div className="mt-auto pt-4">
-                  <div className="mb-3 border-t" style={{ borderColor: "rgba(15,31,78,0.08)" }} />
-                  <p className="text-[12px] leading-relaxed" style={{ color: `${NAVY}80` }}>
+                  <div
+                    className="mb-3 border-t"
+                    style={{ borderColor: "rgba(15,31,78,0.08)" }}
+                  />
+                  <p
+                    className="text-[12px] leading-relaxed"
+                    style={{ color: `${NAVY}80` }}
+                  >
                     <span className="font-bold" style={{ color: ACCENT }}>
                       Value:
                     </span>{" "}
                     {card.value}
                   </p>
-                  <a
-                    href="#"
-                    className="mt-2 inline-flex items-center gap-1.5 text-[12.5px] font-semibold hover:underline"
-                    style={{ color: ACCENT }}
-                  >
-                    {card.action}
-                    <ArrowRightIcon />
-                  </a>
                 </div>
               </div>
             </Reveal>
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -231,7 +243,13 @@ function CardIcon({ name }: { name: (typeof CARDS)[number]["icon"] }) {
 function ArrowRightIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 8H13M13 8L9 4M13 8L9 12"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -239,9 +257,24 @@ function ArrowRightIcon() {
 /* ------------------------------------------------------------------ */
 /*  Reveal                                                             */
 /* ------------------------------------------------------------------ */
-function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
+function Reveal({
+  children,
+  index,
+  active,
+}: {
+  children: React.ReactNode;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `integrationsCategoriesFadeUp 0.6s ease-out ${index * 90}ms both` : "none" }}>
+    <div
+      style={{
+        opacity: active ? undefined : 0,
+        animation: active
+          ? `integrationsCategoriesFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
+      }}
+    >
       {children}
       <style>{`
         @keyframes integrationsCategoriesFadeUp {

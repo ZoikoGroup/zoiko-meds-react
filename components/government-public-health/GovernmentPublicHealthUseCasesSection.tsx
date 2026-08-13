@@ -168,13 +168,6 @@ function UseCaseCard({
           {card.description}
         </p>
 
-        {/* CTA */}
-        <Link
-          href={card.href}
-          className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D0D5E2] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:scale-[0.97]"
-        >
-          {card.cta}
-        </Link>
       </div>
     </Reveal>
   );

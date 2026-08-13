@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-
 const ACCENT = "#0FAA87";
 
 const PATHWAYS = [
@@ -62,7 +61,7 @@ export default function ZoikoSignalIntelligenceAccessPathwaysSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.12 }
+      { threshold: 0.12 },
     );
 
     observer.observe(el);
@@ -192,13 +191,6 @@ function PathwayCard({
       <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#5B6478]">
         {description}
       </p>
-
-      <a
-        href="#"
-        className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        {cta}
-      </a>
     </div>
   );
 }
@@ -208,7 +200,11 @@ function PathwayIcon({
 }: {
   name: "pulse" | "dashboard" | "home" | "chart" | "lock";
 }) {
-  const common = { viewBox: "0 0 24 24", fill: "none" as const, className: "h-5 w-5" };
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    className: "h-5 w-5",
+  };
 
   switch (name) {
     case "pulse":
@@ -226,7 +222,15 @@ function PathwayIcon({
     case "dashboard":
       return (
         <svg {...common}>
-          <rect x="4.5" y="4.5" width="15" height="15" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
+          <rect
+            x="4.5"
+            y="4.5"
+            width="15"
+            height="15"
+            rx="1.6"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
           <path d="M4.5 9.5h15" stroke="currentColor" strokeWidth="1.6" />
           <path d="M9 9.5v9.5" stroke="currentColor" strokeWidth="1.4" />
         </svg>
@@ -246,14 +250,31 @@ function PathwayIcon({
     case "chart":
       return (
         <svg {...common}>
-          <path d="M5 19V10M11 19V5M17 19v-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path
+            d="M5 19V10M11 19V5M17 19v-7"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
     case "lock":
       return (
         <svg {...common}>
-          <rect x="5" y="11" width="14" height="9" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M7.5 11V8a4.5 4.5 0 0 1 9 0v3" stroke="currentColor" strokeWidth="1.6" />
+          <rect
+            x="5"
+            y="11"
+            width="14"
+            height="9"
+            rx="1.6"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M7.5 11V8a4.5 4.5 0 0 1 9 0v3"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
         </svg>
       );
   }
@@ -274,14 +295,13 @@ function ClosingCta() {
       }}
     >
       <h3 className="font-[var(--font-plus-jakarta-sans)] text-2xl font-bold leading-tight text-white sm:text-[1.85rem]">
-        See medicine access pressure before it becomes institutional
-        friction.
+        See medicine access pressure before it becomes institutional friction.
       </h3>
 
       <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-[#A9B2C8]">
-        Use ZoikoSignal™ to understand medicine availability pressure,
-        shortage movement, demand signals, and regional access risk
-        through governed enterprise intelligence.
+        Use ZoikoSignal™ to understand medicine availability pressure, shortage
+        movement, demand signals, and regional access risk through governed
+        enterprise intelligence.
       </p>
 
       <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">

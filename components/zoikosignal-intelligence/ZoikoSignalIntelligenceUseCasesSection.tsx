@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-
 const ACCENT = "#0FAA87";
 
 const USE_CASES = [
@@ -11,7 +10,8 @@ const USE_CASES = [
     title: "Health system access-risk visibility",
     description:
       "Understand where patients may face medicine access friction after care encounters.",
-    buyer: "Hospitals, IDNs, outpatient networks, discharge & care-navigation leaders.",
+    buyer:
+      "Hospitals, IDNs, outpatient networks, discharge & care-navigation leaders.",
     cta: "Request Health System Briefing",
   },
   {
@@ -43,7 +43,8 @@ const USE_CASES = [
     title: "Enterprise pharmacy & supply planning",
     description:
       "Understand aggregate coverage, restock movement, and regional pressure without public exact-stock exposure.",
-    buyer: "Enterprise pharmacy groups, wholesale strategy, distribution partners.",
+    buyer:
+      "Enterprise pharmacy groups, wholesale strategy, distribution partners.",
     cta: "Request Enterprise Review",
   },
 ] as const;
@@ -63,7 +64,7 @@ export default function ZoikoSignalIntelligenceUseCasesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.08 }
+      { threshold: 0.08 },
     );
 
     observer.observe(el);
@@ -194,13 +195,6 @@ function UseCaseCard({
           <span className="font-bold text-[#0F1F4E]">Buyer:</span> {buyer}
         </p>
       </div>
-
-      <a
-        href="#"
-        className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        {cta}
-      </a>
     </div>
   );
 }
@@ -210,7 +204,11 @@ function UseCaseIcon({
 }: {
   name: "home" | "home2" | "home3" | "bars" | "shield";
 }) {
-  const common = { viewBox: "0 0 24 24", fill: "none" as const, className: "h-5 w-5" };
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    className: "h-5 w-5",
+  };
 
   switch (name) {
     case "home":
@@ -265,13 +263,18 @@ function NoteBar() {
       <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#5B6478]">
         <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M8 5.5v.01M8 7.5v3.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <path
+            d="M8 5.5v.01M8 7.5v3.2"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
         </svg>
       </span>
       <p className="text-[13px] leading-relaxed text-[#5B6478]">
-        CTA discipline: the primary page action remains Request
-        ZoikoSignal™ Briefing. Segment actions are contextual routes for
-        CRM qualification, not competing hero actions.
+        CTA discipline: the primary page action remains Request ZoikoSignal™
+        Briefing. Segment actions are contextual routes for CRM qualification,
+        not competing hero actions.
       </p>
     </div>
   );
