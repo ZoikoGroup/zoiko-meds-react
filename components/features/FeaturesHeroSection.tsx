@@ -77,24 +77,6 @@ export default function FeaturesHeroSection() {
             </div>
           </FeaturesFadeUp>
 
-          <FeaturesFadeUp show={isVisible} delay={300}>
-            <a
-              href="#compare"
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 hover:text-[#00A99D]"
-            >
-              Compare capabilities
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
-          </FeaturesFadeUp>
-
           <FeaturesFadeUp show={isVisible} delay={360}>
             <div className="mt-6 flex items-start gap-2">
               <svg

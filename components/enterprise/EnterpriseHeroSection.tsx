@@ -85,7 +85,7 @@ export default function EnterpriseHeroSection() {
             </div>
           </div>
 
-          {/* RIGHT: single complete image, no recreated UI/text */}
+          {/* RIGHT: Image */}
           <div className="flex-1 min-w-0 flex justify-center lg:justify-end w-full">
             <div
               className={`ent-img-rise relative w-full max-w-[620px] overflow-hidden ${
@@ -93,11 +93,10 @@ export default function EnterpriseHeroSection() {
               }`}
               style={{ animationDelay: "200ms" }}
             >
-              {/* Replace src with your actual exported console/dashboard image */}
               <img
-                src="/enterprise/global-intelligence-console.png"
+                src="/enterprise/hero.png"
                 alt="Global Intelligence Console dashboard"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-2xl"
               />
             </div>
           </div>

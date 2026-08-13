@@ -72,32 +72,43 @@ export default function AppointmentsCoreCapabilitiesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full py-20 sm:py-24" style={{ backgroundColor: BG }}>
+    <section
+      ref={ref}
+      className="relative w-full py-20 sm:py-24"
+      style={{ backgroundColor: BG }}
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
             className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: ACCENT }}
           >
-            <span className="opacity-60" style={{ color: NAVY }}>03</span>
-            <span className="opacity-40" style={{ color: NAVY }}>·</span>
+            <span className="opacity-60" style={{ color: NAVY }}>
+              03
+            </span>
+            <span className="opacity-40" style={{ color: NAVY }}>
+              ·
+            </span>
             Core Capabilities
           </p>
         </Reveal>
 
         {/* ── Headline ── */}
         <Reveal index={1} active={mounted}>
-          <h2 className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]" style={{ color: NAVY }}>
-            Everything you need <span style={{ color: ACCENT }}>around a visit.</span>
+          <h2
+            className="text-[2rem] font-extrabold leading-tight sm:text-[2.3rem]"
+            style={{ color: NAVY }}
+          >
+            Everything you need{" "}
+            <span style={{ color: ACCENT }}>around a visit.</span>
           </h2>
         </Reveal>
 
@@ -115,22 +126,16 @@ export default function AppointmentsCoreCapabilitiesSection() {
                 <p className="text-[14px] font-bold" style={{ color: NAVY }}>
                   {card.title}
                 </p>
-                <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}99` }}>
+                <p
+                  className="mt-2 text-[12.5px] leading-relaxed"
+                  style={{ color: `${NAVY}99` }}
+                >
                   {card.body}
                 </p>
-                <a
-                  href="#"
-                  className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[12.5px] font-semibold hover:underline"
-                  style={{ color: ACCENT }}
-                >
-                  {card.action}
-                  <ArrowRightIcon />
-                </a>
               </div>
             </Reveal>
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -204,7 +209,13 @@ function CardIcon({ name }: { name: (typeof CARDS)[number]["icon"] }) {
 function ArrowRightIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 8H13M13 8L9 4M13 8L9 12"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -212,9 +223,24 @@ function ArrowRightIcon() {
 /* ------------------------------------------------------------------ */
 /*  Reveal                                                             */
 /* ------------------------------------------------------------------ */
-function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
+function Reveal({
+  children,
+  index,
+  active,
+}: {
+  children: React.ReactNode;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `appointmentsCapabilitiesFadeUp 0.6s ease-out ${index * 90}ms both` : "none" }}>
+    <div
+      style={{
+        opacity: active ? undefined : 0,
+        animation: active
+          ? `appointmentsCapabilitiesFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
+      }}
+    >
       {children}
       <style>{`
         @keyframes appointmentsCapabilitiesFadeUp {

@@ -9,22 +9,60 @@ const CORE_CAPABILITIES = [
   {
     id: "multi-location-access-visibility",
     title: "Multi-location access visibility",
-    description: "Monitor medicine access signals by clinic, region, service line, and operating territory.",
+    description:
+      "Monitor medicine access signals by clinic, region, service line, and operating territory.",
     linkLabel: "See Network View",
     href: "#",
     icon: (
       <>
-        <rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1" stroke="currentColor" strokeWidth="1.3" fill="none" />
-        <rect x="9" y="2.5" width="4.5" height="4.5" rx="1" stroke="currentColor" strokeWidth="1.3" fill="none" />
-        <rect x="2.5" y="9" width="4.5" height="4.5" rx="1" stroke="currentColor" strokeWidth="1.3" fill="none" />
-        <rect x="9" y="9" width="4.5" height="4.5" rx="1" stroke="currentColor" strokeWidth="1.3" fill="none" />
+        <rect
+          x="2.5"
+          y="2.5"
+          width="4.5"
+          height="4.5"
+          rx="1"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          fill="none"
+        />
+        <rect
+          x="9"
+          y="2.5"
+          width="4.5"
+          height="4.5"
+          rx="1"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          fill="none"
+        />
+        <rect
+          x="2.5"
+          y="9"
+          width="4.5"
+          height="4.5"
+          rx="1"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          fill="none"
+        />
+        <rect
+          x="9"
+          y="9"
+          width="4.5"
+          height="4.5"
+          rx="1"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          fill="none"
+        />
       </>
     ),
   },
   {
     id: "priority-medicine-watchlists",
     title: "Priority medicine watchlists",
-    description: "Track medicines or categories that matter most to the clinic network and its patient populations.",
+    description:
+      "Track medicines or categories that matter most to the clinic network and its patient populations.",
     linkLabel: "Create Watchlist Briefing",
     href: "#",
     icon: (
@@ -40,7 +78,8 @@ const CORE_CAPABILITIES = [
   {
     id: "shortage-signal-awareness",
     title: "Shortage signal awareness",
-    description: "Identify patterns that may indicate access pressure, weakening confidence, or emerging shortage movement.",
+    description:
+      "Identify patterns that may indicate access pressure, weakening confidence, or emerging shortage movement.",
     linkLabel: "Explore Shortage Intelligence",
     href: "/intelligence",
     icon: (
@@ -56,7 +95,8 @@ const CORE_CAPABILITIES = [
   {
     id: "pharmacy-network-coordination",
     title: "Pharmacy network coordination",
-    description: "Understand where pharmacy participation and confirmation activity are strengthening access confidence.",
+    description:
+      "Understand where pharmacy participation and confirmation activity are strengthening access confidence.",
     linkLabel: "View Pharmacy Network Signals",
     href: "/pharmacy",
     icon: (
@@ -72,7 +112,8 @@ const CORE_CAPABILITIES = [
   {
     id: "operational-escalation-workflows",
     title: "Operational escalation workflows",
-    description: "Route access concerns to assigned teams with status, notes, priority, and review ownership.",
+    description:
+      "Route access concerns to assigned teams with status, notes, priority, and review ownership.",
     linkLabel: "Discuss Workflow Design",
     href: "#",
     icon: (
@@ -88,7 +129,8 @@ const CORE_CAPABILITIES = [
   {
     id: "compliance-ready-reporting",
     title: "Compliance-ready reporting",
-    description: "Produce structured reports for leadership, operations, compliance, and stakeholder briefings.",
+    description:
+      "Produce structured reports for leadership, operations, compliance, and stakeholder briefings.",
     linkLabel: "Request Sample Reports",
     href: "/reports",
     icon: (
@@ -117,16 +159,18 @@ export default function ClinicNetworksCoreCapabilitiesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section
+      ref={ref}
+      className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
@@ -160,41 +204,26 @@ export default function ClinicNetworksCoreCapabilitiesSection() {
               >
                 <div
                   className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-250 ease-out group-hover:scale-110"
-                  style={{ backgroundColor: "rgba(19,165,148,0.12)", color: ACCENT }}
+                  style={{
+                    backgroundColor: "rgba(19,165,148,0.12)",
+                    color: ACCENT,
+                  }}
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
                     {cap.icon}
                   </svg>
                 </div>
 
-                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">{cap.title}</h3>
+                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">
+                  {cap.title}
+                </h3>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
                   {cap.description}
                 </p>
-
-                <div className="mt-auto pt-4">
-                  <Link
-                    href={cap.href}
-                    className="inline-flex items-center gap-1 text-[13px] font-semibold transition-colors duration-200"
-                    style={{ color: ACCENT }}
-                  >
-                    {cap.linkLabel}
-                    <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5">
-                      <path
-                        d="M3.5 8h9M8.5 4.5L12 8l-3.5 3.5"
-                        stroke="currentColor"
-                        strokeWidth="1.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </Link>
-                </div>
               </div>
             </Reveal>
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -217,7 +246,9 @@ function Reveal({
       className="h-full"
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `clinicNetworksCoreCapabilitiesFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `clinicNetworksCoreCapabilitiesFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}

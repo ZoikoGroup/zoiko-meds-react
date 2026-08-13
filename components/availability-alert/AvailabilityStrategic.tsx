@@ -1,11 +1,3 @@
-import {
-    ClipboardCheck,
-    History,
-    Users,
-    Plane,
-    ShieldCheck,
-    ArrowRight,
-} from "lucide-react";
 
 const scenarios = [
     {
@@ -88,11 +80,6 @@ export default function AvailabilityStrategic() {
                                 <p className="mt-4 text-[#44474D]">
                                     {description}
                                 </p>
-
-                                <button className="mt-4 flex items-center gap-1  text-[#006A65] transition hover:gap-3">
-                                    {link}
-                                    <img src="/availability-alert/arrow.png" alt="arrow" height={10} width={10} />
-                                </button>
                             </div>
                         )
                     )}

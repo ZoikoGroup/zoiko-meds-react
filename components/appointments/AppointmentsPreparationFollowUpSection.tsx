@@ -46,7 +46,8 @@ const FOLLOWUP_ACTIONS = [
   {
     id: "lab-reminder",
     title: "Lab reminder",
-    description: "Track lab-work follow-ups and results-review reminders after your visit.",
+    description:
+      "Track lab-work follow-ups and results-review reminders after your visit.",
     cta: "Set lab reminder",
     icon: (
       <path
@@ -58,7 +59,7 @@ const FOLLOWUP_ACTIONS = [
         fill="none"
       />
     ),
-    href:"#"
+    href: "#",
   },
   {
     id: "prescription-review",
@@ -74,12 +75,13 @@ const FOLLOWUP_ACTIONS = [
         fill="none"
       />
     ),
-    href:"#"
+    href: "#",
   },
   {
     id: "next-visit",
     title: "Next visit",
-    description: "Schedule or request a follow-up appointment while it's top of mind.",
+    description:
+      "Schedule or request a follow-up appointment while it's top of mind.",
     cta: "Book next visit",
     icon: (
       <path
@@ -90,7 +92,7 @@ const FOLLOWUP_ACTIONS = [
         fill="none"
       />
     ),
-    href:"#"
+    href: "#",
   },
   {
     id: "message-support",
@@ -100,18 +102,30 @@ const FOLLOWUP_ACTIONS = [
     cta: "Contact support",
     icon: (
       <>
-        <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <circle
+          cx="12"
+          cy="8"
+          r="3.5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
+        <path
+          d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
       </>
     ),
-    href:"/contact"
+    href: "/contact",
   },
 ];
 
 export default function AppointmentsPreparationFollowUpSection() {
   const [mounted, setMounted] = useState(false);
   const [completedItems, setCompletedItems] = useState<string[]>(
-    PREPARATION_ITEMS.filter((item) => item.completed).map((item) => item.id)
+    PREPARATION_ITEMS.filter((item) => item.completed).map((item) => item.id),
   );
   const ref = useRef<HTMLDivElement>(null);
 
@@ -125,7 +139,7 @@ export default function AppointmentsPreparationFollowUpSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -136,14 +150,18 @@ export default function AppointmentsPreparationFollowUpSection() {
 
   const handleToggleItem = (itemId: string) => {
     setCompletedItems((prev) =>
-      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId],
     );
   };
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section
+      ref={ref}
+      className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
@@ -166,7 +184,6 @@ export default function AppointmentsPreparationFollowUpSection() {
 
         {/* ── Content grid ── */}
         <div className="mt-10 grid grid-cols-1 items-start gap-8 lg:mt-12 lg:grid-cols-[1fr_1.2fr] lg:gap-10">
-
           {/* ── Left: Preparation checklist ── */}
           <Reveal index={2} active={mounted}>
             <div
@@ -178,7 +195,9 @@ export default function AppointmentsPreparationFollowUpSection() {
             >
               {/* Header */}
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">Visit preparation</h3>
+                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">
+                  Visit preparation
+                </h3>
                 <span
                   className="inline-flex items-center text-[12.5px] font-bold"
                   style={{ color: ACCENT }}
@@ -188,7 +207,10 @@ export default function AppointmentsPreparationFollowUpSection() {
               </div>
 
               {/* Progress bar */}
-              <div className="mb-6 h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: "#E7EAF1" }}>
+              <div
+                className="mb-6 h-2 w-full overflow-hidden rounded-full"
+                style={{ backgroundColor: "#E7EAF1" }}
+              >
                 <div
                   className="h-full transition-all duration-300 ease-out"
                   style={{
@@ -243,7 +265,10 @@ export default function AppointmentsPreparationFollowUpSection() {
                   {/* Icon */}
                   <div
                     className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg sm:mb-0"
-                    style={{ backgroundColor: "rgba(19,165,148,0.12)", color: ACCENT }}
+                    style={{
+                      backgroundColor: "rgba(19,165,148,0.12)",
+                      color: ACCENT,
+                    }}
                   >
                     <svg viewBox="0 0 16 16" fill="none" className="h-5 w-5">
                       {action.icon}
@@ -252,25 +277,18 @@ export default function AppointmentsPreparationFollowUpSection() {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <h3 className="text-[14px] font-bold text-[#0F1F4E]">{action.title}</h3>
+                    <h3 className="text-[14px] font-bold text-[#0F1F4E]">
+                      {action.title}
+                    </h3>
                     <p className="mt-1 text-[13px] leading-relaxed text-[#5B6478]">
                       {action.description}
                     </p>
-                    <a
-                      href={action.href}
-                      className="mt-3 inline-flex items-center text-[13px] font-semibold hover:underline"
-                      style={{ color: ACCENT }}
-                    >
-                      {action.cta} →
-                    </a>
                   </div>
                 </div>
               </Reveal>
             ))}
           </div>
-
         </div>
-
       </div>
     </section>
   );
@@ -292,7 +310,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `appointmentsPreparationFollowUpFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `appointmentsPreparationFollowUpFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}
