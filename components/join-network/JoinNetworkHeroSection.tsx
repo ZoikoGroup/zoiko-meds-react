@@ -6,17 +6,8 @@ import { useEffect, useState } from "react";
 /**
  * JoinNetworkHeroSection
  * First section of the "Join the Network" page — left copy column with
- * two CTAs and a controls link, right column shows a live "pharmacy
- * profile" preview card with status pills.
+ * two CTAs and a controls link, right column shows the hero image aligned parallel to the content.
  */
-
-const PROFILE_ROWS = [
-  { label: "Exact public stock", value: "Hidden", tone: "muted", icon: "lock" },
-  { label: "Availability signals", value: "On", tone: "green" },
-  { label: "Confirmation requests", value: "Routed to queue", tone: "blue" },
-  { label: "Participation", value: "Active", tone: "green" },
-  { label: "Audit log", value: "On", tone: "green" },
-] as const;
 
 export default function JoinNetworkHeroSection() {
   const [mounted, setMounted] = useState(false);
@@ -29,7 +20,7 @@ export default function JoinNetworkHeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-20 sm:py-24">
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-14 px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
         {/* ---------------- Left column ---------------- */}
         <div>
           {mounted ? (
@@ -52,26 +43,26 @@ export default function JoinNetworkHeroSection() {
 
               <Reveal index={2}>
                 <p className="max-w-lg text-[15px] leading-relaxed text-[#5B6478]">
-                  ZoikoMeds helps pharmacies share confidence-based
-                  availability signals, reduce avoidable “do you have this
-                  medicine?” calls, and support patients before they travel —
-                  without publicly exposing exact stock quantities.
+                  ZoikoMeds helps pharmacies share confidence-based availability
+                  signals, reduce avoidable “do you have this medicine?” calls,
+                  and support patients before they travel — without publicly
+                  exposing exact stock quantities.
                 </p>
               </Reveal>
 
               <Reveal index={3}>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                   <button
-                  onClick={()=>router.push("#verified-network")}
+                    onClick={() => router.push("#verified-network")}
                     type="button"
-                    className="group  cursor-pointer relative overflow-hidden rounded-xl bg-[#13A594] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+                    className="group cursor-pointer relative overflow-hidden rounded-xl bg-[#13A594] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
                   >
                     <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
                     <span className="relative">Join the Verified Network</span>
                   </button>
 
                   <button
-                  onClick={()=>router.push("#claim-your-pharmacy")}
+                    onClick={() => router.push("#claim-your-pharmacy")}
                     type="button"
                     className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                   >
@@ -125,8 +116,7 @@ export default function JoinNetworkHeroSection() {
                     />
                   </svg>
                   Pharmacies remain in control of visibility, confirmation
-                  responses, participation settings, and dispensing
-                  decisions.
+                  responses, participation settings, and dispensing decisions.
                 </p>
               </Reveal>
             </div>
@@ -135,9 +125,13 @@ export default function JoinNetworkHeroSection() {
           )}
         </div>
 
-        {/* ---------------- Right column: profile preview card ---------------- */}
-        <div>
-          {mounted ? <ProfileCard /> : <CardSkeleton />}
+        {/* ---------------- Right column: Image ---------------- */}
+        <div className="w-full">
+          <img
+            src="/join-the-network/hero.png"
+            alt="Join the Network Preview"
+            className="w-full h-auto object-contain rounded-2xl"
+          />
         </div>
       </div>
     </section>
@@ -145,7 +139,7 @@ export default function JoinNetworkHeroSection() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Reveal: bottom -> top staggered fade-up wrapper                   */
+/*  Reveal: bottom -> top staggered fade-up wrapper                  */
 /* ----------------------------------------------------------------- */
 function Reveal({
   children,
@@ -177,97 +171,7 @@ function Reveal({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Profile preview card                                              */
-/* ----------------------------------------------------------------- */
-function ProfileCard() {
-  return (
-    <div
-      className="animate-[joinNetworkFadeUp_0.65s_ease-out_forwards] overflow-hidden rounded-2xl border border-[#E7EAF1] bg-white shadow-[0_16px_40px_-16px_rgba(15,31,78,0.18)] transition-shadow duration-300 hover:shadow-[0_20px_48px_-16px_rgba(15,31,78,0.24)]"
-      style={{ opacity: 0, animationDelay: "150ms" }}
-    >
-      <div className="flex items-center justify-between border-b border-[#EEF1F6] px-6 py-4">
-        <h3 className="text-[15px] font-bold text-[#0F1F4E]">
-          Riverside Community Pharmacy
-        </h3>
-        <Pill tone="green" icon="check">
-          Verified
-        </Pill>
-      </div>
-
-      {PROFILE_ROWS.map((row, i) => (
-        <div
-          key={row.label}
-          className="group flex items-center justify-between border-b border-[#EEF1F6] px-6 py-3.5 transition-colors duration-200 last:border-b-0 hover:bg-[#F7F9FC]"
-          style={{
-            animation: "joinNetworkFadeUp 0.5s ease-out forwards",
-            opacity: 0,
-            animationDelay: `${250 + i * 70}ms`,
-          }}
-        >
-          <span className="text-[13.5px] text-[#5B6478]">{row.label}</span>
-          <Pill tone={row.tone} icon={"icon" in row ? row.icon : undefined}>
-            {row.value}
-          </Pill>
-        </div>
-      ))}
-
-      <div className="flex items-center justify-between bg-[#F7F9FC] px-6 py-3 text-[11.5px] text-[#8891A4]">
-        <span className="inline-flex items-center gap-1.5">
-          <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.3" />
-          </svg>
-          All branches
-        </span>
-        <span>Profile: complete</span>
-      </div>
-    </div>
-  );
-}
-
-function Pill({
-  tone,
-  icon,
-  children,
-}: {
-  tone: "green" | "blue" | "muted";
-  icon?: "lock" | "check";
-  children: React.ReactNode;
-}) {
-  const toneClasses =
-    tone === "green"
-      ? "bg-[#DCF5EE] text-[#03876F]"
-      : tone === "blue"
-      ? "bg-[#E3E8FB] text-[#3B5BDB]"
-      : "bg-[#EEF1F6] text-[#5B6478]";
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-transform duration-200 group-hover:scale-105 ${toneClasses}`}
-    >
-      {icon === "check" && (
-        <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none">
-          <path
-            d="M3.5 8.5l3 3 6-6.5"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-      {icon === "lock" && (
-        <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none">
-          <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" stroke="currentColor" strokeWidth="1.3" />
-          <path d="M5.2 7V5.3a2.8 2.8 0 0 1 5.6 0V7" stroke="currentColor" strokeWidth="1.3" />
-        </svg>
-      )}
-      {children}
-    </span>
-  );
-}
-
-/* ----------------------------------------------------------------- */
-/*  Skeletons                                                         */
+/*  Skeletons                                                       */
 /* ----------------------------------------------------------------- */
 function LeftSkeleton() {
   return (
@@ -284,30 +188,6 @@ function LeftSkeleton() {
         <div className="h-11 w-44 animate-pulse rounded-xl bg-[#E4E8F0]" />
       </div>
       <div className="h-4 w-44 animate-pulse rounded bg-[#E4E8F0]" />
-    </div>
-  );
-}
-
-function CardSkeleton() {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-[#E7EAF1] bg-white">
-      <div className="flex items-center justify-between border-b border-[#EEF1F6] px-6 py-4">
-        <div className="h-4 w-40 animate-pulse rounded bg-[#E4E8F0]" />
-        <div className="h-6 w-20 animate-pulse rounded-full bg-[#E4E8F0]" />
-      </div>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className="flex items-center justify-between border-b border-[#EEF1F6] px-6 py-3.5 last:border-b-0"
-        >
-          <div className="h-3.5 w-32 animate-pulse rounded bg-[#E4E8F0]" />
-          <div className="h-5 w-20 animate-pulse rounded-full bg-[#E4E8F0]" />
-        </div>
-      ))}
-      <div className="flex items-center justify-between bg-[#F7F9FC] px-6 py-3">
-        <div className="h-3 w-20 animate-pulse rounded bg-[#E4E8F0]" />
-        <div className="h-3 w-24 animate-pulse rounded bg-[#E4E8F0]" />
-      </div>
     </div>
   );
 }
