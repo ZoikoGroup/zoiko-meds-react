@@ -51,7 +51,7 @@ export default function SearchPreview() {
               {["View pharmacy details", "Save this search", "Create alert"].map((label) => (
                 <button
                   key={label}
-                  className="text-[14px] px-3.5 py-1.5 border border-[#CDD7E3] cursor-pointer rounded-[7px] bg-white text-[#0D1B2E] font-semibold hover:bg-[#F8FAFC] transition-colors"
+                  className="text-[14px] px-3.5 py-1.5 border border-[#CDD7E3] cursor-text rounded-[7px] bg-white text-[#0D1B2E] font-semibold hover:bg-[#F8FAFC] transition-colors"
                 >
                   {label}
                 </button>

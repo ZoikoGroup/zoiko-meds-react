@@ -152,16 +152,6 @@ export default function RequestABriefingSelectTypeSection() {
                   <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-[#5B6478]">
                     {type.description}
                   </p>
-
-                  <span
-                    className="mt-4 inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold transition-all duration-200"
-                    style={{ color: ACCENT }}
-                  >
-                    Select this briefing
-                    <span className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden>
-                      →
-                    </span>
-                  </span>
                 </button>
               </Reveal>
             );

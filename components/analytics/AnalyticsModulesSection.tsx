@@ -85,7 +85,7 @@ export default function AnalyticsModulesSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -103,7 +103,8 @@ export default function AnalyticsModulesSection() {
 
         <ModulesFadeUp show={isVisible} delay={80}>
           <h2 className="mt-4 text-[1.9rem] font-bold leading-[1.2] text-[#0F1F4E] sm:text-[2.3rem] lg:text-[2.5rem]">
-            Six modules, <span className="text-[#0FAA87]">one operating picture.</span>
+            Six modules,{" "}
+            <span className="text-[#0FAA87]">one operating picture.</span>
           </h2>
         </ModulesFadeUp>
 
@@ -111,7 +112,11 @@ export default function AnalyticsModulesSection() {
           {MODULES.map((mod, i) => {
             const Icon = mod.icon;
             return (
-              <ModulesFadeUp key={mod.title} show={isVisible} delay={140 + i * 60}>
+              <ModulesFadeUp
+                key={mod.title}
+                show={isVisible}
+                delay={140 + i * 60}
+              >
                 <div className="group h-full rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0FAA87]/30 hover:shadow-lg">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0FAA87]/10">
                     <Icon className="h-5 w-5 text-[#0FAA87]" strokeWidth={2} />
@@ -128,14 +133,6 @@ export default function AnalyticsModulesSection() {
                   <p className="mt-3 text-sm leading-relaxed text-[#4B5567]">
                     {mod.description}
                   </p>
-
-                  <button
-                    type="button"
-                    className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 focus:outline-none"
-                  >
-                    {mod.linkLabel}
-                    <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
-                  </button>
                 </div>
               </ModulesFadeUp>
             );

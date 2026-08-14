@@ -313,7 +313,7 @@ function ClosingCta() {
           Request ZoikoSignal™ Briefing
         </a>
         <a
-          href="#"
+          href="/pharmacy-dashboard"
           className="inline-flex w-full items-center justify-center rounded-xl border border-[#3A4668] bg-transparent px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-white/5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
         >
           View Sample Intelligence Dashboard

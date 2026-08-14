@@ -242,7 +242,7 @@ function ClosingCtaBanner() {
       </div>
 
       <a
-        href="/medicine-disclaimer"
+        href="/medical-disclaimer"
         className="mt-5 inline-block text-[13px] font-semibold text-[#9AA3B5] underline-offset-2 transition-colors duration-200 hover:text-white hover:underline"
       >
         Read Medical Disclaimer →

@@ -73,7 +73,7 @@ export default function OverviewHeroSection() {
                   Book a Demo
                 </a>
                 <a
-                  href="#talk-to-sales"
+                  href="/talk-to-sales"
                   className="rounded-xl border px-6 py-3 text-center text-[13.5px] font-semibold transition-colors hover:bg-black/[0.03]"
                   style={{ borderColor: `${NAVY}26`, color: NAVY }}
                 >

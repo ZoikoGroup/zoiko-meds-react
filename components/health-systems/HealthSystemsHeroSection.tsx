@@ -101,26 +101,6 @@ export default function HealthSystemsHeroSection() {
               </div>
             </Reveal>
 
-            {/* Arrow text link */}
-            <Reveal index={5} active={mounted}>
-              <Link
-                href="#"
-                className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium transition-opacity hover:opacity-80"
-                style={{ color: ACCENT }}
-              >
-                View Signal Governance
-                <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 8h10M9 4l4 4-4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            </Reveal>
-
             {/* Disclaimer */}
             <Reveal index={6} active={mounted}>
               <p className="mt-5 flex items-start gap-2 text-[12.5px] leading-relaxed text-[#5B6478]">

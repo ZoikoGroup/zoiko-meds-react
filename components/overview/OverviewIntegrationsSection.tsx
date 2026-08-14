@@ -127,7 +127,7 @@ export default function OverviewIntegrationsSection() {
           {/* Discuss integrations CTA card — same size as the rest */}
           <Reveal index={2 + CARDS.length} active={mounted}>
             <a
-              href="#talk-to-sales"
+              href="/talk-to-sales"
               className="group flex h-full flex-col rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(19,165,148,0.15)]"
               style={{ backgroundColor: `${ACCENT}14`, borderColor: `${ACCENT}40` }}
             >

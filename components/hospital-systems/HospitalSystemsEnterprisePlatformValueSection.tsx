@@ -21,7 +21,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
-    href:"/searchmed"
+    href: "/searchmed",
   },
   {
     id: "shortage-signal-awareness",
@@ -38,7 +38,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
-    href:"#"
+    href: "#",
   },
   {
     id: "pharmacy-network-visibility",
@@ -55,7 +55,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
-    href:"/pharmacy"
+    href: "/pharmacy",
   },
   {
     id: "regional-access-analytics",
@@ -72,7 +72,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
-    href:"/analytics"
+    href: "/analytics",
   },
   {
     id: "compliance-ready-reporting",
@@ -90,7 +90,7 @@ const CAPABILITIES = [
         fill="none"
       />
     ),
-    href:"/reports"
+    href: "/reports",
   },
   {
     id: "enterprise-deployment-controls",
@@ -100,11 +100,23 @@ const CAPABILITIES = [
     cta: "Talk to Solutions Team",
     icon: (
       <>
-        <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <circle
+          cx="12"
+          cy="8"
+          r="3.5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
+        <path
+          d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
       </>
     ),
-    href:"/enterprise"
+    href: "/enterprise",
   },
 ];
 
@@ -122,16 +134,18 @@ export default function HospitalSystemsEnterprisePlatformValueSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section
+      ref={ref}
+      className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
@@ -166,7 +180,10 @@ export default function HospitalSystemsEnterprisePlatformValueSection() {
                 {/* Icon */}
                 <div
                   className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-250 ease-out hover:scale-110"
-                  style={{ backgroundColor: "rgba(19,165,148,0.12)", color: ACCENT }}
+                  style={{
+                    backgroundColor: "rgba(19,165,148,0.12)",
+                    color: ACCENT,
+                  }}
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
                     {capability.icon}
@@ -174,26 +191,18 @@ export default function HospitalSystemsEnterprisePlatformValueSection() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">{capability.title}</h3>
+                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">
+                  {capability.title}
+                </h3>
 
                 {/* Description */}
                 <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-[#5B6478]">
                   {capability.description}
                 </p>
-
-                {/* CTA link */}
-                <a
-                  href={capability.href}
-                  className="mt-4 inline-flex text-[13px] font-semibold hover:underline"
-                  style={{ color: ACCENT }}
-                >
-                  {capability.cta} →
-                </a>
               </div>
             </Reveal>
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -215,7 +224,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `hospitalSystemsEnterprisePlatformValueFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `hospitalSystemsEnterprisePlatformValueFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}

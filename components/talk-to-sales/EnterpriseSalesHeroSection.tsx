@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function EnterpriseSalesHeroSection() {
   const containerVariants = {
@@ -26,6 +27,8 @@ export default function EnterpriseSalesHeroSection() {
       },
     },
   } as const;
+
+  const router = useRouter();
 
   return (
     <section className="relative w-full bg-gradient-to-b from-[#F6F9FC] to-[#EEF2F7] text-[#1D1D1F] py-24 px-6 sm:px-12 md:px-16 lg:px-24 font-sans antialiased overflow-hidden">
@@ -65,7 +68,7 @@ export default function EnterpriseSalesHeroSection() {
 
             {/* Action Button */}
             <div className="pt-2 flex">
-              <button className="bg-[#13A594] hover:bg-[#0f8779] text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-colors duration-200 shadow-sm">
+              <button onClick={()=>router.push("/overview")} className="bg-[#13A594] cursor-pointer hover:bg-[#0f8779] text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-colors duration-200 shadow-sm">
                 Book Demo
               </button>
             </div>

@@ -22,14 +22,14 @@ export default function ZoikoSignalIntelligenceHeroSection() {
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
               <a
-                href="#"
+                href="/"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Home
               </a>
               <span>/</span>
               <a
-                href="#"
+                href="/enterprise"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Enterprise &amp; Intelligence
@@ -97,7 +97,7 @@ export default function ZoikoSignalIntelligenceHeroSection() {
 
                     <button
                       type="button"
-                      onClick={() => router.push("/intelligence")}
+                      onClick={() => router.push("/pharmacy-dashboard")}
                       className="rounded-xl border border-[#D7DCE6] cursor-pointer bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       View Sample Intelligence Dashboard

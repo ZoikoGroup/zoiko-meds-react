@@ -42,7 +42,7 @@ const ROWS = [
     area: "Policy governance",
     promise: "Public policies, disclaimers, controlled medicine rules, privacy materials, and trust copy are versioned and reviewed.",
     route: "View Legal & Trust Policies",
-    href: "#",
+    href: "/controlled-medicine-policy",
   },
 ] as const;
 

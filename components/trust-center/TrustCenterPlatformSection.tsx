@@ -28,7 +28,7 @@ const CARDS = [
     title: "Exact-stock suppression",
     description: "Why public results use confidence-based signals rather than exact pharmacy stock counts.",
     link: "Learn About Data Controls",
-    href: "/data-controls",
+    href: "/availability-signals",
     icon: (
       <>
         <rect x="2" y="3" width="12" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -40,7 +40,7 @@ const CARDS = [
     title: "Controlled medicine policy",
     description: "How controlled, restricted, high-risk, or jurisdiction-sensitive medicines may be suppressed, limited, routed, or governed under additional controls.",
     link: "View Controlled Medicine Policy",
-    href: "/medical-disclaimer",
+    href: "/controlled-medicine-policy",
     icon: (
       <>
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.4" fill="none" />

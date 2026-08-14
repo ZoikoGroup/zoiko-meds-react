@@ -39,7 +39,7 @@ export default function EnterpriseIdentityHero() {
           <div className="flex flex-wrap items-center gap-4 pt-2 w-full sm:w-auto">
             <button
               type="button"
-              onClick={() => router.push("#")}
+              onClick={() => router.push("/overview")}
               className="px-6 cursor-pointer py-3.5 bg-[#13A594] hover:bg-[#0f8b7c] text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-sm hover:shadow active:scale-[0.98]"
             >
               Book Demo

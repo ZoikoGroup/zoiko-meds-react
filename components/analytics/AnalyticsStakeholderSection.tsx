@@ -98,7 +98,7 @@ export default function AnalyticsStakeholderSection() {
                 }`}
               >
                 {/* Role + pain point */}
-                <div className="lg:w-[26%] lg:flex-shrink-0">
+                <div className="lg:w-[40%] lg:flex-shrink-0">
                   <h3 className="text-[0.95rem] font-bold text-[#0F1F4E]">{s.role}</h3>
                   <p className="mt-1 text-sm leading-relaxed text-[#9AA2B1]">
                     {s.painPoint}
@@ -109,17 +109,6 @@ export default function AnalyticsStakeholderSection() {
                 <p className="text-sm leading-relaxed text-[#3A4254] lg:flex-1">
                   {s.value}
                 </p>
-
-                {/* CTA */}
-                <div className="lg:flex-shrink-0">
-                  <button
-                    type="button"
-                    onClick={()=>router.push(s.href)}
-                    className="w-full whitespace-nowrap cursor-pointer rounded-lg border border-[#D8DEE8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 hover:border-[#0FAA87] hover:text-[#0FAA87] hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2 lg:w-auto"
-                  >
-                    {s.ctaLabel}
-                  </button>
-                </div>
               </div>
             ))}
           </div>

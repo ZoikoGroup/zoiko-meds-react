@@ -44,7 +44,7 @@ const TIERS = [
     ],
     cta: "Explore Pro",
     style: "pro",
-    href:"#"
+    href:"/pricing"
   },
   {
     badge: "Enterprise",

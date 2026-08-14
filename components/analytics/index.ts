@@ -6,6 +6,5 @@ export { default as AnalyticsModulesSection } from "./AnalyticsModulesSection";
 export { default as AnalyticsStakeholderSection } from "./AnalyticsStakeholderSection";
 export { default as AnalyticsGovernanceSection } from "./AnalyticsGovernanceSection";
 export { default as AnalyticsDashboardStatesSection } from "./AnalyticsDashboardStatesSection";
-export { default as AnalyticsBriefingFormSection }from "./AnalyticsDashboardStatesSection";
 export { default as AnalyticsFaqSection } from "./AnalyticsFaqSection";
 export { default as AnalyticsClosingCtaSection } from "./AnalyticsClosingCtaSection";
