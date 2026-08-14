@@ -1,0 +1,9 @@
+export { default as EnterpriseSalesHeroSection } from "./EnterpriseSalesHeroSection";
+export { default as ChooseRightRouteSection } from "./ChooseRightRouteSection";
+export { default as WhoWeWorkWithSection } from "./WhoWeWorkWithSection";
+export { default as TopicsWeCanExploreSection } from "./TopicsWeCanExploreSection";
+export { default as SalesVsSpecialistPathsSection } from "./SalesVsSpecialistPathsSection";
+export { default as HowConversationGetsStartedSection } from "./HowConversationGetsStartedSection";
+export { default as ShareContextFormSection } from "./ShareContextFormSection";
+export { default as ResponsibleDataUseSection } from "./ResponsibleDataUseSection";
+export { default as SalesFAQSection } from "./SalesFAQSection";

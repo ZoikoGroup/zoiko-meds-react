@@ -3,7 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
-import { validateEmail, validatePhone, sanitizePhoneInput, scrollToFirstError } from "@/lib/validation";
+import {
+  validateEmail,
+  validatePhone,
+  sanitizePhoneInput,
+  scrollToFirstError,
+} from "@/lib/validation";
 
 const ACCENT = "#13A594";
 
@@ -11,7 +16,8 @@ const SIDEBAR_ITEMS = [
   {
     id: "access-intelligence",
     title: "Access intelligence",
-    description: "Availability, visibility, and reporting — not clinical advice or dispensing.",
+    description:
+      "Availability, visibility, and reporting — not clinical advice or dispensing.",
   },
   {
     id: "confidence-based",
@@ -70,7 +76,7 @@ export default function ClinicNetworksRequestBriefingSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -101,7 +107,8 @@ export default function ClinicNetworksRequestBriefingSection() {
       newErrors.regionCountry = "Region / country is required";
     if (formData.primaryInterest.length === 0)
       newErrors.primaryInterest = "Select at least one area of interest";
-    if (!formData.consent) newErrors.consent = "You must accept the privacy notice";
+    if (!formData.consent)
+      newErrors.consent = "You must accept the privacy notice";
 
     setErrors(newErrors);
 
@@ -109,8 +116,8 @@ export default function ClinicNetworksRequestBriefingSection() {
       const firstKey = newErrors.workEmail
         ? "workEmail"
         : newErrors.fullName
-        ? "fullName"
-        : Object.keys(newErrors)[0];
+          ? "fullName"
+          : Object.keys(newErrors)[0];
       scrollToFirstError(firstKey);
       return false;
     }
@@ -118,7 +125,9 @@ export default function ClinicNetworksRequestBriefingSection() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, type } = e.target;
     let value = e.target.value;
@@ -151,7 +160,10 @@ export default function ClinicNetworksRequestBriefingSection() {
 
   useEffect(() => {
     if (submitted && successRef.current) {
-      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      successRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   }, [submitted]);
 
@@ -196,7 +208,9 @@ export default function ClinicNetworksRequestBriefingSection() {
             setErrors(data.errors);
             scrollToFirstError();
           } else {
-            setErrors({ form: data.message || "Failed to submit briefing request." });
+            setErrors({
+              form: data.message || "Failed to submit briefing request.",
+            });
           }
         }
       } catch {
@@ -208,9 +222,12 @@ export default function ClinicNetworksRequestBriefingSection() {
   };
 
   return (
-    <section ref={ref} id="clinic-networks-briefing" className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section
+      ref={ref}
+      id="clinic-networks-briefing"
+      className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
@@ -234,14 +251,14 @@ export default function ClinicNetworksRequestBriefingSection() {
         {/* ── Subtext ── */}
         <Reveal index={2} active={mounted}>
           <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[#5B6478]">
-            See how ZoikoMeds supports access visibility, pharmacy network signals, shortage
-            awareness, escalation, and compliance-conscious reporting across your locations.
+            See how ZoikoMeds supports access visibility, pharmacy network
+            signals, shortage awareness, escalation, and compliance-conscious
+            reporting across your locations.
           </p>
         </Reveal>
 
         {/* ── Content grid ── */}
         <div className="mt-10 grid grid-cols-1 items-start gap-10 lg:mt-12 lg:grid-cols-[2fr_1.1fr] lg:gap-8">
-
           {/* ── Form ── */}
           <Reveal index={3} active={mounted}>
             <div
@@ -251,268 +268,343 @@ export default function ClinicNetworksRequestBriefingSection() {
                 boxShadow: "0 4px 23px -10px rgba(15,31,78,0.06)",
               }}
             >
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
-              {/* Row 1: Full name + Work email */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <div>
-                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Full name <span style={{ color: "#DC2626" }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: errors.fullName ? "#DC2626" : "#E7EAF1" }}
-                  />
-                  {errors.fullName && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.fullName}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Work email <span style={{ color: "#DC2626" }}>*</span>
-                  </label>
-                  <input
-                    type="email"
-                    name="workEmail"
-                    value={formData.workEmail}
-                    onChange={handleChange}
-                    placeholder="name@clinicnetwork.org"
-                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: errors.workEmail ? "#DC2626" : "#E7EAF1" }}
-                  />
-                  {errors.workEmail && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.workEmail}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 2: Phone + Organization name */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <div>
-                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Phone number <span className="text-[#8A93A6]">(optional)</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    placeholder="+91 9876543210"
-                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: errors.phoneNumber ? "#DC2626" : "#E7EAF1" }}
-                  />
-                  {errors.phoneNumber && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.phoneNumber}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Organization name <span style={{ color: "#DC2626" }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="organizationName"
-                    value={formData.organizationName}
-                    onChange={handleChange}
-                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: errors.organizationName ? "#DC2626" : "#E7EAF1" }}
-                  />
-                  {errors.organizationName && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.organizationName}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 3: Job title + Clinic network size */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <div>
-                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Job title <span style={{ color: "#DC2626" }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="jobTitle"
-                    value={formData.jobTitle}
-                    onChange={handleChange}
-                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                    style={{ borderColor: errors.jobTitle ? "#DC2626" : "#E7EAF1" }}
-                  />
-                  {errors.jobTitle && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.jobTitle}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Clinic network size <span style={{ color: "#DC2626" }}>*</span>
-                  </label>
-                  <select
-                    name="clinicNetworkSize"
-                    value={formData.clinicNetworkSize}
-                    onChange={handleChange}
-                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] transition-colors duration-200"
-                    style={{ borderColor: errors.clinicNetworkSize ? "#DC2626" : "#E7EAF1" }}
-                  >
-                    <option value="">Select</option>
-                    <option value="1-5">1-5 locations</option>
-                    <option value="6-20">6-20 locations</option>
-                    <option value="21-50">21-50 locations</option>
-                    <option value="50+">50+ locations</option>
-                  </select>
-                  {errors.clinicNetworkSize && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{errors.clinicNetworkSize}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Region / country */}
-              <div>
-                <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                  Region / country <span style={{ color: "#DC2626" }}>*</span>
-                </label>
-                <input
-                  type="text"
-                  name="regionCountry"
-                  value={formData.regionCountry}
-                  onChange={handleChange}
-                  placeholder="e.g. US Southeast, national"
-                  className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
-                  style={{ borderColor: errors.regionCountry ? "#DC2626" : "#E7EAF1" }}
-                />
-                {errors.regionCountry && (
-                  <p className="mt-1 text-[11px] text-[#DC2626]">{errors.regionCountry}</p>
-                )}
-              </div>
-
-              {/* Primary interest */}
-              <div>
-                <label className="block text-[12px] font-bold text-[#0F1F4E] mb-3">
-                  Primary interest <span style={{ color: "#DC2626" }}>*</span>
-                </label>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {INTEREST_OPTIONS.map((option) => (
-                    <div key={option.id} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={option.id}
-                        name={option.id}
-                        checked={formData.primaryInterest.includes(option.id)}
-                        onChange={handleChange}
-                        className="h-4 w-4 rounded cursor-pointer"
-                        style={{ accentColor: ACCENT }}
-                      />
-                      <label
-                        htmlFor={option.id}
-                        className="ml-2.5 text-[13px] text-[#0F1F4E] cursor-pointer"
-                      >
-                        {option.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                {errors.primaryInterest && (
-                  <p className="mt-1 text-[11px] text-[#DC2626]">{errors.primaryInterest}</p>
-                )}
-              </div>
-
-              {/* Message */}
-              <div>
-                <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                  Message <span className="text-[#8A93A6]">(optional)</span>
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Tell us about your clinic network and goals (no PHI, prescriptions, or exact stock)."
-                  rows={4}
-                  className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200 resize-none"
-                  style={{ borderColor: "#E7EAF1" }}
-                />
-              </div>
-
-              {/* Consent */}
-              <div className="flex items-start gap-2.5">
-                <input
-                  type="checkbox"
-                  id="consent"
-                  name="consent"
-                  checked={formData.consent}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 rounded cursor-pointer shrink-0"
-                  style={{ accentColor: ACCENT }}
-                />
-                <label htmlFor="consent" className="text-[12px] leading-relaxed text-[#5B6478]">
-                  I consent to be contacted about ZoikoMeds enterprise solutions and acknowledge the{" "}
-                  <a href="#" className="font-semibold" style={{ color: ACCENT }}>
-                    privacy notice
-                  </a>
-                  . <span style={{ color: "#DC2626" }}>*</span>
-                </label>
-              </div>
-              {errors.consent && (
-                <p className="text-[11px] text-[#DC2626]">{errors.consent}</p>
-              )}
-
-              {/* Buttons */}
-              <div className="flex flex-col gap-3 sm:flex-row pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
-                  style={{ backgroundColor: ACCENT }}
-                >
-                  {submitting ? (
-                    <>
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
-                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                      </svg>
-                      <span>Submitting...</span>
-                    </>
-                  ) : (
-                    "Request a Clinic Network Briefing"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={()=>router.push("/enterprise")}
-                  className="rounded-lg border px-5 py-3 text-[13px] font-bold text-[#0F1F4E] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
-                  style={{ borderColor: "#E7EAF1" }}
-                >
-                  Talk to Enterprise Sales
-                </button>
-              </div>
-
-              {/* Disclaimer */}
-              <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-[#8A93A6]">
-                <InfoIcon />
-                <span>
-                  A ZoikoMeds representative will review your clinic network needs and follow up. Not medical
-                  advice, dispensing, or a pharmacy service — not PHI, prescriptions, or exact stock.
-                </span>
-              </p>
-
-              {/* Success message in green color centered at bottom of submission box */}
-              {submitted && (
-                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
-                  <div className="flex flex-col items-center justify-center gap-1.5 text-center">
-                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <div>
-                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
-                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
-                        Thank you! Our team will review your request and contact you soon.
+              <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                {/* Row 1: Full name + Work email */}
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                      Full name <span style={{ color: "#DC2626" }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
+                      style={{
+                        borderColor: errors.fullName ? "#DC2626" : "#E7EAF1",
+                      }}
+                    />
+                    {errors.fullName && (
+                      <p className="mt-1 text-[11px] text-[#DC2626]">
+                        {errors.fullName}
                       </p>
-                    </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                      Work email <span style={{ color: "#DC2626" }}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="workEmail"
+                      value={formData.workEmail}
+                      onChange={handleChange}
+                      placeholder="name@clinicnetwork.org"
+                      className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
+                      style={{
+                        borderColor: errors.workEmail ? "#DC2626" : "#E7EAF1",
+                      }}
+                    />
+                    {errors.workEmail && (
+                      <p className="mt-1 text-[11px] text-[#DC2626]">
+                        {errors.workEmail}
+                      </p>
+                    )}
                   </div>
                 </div>
-              )}
 
-            </form>
+                {/* Row 2: Phone + Organization name */}
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                      Phone number{" "}
+                      <span className="text-[#8A93A6]">(optional)</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="+91 9876543210"
+                      className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
+                      style={{
+                        borderColor: errors.phoneNumber ? "#DC2626" : "#E7EAF1",
+                      }}
+                    />
+                    {errors.phoneNumber && (
+                      <p className="mt-1 text-[11px] text-[#DC2626]">
+                        {errors.phoneNumber}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                      Organization name{" "}
+                      <span style={{ color: "#DC2626" }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="organizationName"
+                      value={formData.organizationName}
+                      onChange={handleChange}
+                      className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
+                      style={{
+                        borderColor: errors.organizationName
+                          ? "#DC2626"
+                          : "#E7EAF1",
+                      }}
+                    />
+                    {errors.organizationName && (
+                      <p className="mt-1 text-[11px] text-[#DC2626]">
+                        {errors.organizationName}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Row 3: Job title + Clinic network size */}
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                      Job title <span style={{ color: "#DC2626" }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="jobTitle"
+                      value={formData.jobTitle}
+                      onChange={handleChange}
+                      className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
+                      style={{
+                        borderColor: errors.jobTitle ? "#DC2626" : "#E7EAF1",
+                      }}
+                    />
+                    {errors.jobTitle && (
+                      <p className="mt-1 text-[11px] text-[#DC2626]">
+                        {errors.jobTitle}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                      Clinic network size{" "}
+                      <span style={{ color: "#DC2626" }}>*</span>
+                    </label>
+                    <select
+                      name="clinicNetworkSize"
+                      value={formData.clinicNetworkSize}
+                      onChange={handleChange}
+                      className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] transition-colors duration-200"
+                      style={{
+                        borderColor: errors.clinicNetworkSize
+                          ? "#DC2626"
+                          : "#E7EAF1",
+                      }}
+                    >
+                      <option value="">Select</option>
+                      <option value="1-5">1-5 locations</option>
+                      <option value="6-20">6-20 locations</option>
+                      <option value="21-50">21-50 locations</option>
+                      <option value="50+">50+ locations</option>
+                    </select>
+                    {errors.clinicNetworkSize && (
+                      <p className="mt-1 text-[11px] text-[#DC2626]">
+                        {errors.clinicNetworkSize}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Region / country */}
+                <div>
+                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                    Region / country <span style={{ color: "#DC2626" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="regionCountry"
+                    value={formData.regionCountry}
+                    onChange={handleChange}
+                    placeholder="e.g. US Southeast, national"
+                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200"
+                    style={{
+                      borderColor: errors.regionCountry ? "#DC2626" : "#E7EAF1",
+                    }}
+                  />
+                  {errors.regionCountry && (
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {errors.regionCountry}
+                    </p>
+                  )}
+                </div>
+
+                {/* Primary interest */}
+                <div>
+                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-3">
+                    Primary interest <span style={{ color: "#DC2626" }}>*</span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {INTEREST_OPTIONS.map((option) => (
+                      <div key={option.id} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={option.id}
+                          name={option.id}
+                          checked={formData.primaryInterest.includes(option.id)}
+                          onChange={handleChange}
+                          className="h-4 w-4 rounded cursor-pointer"
+                          style={{ accentColor: ACCENT }}
+                        />
+                        <label
+                          htmlFor={option.id}
+                          className="ml-2.5 text-[13px] text-[#0F1F4E] cursor-pointer"
+                        >
+                          {option.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {errors.primaryInterest && (
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {errors.primaryInterest}
+                    </p>
+                  )}
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
+                    Message <span className="text-[#8A93A6]">(optional)</span>
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Tell us about your clinic network and goals (no PHI, prescriptions, or exact stock)."
+                    rows={4}
+                    className="clinic-networks-input w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors duration-200 resize-none"
+                    style={{ borderColor: "#E7EAF1" }}
+                  />
+                </div>
+
+                {/* Consent */}
+                <div className="flex items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    id="consent"
+                    name="consent"
+                    checked={formData.consent}
+                    onChange={handleChange}
+                    className="mt-1 h-4 w-4 rounded cursor-pointer shrink-0"
+                    style={{ accentColor: ACCENT }}
+                  />
+                  <label
+                    htmlFor="consent"
+                    className="text-[12px] leading-relaxed text-[#5B6478]"
+                  >
+                    I consent to be contacted about ZoikoMeds enterprise
+                    solutions and acknowledge the{" "}
+                    <a
+                      href="#"
+                      className="font-semibold"
+                      style={{ color: ACCENT }}
+                    >
+                      privacy notice
+                    </a>
+                    . <span style={{ color: "#DC2626" }}>*</span>
+                  </label>
+                </div>
+                {errors.consent && (
+                  <p className="text-[11px] text-[#DC2626]">{errors.consent}</p>
+                )}
+
+                {/* Buttons */}
+                <div className="flex flex-col gap-3 sm:flex-row pt-2">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(19,165,148,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
+                    style={{ backgroundColor: ACCENT }}
+                  >
+                    {submitting ? (
+                      <>
+                        <svg
+                          className="h-4 w-4 animate-spin"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          />
+                          <path
+                            d="M21 12a9 9 0 0 0-9-9"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      "Request a Clinic Network Briefing"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/talk-to-sales")}
+                    className="rounded-lg border px-5 py-3 text-[13px] font-bold text-[#0F1F4E] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
+                    style={{ borderColor: "#E7EAF1" }}
+                  >
+                    Talk to Enterprise Sales
+                  </button>
+                </div>
+
+                {/* Disclaimer */}
+                <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-[#8A93A6]">
+                  <InfoIcon />
+                  <span>
+                    A ZoikoMeds representative will review your clinic network
+                    needs and follow up. Not medical advice, dispensing, or a
+                    pharmacy service — not PHI, prescriptions, or exact stock.
+                  </span>
+                </p>
+
+                {/* Success message in green color centered at bottom of submission box */}
+                {submitted && (
+                  <div
+                    ref={successRef}
+                    className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]"
+                  >
+                    <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                      <svg
+                        className="h-6 w-6 text-[#13A594]"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <div>
+                        <p className="font-bold text-[#00786F]">
+                          Request Submitted Successfully
+                        </p>
+                        <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
+                          Thank you! Our team will review your request and
+                          contact you soon.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </form>
             </div>
           </Reveal>
 
@@ -546,7 +638,9 @@ export default function ClinicNetworksRequestBriefingSection() {
                       />
                     </svg>
                     <div className="flex-1">
-                      <p className="text-[13px] font-bold text-white">{item.title}</p>
+                      <p className="text-[13px] font-bold text-white">
+                        {item.title}
+                      </p>
                       <p className="mt-1 text-[12px] leading-relaxed text-[#AEB6C9]">
                         {item.description}
                       </p>
@@ -556,9 +650,7 @@ export default function ClinicNetworksRequestBriefingSection() {
               </div>
             </div>
           </Reveal>
-
         </div>
-
       </div>
 
       <style>{`
@@ -577,9 +669,18 @@ export default function ClinicNetworksRequestBriefingSection() {
 /* ------------------------------------------------------------------ */
 function InfoIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5 shrink-0 text-[#8A93A6]">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-3.5 w-3.5 shrink-0 text-[#8A93A6]"
+    >
       <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M8 7.2v4M8 5v.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path
+        d="M8 7.2v4M8 5v.01"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -600,7 +701,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `clinicNetworksRequestBriefingFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `clinicNetworksRequestBriefingFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}

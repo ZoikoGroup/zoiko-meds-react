@@ -40,28 +40,28 @@ const STAKEHOLDERS = [
     problem: "Fragmented demand and network signals make allocation and planning reactive.",
     value: "Access structured demand, network, and confidence intelligence across regions.",
     cta: "Talk to Distribution Team",
-    link:"#"
+    link:"/talk-to-sales"
   },
   {
     label: "Manufacturers",
     problem: "Little downstream signal on where access is weakening before shortages become visible.",
     value: "Monitor shortage risk and regional access movement tied to specific product lines.",
     cta: "Request a Manufacturer Demo",
-    link:"#"
+    link:"#book-a-demo"
   },
   {
     label: "Public Health & Government",
     problem: "Delayed, fragmented data on medicine access makes population-level response slower.",
     value: "Review compliance-ready regional access and shortage-awareness reporting.",
     cta: "Request a Public Health Briefing",
-    link:"#"
+    link:"/government-public-health"
   },
   {
     label: "Enterprise Partners",
     problem: "Difficulty integrating availability intelligence into existing enterprise workflows.",
     value: "Connect ZoikoMeds intelligence into dashboards, reporting, and partner systems.",
     cta: "Talk to Partnerships",
-    link:"#"
+    link:"/enterprise"
   },
 ] as const;
 

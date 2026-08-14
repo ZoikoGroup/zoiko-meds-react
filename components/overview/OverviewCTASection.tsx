@@ -63,7 +63,7 @@ conscious reporting for your organization.
                   Book a Demo
                 </a>
                 <a
-                  href="#request-a-briefing"
+                  href="/talk-to-sales"
                   className="w-full rounded-xl border border-white/20 px-6 py-3 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-white/5 sm:w-auto"
                 >
                   Talk to Sales

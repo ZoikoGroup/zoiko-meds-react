@@ -7,7 +7,6 @@ import {
   AnalyticsStakeholderSection,
   AnalyticsGovernanceSection,
   AnalyticsDashboardStatesSection,
-  AnalyticsBriefingFormSection,
   AnalyticsFaqSection,
   AnalyticsClosingCtaSection
 } from "@/components/analytics";
@@ -23,7 +22,6 @@ export default function AnalyticsPage() {
       <AnalyticsStakeholderSection />
       <AnalyticsGovernanceSection />
       <AnalyticsDashboardStatesSection />
-      <AnalyticsBriefingFormSection />
       <AnalyticsFaqSection />
       <AnalyticsClosingCtaSection />
     </main>

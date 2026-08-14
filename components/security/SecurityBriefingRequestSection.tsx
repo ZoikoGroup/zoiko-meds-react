@@ -408,7 +408,7 @@ export default function SecurityBriefingRequestSection() {
                   )}
                 </button>
                 <a
-                  href="#talk-to-sales"
+                  href="/talk-to-sales"
                   className="flex-1 rounded-xl border py-3.5 text-center text-[14px] font-semibold transition-colors hover:bg-black/[0.03]"
                   style={{ borderColor: `${NAVY}26`, color: NAVY }}
                 >

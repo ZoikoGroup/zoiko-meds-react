@@ -11,7 +11,7 @@ const INTEGRATION_POINTS = [
     title: "Identity & SSO",
     description: "Support enterprise authentication, permission control, and role-based access.",
     linkLabel: "Discuss SSO Requirements",
-    href: "#",
+    href: "/sso-requirement",
     icon: (
       <>
         <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" stroke="currentColor" strokeWidth="1.4" fill="none" />

@@ -163,21 +163,6 @@ export default function FeaturesCorePlatformCapabilitiesSection() {
                     ))}
                   </div>
 
-                  <a
-                    href={card.href}
-                    className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 hover:text-[#00A99D]"
-                  >
-                    {card.linkLabel}
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M5 12h14M13 6l6 6-6 6"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
                 </div>
               </FeaturesFadeUp>
             ) : (

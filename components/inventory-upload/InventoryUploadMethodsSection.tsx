@@ -41,7 +41,7 @@ const METHODS = [
     badge: false,
     cta: "View Upload Requirements",
     ctaFilled: false,
-    href: "#",
+    href: "https://zoiko-meds-platform.vercel.app/login",
   },
   {
     icon: "branch",
@@ -54,7 +54,7 @@ const METHODS = [
     badge: true,
     cta: "Request PMS/POS Integration",
     ctaFilled: true,
-    href: "#",
+    href: "https://zoiko-meds-platform.vercel.app/login",
   },
   {
     icon: "code",

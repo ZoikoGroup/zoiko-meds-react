@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -70,7 +71,7 @@ export default function PharmacyInventorySyncSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(el);
@@ -194,6 +195,7 @@ function TierCard({
     ? "border-[#9FE3D3] bg-white text-[#00A99D]"
     : "border-[#E7EAF1] bg-[#F4F6FA] text-[#5B6478] group-hover:border-[#9FE3D3] group-hover:bg-white group-hover:text-[#00A99D]";
 
+  const router = useRouter();
   return (
     <div
       className={`group relative rounded-2xl border p-7 transition-all duration-300 ease-out animate-[pharmacyTierFadeUp_0.6s_ease-out_forwards] hover:-translate-y-1 ${highlightWrapperClasses}`}
@@ -247,6 +249,9 @@ function TierCard({
 
       {/* CTA */}
       <button
+        onClick={() =>
+          router.push("https://zoiko-meds-platform.vercel.app/login")
+        }
         type="button"
         className={
           ctaStyle === "filled"
@@ -264,7 +269,11 @@ function TierCard({
 }
 
 function TierIcon({ name }: { name: "code" | "upload" | "grid" }) {
-  const common = { viewBox: "0 0 24 24", fill: "none" as const, className: "h-5 w-5" };
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    className: "h-5 w-5",
+  };
 
   switch (name) {
     case "code":
@@ -301,9 +310,33 @@ function TierIcon({ name }: { name: "code" | "upload" | "grid" }) {
     case "grid":
       return (
         <svg {...common}>
-          <rect x="4" y="4" width="7" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.6" />
-          <rect x="13" y="4" width="7" height="16" rx="1.2" stroke="currentColor" strokeWidth="1.6" />
-          <rect x="4" y="13" width="7" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.6" />
+          <rect
+            x="4"
+            y="4"
+            width="7"
+            height="7"
+            rx="1.2"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <rect
+            x="13"
+            y="4"
+            width="7"
+            height="16"
+            rx="1.2"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <rect
+            x="4"
+            y="13"
+            width="7"
+            height="7"
+            rx="1.2"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
         </svg>
       );
   }
