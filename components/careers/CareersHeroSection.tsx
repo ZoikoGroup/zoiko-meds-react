@@ -7,7 +7,7 @@ const ACCENT = "#0FAA87";
 
 export default function CareersHeroSection() {
   const [mounted, setMounted] = useState(false);
-  const router= useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 250);
@@ -21,11 +21,17 @@ export default function CareersHeroSection() {
         {mounted ? (
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <a
+                href="#"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
                 Home
               </a>
               <span>/</span>
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <a
+                href="#"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
                 Trust &amp; Legal
               </a>
               <span>/</span>
@@ -54,23 +60,26 @@ export default function CareersHeroSection() {
                   <h1 className="font-[var(--font-plus-jakarta-sans)] text-4xl font-bold leading-[1.15] text-[#0F1F4E] sm:text-[2.65rem]">
                     Build the infrastructure layer
                     <br />
-                    for <span style={{ color: ACCENT }}>medicine availability.</span>
+                    for{" "}
+                    <span style={{ color: ACCENT }}>
+                      medicine availability.
+                    </span>
                   </h1>
                 </Reveal>
 
                 <Reveal index={3}>
                   <p className="max-w-lg text-[15px] leading-relaxed text-[#5B6478]">
-                    Join the teams building governed technology for
-                    medicine availability search, verified pharmacy
-                    signals, patient support workflows, APIs, data
-                    intelligence, privacy, security, and enterprise
-                    healthcare infrastructure.
+                    Join the teams building governed technology for medicine
+                    availability search, verified pharmacy signals, patient
+                    support workflows, APIs, data intelligence, privacy,
+                    security, and enterprise healthcare infrastructure.
                   </p>
                 </Reveal>
 
                 <Reveal index={4}>
                   <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                     <button
+                      onClick={() => router.push("#talent")}
                       type="button"
                       className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
@@ -83,15 +92,15 @@ export default function CareersHeroSection() {
                       }
                     >
                       <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-                      <span className="relative">View Open Roles</span>
+                      <span className="relative">Join Talent Community</span>
                     </button>
 
                     <button
-                    onClick={()=>router.push("#talent")}
+                      onClick={() => router.push("/privacy-center")}
                       type="button"
                       className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
-                      Join Talent Community
+                      Privacy Center
                     </button>
                   </div>
                 </Reveal>
@@ -101,7 +110,9 @@ export default function CareersHeroSection() {
                     href="/about"
                     className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
                     style={{ color: ACCENT }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#0C8A6E")
+                    }
                     onMouseLeave={(e) => (e.currentTarget.style.color = ACCENT)}
                   >
                     Learn About ZoikoMeds
@@ -128,12 +139,17 @@ export default function CareersHeroSection() {
                       viewBox="0 0 16 16"
                       fill="none"
                     >
-                      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.5"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
                     </svg>
-                    ZoikoMeds is operated by Zoiko Healthcare Inc., a
-                    subsidiary of Zoiko Group Inc. Roles, locations, and
-                    eligibility requirements vary by function and
-                    jurisdiction.
+                    ZoikoMeds is operated by Zoiko Healthcare Inc., a subsidiary
+                    of Zoiko Group Inc. Roles, locations, and eligibility
+                    requirements vary by function and jurisdiction.
                   </p>
                 </Reveal>
               </div>

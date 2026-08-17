@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-
 const ACCENT = "#0FAA87";
 
 const ASSETS = [
@@ -79,9 +78,12 @@ export default function PressAssetsSection() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { setMounted(true); observer.disconnect(); }
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -90,10 +92,12 @@ export default function PressAssetsSection() {
   return (
     <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
-          <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: ACCENT }}>
+          <p
+            className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: ACCENT }}
+          >
             <span className="opacity-50 text-[#0F1F4E]">02</span>
             <span className="opacity-30 text-[#0F1F4E]">·</span>
             Press Kit &amp; Brand Assets
@@ -111,18 +115,22 @@ export default function PressAssetsSection() {
         {/* ── Subtitle ── */}
         <Reveal index={2} active={mounted}>
           <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-[#5B6478]">
-            Each asset shows file type, version, and usage rule. Only
-            approved, non-superseded assets are downloadable.
+            Each asset shows file type, version, and usage rule. Only approved,
+            non-superseded assets are downloadable.
           </p>
         </Reveal>
 
         {/* ── 2×3 asset cards ── */}
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {ASSETS.map((asset, i) => (
-            <AssetCard key={asset.title} asset={asset} index={i + 3} active={mounted} />
+            <AssetCard
+              key={asset.title}
+              asset={asset}
+              index={i + 3}
+              active={mounted}
+            />
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -136,7 +144,7 @@ function AssetCard({
   index,
   active,
 }: {
-  asset: typeof ASSETS[number];
+  asset: (typeof ASSETS)[number];
   index: number;
   active: boolean;
 }) {
@@ -152,7 +160,9 @@ function AssetCard({
         </div>
 
         {/* Title */}
-        <h3 className="mt-4 text-[14.5px] font-bold text-[#0F1F4E]">{asset.title}</h3>
+        <h3 className="mt-4 text-[14.5px] font-bold text-[#0F1F4E]">
+          {asset.title}
+        </h3>
 
         {/* Description */}
         <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#5B6478]">
@@ -177,18 +187,16 @@ function AssetCard({
           style={{ color: ACCENT }}
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M3 8.5l3.5 3.5 6.5-7"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {asset.status}
         </p>
-
-        {/* CTA */}
-        <button
-          type="button"
-          className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-[#D0D5E2] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:scale-[0.97]"
-        >
-          {asset.cta}
-        </button>
       </div>
     </Reveal>
   );
@@ -198,41 +206,107 @@ function AssetCard({
 /*  Icons                                                               */
 /* ------------------------------------------------------------------ */
 function AssetIcon({ name }: { name: IconName }) {
-  const c = { viewBox: "0 0 24 24", fill: "none" as const, style: { width: 20, height: 20 } };
+  const c = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    style: { width: 20, height: 20 },
+  };
   switch (name) {
     case "doc":
       return (
         <svg {...c}>
-          <rect x="5.5" y="3.5" width="13" height="17" rx="1.4" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <rect
+            x="5.5"
+            y="3.5"
+            width="13"
+            height="17"
+            rx="1.4"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4.5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
     case "image":
       return (
         <svg {...c}>
-          <rect x="3" y="4" width="18" height="16" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
-          <circle cx="8.5" cy="9.5" r="1.6" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M3 16l5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <rect
+            x="3"
+            y="4"
+            width="18"
+            height="16"
+            rx="1.6"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <circle
+            cx="8.5"
+            cy="9.5"
+            r="1.6"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
+          <path
+            d="M3 16l5-5 4 4 3-3 6 6"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       );
     case "monitor":
       return (
         <svg {...c}>
-          <rect x="3" y="4" width="18" height="13" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8 21h8M12 17v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <rect
+            x="3"
+            y="4"
+            width="18"
+            height="13"
+            rx="1.6"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M8 21h8M12 17v4"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
     case "person":
       return (
         <svg {...c}>
-          <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M4.5 20c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle
+            cx="12"
+            cy="8"
+            r="3.5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M4.5 20c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
     case "list":
       return (
         <svg {...c}>
-          <path d="M8 6h13M8 12h13M8 18h13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path
+            d="M8 6h13M8 12h13M8 18h13"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
           <circle cx="3.5" cy="6" r="1.3" fill="currentColor" />
           <circle cx="3.5" cy="12" r="1.3" fill="currentColor" />
           <circle cx="3.5" cy="18" r="1.3" fill="currentColor" />
@@ -241,8 +315,12 @@ function AssetIcon({ name }: { name: IconName }) {
     case "shield":
       return (
         <svg {...c}>
-          <path d="M12 2.5l7 2.8v5c0 4.8-3.1 8-7 9.4C8.1 18.3 5 15 5 10.3v-5l7-2.8z"
-            stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          <path
+            d="M12 2.5l7 2.8v5c0 4.8-3.1 8-7 9.4C8.1 18.3 5 15 5 10.3v-5l7-2.8z"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
         </svg>
       );
   }
@@ -251,9 +329,24 @@ function AssetIcon({ name }: { name: IconName }) {
 /* ------------------------------------------------------------------ */
 /*  Reveal                                                               */
 /* ------------------------------------------------------------------ */
-function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
+function Reveal({
+  children,
+  index,
+  active,
+}: {
+  children: React.ReactNode;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `pressAssetsFadeUp 0.6s ease-out ${index * 75}ms both` : "none" }}>
+    <div
+      style={{
+        opacity: active ? undefined : 0,
+        animation: active
+          ? `pressAssetsFadeUp 0.6s ease-out ${index * 75}ms both`
+          : "none",
+      }}
+    >
       {children}
       <style>{`
         @keyframes pressAssetsFadeUp {

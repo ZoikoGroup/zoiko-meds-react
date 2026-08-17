@@ -80,7 +80,9 @@ export default function CareersWhyBuildHereSection() {
                   <WhyCard {...card} />
                 </Reveal>
               ))
-            : Array.from({ length: 4 }).map((_, i) => <WhyCardSkeleton key={i} />)}
+            : Array.from({ length: 4 }).map((_, i) => (
+                <WhyCardSkeleton key={i} />
+              ))}
         </div>
       </div>
     </section>
@@ -142,36 +144,11 @@ function WhyCard({
         <WhyIcon name={icon} />
       </div>
 
-      <h4 className="mt-4 text-[15.5px] font-bold text-[#0F1F4E]">
-        {title}
-      </h4>
+      <h4 className="mt-4 text-[15.5px] font-bold text-[#0F1F4E]">{title}</h4>
 
       <p className="mt-2 text-[13px] leading-relaxed text-[#8891A4]">
         {description}
       </p>
-
-      <a
-        href="#"
-        className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-200"
-        style={{ color: ACCENT }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = ACCENT)}
-      >
-        {link}
-        <svg
-          className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
-          viewBox="0 0 16 16"
-          fill="none"
-        >
-          <path
-            d="M3 8H13M13 8L9 4M13 8L9 12"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </a>
     </div>
   );
 }
