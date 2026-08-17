@@ -50,7 +50,7 @@ const CARDS = [
       "Availability is shown through confidence tiers — never exact inventory quantities or guaranteed stock levels.",
     cta: "Availability Safety Rules",
     ctaColor: "text-emerald-600",
-    href:"/availability-signal"
+    href:"/availability-signals"
   },
   {
     id: "controlled-medicine",

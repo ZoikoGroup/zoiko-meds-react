@@ -39,7 +39,7 @@ export default function HealthSystemsHeroSection() {
                 </Link>
                 <span>/</span>
                 <Link
-                  href="#"
+                  href="/enterprise"
                   className="hover:text-[#0F1F4E] transition-colors"
                 >
                   Enterprise &amp; Intelligence

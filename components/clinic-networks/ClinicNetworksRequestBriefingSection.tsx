@@ -505,7 +505,7 @@ export default function ClinicNetworksRequestBriefingSection() {
                     I consent to be contacted about ZoikoMeds enterprise
                     solutions and acknowledge the{" "}
                     <a
-                      href="#"
+                      href="/privacy-center"
                       className="font-semibold"
                       style={{ color: ACCENT }}
                     >

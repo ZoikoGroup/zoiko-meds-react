@@ -430,7 +430,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                 <p className="text-[12.5px] leading-relaxed text-[#5B6478]">
                   I consent to be contacted about ZoikoMeds enterprise solutions and acknowledge
                   the{" "}
-                  <Link href="/privacy" className="font-medium underline" style={{ color: ACCENT }}>
+                  <Link href="/privacy-center" className="font-medium underline" style={{ color: ACCENT }}>
                     privacy notice
                   </Link>
                   . <span style={{ color: "#D0455A" }}>*</span>

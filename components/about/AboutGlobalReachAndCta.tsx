@@ -371,21 +371,28 @@ function CtaBanner() {
                 style={{ animationDelay: "320ms" }}
               >
                 {[
-                  "Join the Verified Pharmacy Network",
-                  "Request Enterprise Briefing",
-                  "View API & Integration Pathways",
-                ].map((l) => (
+                  {
+                    label: "Join the Verified Pharmacy Network",
+                    href: "/join-the-network",
+                  },
+                  {
+                    label: "Request Enterprise Briefing",
+                    href: "/enterprise",
+                  },
+                  {
+                    label: "View API & Integration Pathways",
+                    href: "/api-access",
+                  },
+                ].map((item) => (
                   <a
-                    key={l}
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
+                    key={item.label}
+                    href={item.href}
                     className="text-xs text-white/40 underline underline-offset-2 hover:text-white/70 transition-colors duration-200"
                   >
-                    {l}
+                    {item.label}
                   </a>
                 ))}
               </div>
-
               {/* buttons */}
               <div
                 className={`flex flex-wrap gap-3 ${isVisible ? "cta-in" : "opacity-0"}`}

@@ -436,7 +436,7 @@ export default function AiInsightsBriefingFormSection() {
                         I consent to be contacted about this request and
                         acknowledge the{" "}
                         <a
-                          href="#"
+                          href="/privacy-center"
                           className="font-semibold text-[#0FAA87] hover:underline"
                         >
                           privacy notice

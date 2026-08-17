@@ -532,7 +532,7 @@ export default function IntegrationsRequestBriefingSection() {
                   I consent to be contacted about ZoikoMeds integrations and
                   acknowledge the{" "}
                   <a
-                    href="/privacy"
+                    href="/privacy-center"
                     className="font-semibold hover:underline"
                     style={{ color: ACCENT }}
                   >

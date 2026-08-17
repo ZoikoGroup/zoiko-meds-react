@@ -532,7 +532,7 @@ export default function FeaturesBookDemoSection() {
                     }}
                   />
                   I consent for ZoikoMeds to contact me about this request and acknowledge the{" "}
-                  <a href="#" className="font-semibold text-[#0FAA87] hover:underline">
+                  <a href="/privacy-center" className="font-semibold text-[#0FAA87] hover:underline">
                     privacy notice
                   </a>
                   . <span className="text-[#E14B4B]">*</span>

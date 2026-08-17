@@ -21,7 +21,7 @@ const PATHS = [
       "Single-location pharmacies, pharmacist-owned stores, and local operators ready to request verified participation.",
     cta: "Join the Verified Network",
     ctaStyle: "filled",
-    href: "#",
+    href: "#verified-network",
   },
   {
     icon: "branch",

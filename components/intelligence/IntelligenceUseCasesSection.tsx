@@ -11,7 +11,7 @@ const USE_CASES = [
     problem: "Limited visibility into regional demand, confirmation activity, and coverage gaps.",
     solution: "Understand network participation, confidence levels, and where confirmation activity should improve.",
     cta: "Discuss Network Intelligence",
-    href: "/pharmacy-networks",
+    href: "/zoikosignal-intelligence",
   },
   {
     stakeholder: "Healthcare organizations",
