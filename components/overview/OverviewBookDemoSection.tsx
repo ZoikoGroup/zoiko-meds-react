@@ -502,7 +502,7 @@ export default function OverviewBookDemoSection() {
                   />
                   <span>
                     I consent to ZoikoMeds contacting me about demo and briefing requests, per the{" "}
-                    <a href="/privacy" className="font-medium text-[#13A594] hover:underline">
+                    <a href="/privacy-center" className="font-medium text-[#13A594] hover:underline">
                       privacy notice
                     </a>
                     . <span className="text-red-500">*</span>

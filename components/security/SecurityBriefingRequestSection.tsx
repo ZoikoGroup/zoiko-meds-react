@@ -379,7 +379,7 @@ export default function SecurityBriefingRequestSection() {
                   />
                   <span>
                     I consent to be contacted about ZoikoMeds and acknowledge the{" "}
-                    <a href="/privacy" className="font-medium hover:underline" style={{ color: ACCENT }}>
+                    <a href="/privacy-center" className="font-medium hover:underline" style={{ color: ACCENT }}>
                       privacy notice
                     </a>
                     . <span className="text-red-500">*</span>

@@ -12,7 +12,7 @@ const PATHS = [
     description: "Care teams that want approved patient handoff language.",
     cta: "Request Referral Workflow Briefing",
     variant: "solid",
-    link:"#request"
+    link: "#form",
   },
   {
     icon: "building",
@@ -21,7 +21,7 @@ const PATHS = [
       "Clinics, hospitals, telehealth teams, and health systems evaluating access workflows.",
     cta: "Request Provider Briefing",
     variant: "outline",
-    link:"/provider-support"
+    link: "/provider-support",
   },
   {
     icon: "search",
@@ -30,7 +30,7 @@ const PATHS = [
       "People checking availability for themselves or someone they support.",
     cta: "Search Medicines",
     variant: "outline",
-    link:"/searchmed"
+    link: "/searchmed",
   },
 ] as const;
 
@@ -91,7 +91,7 @@ export default function ReferralGuidancePathwaySection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.12 }
+      { threshold: 0.12 },
     );
 
     observer.observe(el);
@@ -143,7 +143,9 @@ export default function ReferralGuidancePathwaySection() {
           note: [
             `Workflow Interest: ${form.workflowInterest || "General"}`,
             form.note ? `Note: ${form.note}` : "",
-          ].filter(Boolean).join("\n"),
+          ]
+            .filter(Boolean)
+            .join("\n"),
         }),
       });
       if (!res.ok) throw new Error("Submission failed");
@@ -162,7 +164,11 @@ export default function ReferralGuidancePathwaySection() {
   }
 
   return (
-    <section id="request" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
+    <section
+      id="request"
+      ref={ref}
+      className="relative w-full bg-[#F4F6FA] py-20 sm:py-24"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* ---------------- Header ---------------- */}
         <div className="mx-auto max-w-2xl text-center">
@@ -170,14 +176,15 @@ export default function ReferralGuidancePathwaySection() {
             <>
               <Reveal index={0}>
                 <h2 className="font-[var(--font-plus-jakarta-sans)] text-3xl font-bold leading-tight text-[#0F1F4E] sm:text-[2.25rem]">
-                  Choose the <span style={{ color: ACCENT }}>right referral path.</span>
+                  Choose the{" "}
+                  <span style={{ color: ACCENT }}>right referral path.</span>
                 </h2>
               </Reveal>
 
               <Reveal index={1}>
                 <p className="mx-auto mt-4 max-w-xl text-[14.5px] leading-relaxed text-[#5B6478]">
-                  Provider teams, organizations, and patients — each
-                  routed to the right next step.
+                  Provider teams, organizations, and patients — each routed to
+                  the right next step.
                 </p>
               </Reveal>
             </>
@@ -191,9 +198,7 @@ export default function ReferralGuidancePathwaySection() {
           {/* Left: stacked path cards, each flex-1 to share the column's full height */}
           <div className="flex flex-col gap-5">
             {mounted
-              ? PATHS.map((p, i) => (
-                  <PathCard key={p.title} {...p} index={i} />
-                ))
+              ? PATHS.map((p, i) => <PathCard key={p.title} {...p} index={i} />)
               : PATHS.map((_, i) => <PathCardSkeleton key={i} />)}
           </div>
 
@@ -259,7 +264,7 @@ function PathCard({
   cta,
   variant,
   index,
-  link
+  link,
 }: {
   icon: "arrow" | "building" | "search";
   title: string;
@@ -267,7 +272,7 @@ function PathCard({
   cta: string;
   variant: "solid" | "outline";
   index: number;
-  link:string;
+  link: string;
 }) {
   return (
     <div
@@ -320,13 +325,23 @@ function PathCard({
 }
 
 function PathIcon({ name }: { name: "arrow" | "building" | "search" }) {
-  const common = { viewBox: "0 0 24 24", fill: "none" as const, className: "h-5 w-5" };
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none" as const,
+    className: "h-5 w-5",
+  };
 
   switch (name) {
     case "arrow":
       return (
         <svg {...common}>
-          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M5 12h14M13 6l6 6-6 6"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       );
     case "building":
@@ -344,8 +359,19 @@ function PathIcon({ name }: { name: "arrow" | "building" | "search" }) {
     case "search":
       return (
         <svg {...common}>
-          <circle cx="10.5" cy="10.5" r="6" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M15 15l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle
+            cx="10.5"
+            cy="10.5"
+            r="6"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M15 15l5 5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       );
   }
@@ -376,12 +402,16 @@ function BriefingForm({
         Request a referral workflow briefing
       </h3>
       <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#5B6478]">
-        Tell us about your organization and referral workflow. No
-        diagnosis, prescriptions, insurance, or patient identifiers —
-        this is a zero-PHI request.
+        Tell us about your organization and referral workflow. No diagnosis,
+        prescriptions, insurance, or patient identifiers — this is a zero-PHI
+        request.
       </p>
 
-      <form className="mt-6 flex flex-1 flex-col space-y-5" onSubmit={onSubmit} noValidate>
+      <form id="form"
+        className="mt-6 flex flex-1 flex-col space-y-5"
+        onSubmit={onSubmit}
+        noValidate
+      >
         <Field id="referral-email" label="Work email" error={errors.email}>
           <input
             id="referral-email"
@@ -472,7 +502,11 @@ function BriefingForm({
           style={{ backgroundColor: ACCENT }}
         >
           {status === "submitting" && (
-            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+            <svg
+              className="h-4 w-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
               <circle
                 className="opacity-25"
                 cx="12"
@@ -501,7 +535,11 @@ function BriefingForm({
 
         {status === "success" && (
           <p className="flex items-center gap-2 text-[13px] font-medium text-[#0E8F70]">
-            <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 16 16" fill="none">
+            <svg
+              className="h-4 w-4 flex-shrink-0"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
               <path
                 d="M3.5 8.5l3 3 6-6.5"
                 stroke="currentColor"
@@ -510,8 +548,8 @@ function BriefingForm({
                 strokeLinejoin="round"
               />
             </svg>
-            Your briefing request has been submitted. We&apos;ll follow up
-            by email.
+            Your briefing request has been submitted. We&apos;ll follow up by
+            email.
           </p>
         )}
 
@@ -651,7 +689,10 @@ function FormSkeleton() {
       </div>
       <div className="mt-6 flex-1 space-y-5">
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-12 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
+          <div
+            key={i}
+            className="h-12 w-full animate-pulse rounded-xl bg-[#E4E8F0]"
+          />
         ))}
       </div>
       <div className="mt-5 h-12 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />

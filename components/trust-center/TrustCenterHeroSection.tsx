@@ -20,7 +20,7 @@ const NAVY = "#0F1F4E";
 
 const BREADCRUMBS = [
   { label: "Home", href: "/" },
-  { label: "Legal & Trust", href: "#" },
+  { label: "Legal & Trust", href: "#trust" },
   { label: "Trust Center", href: "/trust-center" },
 ] as const;
 

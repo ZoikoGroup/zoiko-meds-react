@@ -10,7 +10,7 @@ const CARDS = [
     title: "Patients & caregivers",
     description: "Medicine search, saved searches, alerts, account rules, no medical advice, pharmacy confirmation, and the emergency boundary.",
     cta: "View Patient Terms",
-    href: "patients",
+    href: "patient",
     icon: (
       <>
         <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.4" fill="none" />

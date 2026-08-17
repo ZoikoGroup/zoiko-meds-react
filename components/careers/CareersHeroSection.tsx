@@ -22,14 +22,14 @@ export default function CareersHeroSection() {
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
               <a
-                href="#"
+                href="/"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Home
               </a>
               <span>/</span>
               <a
-                href="#"
+                href="/trust-center"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Trust &amp; Legal
