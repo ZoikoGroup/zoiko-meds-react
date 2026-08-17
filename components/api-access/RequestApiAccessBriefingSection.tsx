@@ -412,7 +412,7 @@ export default function RequestApiAccessBriefingSection() {
               <span>
                 I agree to be contacted about API access and enterprise
                 integration, and acknowledge the{" "}
-                <a href="/privacy" className="text-[#00A99D] hover:underline">
+                <a href="/privacy-center" className="text-[#00A99D] hover:underline">
                   privacy notice.
                 </a>{" "}
                 <span className="text-red-500">*</span>

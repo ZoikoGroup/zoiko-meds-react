@@ -370,7 +370,7 @@ export default function ReportsSampleRequestSection() {
                 />
                 <span>
                   I consent to ZoikoMeds contacting me about reporting and briefing options, per the{" "}
-                  <a href="/privacy" className="font-medium text-[#0FAA87] hover:underline">
+                  <a href="/privacy-center" className="font-medium text-[#0FAA87] hover:underline">
                     privacy notice
                   </a>
                   . <span className="text-red-500">*</span>

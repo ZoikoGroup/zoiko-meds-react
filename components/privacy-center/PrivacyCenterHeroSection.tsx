@@ -8,7 +8,7 @@ const ACCENT = "#0FAA87";
 
 const BREADCRUMBS = [
   { label: "Home", href: "/" },
-  { label: "Legal & Trust", href: "/legal-trust" },
+  { label: "Legal & Trust", href: "/trust-center" },
   { label: "Privacy Center", href: "/privacy-center" },
 ] as const;
 

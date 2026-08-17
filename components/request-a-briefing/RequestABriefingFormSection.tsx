@@ -383,7 +383,7 @@ export default function RequestABriefingFormSection() {
                 />
                 <span>
                   I consent to be contacted about this briefing request and agree to the{" "}
-                  <a href="/privacy" className="font-semibold" style={{ color: ACCENT }}>
+                  <a href="/privacy-center" className="font-semibold" style={{ color: ACCENT }}>
                     privacy notice.
                   </a>{" "}
                   <span style={{ color: "#E0555B" }}>*</span>

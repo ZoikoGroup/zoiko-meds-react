@@ -6,7 +6,7 @@ const buttons = [
     {
         label: "Create Availability Alert",
         primary: true,
-        link:"#"
+        link:"https://zoiko-meds-platform.vercel.app/dashboard"
     },
     {
         label: "Search Medicines",
