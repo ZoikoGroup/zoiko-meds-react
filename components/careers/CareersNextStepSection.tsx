@@ -99,7 +99,9 @@ export default function CareersNextStepSection() {
                   <PathwayCard {...card} />
                 </Reveal>
               ))
-            : Array.from({ length: 3 }).map((_, i) => <PathwayCardSkeleton key={i} />)}
+            : Array.from({ length: 3 }).map((_, i) => (
+                <PathwayCardSkeleton key={i} />
+              ))}
         </div>
 
         {/* ---------------- Talent community heading ---------------- */}
@@ -114,8 +116,8 @@ export default function CareersNextStepSection() {
               </Reveal>
               <Reveal index={6}>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-[#8891A4]">
-                  A short first step. We&apos;ll let you know when a
-                  matching role opens — no resume needed yet.
+                  A short first step. We&apos;ll let you know when a matching
+                  role opens — no resume needed yet.
                 </p>
               </Reveal>
             </>
@@ -140,17 +142,6 @@ export default function CareersNextStepSection() {
             </Reveal>
           ) : (
             <div className="h-[280px] w-full animate-pulse rounded-3xl bg-white" />
-          )}
-        </div>
-
-        {/* ---------------- Closing CTA banner ---------------- */}
-        <div className="mt-8">
-          {mounted ? (
-            <Reveal index={8}>
-              <ClosingCtaBanner />
-            </Reveal>
-          ) : (
-            <div className="h-56 w-full animate-pulse rounded-3xl bg-[#E4E8F0]" />
           )}
         </div>
       </div>
@@ -218,13 +209,6 @@ function PathwayCard({
       <p className="mt-2 flex-1 text-[13px] leading-relaxed text-[#8891A4]">
         {description}
       </p>
-
-      <button
-        type="button"
-        className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        {cta}
-      </button>
     </div>
   );
 }
@@ -336,11 +320,17 @@ function FormCard({
               fill="none"
               style={{ color: ACCENT }}
             >
-              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+              <circle
+                cx="8"
+                cy="8"
+                r="6.5"
+                stroke="currentColor"
+                strokeWidth="1.3"
+              />
             </svg>
-            Don&apos;t include resumes, IDs, salary expectations,
-            demographic, health, or banking details here — those come
-            later through our secure recruiting system.
+            Don&apos;t include resumes, IDs, salary expectations, demographic,
+            health, or banking details here — those come later through our
+            secure recruiting system.
           </p>
         </form>
       )}
@@ -368,9 +358,7 @@ function Field({
         {label}
         {required && <span className="ml-0.5 text-[#D64545]">*</span>}
         {optional && (
-          <span className="ml-1 font-normal text-[#9AA3B5]">
-            (optional)
-          </span>
+          <span className="ml-1 font-normal text-[#9AA3B5]">(optional)</span>
         )}
       </label>
       {children}
@@ -451,62 +439,11 @@ function SuccessState() {
         You&apos;re on the list.
       </h4>
       <p className="mt-2 max-w-sm text-[13.5px] leading-relaxed text-[#8891A4]">
-        We&apos;ll reach out when a role matching your interests opens
-        up.
+        We&apos;ll reach out when a role matching your interests opens up.
       </p>
     </div>
   );
 }
-
-/* ----------------------------------------------------------------- */
-/*  Closing CTA banner                                                  */
-/* ----------------------------------------------------------------- */
-function ClosingCtaBanner() {
-  return (
-    <div className="rounded-3xl bg-[#0B1530] px-8 py-14 text-center sm:px-16">
-      <h3 className="font-[var(--font-plus-jakarta-sans)] text-2xl font-bold leading-snug text-white sm:text-3xl">
-        Build trusted medicine availability{" "}
-        <span style={{ color: ACCENT }}>infrastructure with us.</span>
-      </h3>
-
-      <p className="mx-auto mt-4 max-w-2xl text-[14px] leading-relaxed text-[#9AA3B5]">
-        Help patients, pharmacies, providers, and institutions
-        understand medicine availability safely and responsibly.
-      </p>
-
-      <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <button
-          type="button"
-          className="group relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-          style={{ backgroundColor: ACCENT }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.boxShadow =
-              "0 8px 24px -4px rgba(15,170,135,0.45)")
-          }
-          onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-        >
-          <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-          <span className="relative">View Open Roles</span>
-        </button>
-
-        <button
-          type="button"
-          className="rounded-xl border border-white/20 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/5 active:translate-y-0 active:scale-[0.98]"
-        >
-          Join Talent Community
-        </button>
-      </div>
-
-      <a
-        href="#"
-        className="mt-6 inline-block text-[12.5px] font-semibold text-[#9AA3B5] underline-offset-2 transition-colors duration-200 hover:text-white hover:underline"
-      >
-        Candidate Privacy Notice →
-      </a>
-    </div>
-  );
-}
-
 /* ----------------------------------------------------------------- */
 /*  Icons                                                              */
 /* ----------------------------------------------------------------- */

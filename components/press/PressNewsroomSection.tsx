@@ -6,14 +6,10 @@ const ACCENT = "#0FAA87";
 
 const FILTERS = [
   "All",
-  "Product",
-  "Enterprise",
-  "Pharmacy Network",
-  "Public Health",
   "Corporate",
-  "Leadership",
-  "Security",
-  "Governance",
+  "Coverage",
+  "Statements",
+  "Events",
 ] as const;
 
 const NEWSROOM_ITEMS = [
@@ -48,12 +44,6 @@ const NEWSROOM_ITEMS = [
   },
 ] as const;
 
-const BOTTOM_CTAS = [
-  "Read Latest Updates",
-  "View Media Coverage",
-  "View Official Statements",
-] as const;
-
 export default function PressNewsroomSection() {
   const [mounted, setMounted] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>("All");
@@ -62,6 +52,12 @@ export default function PressNewsroomSection() {
     const t = setTimeout(() => setMounted(true), 250);
     return () => clearTimeout(t);
   }, []);
+
+  // Filter items based on the active selection
+  const filteredItems =
+    activeFilter === "All"
+      ? NEWSROOM_ITEMS
+      : NEWSROOM_ITEMS.filter((item) => item.tag === activeFilter);
 
   return (
     <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
@@ -104,7 +100,7 @@ export default function PressNewsroomSection() {
                   />
                 </Reveal>
               ))
-            : Array.from({ length: 9 }).map((_, i) => (
+            : Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
                   className="h-9 w-24 animate-pulse rounded-full bg-[#E4E8F0]"
@@ -115,37 +111,16 @@ export default function PressNewsroomSection() {
         {/* ---------------- Newsroom rows card ---------------- */}
         <div className="mt-8 overflow-hidden rounded-2xl border border-[#E7EAF1] bg-white shadow-[0_16px_40px_-16px_rgba(15,31,78,0.10)]">
           {mounted
-            ? NEWSROOM_ITEMS.map((item, i) => (
-                <Reveal key={item.title} index={5 + i}>
+            ? filteredItems.map((item, i) => (
+                <Reveal key={`${activeFilter}-${item.title}`} index={i}>
                   <NewsroomRow
                     {...item}
-                    isLast={i === NEWSROOM_ITEMS.length - 1}
+                    isLast={i === filteredItems.length - 1}
                   />
                 </Reveal>
               ))
             : Array.from({ length: 4 }).map((_, i) => (
                 <NewsroomRowSkeleton key={i} isLast={i === 3} />
-              ))}
-        </div>
-
-        {/* ---------------- Bottom CTAs ---------------- */}
-        <div className="mt-6 flex flex-wrap gap-3">
-          {mounted
-            ? BOTTOM_CTAS.map((cta, i) => (
-                <Reveal key={cta} index={9 + i}>
-                  <button
-                    type="button"
-                    className="rounded-xl border border-[#D7DCE6] bg-white px-5 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-                  >
-                    {cta}
-                  </button>
-                </Reveal>
-              ))
-            : Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-11 w-44 animate-pulse rounded-xl bg-[#E4E8F0]"
-                />
               ))}
         </div>
       </div>
@@ -154,7 +129,7 @@ export default function PressNewsroomSection() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Reveal: bottom -> top staggered fade-up wrapper                   */
+/*  Reveal: bottom -> top staggered fade-up wrapper                  */
 /* ----------------------------------------------------------------- */
 function Reveal({
   children,
@@ -186,7 +161,7 @@ function Reveal({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Filter pill                                                         */
+/*  Filter pill                                                      */
 /* ----------------------------------------------------------------- */
 function FilterPill({
   label,
@@ -224,7 +199,7 @@ function FilterPill({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Newsroom row                                                        */
+/*  Newsroom row                                                     */
 /* ----------------------------------------------------------------- */
 function NewsroomRow({
   tag,

@@ -189,13 +189,6 @@ function TeamCard({
         <span className="font-bold text-[#0F1F4E]">Ideal signal:</span>{" "}
         {idealSignal}
       </p>
-
-      <button
-        type="button"
-        className="mt-4 w-fit rounded-xl border border-[#D7DCE6] bg-white px-4 py-2 text-[12.5px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        View Roles
-      </button>
     </div>
   );
 }
