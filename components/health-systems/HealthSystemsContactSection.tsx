@@ -233,12 +233,11 @@ export default function HealthSystemsContactSection() {
                         setForm({ ...form, orgType: e.target.value });
                         if (errors.orgType) setErrors({ ...errors, orgType: undefined });
                       }}
-                      className={inputCls(!!errors.orgType) + " appearance-none"}
-                      style={{ color: form.orgType ? "#0F1F4E" : "#B0B8CC" }}
+                      className={inputCls(!!errors.orgType) + " appearance-none cursor-pointer text-[#0F1F4E]"}
                     >
-                      <option value="" disabled>Select type</option>
+                      <option value="" disabled style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>Select type</option>
                       {ORG_TYPES.map((t) => (
-                        <option key={t} value={t} style={{ color: "#0F1F4E" }}>{t}</option>
+                        <option key={t} value={t} style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>{t}</option>
                       ))}
                     </select>
                     <ChevronDown />
@@ -253,12 +252,11 @@ export default function HealthSystemsContactSection() {
                     <select
                       value={form.interest}
                       onChange={(e) => setForm({ ...form, interest: e.target.value })}
-                      className={inputCls() + " appearance-none"}
-                      style={{ color: form.interest ? "#0F1F4E" : "#B0B8CC" }}
+                      className={inputCls() + " appearance-none cursor-pointer text-[#0F1F4E]"}
                     >
-                      <option value="" disabled>Select interest</option>
+                      <option value="" disabled style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>Select interest</option>
                       {PRIMARY_INTERESTS.map((s) => (
-                        <option key={s} value={s} style={{ color: "#0F1F4E" }}>{s}</option>
+                        <option key={s} value={s} style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>{s}</option>
                       ))}
                     </select>
                     <ChevronDown />

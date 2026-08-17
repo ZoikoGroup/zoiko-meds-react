@@ -10,11 +10,10 @@ const ACCESS_CARDS = [
     title: "Data briefing",
     description:
       "Commercial, procurement, strategy, and executive teams evaluating MediBase™.",
-    delivery:
-      "guided briefing, data-scope review, commercial qualification.",
+    delivery: "guided briefing, data-scope review, commercial qualification.",
     cta: "Request MediBase™ Data Briefing",
     icon: "home",
-    link:"#request"
+    link: "#request",
   },
   {
     title: "Data dictionary review",
@@ -24,7 +23,7 @@ const ACCESS_CARDS = [
       "field definitions, entity model, quality states, source & scope notes.",
     cta: "Request Data Dictionary",
     icon: "doc",
-    link:"#"
+    link: "#",
   },
   {
     title: "Reference API evaluation",
@@ -33,16 +32,17 @@ const ACCESS_CARDS = [
     delivery: "REST API, sandbox, test keys where approved, example payloads.",
     cta: "Discuss API Access",
     icon: "code",
-    link:"/api-access"
+    link: "/api-access",
   },
   {
     title: "Bulk or licensed data product",
     description:
       "Enterprise data platforms, analytics teams, public-sector programs, and partner systems.",
-    delivery: "contract-scoped files, update cadence, schema docs, licensing terms.",
+    delivery:
+      "contract-scoped files, update cadence, schema docs, licensing terms.",
     cta: "Request Data Licensing Review",
     icon: "database",
-    link:"#"
+    link: "#",
   },
   {
     title: "Mapping & implementation workshop",
@@ -51,7 +51,7 @@ const ACCESS_CARDS = [
     delivery: "mapping review, normalization plan, integration backlog.",
     cta: "Request Implementation Workshop",
     icon: "layers",
-    link:"#"
+    link: "#",
   },
 ] as const;
 
@@ -110,7 +110,9 @@ export default function MediBaseDataAccessLicensingSection() {
                   <AccessCard {...card} />
                 </Reveal>
               ))
-            : Array.from({ length: 5 }).map((_, i) => <AccessCardSkeleton key={i} />)}
+            : Array.from({ length: 5 }).map((_, i) => (
+                <AccessCardSkeleton key={i} />
+              ))}
         </div>
 
         {/* ---------------- Commercial model signals ---------------- */}
@@ -169,16 +171,16 @@ function AccessCard({
   delivery,
   cta,
   icon,
-  link
+  link,
 }: {
   title: string;
   description: string;
   delivery: string;
   cta: string;
   icon: string;
-  link:string;
+  link: string;
 }) {
-  const router = useRouter()
+  const router = useRouter();
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_8px_24px_-12px_rgba(15,31,78,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#D7DCE6] hover:shadow-[0_16px_36px_-12px_rgba(15,31,78,0.14)]">
       <div
@@ -195,17 +197,8 @@ function AccessCard({
       </p>
 
       <p className="mt-3 flex-1 text-[12.5px] leading-relaxed text-[#5B6478]">
-        <span className="font-bold text-[#0F1F4E]">Delivery:</span>{" "}
-        {delivery}
+        <span className="font-bold text-[#0F1F4E]">Delivery:</span> {delivery}
       </p>
-
-      <button
-      onClick={()=>router.push(link)}
-        type="button"
-        className="mt-5 w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
-      >
-        {cta}
-      </button>
     </div>
   );
 }
@@ -249,10 +242,9 @@ function CommercialSignalsCard() {
 
       <div className="mt-5 border-t border-[#EEF1F6] pt-4">
         <p className="text-[12px] leading-relaxed text-[#9AA3B5]">
-          All enterprise data use is governed by a Master Services
-          Agreement, data-use restrictions, source licensing, and
-          jurisdiction-specific terms. Pricing is shown only after
-          approval.
+          All enterprise data use is governed by a Master Services Agreement,
+          data-use restrictions, source licensing, and jurisdiction-specific
+          terms. Pricing is shown only after approval.
         </p>
       </div>
     </div>

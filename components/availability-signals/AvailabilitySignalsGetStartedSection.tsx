@@ -269,10 +269,10 @@ export default function AvailabilitySignalsGetStartedSection() {
                       value={form.orgType}
                       onChange={(e) => setForm({ ...form, orgType: e.target.value })}
                       className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                      style={{ color: form.orgType ? "#0F1F4E" : "#B0B8CC" }}
+                      style={{ color: form.orgType ? "#0F1F4E" : "#5A6578" }}
                     >
-                      <option value="" disabled>Select organization type</option>
-                      {ORG_TYPES.map((t) => <option key={t} value={t} style={{ color: "#0F1F4E" }}>{t}</option>)}
+                      <option value="" disabled style={{ color: "#8891A4", backgroundColor: "#FFFFFF" }}>Select organization type</option>
+                      {ORG_TYPES.map((t) => <option key={t} value={t} style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>{t}</option>)}
                     </select>
                     <ChevronDown />
                   </div>
@@ -285,10 +285,10 @@ export default function AvailabilitySignalsGetStartedSection() {
                       value={form.interest}
                       onChange={(e) => setForm({ ...form, interest: e.target.value })}
                       className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                      style={{ color: form.interest ? "#0F1F4E" : "#B0B8CC" }}
+                      style={{ color: form.interest ? "#0F1F4E" : "#5A6578" }}
                     >
-                      <option value="" disabled>Select workflow interest</option>
-                      {WORKFLOW_INTERESTS.map((s) => <option key={s} value={s} style={{ color: "#0F1F4E" }}>{s}</option>)}
+                      <option value="" disabled style={{ color: "#8891A4", backgroundColor: "#FFFFFF" }}>Select workflow interest</option>
+                      {WORKFLOW_INTERESTS.map((s) => <option key={s} value={s} style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>{s}</option>)}
                     </select>
                     <ChevronDown />
                   </div>

@@ -16,7 +16,7 @@ const REASONS = [
     linkLabel: "See how it works",
     icon: "phone",
     tone: "teal",
-    href:"#"
+    href:"/medical-disclaimer"
   },
   {
     title: "Capture local demand",
@@ -34,7 +34,7 @@ const REASONS = [
     linkLabel: "Explore Intelligence Pro",
     icon: "bars",
     tone: "amber",
-    href:"#"
+    href:"/zoikosignal-intelligence"
   },
 ] as const;
 

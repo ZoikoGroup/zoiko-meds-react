@@ -128,14 +128,15 @@ export default function IntegrationsFAQSection() {
             <button
             onClick={()=>router.push("#request-an-integration-briefing")}
               type="button"
-              className="rounded-lg px-5 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)]"
+              className="rounded-lg cursor-pointer px-5 py-3 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(19,165,148,0.3)]"
               style={{ backgroundColor: ACCENT }}
             >
               Request an Integration Briefing
             </button>
             <button
+            onClick={()=>router.push("/talk-to-sales")}
               type="button"
-              className="rounded-lg border px-5 py-3 text-[14px] font-bold transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
+              className="rounded-lg border cursor-pointer px-5 py-3 text-[14px] font-bold transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-[#13A594] hover:text-[#13A594]"
               style={{ borderColor: "#E7EAF1", color: NAVY }}
             >
               Talk to Sales

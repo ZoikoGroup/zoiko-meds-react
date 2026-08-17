@@ -41,7 +41,7 @@ const STATES: DashboardState[] = [
     description:
       "Analytics view loaded with confidence, trend, and network modules.",
     linkLabel: "Save view",
-    href: "/analytics",
+    href: "https://zoiko-meds-platform.vercel.app/login",
   },
   {
     icon: TriangleAlert,

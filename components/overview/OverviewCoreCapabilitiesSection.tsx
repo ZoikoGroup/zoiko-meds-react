@@ -59,7 +59,7 @@ const CAPABILITIES = [
     body: "Support role-based workflows across healthcare, pharmacy, wholesale, distribution, and public-health teams.",
     action: "Talk to Sales",
     icon: "people",
-    href:"#"
+    href:"/talk-to-sales"
   },
 ] as const;
 

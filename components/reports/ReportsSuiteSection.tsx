@@ -19,7 +19,15 @@ import { useEffect, useRef, useState } from "react";
 
 const ACCENT = "#0FAA87";
 
-const FILTERS = ["All", "Executive", "Operations", "Pharmacy Network", "Compliance", "Public Health", "Wholesale"] as const;
+const FILTERS = [
+  "All",
+  "Executive",
+  "Operations",
+  "Pharmacy Network",
+  "Compliance",
+  "Public Health",
+  "Wholesale",
+] as const;
 type Filter = (typeof FILTERS)[number];
 
 type BadgeTone = "green" | "blue" | "amber";
@@ -44,7 +52,8 @@ const REPORTS: {
     title: "Medicine Availability Report",
     tags: ["OPS", "PHARMACY", "PUBLIC HEALTH"],
     categories: ["Operations", "Pharmacy Network", "Public Health"],
-    description: "Summarizes availability confidence, medicine access patterns, geographic signal strength, and notable changes over time.",
+    description:
+      "Summarizes availability confidence, medicine access patterns, geographic signal strength, and notable changes over time.",
     sections: [
       { label: "Confidence movement", badge: "Tier A", tone: "green" },
       { label: "Regional signal", badge: "Mapped", tone: "blue" },
@@ -53,8 +62,19 @@ const REPORTS: {
     href: "/request-sample-reports",
     icon: (
       <>
-        <path d="M4.5 1.5h5l2 2V14a.5.5 0 01-.5.5h-6a.5.5 0 01-.5-.5v-12a.5.5 0 01.5-.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
-        <path d="M6 7h4M6 9.5h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        <path
+          d="M4.5 1.5h5l2 2V14a.5.5 0 01-.5.5h-6a.5.5 0 01-.5-.5v-12a.5.5 0 01.5-.5z"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <path
+          d="M6 7h4M6 9.5h4"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+        />
       </>
     ),
   },
@@ -62,7 +82,8 @@ const REPORTS: {
     title: "Shortage Intelligence Report",
     tags: ["PUBLIC HEALTH", "LEADERSHIP"],
     categories: ["Public Health", "Executive"],
-    description: "Highlights emerging shortage indicators, demand movement, confidence weakening, and regions requiring review.",
+    description:
+      "Highlights emerging shortage indicators, demand movement, confidence weakening, and regions requiring review.",
     sections: [
       { label: "Signal severity", badge: "Elevated", tone: "amber" },
       { label: "Demand movement", badge: "Rising", tone: "blue" },
@@ -70,14 +91,21 @@ const REPORTS: {
     cta: "Request Briefing",
     href: "/request-a-briefing",
     icon: (
-      <path d="M8 2l6.5 11.5H1.5L8 2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
+      <path
+        d="M8 2l6.5 11.5H1.5L8 2z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+        fill="none"
+      />
     ),
   },
   {
     title: "Pharmacy Network Report",
     tags: ["PHARMACY NETWORK", "PARTNERSHIPS"],
     categories: ["Pharmacy Network"],
-    description: "Reviews participating network coverage, confirmation activity, verification quality, and regional pharmacy engagement.",
+    description:
+      "Reviews participating network coverage, confirmation activity, verification quality, and regional pharmacy engagement.",
     sections: [
       { label: "Coverage ratio", badge: "Verified", tone: "green" },
       { label: "Confirmation cadence", badge: "Fresh", tone: "blue" },
@@ -85,14 +113,21 @@ const REPORTS: {
     cta: "Discuss Network Reporting",
     href: "/discuss-network-reporting",
     icon: (
-      <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
+      <path
+        d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+        fill="none"
+      />
     ),
   },
   {
     title: "Regional Access Report",
     tags: ["HEALTHCARE ORGS", "PUBLIC HEALTH"],
     categories: ["Operations", "Public Health"],
-    description: "Shows medicine access patterns by city, state, region, territory, or operating market.",
+    description:
+      "Shows medicine access patterns by city, state, region, territory, or operating market.",
     sections: [
       { label: "Access clusters", badge: "3 flagged", tone: "amber" },
       { label: "Heat zones", badge: "Aggregated", tone: "blue" },
@@ -101,8 +136,20 @@ const REPORTS: {
     href: "/view-regional-model",
     icon: (
       <>
-        <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M1.75 8h12.5M8 1.75c1.7 1.8 2.6 4 2.6 6.25S9.7 12.45 8 14.25c-1.7-1.8-2.6-4-2.6-6.25S6.3 3.55 8 1.75z" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        <circle
+          cx="8"
+          cy="8"
+          r="6.25"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          fill="none"
+        />
+        <path
+          d="M1.75 8h12.5M8 1.75c1.7 1.8 2.6 4 2.6 6.25S9.7 12.45 8 14.25c-1.7-1.8-2.6-4-2.6-6.25S6.3 3.55 8 1.75z"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          fill="none"
+        />
       </>
     ),
   },
@@ -110,7 +157,8 @@ const REPORTS: {
     title: "Compliance Evidence Report",
     tags: ["COMPLIANCE", "LEGAL", "PROCUREMENT"],
     categories: ["Compliance"],
-    description: "Packages governance, source controls, data-use notes, disclaimers, and report auditability for internal review.",
+    description:
+      "Packages governance, source controls, data-use notes, disclaimers, and report auditability for internal review.",
     sections: [
       { label: "Audit trail", badge: "Logged", tone: "green" },
       { label: "Source logic", badge: "Noted", tone: "blue" },
@@ -118,14 +166,21 @@ const REPORTS: {
     cta: "Review Governance",
     href: "/review-governance",
     icon: (
-      <path d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
+      <path
+        d="M8 1.5l5 2v4c0 3.5-2.2 6-5 7-2.8-1-5-3.5-5-7v-4l5-2z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+        fill="none"
+      />
     ),
   },
   {
     title: "Executive Briefing Report",
     tags: ["EXECUTIVES", "BOARDS"],
     categories: ["Executive"],
-    description: "Condenses intelligence into leadership-ready conclusions, risk movement, recommended operational review points, and next-step priorities.",
+    description:
+      "Condenses intelligence into leadership-ready conclusions, risk movement, recommended operational review points, and next-step priorities.",
     sections: [
       { label: "Risk movement", badge: "Tracked", tone: "amber" },
       { label: "Next steps", badge: "Prioritized", tone: "green" },
@@ -133,7 +188,13 @@ const REPORTS: {
     cta: "Request Executive Briefing",
     href: "/request-executive-briefing",
     icon: (
-      <path d="M2.5 13.5V8.5M6.5 13.5V5M10.5 13.5V9.5M14 13.5V3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+      <path
+        d="M2.5 13.5V8.5M6.5 13.5V5M10.5 13.5V9.5M14 13.5V3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
+      />
     ),
   },
 ];
@@ -148,25 +209,31 @@ export default function ReportsSuiteSection() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { setMounted(true); observer.disconnect(); }
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const visibleReports = activeFilter === "All"
-    ? REPORTS
-    : REPORTS.filter((r) => r.categories.includes(activeFilter));
+  const visibleReports =
+    activeFilter === "All"
+      ? REPORTS
+      : REPORTS.filter((r) => r.categories.includes(activeFilter));
 
   return (
     <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
-          <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: ACCENT }}>
+          <p
+            className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: ACCENT }}
+          >
             <span className="opacity-50 text-[#0F1F4E]">01</span>
             <span className="opacity-30 text-[#0F1F4E]">·</span>
             Report Suite
@@ -204,7 +271,11 @@ export default function ReportsSuiteSection() {
                   style={
                     isActive
                       ? { backgroundColor: ACCENT, color: "#FFFFFF" }
-                      : { backgroundColor: "#FFFFFF", color: "#0F1F4E", border: "1px solid #E7EAF1" }
+                      : {
+                          backgroundColor: "#FFFFFF",
+                          color: "#0F1F4E",
+                          border: "1px solid #E7EAF1",
+                        }
                   }
                 >
                   {filter}
@@ -221,18 +292,26 @@ export default function ReportsSuiteSection() {
               <div className="flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.06)] transition-all duration-300">
                 <div
                   className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: "rgba(15,170,135,0.12)", color: ACCENT }}
+                  style={{
+                    backgroundColor: "rgba(15,170,135,0.12)",
+                    color: ACCENT,
+                  }}
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
                     {report.icon}
                   </svg>
                 </div>
 
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.06em]" style={{ color: ACCENT }}>
+                <p
+                  className="mb-2 text-[10px] font-semibold uppercase tracking-[0.06em]"
+                  style={{ color: ACCENT }}
+                >
                   {report.tags.join(" · ")}
                 </p>
 
-                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">{report.title}</h3>
+                <h3 className="text-[14.5px] font-bold text-[#0F1F4E]">
+                  {report.title}
+                </h3>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6478]">
                   {report.description}
                 </p>
@@ -243,8 +322,13 @@ export default function ReportsSuiteSection() {
                   </p>
                   <div className="space-y-2">
                     {report.sections.map((section) => (
-                      <div key={section.label} className="flex items-center justify-between gap-3">
-                        <span className="text-[12.5px] text-[#3F4759]">{section.label}</span>
+                      <div
+                        key={section.label}
+                        className="flex items-center justify-between gap-3"
+                      >
+                        <span className="text-[12.5px] text-[#3F4759]">
+                          {section.label}
+                        </span>
                         <span
                           className="rounded-md px-2 py-0.5 text-[11px] font-semibold"
                           style={{
@@ -258,13 +342,6 @@ export default function ReportsSuiteSection() {
                     ))}
                   </div>
                 </div>
-
-                <a
-                  href={report.href}
-                  className="mt-5 inline-flex w-fit items-center justify-center rounded-lg border border-[#E7EAF1] px-4 py-2.5 text-[12.5px] font-semibold text-[#0F1F4E] transition-colors duration-150 hover:border-[#0F1F4E]"
-                >
-                  {report.cta}
-                </a>
               </div>
             </Reveal>
           ))}
@@ -275,7 +352,6 @@ export default function ReportsSuiteSection() {
             No reports match this filter yet — try another audience.
           </p>
         )}
-
       </div>
     </section>
   );
@@ -284,9 +360,24 @@ export default function ReportsSuiteSection() {
 /* ------------------------------------------------------------------ */
 /*  Reveal                                                               */
 /* ------------------------------------------------------------------ */
-function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
+function Reveal({
+  children,
+  index,
+  active,
+}: {
+  children: React.ReactNode;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `reportsSuiteFadeUp 0.6s ease-out ${index * 90}ms both` : "none" }}>
+    <div
+      style={{
+        opacity: active ? undefined : 0,
+        animation: active
+          ? `reportsSuiteFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
+      }}
+    >
       {children}
       <style>{`
         @keyframes reportsSuiteFadeUp {

@@ -2,58 +2,100 @@
  * Centralized Form Validation Library for ZoikoMeds
  */
 
-// Email regex requiring a valid top-level domain (TLD) of at least 2 characters (e.g. .com, .org, .net)
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-
-// Phone regex allowing optional + prefix, numbers, spaces, hyphens, and parentheses; total 7-15 digits
-export const PHONE_REGEX = /^\+?[\d\s\-()]{7,15}$/;
-
 /**
- * Validates an email address.
- * Rejects formats missing a domain extension like test@test.
+ * Validates an email address against standard email syntax.
+ * Does NOT restrict to specific providers or whitelist domain extensions.
+ * Rejects formats missing domain dot/TLD, invalid TLDs, spaces, or consecutive dots.
  */
 export function validateEmail(email: string): { isValid: boolean; error?: string } {
   const trimmed = email.trim();
   if (!trimmed) {
-    return { isValid: false, error: "Work email address is required." };
-  }
-  if (!EMAIL_REGEX.test(trimmed)) {
     return { isValid: false, error: "Please enter a valid email address." };
   }
+
+  // Reject spaces or consecutive dots
+  if (/\s/.test(trimmed) || trimmed.includes("..")) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
+  const parts = trimmed.split("@");
+  if (parts.length !== 2) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
+  const [local, domain] = parts;
+
+  // Local part validation: non-empty, no leading/trailing dot, valid characters
+  if (!local || local.startsWith(".") || local.endsWith(".")) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
+  if (!/^[a-zA-Z0-9._%+-]+$/.test(local)) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
+  // Domain part validation: non-empty, no leading/trailing dot
+  if (!domain || domain.startsWith(".") || domain.endsWith(".")) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
+  const domainParts = domain.split(".");
+  if (domainParts.length < 2) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
+  // Validate each domain label
+  for (const part of domainParts) {
+    if (!part || !/^[a-zA-Z0-9-]+$/.test(part) || part.startsWith("-") || part.endsWith("-")) {
+      return { isValid: false, error: "Please enter a valid email address." };
+    }
+  }
+
+  // Top-level domain (TLD) must be at least 2 letters
+  const tld = domainParts[domainParts.length - 1];
+  if (!/^[a-zA-Z]{2,}$/.test(tld)) {
+    return { isValid: false, error: "Please enter a valid email address." };
+  }
+
   return { isValid: true };
 }
 
+// Retain regex export for compatibility if imported elsewhere
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
 /**
  * Restricts phone input strictly to:
- * - Optional leading '+' ONLY at position 0
  * - Numbers (0-9)
- * - Single space after country code or digit groups (no multiple consecutive or leading spaces)
- * - Strips all letters (except "test") and other special characters.
+ * - Leading '+' (only at index 0)
+ * - Spaces
+ * - Hyphens (-)
+ * - Parentheses ( and )
+ * Strips all alphabetic characters (A-Z, a-z) and special symbols (@, #, $, %, etc.).
  */
 export function sanitizePhoneInput(value: string): string {
   if (!value) return "";
-  if (value.trim().toLowerCase() === "test") {
-    return value;
+
+  // Strip any character not in [0-9+\s\-()]
+  let clean = value.replace(/[^0-9+\s\-()]/g, "");
+
+  // Ensure '+' can only appear at index 0
+  if (clean.includes("+")) {
+    const hasLeadingPlus = clean.startsWith("+");
+    clean = (hasLeadingPlus ? "+" : "") + clean.replace(/\+/g, "");
   }
 
-  const hasLeadingPlus = value.startsWith("+");
-  let cleanDigitsAndSpaces = value.replace(/[^\d\s]/g, "");
-  cleanDigitsAndSpaces = cleanDigitsAndSpaces.replace(/\s+/g, " ");
-  cleanDigitsAndSpaces = cleanDigitsAndSpaces.trimStart();
-
-  let result = hasLeadingPlus ? `+${cleanDigitsAndSpaces}` : cleanDigitsAndSpaces;
-  if (result.startsWith("+ ")) {
-    result = "+" + result.slice(2);
-  }
-  return result;
+  return clean;
 }
 
 export const sanitizeStrictPhone = sanitizePhoneInput;
 
+// Phone regex allowing optional + prefix, numbers, spaces, hyphens, and parentheses
+export const PHONE_REGEX = /^\+?[\d\s\-()]{7,25}$/;
+
 /**
  * Validates a phone number format strictly.
- * Accepts optional leading '+' country code and numbers (0-9) with optional single space.
- * Accepts "test" as a valid phone number for testing, otherwise ensures total digit count is between 7 and 15 digits.
+ * Phone is optional by default.
+ * If provided, checks digit count (between 7 and 15 digits) and format.
  */
 export function validatePhone(
   phone: string,
@@ -62,23 +104,27 @@ export function validatePhone(
   const trimmed = phone.trim();
   if (!trimmed) {
     if (required) {
-      return { isValid: false, error: "Phone number is required." };
+      return { isValid: false, error: "Please enter a valid phone number." };
     }
-    return { isValid: true };
-  }
-
-  // Treat "test" as a valid phone number for testing purposes
-  if (trimmed.toLowerCase() === "test") {
     return { isValid: true };
   }
 
   // Count actual numeric digits
   const digitsOnly = trimmed.replace(/\D/g, "");
 
-  if (!PHONE_REGEX.test(trimmed) || digitsOnly.length < 7 || digitsOnly.length > 15) {
+  // Check if string has any invalid chars, valid digit count (7-15), and optional + only at start
+  const hasInvalidChars = /[^0-9+\s\-()]/.test(trimmed);
+  const plusInWrongPlace = trimmed.indexOf("+") > 0;
+
+  if (
+    hasInvalidChars ||
+    plusInWrongPlace ||
+    digitsOnly.length < 7 ||
+    digitsOnly.length > 15
+  ) {
     return {
       isValid: false,
-      error: "Please enter a valid phone number (e.g., +91 9876543210 or 9876543210).",
+      error: "Please enter a valid phone number.",
     };
   }
 
@@ -90,11 +136,11 @@ export function validatePhone(
  */
 export function validateRequiredField(
   value: string,
-  fieldName: string
+  errorMessage: string
 ): { isValid: boolean; error?: string } {
   const trimmed = value.trim();
   if (!trimmed) {
-    return { isValid: false, error: `${fieldName} is required.` };
+    return { isValid: false, error: errorMessage };
   }
   return { isValid: true };
 }
@@ -113,12 +159,12 @@ export function scrollToFirstError(fieldName?: string) {
 
     if (!targetEl) {
       targetEl = document.querySelector(
-        'input.border-\\[\\#DC2626\\], input.\\!border-\\[\\#DC2626\\], select.border-\\[\\#DC2626\\], select.\\!border-\\[\\#DC2626\\], textarea.border-\\[\\#DC2626\\], textarea.\\!border-\\[\\#DC2626\\]'
+        'input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"]'
       ) as HTMLElement;
     }
 
     if (!targetEl) {
-      const errEl = document.querySelector(".text-\\[\\#DC2626\\]");
+      const errEl = document.querySelector('[role="alert"]');
       if (errEl) {
         targetEl = (errEl.closest("div, label") || errEl) as HTMLElement;
       }
@@ -132,3 +178,4 @@ export function scrollToFirstError(fieldName?: string) {
     }
   }, 50);
 }
+

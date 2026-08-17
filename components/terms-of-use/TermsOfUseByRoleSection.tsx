@@ -49,7 +49,7 @@ const CARDS = [
     title: "Wholesale participants",
     description: "Contracted access, procurement workflows, data controls, standards, confidentiality, and no public marketplace claims.",
     cta: "View Wholesale Terms",
-    href: "#",
+    href: "/talk-to-sales",
     icon: (
       <>
         <ellipse cx="8" cy="4" rx="4.5" ry="1.8" stroke="currentColor" strokeWidth="1.4" fill="none" />

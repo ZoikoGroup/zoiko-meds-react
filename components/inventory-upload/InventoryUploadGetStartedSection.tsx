@@ -241,7 +241,7 @@ export default function InventoryUploadGetStartedSection() {
                     if (errors.email) setErrors({ ...errors, email: undefined });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${errors.email ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#64748B] outline-none transition-colors ${errors.email ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                     }`}
                 />
               </FormField>
@@ -257,7 +257,7 @@ export default function InventoryUploadGetStartedSection() {
                     if (errors.name) setErrors({ ...errors, name: undefined });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${errors.name ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#64748B] outline-none transition-colors ${errors.name ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                     }`}
                 />
               </FormField>
@@ -273,7 +273,7 @@ export default function InventoryUploadGetStartedSection() {
                     if (errors.org) setErrors({ ...errors, org: undefined });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors ${errors.org ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#64748B] outline-none transition-colors ${errors.org ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                     }`}
                 />
               </FormField>
@@ -288,13 +288,12 @@ export default function InventoryUploadGetStartedSection() {
                       if (errors.pharmacyType) setErrors({ ...errors, pharmacyType: undefined });
                       if (status !== "idle") setStatus("idle");
                     }}
-                    className={`w-full appearance-none rounded-xl border bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors ${errors.pharmacyType ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                    className={`w-full appearance-none rounded-xl border bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none transition-colors ${errors.pharmacyType ? "border-[#E0635C]" : "border-[#D8DCE8] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                       }`}
-                    style={{ color: form.pharmacyType ? "#0F1F4E" : "#B0B8CC" }}
                   >
-                    <option value="" disabled>Select pharmacy type</option>
+                    <option value="" disabled style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>Select pharmacy type</option>
                     {PHARMACY_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t} style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>{t}</option>
                     ))}
                   </select>
                   <ChevronDown />
@@ -310,12 +309,11 @@ export default function InventoryUploadGetStartedSection() {
                       setForm({ ...form, setupInterest: e.target.value });
                       if (status !== "idle") setStatus("idle");
                     }}
-                    className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-                    style={{ color: form.setupInterest ? "#0F1F4E" : "#B0B8CC" }}
+                    className="w-full appearance-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                   >
-                    <option value="" disabled>Select setup interest</option>
+                    <option value="" disabled style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>Select setup interest</option>
                     {SETUP_INTERESTS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s} style={{ color: "#0F1F4E", backgroundColor: "#FFFFFF" }}>{s}</option>
                     ))}
                   </select>
                   <ChevronDown />
@@ -332,7 +330,7 @@ export default function InventoryUploadGetStartedSection() {
                     setForm({ ...form, note: e.target.value });
                     if (status !== "idle") setStatus("idle");
                   }}
-                  className="w-full resize-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#B0B8CC] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+                  className="w-full resize-none rounded-xl border border-[#D8DCE8] bg-white px-4 py-2.5 text-[13.5px] text-[#0F1F4E] placeholder-[#64748B] outline-none transition-colors focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
                 />
               </FormField>
 

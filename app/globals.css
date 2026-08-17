@@ -55,6 +55,18 @@ select {
   font-family: var(--font-jakarta), sans-serif;
 }
 
+select option {
+  color: #0F1F4E !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+select option:disabled {
+  color: #0F1F4E !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
 /* Hide Next.js dev indicators and dev toolbar overlay button */
 nextjs-portal,
 [data-nextjs-toast],

@@ -21,11 +21,17 @@ export default function PressHeroSection() {
         {mounted ? (
           <Reveal index={0}>
             <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <a
+                href="/"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
                 Home
               </a>
               <span>/</span>
-              <a href="#" className="transition-colors duration-200 hover:text-[#0F1F4E]">
+              <a
+                href="/trust-center"
+                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+              >
                 Trust &amp; Legal
               </a>
               <span>/</span>
@@ -62,16 +68,15 @@ export default function PressHeroSection() {
                 <Reveal index={3}>
                   <p className="max-w-lg text-[15px] leading-relaxed text-[#5B6478]">
                     Find approved company facts, newsroom updates, media
-                    contacts, brand assets, and press resources for
-                    reporting on ZoikoMeds and global medicine
-                    availability infrastructure.
+                    contacts, brand assets, and press resources for reporting on
+                    ZoikoMeds and global medicine availability infrastructure.
                   </p>
                 </Reveal>
 
                 <Reveal index={4}>
                   <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                     <button
-                    onClick={()=>router.push("#contact")}
+                      onClick={() => router.push("#contact")}
                       type="button"
                       className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
@@ -88,37 +93,13 @@ export default function PressHeroSection() {
                     </button>
 
                     <button
+                      onClick={() => router.push("/privacy-center")}
                       type="button"
-                      className="rounded-xl border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+                      className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
-                      Download Press Kit
+                      Privacy Center
                     </button>
                   </div>
-                </Reveal>
-
-                <Reveal index={5}>
-                  <a
-                    href="#"
-                    className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
-                    style={{ color: ACCENT }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = ACCENT)}
-                  >
-                    View Company Facts
-                    <svg
-                      className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M3 8H13M13 8L9 4M13 8L9 12"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
                 </Reveal>
 
                 <Reveal index={6}>
@@ -128,11 +109,16 @@ export default function PressHeroSection() {
                       viewBox="0 0 16 16"
                       fill="none"
                     >
-                      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.5"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
                     </svg>
-                    For patient support, use Search Medicines. For
-                    enterprise or public-sector inquiries, request an
-                    enterprise briefing.
+                    For patient support, use Search Medicines. For enterprise or
+                    public-sector inquiries, request an enterprise briefing.
                   </p>
                 </Reveal>
               </div>

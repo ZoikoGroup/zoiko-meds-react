@@ -69,30 +69,13 @@ export default function FeaturesHeroSection() {
                 Book a Demo
               </button>
               <button
+              onClick={()=>router.push("/talk-to-sales")}
                 type="button"
-                className="rounded-lg border border-[#D8DEE8] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 hover:-translate-y-1 hover:border-[#0FAA87] hover:text-[#0FAA87] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2"
+                className="rounded-lg cursor-pointer border border-[#D8DEE8] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 hover:-translate-y-1 hover:border-[#0FAA87] hover:text-[#0FAA87] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0FAA87] focus-visible:ring-offset-2"
               >
                 Talk to Sales
               </button>
             </div>
-          </FeaturesFadeUp>
-
-          <FeaturesFadeUp show={isVisible} delay={300}>
-            <a
-              href="#compare"
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 hover:text-[#00A99D]"
-            >
-              Compare capabilities
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
           </FeaturesFadeUp>
 
           <FeaturesFadeUp show={isVisible} delay={360}>

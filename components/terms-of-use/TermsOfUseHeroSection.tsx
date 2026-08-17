@@ -96,7 +96,7 @@ export default function TermsOfUseHeroSection() {
                   Read Terms Summary
                 </a>
                 <a
-                  href="#"
+                  href="/privacy-center"
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E7EAF1] bg-white px-5 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-150 hover:border-[#0F1F4E]"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
@@ -104,7 +104,7 @@ export default function TermsOfUseHeroSection() {
                     <rect x="2.5" y="6" width="11" height="5" rx="1" stroke="currentColor" strokeWidth="1.3" />
                     <path d="M4.5 11h7v3h-7z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
                   </svg>
-                  Download / Print Terms
+                  Privacy Center
                 </a>
               </div>
             </Reveal>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
 import { sendNotificationEmail } from "@/lib/email/emailService";
-import { validateEmail } from "@/lib/validation";
+import { validateEmail, validatePhone } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,6 +40,13 @@ export async function POST(req: NextRequest) {
       errors.email = emailCheck.error!;
     }
 
+    if (phone) {
+      const phoneCheck = validatePhone(phone);
+      if (!phoneCheck.isValid) {
+        errors.phone = phoneCheck.error!;
+      }
+    }
+
     if (!appointmentType) {
       errors.appointmentType = "Please select an appointment type.";
     }
@@ -58,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     if (Object.keys(errors).length > 0) {
       return NextResponse.json(
-        { success: false, message: "Validation failed. Please fill all required fields.", errors },
+        { success: false, message: "Validation failed. Please check your inputs.", errors },
         { status: 400 }
       );
     }

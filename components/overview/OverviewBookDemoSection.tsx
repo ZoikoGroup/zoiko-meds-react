@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import {
+  validateEmail,
+  validatePhone,
+  sanitizePhoneInput,
+  scrollToFirstError,
+} from "@/lib/validation";
 
 /**
  * OverviewBookDemoSection
@@ -69,6 +75,7 @@ export default function OverviewBookDemoSection() {
   });
   const [interests, setInterests] = useState<string[]>([]);
   const [consent, setConsent] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -97,23 +104,125 @@ export default function OverviewBookDemoSection() {
   }, []);
 
   function toggleInterest(label: string) {
-    setInterests((prev) =>
-      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
-    );
+    setInterests((prev) => {
+      const next = prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label];
+      if (next.length > 0 && errors.interests) {
+        setErrors((p) => ({ ...p, interests: "" }));
+      }
+      return next;
+    });
+  }
+
+  function validateSingleField(name: string, value: string): string {
+    if (name === "fullName") {
+      return !value.trim() ? "Full name is required." : "";
+    }
+    if (name === "workEmail") {
+      const res = validateEmail(value);
+      return res.isValid ? "" : res.error || "Please enter a valid email address.";
+    }
+    if (name === "phone") {
+      const res = validatePhone(value, false);
+      return res.isValid ? "" : res.error || "Please enter a valid phone number.";
+    }
+    if (name === "organization") {
+      return !value.trim() ? "Organization is required." : "";
+    }
+    if (name === "jobTitle") {
+      return !value.trim() ? "Job title is required." : "";
+    }
+    if (name === "orgType") {
+      return !value.trim() ? "Please select an organization type." : "";
+    }
+    if (name === "country") {
+      return !value.trim() ? "Country / region is required." : "";
+    }
+    return "";
+  }
+
+  function validateForm(): Record<string, string> {
+    const errs: Record<string, string> = {};
+    const fnErr = validateSingleField("fullName", form.fullName);
+    if (fnErr) errs.fullName = fnErr;
+
+    const emailErr = validateSingleField("workEmail", form.workEmail);
+    if (emailErr) errs.workEmail = emailErr;
+
+    const phoneErr = validateSingleField("phone", form.phone);
+    if (phoneErr) errs.phone = phoneErr;
+
+    const orgErr = validateSingleField("organization", form.organization);
+    if (orgErr) errs.organization = orgErr;
+
+    const jtErr = validateSingleField("jobTitle", form.jobTitle);
+    if (jtErr) errs.jobTitle = jtErr;
+
+    const otErr = validateSingleField("orgType", form.orgType);
+    if (otErr) errs.orgType = otErr;
+
+    const cErr = validateSingleField("country", form.country);
+    if (cErr) errs.country = cErr;
+
+    if (interests.length === 0) {
+      errs.interests = "Please select at least one area of interest.";
+    }
+
+    if (!consent) {
+      errs.consent = "Consent is required to proceed.";
+    }
+
+    return errs;
   }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    let newValue = value;
+    if (name === "phone") {
+      newValue = sanitizePhoneInput(value);
+    }
+    setForm((prev) => ({ ...prev, [name]: newValue }));
+
+    if (errors[name]) {
+      const err = validateSingleField(name, newValue);
+      setErrors((prev) => ({ ...prev, [name]: err }));
+    }
+  };
+
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    const err = validateSingleField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: err }));
+  };
+
+  const handlePhonePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text");
+    const sanitized = sanitizePhoneInput(pasted);
+    setForm((prev) => ({ ...prev, phone: sanitized }));
+    if (errors.phone) {
+      const err = validateSingleField("phone", sanitized);
+      setErrors((prev) => ({ ...prev, phone: err }));
+    }
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!consent || submitting) return;
+    if (submitting) return;
+
+    const errs = validateForm();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      scrollToFirstError();
+      return;
+    }
+
     setSubmitting(true);
     setStatus("idle");
+    setErrorMessage("");
 
     try {
       const res = await fetch(internalApi("briefing-request"), {
@@ -126,11 +235,13 @@ export default function OverviewBookDemoSection() {
           organization: form.organization,
           jobTitle: form.jobTitle,
           phone: form.phone,
+          orgType: form.orgType,
+          country: form.country,
           note: `Country: ${form.country}\nInterests: ${interests.join(", ")}\nTimeline: ${form.timeline}\nMessage: ${form.message}`,
         }),
       });
 
-      let data: any = {};
+      let data: { success?: boolean; errors?: Record<string, string>; message?: string } = {};
       try {
         data = await res.json();
       } catch {}
@@ -149,9 +260,16 @@ export default function OverviewBookDemoSection() {
           message: "",
         });
         setInterests([]);
+        setConsent(false);
+        setErrors({});
       } else {
-        setStatus("error");
-        setErrorMessage(data.message || "Failed to submit demo request.");
+        if (data.errors && Object.keys(data.errors).length > 0) {
+          setErrors(data.errors);
+          scrollToFirstError();
+        } else {
+          setStatus("error");
+          setErrorMessage(data.message || "Failed to submit demo request.");
+        }
       }
     } catch {
       setStatus("error");
@@ -202,71 +320,87 @@ export default function OverviewBookDemoSection() {
           <Reveal index={3} active={mounted}>
             <form
               onSubmit={handleSubmit}
+              noValidate
               className="rounded-2xl border border-black/5 bg-white p-6 shadow-[0_1px_2px_rgba(15,31,78,0.04)] sm:p-8"
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Full name" required>
+                <Field label="Full name" required error={errors.fullName}>
                   <input
                     type="text"
                     name="fullName"
                     value={form.fullName}
                     onChange={handleChange}
-                    required
-                    className="input"
+                    onBlur={handleBlur}
+                    aria-invalid={!!errors.fullName}
+                    aria-describedby={errors.fullName ? "fullName-error" : undefined}
+                    className={`input ${errors.fullName ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                   />
                 </Field>
 
-                <Field label="Work email" required>
+                <Field label="Work email" required error={errors.workEmail}>
                   <input
                     type="email"
                     name="workEmail"
                     value={form.workEmail}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
                     placeholder="name@organization.org"
-                    className="input"
+                    aria-invalid={!!errors.workEmail}
+                    aria-describedby={errors.workEmail ? "workEmail-error" : undefined}
+                    className={`input ${errors.workEmail ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                   />
                 </Field>
 
-                <Field label="Phone number" hint="optional">
+                <Field label="Phone number" hint="optional" error={errors.phone}>
                   <input
                     type="tel"
+                    inputMode="tel"
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    className="input"
+                    onBlur={handleBlur}
+                    onPaste={handlePhonePaste}
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? "phone-error" : undefined}
+                    className={`input ${errors.phone ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                   />
                 </Field>
 
-                <Field label="Organization" required>
+                <Field label="Organization" required error={errors.organization}>
                   <input
                     type="text"
                     name="organization"
                     value={form.organization}
                     onChange={handleChange}
-                    required
-                    className="input"
+                    onBlur={handleBlur}
+                    aria-invalid={!!errors.organization}
+                    aria-describedby={errors.organization ? "organization-error" : undefined}
+                    className={`input ${errors.organization ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                   />
                 </Field>
 
-                <Field label="Job title" required>
+                <Field label="Job title" required error={errors.jobTitle}>
                   <input
                     type="text"
                     name="jobTitle"
                     value={form.jobTitle}
                     onChange={handleChange}
-                    required
-                    className="input"
+                    onBlur={handleBlur}
+                    aria-invalid={!!errors.jobTitle}
+                    aria-describedby={errors.jobTitle ? "jobTitle-error" : undefined}
+                    className={`input ${errors.jobTitle ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                   />
                 </Field>
 
-                <Field label="Organization type" required>
+                <Field label="Organization type" required error={errors.orgType}>
                   <select
                     name="orgType"
                     value={form.orgType}
                     onChange={handleChange}
-                    required
-                    className="input appearance-none"
+                    onBlur={handleBlur}
+                    aria-invalid={!!errors.orgType}
+                    aria-describedby={errors.orgType ? "orgType-error" : undefined}
+                    className={`input appearance-none ${errors.orgType ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                   >
                     <option value="" disabled>
                       Select type
@@ -281,22 +415,24 @@ export default function OverviewBookDemoSection() {
                 </Field>
 
                 <div className="sm:col-span-2">
-                  <Field label="Country / region" required>
+                  <Field label="Country / region" required error={errors.country}>
                     <input
                       type="text"
                       name="country"
                       value={form.country}
                       onChange={handleChange}
-                      required
+                      onBlur={handleBlur}
                       placeholder="e.g. US, UK, EU, national, regional"
-                      className="input"
+                      aria-invalid={!!errors.country}
+                      aria-describedby={errors.country ? "country-error" : undefined}
+                      className={`input ${errors.country ? "!border-red-500 focus:!ring-red-500/20" : ""}`}
                     />
                   </Field>
                 </div>
 
                 <div className="sm:col-span-2">
                   <span className="mb-2 block text-[12.5px] font-semibold" style={{ color: NAVY }}>
-                    Areas of interest
+                    Areas of interest <span className="text-red-500">*</span>
                   </span>
                   <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
                     {AREAS_OF_INTEREST.map((label) => (
@@ -315,6 +451,11 @@ export default function OverviewBookDemoSection() {
                       </label>
                     ))}
                   </div>
+                  {errors.interests && (
+                    <p className="mt-1.5 text-[12px] font-medium text-red-500" role="alert">
+                      {errors.interests}
+                    </p>
+                  )}
                 </div>
 
                 <Field label="Briefing timeline" hint="optional">
@@ -346,22 +487,33 @@ export default function OverviewBookDemoSection() {
                 </Field>
               </div>
 
-              <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}B3` }}>
-                <input
-                  type="checkbox"
-                  required
-                  checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-black/20 text-[#13A594] focus:ring-[#13A594]"
-                />
-                <span>
-                  I consent to ZoikoMeds contacting me about demo and briefing requests, per the{" "}
-                  <a href="/privacy" className="font-medium text-[#13A594] hover:underline">
-                    privacy notice
-                  </a>
-                  . <span className="text-red-500">*</span>
-                </span>
-              </label>
+              <div>
+                <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-relaxed" style={{ color: `${NAVY}B3` }}>
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => {
+                      setConsent(e.target.checked);
+                      if (e.target.checked && errors.consent) {
+                        setErrors((prev) => ({ ...prev, consent: "" }));
+                      }
+                    }}
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-black/20 text-[#13A594] focus:ring-[#13A594]"
+                  />
+                  <span>
+                    I consent to ZoikoMeds contacting me about demo and briefing requests, per the{" "}
+                    <a href="/privacy" className="font-medium text-[#13A594] hover:underline">
+                      privacy notice
+                    </a>
+                    . <span className="text-red-500">*</span>
+                  </span>
+                </label>
+                {errors.consent && (
+                  <p className="mt-1 text-[12px] font-medium text-red-500" role="alert">
+                    {errors.consent}
+                  </p>
+                )}
+              </div>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
@@ -383,7 +535,7 @@ export default function OverviewBookDemoSection() {
                   )}
                 </button>
                 <a
-                  href="#talk-to-sales"
+                  href="/talk-to-sales"
                   className="flex-1 rounded-xl border py-3.5 text-center text-[14px] font-semibold transition-colors hover:bg-black/[0.03]"
                   style={{ borderColor: `${NAVY}26`, color: NAVY }}
                 >
@@ -407,7 +559,7 @@ export default function OverviewBookDemoSection() {
                 </div>
               )}
 
-              {status === "error" && (
+              {status === "error" && Object.keys(errors).length === 0 && (
                 <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
                   <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
                 </div>
@@ -481,22 +633,29 @@ function Field({
   label,
   required,
   hint,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   hint?: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
+    <div className="block">
       <span className="mb-1.5 flex items-center gap-1 text-[12.5px] font-semibold" style={{ color: NAVY }}>
         {label}
         {required && <span className="text-red-500">*</span>}
         {hint && <span className="font-normal" style={{ color: `${NAVY}66` }}>({hint})</span>}
       </span>
       {children}
-    </label>
+      {error && (
+        <p className="mt-1.5 text-[12px] font-medium text-red-500" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

@@ -31,14 +31,14 @@ const ACTIONS = [
     body: "Configure dose, refill, and medication-review reminders that fit your routine.",
     action: "Set reminder",
     icon: "bell",
-    href:"#"
+    href:"https://zoiko-meds-platform.vercel.app/dashboard"
   },
   {
     title: "Review details",
     body: "Check dosage, prescriber, and status before your refill window.",
     action: "Review details",
     icon: "eye",
-    href:"#"
+    href:"https://zoiko-meds-platform.vercel.app/dashboard"
   },
   {
     title: "Contact support",

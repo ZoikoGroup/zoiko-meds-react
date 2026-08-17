@@ -22,7 +22,7 @@ const CARDS = [
     title: "Account data",
     description: "View and manage saved searches, alerts, preferences, and profile data.",
     cta: "Manage Account Data",
-    href: "#",
+    href: "https://zoiko-meds-platform.vercel.app/login",
     icon: (
       <>
         <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -84,7 +84,7 @@ const CARDS = [
     title: "Account deletion",
     description: "Start account deletion or understand lawful retention limits.",
     cta: "Delete Account",
-    href: "#",
+    href: "https://zoiko-meds-platform.vercel.app/login",
     icon: (
       <>
         <path d="M3.5 4.5h9M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M5 4.5l.5 9a1 1 0 001 1h3a1 1 0 001-1l.5-9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />

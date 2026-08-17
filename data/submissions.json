@@ -867,5 +867,24 @@
     },
     "submittedAt": "2026-08-10T07:15:35.063Z",
     "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1786516006043_nvira",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Book a Demo (Hospital / Health system)",
+    "fullName": "naveen",
+    "email": "naveen@gmail.com",
+    "organization": "zoikomeds",
+    "payload": {
+      "briefingType": "Book a Demo (Hospital / Health system)",
+      "fullName": "naveen",
+      "workEmail": "naveen@gmail.com",
+      "organization": "zoikomeds",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Country: USA\nInterests: \nTimeline: \nMessage:"
+    },
+    "submittedAt": "2026-08-12T06:26:46.047Z",
+    "status": "RECEIVED"
   }
 ]

@@ -73,7 +73,7 @@ export default function AnalyticsFaqSection() {
       <div className="mx-auto max-w-6xl">
         <FaqFadeUp show={isVisible} delay={0}>
           <span className="text-xs font-bold tracking-[0.18em] text-[#0FAA87]">
-            09 &nbsp;&middot;&nbsp; FREQUENTLY ASKED QUESTIONS
+            08 &nbsp;&middot;&nbsp; FREQUENTLY ASKED QUESTIONS
           </span>
         </FaqFadeUp>
 

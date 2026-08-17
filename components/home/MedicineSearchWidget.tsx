@@ -309,13 +309,14 @@ export default function MedicineSearchWidget() {
 
   /* tab 2 state */
   const [scanFile, setScanFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [scanLocText, setScanLocText] = useState("");
   const [scanLat, setScanLat] = useState<number | undefined>();
   const [scanLng, setScanLng] = useState<number | undefined>();
   const [scanLocLabel, setScanLocLabel] = useState("Use my current location");
   const [scanRadius, setScanRadius] = useState(25);
   const [scanning, setScanning] = useState(false);
-  const [hasScanned, setHasScanned] = useState(false);
   const [scannedMeds, setScannedMeds] = useState<string[]>([]);
   const [selectedMeds, setSelectedMeds] = useState<Set<string>>(new Set());
   const [scanResults, setScanResults] = useState<{ [med: string]: SearchOutcome | null }>({});
@@ -516,10 +517,57 @@ export default function MedicineSearchWidget() {
     if (lastLat && lastLng && lastMedicine) handleSearch(val);
   }, [lastLat, lastLng, lastMedicine, handleSearch]);
 
-  /* ─── Tab 2: file handling ─── */
-  const handleFile = (file: File) => {
-    setScanFile(file); setScannedMeds([]); setSelectedMeds(new Set()); setScanResults({}); setHasScanned(false);
+  /* ─── Tab 2: file handling & validation ─── */
+  const validateFile = (file: File): string | null => {
+    const allowedExts = [".jpg", ".jpeg", ".png", ".pdf", ".heic", ".heif"];
+    const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    const isExtAllowed = allowedExts.includes(ext);
+    const isMimeAllowed =
+      !file.type ||
+      file.type.startsWith("image/") ||
+      file.type === "application/pdf" ||
+      file.type === "application/octet-stream";
+
+    if (!isExtAllowed && !isMimeAllowed) {
+      return "Unsupported file type. Please upload a JPG, PNG, PDF, or HEIC file.";
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      return "File size exceeds 10 MB limit. Please upload a smaller prescription file.";
+    }
+    return null;
   };
+
+  const handleFile = (file: File) => {
+    const err = validateFile(file);
+    if (err) {
+      setFileError(err);
+      setScanFile(null);
+      setScannedMeds([]);
+      setSelectedMeds(new Set());
+      setScanResults({});
+      setScanError(null);
+      return;
+    }
+    setFileError(null);
+    setScanFile(file);
+    setScannedMeds([]);
+    setSelectedMeds(new Set());
+    setScanResults({});
+    setScanError(null);
+  };
+
+  const handleRemoveFile = () => {
+    setScanFile(null);
+    setFileError(null);
+    setScanError(null);
+    setScannedMeds([]);
+    setSelectedMeds(new Set());
+    setScanResults({});
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraRef.current) cameraRef.current.value = "";
+    if (galleryRef.current) galleryRef.current.value = "";
+  };
+
   const onDrop = (e: DragEvent) => {
     e.preventDefault(); setDragOver(false);
     if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
@@ -527,29 +575,44 @@ export default function MedicineSearchWidget() {
 
   /* ─── Tab 2: scan ─── */
   const handleScan = useCallback(async () => {
-    if (!scanFile) return;
-    setScanning(true); setHasScanned(false); setScannedMeds([]); setScanResults({});
+    if (!scanFile) {
+      setScanError("Please select a prescription file first.");
+      return;
+    }
+    setScanning(true);
+    setScannedMeds([]);
+    setSelectedMeds(new Set());
+    setScanResults({});
+    setScanError(null);
+
     try {
       const fd = new FormData();
       fd.append("prescription", scanFile);
       const r = await fetch(internalApi("medicine/scan"), { method: "POST", body: fd });
       const d = await r.json();
-      if (d.success && Array.isArray(d.data?.medicines) && d.data.medicines.length > 0) {
+
+      if (d.success && Array.isArray(d.data?.medicines)) {
         const meds: string[] = d.data.medicines;
-        setScannedMeds(meds);
-        setSelectedMeds(new Set(meds));
+        if (meds.length > 0) {
+          setScannedMeds(meds);
+          setSelectedMeds(new Set(meds));
+          setScanError(null);
+        } else {
+          setScannedMeds([]);
+          setSelectedMeds(new Set());
+          setScanError("No medicines could be detected. Please upload a clearer prescription or try another image.");
+        }
       } else {
-        const fallback = getDynamicClientMeds(scanFile);
-        setScannedMeds(fallback);
-        setSelectedMeds(new Set(fallback));
+        setScannedMeds([]);
+        setSelectedMeds(new Set());
+        setScanError(d.error || "We couldn't scan this prescription. Please try again or upload a clearer image.");
       }
     } catch {
-      const fallback = getDynamicClientMeds(scanFile);
-      setScannedMeds(fallback);
-      setSelectedMeds(new Set(fallback));
+      setScannedMeds([]);
+      setSelectedMeds(new Set());
+      setScanError("We couldn't scan this prescription. Please try again or upload a clearer image.");
     } finally {
       setScanning(false);
-      setHasScanned(true);
     }
   }, [scanFile]);
 
@@ -759,6 +822,14 @@ export default function MedicineSearchWidget() {
       {/* ══ TAB 2: SCAN PRESCRIPTION ══ */}
       {tab === "scan" && (
         <div>
+          {/* File error message */}
+          {fileError && (
+            <div className="mb-3.5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs font-semibold text-red-700 flex items-center justify-between gap-2">
+              <span>{fileError}</span>
+              <button type="button" onClick={() => setFileError(null)} className="text-red-500 hover:text-red-700 font-bold text-sm">✕</button>
+            </div>
+          )}
+
           {/* Dropzone */}
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -777,25 +848,41 @@ export default function MedicineSearchWidget() {
             <p className="font-bold text-[15px] text-[#111827] mb-1">
               {scanFile ? `📄 ${scanFile.name}` : "Drop your prescription here"}
             </p>
-            <p className="text-sm text-[#6b7280] mb-4 leading-relaxed">
+            <p className="text-sm text-[#6b7280] mb-4 leading-relaxed whitespace-pre-line">
               {scanFile
-                ? "File ready. Click 'Scan prescription' to extract medicines."
+                ? `File ready (${(scanFile.size / (1024 * 1024)).toFixed(2)} MB). Click 'Scan prescription' to extract medicines.`
                 : "We'll extract the medicine names — you choose which ones to search.\nYour image is never stored or shared."}
             </p>
-            <button
-              onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-              className="border-[1.5px] border-[#0D9A72] text-[#0D9A72] text-[13px] font-semibold px-5 py-2 rounded-lg
-                flex items-center gap-1.5 mx-auto hover:bg-[#f0faf5] transition"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
-                <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
-                <path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/>
-              </svg>
-              Browse file
-            </button>
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                className="border-[1.5px] border-[#0D9A72] text-[#0D9A72] text-[13px] font-semibold px-4 py-2 rounded-lg
+                  flex items-center gap-1.5 hover:bg-[#f0faf5] transition cursor-pointer"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                  <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+                  <path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/>
+                </svg>
+                {scanFile ? "Replace file" : "Browse file"}
+              </button>
+              {scanFile && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleRemoveFile(); }}
+                  className="border-[1.5px] border-red-300 text-red-600 text-[13px] font-semibold px-4 py-2 rounded-lg
+                    flex items-center gap-1.5 hover:bg-red-50 transition cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Remove file
+                </button>
+              )}
+            </div>
             <p className="text-xs text-[#b0b7c3] mt-2.5">JPG, PNG, PDF, HEIC — max 10 MB</p>
           </div>
-          <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.pdf,.heic,.heif" className="hidden"
+          <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.pdf,.heic,.heif,image/jpeg,image/png,application/pdf,image/heic,image/heif" className="hidden"
             onChange={(e: ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && handleFile(e.target.files[0])} />
           <input ref={cameraRef}  type="file" accept="image/*" capture="environment" className="hidden"
             onChange={(e: ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && handleFile(e.target.files[0])} />
@@ -809,9 +896,9 @@ export default function MedicineSearchWidget() {
               { label: "Take a photo", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>, ref: cameraRef },
               { label: "From gallery", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>, ref: galleryRef },
             ].map(({ label, icon, ref }) => (
-              <button key={label} onClick={() => ref.current?.click()}
+              <button key={label} type="button" onClick={() => ref.current?.click()}
                 className="flex-1 h-11 border-[1.5px] border-[#e5e7eb] rounded-[10px] text-[13.5px] font-medium text-[#111827]
-                  flex items-center justify-center gap-2 hover:border-[#0D9A72] hover:text-[#0D9A72] transition">
+                  flex items-center justify-center gap-2 hover:border-[#0D9A72] hover:text-[#0D9A72] transition cursor-pointer">
                 {icon}{label}
               </button>
             ))}
@@ -847,8 +934,9 @@ export default function MedicineSearchWidget() {
               />
             </div>
             <button
+              type="button"
               onClick={() => handleGetMyLocation(setScanLat, setScanLng, setScanLocText, setScanLocLabel)}
-              className="flex items-center gap-1.5 text-[#0D9A72] text-[12.5px] font-semibold mt-1.5 hover:opacity-70 transition-opacity"
+              className="flex items-center gap-1.5 text-[#0D9A72] text-[12.5px] font-semibold mt-1.5 hover:opacity-70 transition-opacity cursor-pointer"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="#0D9A72" strokeWidth={2.5} className="w-3 h-3">
                 <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
@@ -877,10 +965,11 @@ export default function MedicineSearchWidget() {
 
           {/* Scan button */}
           <button
+            type="button"
             onClick={handleScan}
             disabled={!scanFile || scanning}
             className="w-full h-[52px] mt-4 bg-[#0D9A72] hover:bg-[#25a874] text-white font-bold text-[15px] rounded-xl
-              flex items-center justify-center gap-2.5 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+              flex items-center justify-center gap-2.5 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             {scanning ? <Spinner /> : (
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} className="w-5 h-5">
@@ -888,58 +977,92 @@ export default function MedicineSearchWidget() {
                 <rect x="7" y="7" width="10" height="10" rx="1"/>
               </svg>
             )}
-            {scanning ? "Scanning…" : "Scan prescription"}
+            {scanning ? "Scanning prescription..." : "Scan prescription"}
           </button>
 
-          {/* Scanned medicines + search */}
-          {hasScanned && !scanning && scannedMeds.length === 0 && (
+          {/* Scan error notice */}
+          {scanError && (
             <div className="mt-4 p-4 bg-[#FFFBEB] border border-[#FCD34D] rounded-xl text-xs font-semibold text-[#92400E] flex items-center gap-2.5 shadow-sm">
               <svg className="w-5 h-5 text-[#D97706] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <span>No medicine names recognized in this file. Please make sure prescription text is clearly visible, or type the medicine name in the "Search by name" tab.</span>
+              <span>{scanError}</span>
             </div>
           )}
 
+          {/* Scanned medicines + search */}
           {scannedMeds.length > 0 && (
             <div className="mt-5">
-              <p className="font-bold text-sm text-[#111827] mb-2">Detected medicines — tap to select</p>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {scannedMeds.map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setSelectedMeds((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(m)) { next.delete(m); } else { next.add(m); }
-                      return next;
-                    })}
-                    className={`text-[13px] font-semibold px-4 py-1.5 rounded-full border-[1.5px] transition-all
-                      ${selectedMeds.has(m)
-                        ? "bg-[#0D9A72] border-[#25a874] text-white"
-                        : "bg-[#f0faf5] border-[#b2edcd] text-[#1a6644] hover:border-[#0D9A72]"}`}
-                  >
-                    {m}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-bold text-sm text-[#111827]">
+                  {scannedMeds.length} medicine{scannedMeds.length === 1 ? "" : "s"} detected — tap to select
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedMeds.size === scannedMeds.length) {
+                      setSelectedMeds(new Set());
+                    } else {
+                      setSelectedMeds(new Set(scannedMeds));
+                    }
+                  }}
+                  className="text-xs font-semibold text-[#0D9A72] hover:underline cursor-pointer"
+                >
+                  {selectedMeds.size === scannedMeds.length ? "Deselect all" : "Select all"}
+                </button>
               </div>
+
+              <div className="flex flex-wrap gap-2 mb-3">
+                {scannedMeds.map((m) => {
+                  const isSelected = selectedMeds.has(m);
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() =>
+                        setSelectedMeds((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(m)) next.delete(m);
+                          else next.add(m);
+                          return next;
+                        })
+                      }
+                      className={`text-[13px] font-semibold px-4 py-1.5 rounded-full border-[1.5px] transition-all flex items-center gap-1.5 cursor-pointer ${
+                        isSelected
+                          ? "bg-[#0D9A72] border-[#25a874] text-white shadow-sm"
+                          : "bg-[#f0faf5] border-[#b2edcd] text-[#1a6644] hover:border-[#0D9A72]"
+                      }`}
+                    >
+                      {isSelected && (
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      {m}
+                    </button>
+                  );
+                })}
+              </div>
+
               <button
+                type="button"
                 onClick={() => handleScanSearch()}
-                disabled={scanSearching || !selectedMeds.size}
+                disabled={scanSearching || selectedMeds.size === 0}
                 className="w-full h-11 bg-[#0D9A72] hover:bg-[#25a874] text-white font-semibold text-sm rounded-[10px]
-                  flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                  flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {scanSearching ? <Spinner /> : (
                   <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} className="w-4 h-4">
                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   </svg>
                 )}
-                Search selected medicines
+                Search selected medicines {selectedMeds.size > 0 ? `(${selectedMeds.size})` : ""}
               </button>
 
               {/* Per-medicine results */}
               {Object.entries(scanResults).map(([med, oc]) => (
-                <div key={med} className="mt-4">
-                  <p className="font-bold text-[13px] text-[#111827] mb-1">{med}</p>
+                <div key={med} className="mt-5 border-t border-[#e5e7eb] pt-4">
+                  <p className="font-bold text-[14px] text-[#111827] mb-1">Results for: {med}</p>
                   <ResultsBlock outcome={oc} loading={false} origin={{ lat: scanLat, lng: scanLng }} />
                 </div>
               ))}
@@ -949,53 +1072,4 @@ export default function MedicineSearchWidget() {
       )}
     </div>
   );
-}
-
-/* ─── Dynamic client-side fallback for scan ─── */
-function getDynamicClientMeds(file: File): string[] {
-  const fileName = file.name || "";
-  const fileSize = file.size || 0;
-  const lastMod = file.lastModified || 0;
-  const lower = fileName.toLowerCase();
-
-  const KNOWN_DRUG_MAP: [RegExp, string][] = [
-    [/\bdelcon\b/i, "Delcon Syrup"],
-    [/\blevolin\b/i, "Levolin Syrup"],
-    [/\bmeftal[-_\s]*p\b|\bmeftal\b/i, "Meftal-P Syrup (100mg/5ml)"],
-    [/\bcalpol[-_\s]*250\b|\bcalpol[-_\s]*\(?250\/5\)?\b/i, "Calpol 250mg Syrup"],
-    [/\bcalpol[-_\s]*650\b/i, "Calpol 650mg"],
-    [/\bcalpol\b/i, "Calpol 250mg Syrup"],
-    [/\bparacetamol[-_\s]*650\b/i, "Paracetamol 650mg"],
-    [/\bparacetamol\b|\bacetaminophen\b|\bpcm\b/i, "Paracetamol 650mg"],
-    [/\bnaproxen\b|\baleve\b|\bnaprosyn\b/i, "Naproxen Sodium 500mg"],
-    [/\baugmentin\b/i, "Augmentin 625mg"],
-    [/\bamoxicillin\b|\bamoxil\b|\bamox\b/i, "Amoxicillin 500mg"],
-    [/\bibuprofen\b|\bibugesic\b|\bbrufen\b|\badvil\b|\bmotrin\b/i, "Ibuprofen 400mg"],
-    [/\bomeprazole\b|\bocid\b|\bprilosec\b/i, "Omeprazole 20mg"],
-    [/\bpantoprazole\b|\bpanto\b|\bpan[-_\s]*40\b|\bprotonix\b/i, "Pantoprazole 40mg"],
-    [/\bmetformin\b|\bglycomet\b|\bglucophage\b/i, "Metformin 500mg"],
-    [/\bazithromycin\b|\bazithro\b|\bazithral\b|\bzithromax\b/i, "Azithromycin 500mg"],
-    [/\bcetirizine\b|\bcetri\b|\bcetzine\b|\bzyrtec\b/i, "Cetirizine 10mg"],
-    [/\batorvastatin\b|\batorva\b|\blipitor\b/i, "Atorvastatin 10mg"],
-    [/\bdoxycycline\b|\bdoxy\b/i, "Doxycycline 100mg"],
-    [/\bmontelukast\b|\bmontair\b|\bmontelu\b|\bsingulair\b/i, "Montelukast 10mg"],
-    [/\bamlodipine\b|\bamlo\b|\bnorvasc\b/i, "Amlodipine 5mg"],
-    [/\btelmisartan\b|\btelma\b|\btelmi\b/i, "Telmisartan 40mg"],
-    [/\bgabapentin\b|\bgaba\b|\bneurontin\b/i, "Gabapentin 300mg"],
-    [/\bpregabalin\b|\bpregab\b|\blyrica\b/i, "Pregabalin 75mg"],
-    [/\bciprofloxacin\b|\bcipro\b/i, "Ciprofloxacin 500mg"],
-    [/\blosartan\b|\bcozaar\b/i, "Losartan 50mg"],
-    [/\brosuvastatin\b|\brosuva\b|\bcrestor\b/i, "Rosuvastatin 10mg"],
-    [/\baspirin\b|\becospirin\b/i, "Aspirin 75mg"],
-    [/\bsalbutamol\b|\basthalin\b|\bventolin\b/i, "Salbutamol Inhaler 100mcg"],
-    [/\blevothyroxine\b|\bthyronorm\b|\bsynthroid\b/i, "Levothyroxine 50mcg"],
-  ];
-
-  const found: string[] = [];
-  for (const [pattern, medName] of KNOWN_DRUG_MAP) {
-    if (pattern.test(lower)) found.push(medName);
-  }
-  if (found.length > 0) return Array.from(new Set(found));
-
-  return ["Paracetamol 650mg", "Ibuprofen 400mg", "Naproxen Sodium 500mg"];
 }

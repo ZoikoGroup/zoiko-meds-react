@@ -458,7 +458,7 @@ export default function HospitalSystemsEnterpriseBriefingFormSection() {
                   )}
                 </button>
                 <Link
-                  href="/contact"
+                  href="/enterprise-solutions"
                   className="inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-200 hover:bg-[#F4F6FA]"
                   style={{ borderColor: "#D8DDE8" }}
                 >

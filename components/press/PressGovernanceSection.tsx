@@ -132,10 +132,10 @@ export default function PressGovernanceSection() {
                   Contact Media Team
                 </Link>
                 <Link
-                  href="#"
+                  href="/privacy-center"
                   className="inline-flex items-center justify-center rounded-xl border border-white/25 px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/5 active:scale-[0.97]"
                 >
-                  Download Press Kit
+                  Privacy Center
                 </Link>
               </div>
               <Link

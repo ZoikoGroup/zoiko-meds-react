@@ -116,7 +116,7 @@ export default function FeaturesRetentionExpansionSection() {
           {/* CTA cell */}
           <RetentionFadeUp show={isVisible} delay={140 + ITEMS.length * 60}>
             <a
-              href="#"
+              href="#book-a-demo"
               className="group flex h-full flex-col rounded-2xl border border-[#0FAA87]/20 bg-[#E7F8F1] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0F1F4E] transition-colors duration-300 group-hover:bg-[#0FAA87]">

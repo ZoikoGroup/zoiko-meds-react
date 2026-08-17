@@ -115,21 +115,7 @@ export default function FeaturesIndexSection() {
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-[#6B7280]">
                     {card.description}
                   </p>
-                  <a
-                    href={card.href}
-                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0FAA87] transition-all duration-300 hover:gap-2.5 hover:text-[#00A99D]"
-                  >
-                    {card.linkLabel}
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M5 12h14M13 6l6 6-6 6"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
+                  
                 </div>
               </FeaturesFadeUp>
             ) : (

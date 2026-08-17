@@ -1,271 +1,311 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractPdfText, looksLikePdf, normalizeExtractedText } from "@/lib/pdf-text";
+import {
+  canonicalizeUnknownCandidates,
+  matchCatalog,
+  unrecognizedMedicineLines,
+} from "@/lib/medicine-catalog";
 
-// Comprehensive catalog of common prescription medicines grouped realistically
-const PRESCRIBED_MEDICINE_GROUPS: string[][] = [
-  ["Azithromycin 500mg", "Montelukast 10mg", "Paracetamol 650mg"],
-  ["Metformin 500mg", "Glimepiride 2mg", "Atorvastatin 10mg"],
-  ["Omeprazole 20mg", "Domperidone 30mg", "Magnesium Hydroxide 10ml"],
-  ["Amoxicillin 500mg", "Clavulanic Acid 125mg", "Paracetamol 500mg"],
-  ["Amlodipine 5mg", "Telmisartan 40mg", "Hydrochlorothiazide 12.5mg"],
-  ["Pantoprazole 40mg", "Cinitapride 3mg", "Sucralfate 1000mg"],
-  ["Doxycycline 100mg", "Ibuprofen 400mg", "Serratiopeptidase 10mg"],
-  ["Lisinopril 10mg", "Rosuvastatin 10mg", "Aspirin 75mg"],
-  ["Gabapentin 300mg", "Methylcobalamin 1500mcg", "Pregabalin 75mg"],
-  ["Ciprofloxacin 500mg", "Tinidazole 600mg", "Probiotic Complex"],
-  ["Losartan 50mg", "Metoprolol 25mg", "Chlorthalidone 12.5mg"],
-  ["Cetirizine 10mg", "Phenylephrine 10mg", "Paracetamol 500mg"],
-  ["Clopidogrel 75mg", "Atorvastatin 20mg", "Aspirin 81mg"],
-  ["Salbutamol Inhaler 100mcg", "Budesonide 200mcg", "Montelukast 10mg"],
-  ["Levothyroxine 50mcg", "Vitamin D3 60000IU", "Calcium Carbonate 500mg"],
-];
+/** Route handlers under app/internal run on Node — the PDF parser needs zlib. */
+export const runtime = "nodejs";
 
-const KNOWN_DRUG_MAP: [RegExp, string][] = [
-  [/\bdelcon\b/i, "Delcon Syrup"],
-  [/\blevolin\b/i, "Levolin Syrup"],
-  [/\bmeftal[-_\s]*p\b|\bmeftal\b/i, "Meftal-P Syrup (100mg/5ml)"],
-  [/\bcalpol[-_\s]*250\b|\bcalpol[-_\s]*\(?250\/5\)?\b/i, "Calpol 250mg Syrup"],
-  [/\bcalpol[-_\s]*650\b/i, "Calpol 650mg"],
-  [/\bcalpol\b/i, "Calpol 250mg Syrup"],
-  [/\bparacetamol\b|\bacetaminophen\b|\bpcm\b/i, "Paracetamol 650mg"],
-  [/\bnaproxen\b|\baleve\b|\bnaprosyn\b/i, "Naproxen Sodium 500mg"],
-  [/\bdolo[-_\s]*650\b/i, "Dolo 650mg"],
-  [/\bdolo[-_\s]*500\b/i, "Dolo 500mg"],
-  [/\bdolo\b/i, "Dolo 650mg"],
-  [/\bcrocin[-_\s]*650\b/i, "Crocin 650mg"],
-  [/\bcrocin[-_\s]*500\b/i, "Crocin 500mg"],
-  [/\bcrocin\b/i, "Crocin 500mg"],
-  [/\baugmentin\b/i, "Augmentin 625mg"],
-  [/\bamoxicillin\b|\bamoxil\b|\bamox\b/i, "Amoxicillin 500mg"],
-  [/\bibuprofen\b|\bibugesic\b|\bbrufen\b|\badvil\b|\bmotrin\b/i, "Ibuprofen 400mg"],
-  [/\bomeprazole\b|\bocid\b|\bprilosec\b/i, "Omeprazole 20mg"],
-  [/\bpantoprazole\b|\bpanto\b|\bpan[-_\s]*40\b|\bprotonix\b/i, "Pantoprazole 40mg"],
-  [/\bmetformin\b|\bglycomet\b|\bglucophage\b/i, "Metformin 500mg"],
-  [/\bazithromycin\b|\bazithro\b|\bazithral\b|\bzithromax\b/i, "Azithromycin 500mg"],
-  [/\bcetirizine\b|\bcetri\b|\bcetzine\b|\bzyrtec\b/i, "Cetirizine 10mg"],
-  [/\batorvastatin\b|\batorva\b|\blipitor\b/i, "Atorvastatin 10mg"],
-  [/\bdoxycycline\b|\bdoxy\b/i, "Doxycycline 100mg"],
-  [/\bmontelukast\b|\bmontair\b|\bmontelu\b|\bsingulair\b/i, "Montelukast 10mg"],
-  [/\bamlodipine\b|\bamlo\b|\bnorvasc\b/i, "Amlodipine 5mg"],
-  [/\btelmisartan\b|\btelma\b|\btelmi\b/i, "Telmisartan 40mg"],
-  [/\bgabapentin\b|\bgaba\b|\bneurontin\b/i, "Gabapentin 300mg"],
-  [/\bpregabalin\b|\bpregab\b|\blyrica\b/i, "Pregabalin 75mg"],
-  [/\bciprofloxacin\b|\bcipro\b/i, "Ciprofloxacin 500mg"],
-  [/\blosartan\b|\bcozaar\b/i, "Losartan 50mg"],
-  [/\brosuvastatin\b|\brosuva\b|\bcrestor\b/i, "Rosuvastatin 10mg"],
-  [/\baspirin\b|\becospirin\b/i, "Aspirin 75mg"],
-  [/\bsalbutamol\b|\basthalin\b|\bventolin\b/i, "Salbutamol Inhaler 100mcg"],
-  [/\blevothyroxine\b|\bthyronorm\b|\bsynthroid\b/i, "Levothyroxine 50mcg"],
-];
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  Pragma: "no-cache",
+  Expires: "0",
+};
 
-export function getDynamicMedsForFile(fileName: string, fileSize: number, buffer: Buffer, rawContent: string = ""): string[] {
-  // Convert buffer to inspectable text string (for PDFs, TXT, OCR text, or metadata streams)
-  const textUtf8 = buffer && buffer.length > 0 ? buffer.toString("utf-8") : "";
-  const textLatin1 = buffer && buffer.length > 0 ? buffer.toString("latin1") : "";
-  const allText = `${fileName} ${rawContent || ""} ${textUtf8} ${textLatin1}`;
+/** What we managed to read out of the upload before any OCR. */
+interface ExtractedUpload {
+  /** Text from the file's own content — PDF text layer, or a plain-text upload. */
+  body: string;
+  /** `body` plus the filename; what catalog matching runs against. */
+  searchText: string;
+  /** True when the upload is an image, or a PDF with no text layer (a scan). */
+  needsOcr: boolean;
+}
 
-  // 1. Extract text strings from PDF stream objects (e.g. "(Ibuprofen)", "(Naproxen Sodium)")
-  let pdfExtractedText = "";
-  const matches = allText.match(/\(([^()]{2,100})\)/g);
-  if (matches) {
-    pdfExtractedText = matches.map((m) => m.slice(1, -1)).join(" ");
+const IMAGE_EXTENSIONS = /\.(?:png|jpe?g|gif|bmp|webp|heic|heif|tiff?|avif)$/i;
+
+/**
+ * Image magic bytes. Compressed image data decodes into enough letter-shaped
+ * noise to trip medicine matching ("PcM" really does turn up inside a PNG), so
+ * images are never read as text — they go to OCR instead.
+ */
+function looksLikeImage(buffer: Buffer, fileName: string): boolean {
+  if (IMAGE_EXTENSIONS.test(fileName)) return true;
+  if (buffer.length < 4) return false;
+  const ascii = (from: number, to: number) => buffer.subarray(from, to).toString("latin1");
+  if (buffer[0] === 0x89 && ascii(1, 4) === "PNG") return true;
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return true; // JPEG
+  if (ascii(0, 3) === "GIF") return true;
+  if (ascii(0, 2) === "BM") return true; // BMP
+  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return true;
+  if (ascii(4, 8) === "ftyp") return true; // HEIC / HEIF / AVIF
+  if (ascii(0, 2) === "II" && buffer[2] === 0x2a) return true; // TIFF LE
+  if (ascii(0, 2) === "MM" && buffer[3] === 0x2a) return true; // TIFF BE
+  return false;
+}
+
+/** Reject binary blobs masquerading as text. */
+function isMostlyText(value: string): boolean {
+  if (!value.trim()) return false;
+  const sample = value.slice(0, 16384);
+  let control = 0;
+  for (let i = 0; i < sample.length; i++) {
+    const code = sample.charCodeAt(i);
+    if (code === 0) return false;
+    if (code === 0xfffd || (code < 32 && code !== 9 && code !== 10 && code !== 13)) control++;
   }
+  return control / sample.length < 0.01;
+}
 
-  // 2. Decode hex-encoded strings from PDF streams (e.g. <49627570726f66656e>)
-  let decodedHexText = "";
-  const hexMatches = allText.match(/<[0-9a-fA-F]{4,}>/g);
-  if (hexMatches) {
-    for (const hex of hexMatches) {
-      const cleanHex = hex.slice(1, -1);
-      try {
-        const bytes: number[] = [];
-        for (let i = 0; i < cleanHex.length; i += 2) {
-          bytes.push(parseInt(cleanHex.substring(i, i + 2), 16));
-        }
-        decodedHexText += " " + String.fromCharCode(...bytes.filter((b) => b >= 32 && b <= 126));
-      } catch {}
+/** Decode an upload as UTF-8 text, or null when the bytes aren't text at all. */
+function decodeAsText(buffer: Buffer): string | null {
+  if (!buffer.length) return null;
+  let text: string;
+  try {
+    // Strict decoding: arbitrary binary is not valid UTF-8 and throws here.
+    text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+  } catch {
+    return null;
+  }
+  return isMostlyText(text) ? text : null;
+}
+
+/**
+ * Read the medicine names out of the upload itself.
+ *
+ * Text-based PDFs carry their words in the page content stream, so those are
+ * parsed directly — far more accurate than OCR and it costs nothing. Scanned
+ * PDFs and photos have no text layer; those come back with `needsOcr` set so
+ * the caller can hand them to a vision model instead.
+ */
+export function extractUploadText(fileName: string, buffer: Buffer, rawContent = ""): ExtractedUpload {
+  const isPdf = looksLikePdf(buffer) || rawContent.trimStart().startsWith("%PDF-");
+
+  let body = "";
+  let needsOcr = true;
+
+  if (isPdf) {
+    const source = buffer.length ? buffer : Buffer.from(rawContent, "latin1");
+    const result = extractPdfText(source);
+    body = result.text;
+    needsOcr = result.needsOcr;
+  } else if (!looksLikeImage(buffer, fileName)) {
+    const plain = (rawContent && isMostlyText(rawContent) ? rawContent : null) ?? decodeAsText(buffer);
+    if (plain) {
+      body = normalizeExtractedText(plain);
+      needsOcr = false;
     }
   }
 
-  const combinedSearchTarget = `${allText} ${pdfExtractedText} ${decodedHexText}`;
+  // The filename often names the medicine ("Dolo 650.pdf") but is not document
+  // content, so it is searched without counting as extracted text.
+  const fileNameWords = fileName ? fileName.replace(/[._-]+/g, " ") : "";
+  const searchText = normalizeExtractedText([fileNameWords, body].filter(Boolean).join("\n"));
 
-  // 3. Check if filename or document text explicitly contains known drug names
-  const detectedByName: string[] = [];
-  for (const [pattern, medName] of KNOWN_DRUG_MAP) {
-    pattern.lastIndex = 0;
-    if (pattern.test(combinedSearchTarget)) {
-      detectedByName.push(medName);
-    }
+  return { body, searchText, needsOcr };
+}
+
+/**
+ * Offline medicine detection for one upload: read its text, then match against
+ * the ZoikoMeds catalog. Exported for the route tests.
+ *
+ * `fileSize` is unused — kept so existing callers don't have to change.
+ */
+export function getDynamicMedsForFile(
+  fileName: string,
+  fileSize: number,
+  buffer: Buffer,
+  rawContent: string = "",
+): string[] {
+  return matchCatalog(extractUploadText(fileName, buffer, rawContent).searchText);
+}
+
+/** Ask Gemini to read a prescription image or PDF. Returns [] when unavailable. */
+async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<string[]> {
+  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  if (!key) return [];
+
+  const mediaType =
+    mimeType === "application/pdf"
+      ? "application/pdf"
+      : mimeType.startsWith("image/") && mimeType !== "image/heic" && mimeType !== "image/heif"
+        ? mimeType
+        : "image/jpeg";
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { inline_data: { mime_type: mediaType, data: buffer.toString("base64") } },
+                {
+                  text: `Extract ONLY prescribed medicine/drug names with dosages from this prescription.
+CRITICAL EXCLUSIONS: DO NOT extract doctor names, hospital details, dates, patient info (age/gender/weight), or clinical diagnosis notes (URTI, RR, RS).
+Extract ONLY prescribed medicines listed under Advice/Rx, e.g. "Calpol 250mg", "Delcon Syrup", "Levolin Syrup", "Meftal-P 100mg".
+Return ONLY a JSON array of strings. No explanations.`,
+                },
+              ],
+            },
+          ],
+          generationConfig: { response_mime_type: "application/json" },
+        }),
+      },
+    );
+    if (!response.ok) return [];
+    const body = await response.json();
+    const rawText = String(body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "[]").replace(/```json|```/g, "").trim();
+    const medicines = JSON.parse(rawText);
+    return Array.isArray(medicines) ? medicines.filter((m): m is string => typeof m === "string") : [];
+  } catch (err) {
+    console.warn("[medicine/scan] Gemini OCR unavailable:", err);
+    return [];
   }
+}
 
-  if (detectedByName.length > 0) {
-    return Array.from(new Set(detectedByName));
+/** Ask Claude to read a prescription image or PDF. Returns [] when unavailable. */
+async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<string[]> {
+  const apiKey = process.env.ANTHROPIC_API_KEY ?? "";
+  if (!apiKey) return [];
+
+  const data = buffer.toString("base64");
+  const isPdf = mimeType === "application/pdf";
+  const source = isPdf
+    ? { type: "document" as const, source: { type: "base64", media_type: "application/pdf", data } }
+    : {
+        type: "image" as const,
+        source: {
+          type: "base64",
+          media_type: mimeType === "image/heic" || mimeType === "image/heif" ? "image/jpeg" : mimeType,
+          data,
+        },
+      };
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-opus-5",
+        // Thinking is on by default and shares this budget with the reply.
+        max_tokens: 4096,
+        output_config: { effort: "low" },
+        messages: [
+          {
+            role: "user",
+            content: [
+              source,
+              {
+                type: "text",
+                text: 'Extract ONLY prescribed medicine/drug names with dosages from this prescription. DO NOT extract doctor names, hospital details, dates, patient info, or clinical diagnosis notes (URTI, etc.). Return a JSON array of strings like ["Calpol 250mg","Delcon Syrup"]. No explanations.',
+              },
+            ],
+          },
+        ],
+      }),
+    });
+    if (!response.ok) return [];
+
+    const body = await response.json();
+    if (body?.stop_reason === "refusal") return [];
+    const text = (body?.content ?? [])
+      .filter((block: { type?: string }) => block?.type === "text")
+      .map((block: { text?: string }) => block.text ?? "")
+      .join("")
+      .replace(/```json|```/g, "")
+      .trim();
+    const medicines = JSON.parse(text || "[]");
+    return Array.isArray(medicines) ? medicines.filter((m): m is string => typeof m === "string") : [];
+  } catch (err) {
+    console.warn("[medicine/scan] Claude OCR unavailable:", err);
+    return [];
   }
+}
 
-  // 4. Fallback for scanned prescription PDFs / images without text streams or API keys:
-  // Return realistic common prescribed medicines for prescription search
-  return ["Paracetamol 650mg", "Ibuprofen 400mg", "Naproxen Sodium 500mg"];
+function ok(medicines: string[], source: string) {
+  return NextResponse.json(
+    { success: true, data: { medicines, source } },
+    { headers: NO_STORE_HEADERS },
+  );
 }
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("prescription") as File | null;
+    if (!file) {
+      return NextResponse.json({ success: false, error: "No file uploaded" }, { status: 400 });
+    }
 
-    if (!file) return NextResponse.json({ success: false, error: "No file uploaded" }, { status: 400 });
+    const named = file as unknown as { name?: string; filename?: string };
+    const fileName = named.name || named.filename || "";
+    const mimeType = file.type || "";
 
-    const fileName = (file as unknown as { name?: string; filename?: string }).name || (file as unknown as { name?: string; filename?: string }).filename || "";
-
-    const isAllowed = !file.type || file.type.startsWith("image/") || file.type === "application/pdf" || file.type === "application/octet-stream" || file.type === "text/plain";
-    if (!isAllowed)
+    const isAllowed =
+      !mimeType ||
+      mimeType.startsWith("image/") ||
+      mimeType === "application/pdf" ||
+      mimeType === "application/octet-stream" ||
+      mimeType === "text/plain";
+    if (!isAllowed) {
       return NextResponse.json({ success: false, error: "Unsupported file type" }, { status: 400 });
-    if (file.size > 10 * 1024 * 1024)
+    }
+    if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ success: false, error: "File too large (max 10 MB)" }, { status: 400 });
+    }
 
-    let rawContent = "";
+    let buffer = Buffer.from([]);
     try {
-      if (typeof file.text === "function") {
-        rawContent = await file.text();
-      }
-    } catch (e) {
-      console.log("[file.text error]", e);
+      buffer = Buffer.from(await file.arrayBuffer());
+    } catch (err) {
+      console.warn("[medicine/scan] Could not read upload bytes:", err);
     }
 
-    let buffer: Buffer = Buffer.from([]);
-    try {
-      const arrayBuf = await file.arrayBuffer();
-      console.log("[file.arrayBuffer success]", arrayBuf?.byteLength);
-      buffer = Buffer.from(arrayBuf);
-    } catch (e) {
-      console.log("[file.arrayBuffer error]", e);
-      buffer = Buffer.from(rawContent || "", "utf-8");
+    // 1. Read the document's own text layer first — accurate, instant, free.
+    //    Every layer runs over the whole document and contributes; none of them
+    //    short-circuits, so a prescription listing several medicines returns
+    //    all of them even when they resolve through different sources.
+    const extracted = extractUploadText(fileName, buffer, "");
+    const medicines: string[] = matchCatalog(extracted.searchText);
+
+    if (extracted.body) {
+      // Names the local catalog doesn't carry, confirmed against MediBase.
+      medicines.push(...(await canonicalizeUnknownCandidates(extracted.body, medicines)));
+      // Names neither catalog knows: keep what the prescription actually says
+      // rather than dropping a medicine we read correctly.
+      medicines.push(...unrecognizedMedicineLines(extracted.body, medicines));
     }
 
-    // 1. Gemini Vision API Extraction (if GEMINI_API_KEY / GOOGLE_API_KEY configured)
-    const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-    if (geminiKey) {
-      try {
-        const base64 = buffer.toString("base64");
-        const mediaType = file.type === "application/pdf"
-          ? "application/pdf"
-          : file.type && file.type.startsWith("image/") && file.type !== "image/heic" && file.type !== "image/heif"
-          ? file.type
-          : "image/jpeg";
+    if (medicines.length > 0) return ok(medicines, "text-layer");
 
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { inline_data: { mime_type: mediaType, data: base64 } },
-                    {
-                      text: `Extract ONLY prescribed medicine/drug names with dosages from this prescription image.
-CRITICAL EXCLUSIONS: DO NOT extract doctor names, hospital details, dates, patient info (age/gender/weight), or clinical diagnosis notes (URTI, RR, RS).
-Extract ONLY prescribed medicines listed under Advice/Rx, e.g. "Calpol 250mg", "Delcon Syrup", "Levolin Syrup", "Meftal-P 100mg".
-Return ONLY a JSON array of strings. No explanations.`,
-                    },
-                  ],
-                },
-              ],
-              generationConfig: { response_mime_type: "application/json" },
-            }),
-          }
-        );
+    // 2. Scanned PDF or photo: no text to read, so fall back to OCR.
+    if (buffer.length > 0) {
+      const effectiveType = mimeType || (looksLikePdf(buffer) ? "application/pdf" : "image/jpeg");
 
-        if (response.ok) {
-          const body = await response.json();
-          let rawText = body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "[]";
-          rawText = rawText.replace(/```json|```/g, "").trim();
-          let medicines: string[] = [];
-          try { medicines = JSON.parse(rawText); } catch { medicines = []; }
-          if (Array.isArray(medicines) && medicines.length > 0) {
-            return NextResponse.json({ success: true, data: { medicines } });
-          }
-        }
-      } catch (gemErr) {
-        console.warn("[prescription/scan] Gemini Vision API call fallback:", gemErr);
-      }
+      const viaGemini = await extractWithGemini(buffer, effectiveType);
+      if (viaGemini.length > 0) return ok(viaGemini, "ocr:gemini");
+
+      const viaClaude = await extractWithClaude(buffer, effectiveType);
+      if (viaClaude.length > 0) return ok(viaClaude, "ocr:claude");
     }
 
-    // 2. Anthropic Vision API Extraction (if ANTHROPIC_API_KEY configured)
-    const apiKey = process.env.ANTHROPIC_API_KEY ?? "";
-    if (apiKey && file.type !== "application/pdf") {
-      try {
-        const base64 = buffer.toString("base64");
-        const mediaType =
-          file.type === "image/heic" || file.type === "image/heif" ? "image/jpeg" : file.type;
-
-        const payload = {
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 512,
-          messages: [
-            {
-              role: "user",
-              content: [
-                { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
-                {
-                  type: "text",
-                  text: 'Extract ONLY prescribed medicine/drug names with dosages from this prescription image. DO NOT extract doctor names, hospital details, dates, patient info, or clinical diagnosis notes (URTI, etc.). Return a JSON array of strings like ["Calpol 250mg","Delcon Syrup"]. No explanations.',
-                },
-              ],
-            },
-          ],
-        };
-
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-          const body = await response.json();
-          let text = body?.content?.[0]?.text ?? "[]";
-          text = text.replace(/```json|```/g, "").trim();
-          let medicines: string[] = [];
-          try { medicines = JSON.parse(text); } catch { medicines = []; }
-          if (Array.isArray(medicines) && medicines.length > 0) {
-            return NextResponse.json({ success: true, data: { medicines } });
-          }
-        }
-      } catch (aiErr) {
-        console.warn("[prescription/scan] Vision AI call fallback:", aiErr);
-      }
-    }
-
-    // Dynamic extraction fallback based on file content and filename
-    const dynamicMedicines = getDynamicMedsForFile(fileName, file.size, buffer, rawContent);
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: { medicines: dynamicMedicines },
-      },
-      {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0",
-        },
-      }
-    );
+    return ok([], extracted.needsOcr ? "ocr-unavailable" : "no-match");
   } catch (err) {
-    console.error("[prescription/scan] Server error:", err);
+    console.error("[medicine/scan] Server error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to process prescription image." },
-      {
-        status: 500,
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        },
-      }
+      { status: 500, headers: NO_STORE_HEADERS },
     );
   }
 }

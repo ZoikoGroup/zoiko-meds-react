@@ -62,6 +62,7 @@ export default function IntegrationsCTASection() {
                 Request an Integration Briefing
               </button>
               <button
+              onClick={()=>router.push("/talk-to-sales")}
                 type="button"
                 className="rounded-lg border px-6 py-3.5 text-[14px] font-bold text-white transition-all duration-250 ease-out hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/[0.04]"
                 style={{ borderColor: "rgba(255,255,255,0.18)" }}

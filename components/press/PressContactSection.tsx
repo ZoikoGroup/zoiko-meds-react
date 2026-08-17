@@ -224,10 +224,9 @@ export default function PressContactSection() {
                         setForm({ ...form, inquiryType: e.target.value });
                         if (errors.inquiryType) setErrors({ ...errors, inquiryType: undefined });
                       }}
-                      className={inputCls(!!errors.inquiryType) + " appearance-none cursor-pointer"}
-                      style={{ color: form.inquiryType ? "#0F1F4E" : "#B0B8CC", backgroundColor: "#ffffff" }}
+                      className={inputCls(!!errors.inquiryType) + " appearance-none cursor-pointer text-[#0F1F4E]"}
                     >
-                      <option value="" disabled style={{ color: "#B0B8CC", backgroundColor: "#ffffff" }}>Select type</option>
+                      <option value="" disabled style={{ color: "#0F1F4E", backgroundColor: "#ffffff" }}>Select type</option>
                       {INQUIRY_TYPES.map((t) => (
                         <option key={t} value={t} style={{ color: "#0F1F4E", backgroundColor: "#ffffff" }}>{t}</option>
                       ))}
