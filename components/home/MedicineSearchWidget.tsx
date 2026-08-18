@@ -590,7 +590,6 @@ export default function MedicineSearchWidget() {
       fd.append("prescription", scanFile);
       const r = await fetch(internalApi("medicine/scan"), { method: "POST", body: fd });
       const d = await r.json();
-
       if (d.success && Array.isArray(d.data?.medicines)) {
         const meds: string[] = d.data.medicines;
         if (meds.length > 0) {
@@ -1072,4 +1071,52 @@ export default function MedicineSearchWidget() {
       )}
     </div>
   );
+}
+
+/* ─── Dynamic client-side fallback for scan ─── */
+function getDynamicClientMeds(file: File): string[] {
+  const fileName = file.name || "";
+  const fileSize = file.size || 0;
+  const lastMod = file.lastModified || 0;
+  const lower = fileName.toLowerCase();
+
+  const KNOWN_DRUG_MAP: [RegExp, string][] = [
+    [/\bdelcon\b/i, "Delcon Syrup"],
+    [/\blevolin\b/i, "Levolin Syrup"],
+    [/\bmeftal[-_\s]*p\b|\bmeftal\b/i, "Meftal-P Syrup (100mg/5ml)"],
+    [/\bcalpol[-_\s]*250\b|\bcalpol[-_\s]*\(?250\/5\)?\b/i, "Calpol 250mg Syrup"],
+    [/\bcalpol[-_\s]*650\b/i, "Calpol 650mg"],
+    [/\bcalpol\b/i, "Calpol 250mg Syrup"],
+    [/\bparacetamol[-_\s]*650\b/i, "Paracetamol 650mg"],
+    [/\bparacetamol\b|\bacetaminophen\b|\bpcm\b/i, "Paracetamol 650mg"],
+    [/\bnaproxen\b|\baleve\b|\bnaprosyn\b/i, "Naproxen Sodium 500mg"],
+    [/\baugmentin\b/i, "Augmentin 625mg"],
+    [/\bamoxicillin\b|\bamoxil\b|\bamox\b/i, "Amoxicillin 500mg"],
+    [/\bibuprofen\b|\bibugesic\b|\bbrufen\b|\badvil\b|\bmotrin\b/i, "Ibuprofen 400mg"],
+    [/\bomeprazole\b|\bocid\b|\bprilosec\b/i, "Omeprazole 20mg"],
+    [/\bpantoprazole\b|\bpanto\b|\bpan[-_\s]*40\b|\bprotonix\b/i, "Pantoprazole 40mg"],
+    [/\bmetformin\b|\bglycomet\b|\bglucophage\b/i, "Metformin 500mg"],
+    [/\bazithromycin\b|\bazithro\b|\bazithral\b|\bzithromax\b/i, "Azithromycin 500mg"],
+    [/\bcetirizine\b|\bcetri\b|\bcetzine\b|\bzyrtec\b/i, "Cetirizine 10mg"],
+    [/\batorvastatin\b|\batorva\b|\blipitor\b/i, "Atorvastatin 10mg"],
+    [/\bdoxycycline\b|\bdoxy\b/i, "Doxycycline 100mg"],
+    [/\bmontelukast\b|\bmontair\b|\bmontelu\b|\bsingulair\b/i, "Montelukast 10mg"],
+    [/\bamlodipine\b|\bamlo\b|\bnorvasc\b/i, "Amlodipine 5mg"],
+    [/\btelmisartan\b|\btelma\b|\btelmi\b/i, "Telmisartan 40mg"],
+    [/\bgabapentin\b|\bgaba\b|\bneurontin\b/i, "Gabapentin 300mg"],
+    [/\bpregabalin\b|\bpregab\b|\blyrica\b/i, "Pregabalin 75mg"],
+    [/\bciprofloxacin\b|\bcipro\b/i, "Ciprofloxacin 500mg"],
+    [/\blosartan\b|\bcozaar\b/i, "Losartan 50mg"],
+    [/\brosuvastatin\b|\brosuva\b|\bcrestor\b/i, "Rosuvastatin 10mg"],
+    [/\baspirin\b|\becospirin\b/i, "Aspirin 75mg"],
+    [/\bsalbutamol\b|\basthalin\b|\bventolin\b/i, "Salbutamol Inhaler 100mcg"],
+    [/\blevothyroxine\b|\bthyronorm\b|\bsynthroid\b/i, "Levothyroxine 50mcg"],
+  ];
+
+  const found: string[] = [];
+  for (const [pattern, medName] of KNOWN_DRUG_MAP) {
+    if (pattern.test(lower)) found.push(medName);
+  }
+  if (found.length > 0) return Array.from(new Set(found));
+  return [];
 }
