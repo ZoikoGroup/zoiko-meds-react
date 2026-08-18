@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 import { appUrl } from "./lib/config";
 
 const nextConfig: NextConfig = {
+
+  /**
+   * tesseract.js spawns a worker and loads its WASM core by resolving paths
+   * inside its own package at runtime. Bundling it rewrites those paths to a
+   * build-time placeholder, so OCR dies on the first request in a production
+   * build while working perfectly in dev. Load it from node_modules instead.
+   */
+  serverExternalPackages: ["tesseract.js"],
   devIndicators: false,
 
   /**

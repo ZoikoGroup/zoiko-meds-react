@@ -8,7 +8,7 @@
 
 /** ZoikoMeds backend platform API base — e.g. `${API_BASE_URL}/search`. */
 export const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL ?? "https://zoiko-meds-platform.onrender.com/api"
+  process.env.NEXT_PUBLIC_API_URL ?? "https://get.zoikomeds.com/api"
 ).replace(/\/+$/, "");
 
 /**

@@ -1,13 +1,34 @@
+/**
+ * POST /internal/medicine/scan — read the medicines off a prescription.
+ *
+ *   image or PDF
+ *     → preprocessing
+ *     → selectable PDF text, else on-server OCR (Tesseract), every page
+ *     → candidate lines (structural classification)
+ *     → non-medicine filtering (patient, prescriber, Sig/Disp/Refills, DEA/NPI…)
+ *     → MediBase match, else the offline dictionary, else as written
+ *     → confidence scoring
+ *     → AI/Vision fallback when the reading is unclear
+ *     → structured results
+ *
+ * The response keeps `data.medicines` — the string array the search widget
+ * already consumes — and adds `data.items` with the structured detail beside
+ * it, so nothing downstream has to change.
+ *
+ * A medicine is never invented: when the page cannot be read, the answer is an
+ * empty list and a reason, not a plausible-looking guess.
+ */
 import { NextRequest, NextResponse } from "next/server";
-import { extractPdfText, looksLikePdf, normalizeExtractedText } from "@/lib/pdf-text";
-import {
-  canonicalizeUnknownCandidates,
-  matchCatalog,
-  unrecognizedMedicineLines,
-} from "@/lib/medicine-catalog";
+import { extractPdfImages, extractPdfText, looksLikePdf } from "@/lib/pdf-text";
+import { detectMedicines, shouldTryVision, type PageText } from "@/lib/scan/extract";
+import { recognizePages } from "@/lib/scan/ocr";
+import { computeConfidence, extractQuantity, needsConfirmation, type ScannedMedicine } from "@/lib/scan/resolve";
+import { titleCase } from "@/lib/scan/candidate-extract";
 
-/** Route handlers under app/internal run on Node — the PDF parser needs zlib. */
+/** The PDF parser needs zlib and Tesseract needs a worker — Node, not Edge. */
 export const runtime = "nodejs";
+
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -15,116 +36,107 @@ const NO_STORE_HEADERS = {
   Expires: "0",
 };
 
-/** What we managed to read out of the upload before any OCR. */
-interface ExtractedUpload {
-  /** Text from the file's own content — PDF text layer, or a plain-text upload. */
-  body: string;
-  /** `body` plus the filename; what catalog matching runs against. */
-  searchText: string;
-  /** True when the upload is an image, or a PDF with no text layer (a scan). */
-  needsOcr: boolean;
+/** Which stage produced the answer — useful when a scan disappoints. */
+export type ScanStage = "text-layer" | "ocr" | "vision" | "none";
+
+export interface ScanReport {
+  medicines: ScannedMedicine[];
+  stage: ScanStage;
+  pages: number;
+  warnings: string[];
 }
 
-const IMAGE_EXTENSIONS = /\.(?:png|jpe?g|gif|bmp|webp|heic|heif|tiff?|avif)$/i;
+/* ────────────────────────── AI / vision fallback ────────────────────────── */
 
-/**
- * Image magic bytes. Compressed image data decodes into enough letter-shaped
- * noise to trip medicine matching ("PcM" really does turn up inside a PNG), so
- * images are never read as text — they go to OCR instead.
- */
-function looksLikeImage(buffer: Buffer, fileName: string): boolean {
-  if (IMAGE_EXTENSIONS.test(fileName)) return true;
-  if (buffer.length < 4) return false;
-  const ascii = (from: number, to: number) => buffer.subarray(from, to).toString("latin1");
-  if (buffer[0] === 0x89 && ascii(1, 4) === "PNG") return true;
-  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return true; // JPEG
-  if (ascii(0, 3) === "GIF") return true;
-  if (ascii(0, 2) === "BM") return true; // BMP
-  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return true;
-  if (ascii(4, 8) === "ftyp") return true; // HEIC / HEIF / AVIF
-  if (ascii(0, 2) === "II" && buffer[2] === 0x2a) return true; // TIFF LE
-  if (ascii(0, 2) === "MM" && buffer[3] === 0x2a) return true; // TIFF BE
-  return false;
+const VISION_INSTRUCTIONS = [
+  "Transcribe every medicine legibly written on this prescription.",
+  "",
+  "Report each name as written — do not correct spelling, expand abbreviations into a",
+  "different product, or substitute a generic for a brand. If a line is ambiguous, give",
+  "your best reading with a low confidence rather than guessing between two candidates.",
+  "Never invent a medicine; an empty list is a correct and useful answer.",
+  "",
+  "Ignore everything that is not a prescribed medicine: patient and prescriber details,",
+  "hospital or clinic names, addresses, dates, registration numbers, DEA/NPI identifiers,",
+  "Sig/Disp/Refill lines, vital signs, diagnoses and general advice.",
+  "",
+  'Return JSON only: {"medicines":[{"name","strength","form","quantity","frequency","duration","confidence"}]}',
+  "where confidence is 0..1. Use an empty string for anything not written.",
+].join("\n");
+
+interface VisionReading {
+  name: string;
+  strength?: string;
+  form?: string;
+  quantity?: string;
+  frequency?: string;
+  duration?: string;
+  confidence?: number;
 }
 
-/** Reject binary blobs masquerading as text. */
-function isMostlyText(value: string): boolean {
-  if (!value.trim()) return false;
-  const sample = value.slice(0, 16384);
-  let control = 0;
-  for (let i = 0; i < sample.length; i++) {
-    const code = sample.charCodeAt(i);
-    if (code === 0) return false;
-    if (code === 0xfffd || (code < 32 && code !== 9 && code !== 10 && code !== 13)) control++;
-  }
-  return control / sample.length < 0.01;
-}
-
-/** Decode an upload as UTF-8 text, or null when the bytes aren't text at all. */
-function decodeAsText(buffer: Buffer): string | null {
-  if (!buffer.length) return null;
-  let text: string;
+/** Parse a model response defensively; accepts objects or plain strings. */
+function parseVisionReadings(raw: string): VisionReading[] {
+  let parsed: unknown;
   try {
-    // Strict decoding: arbitrary binary is not valid UTF-8 and throws here.
-    text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
   } catch {
-    return null;
+    return [];
   }
-  return isMostlyText(text) ? text : null;
+  const list = Array.isArray(parsed) ? parsed : (parsed as { medicines?: unknown })?.medicines;
+  if (!Array.isArray(list)) return [];
+
+  return list
+    .map((entry): VisionReading | null => {
+      if (typeof entry === "string") return entry.trim() ? { name: entry.trim() } : null;
+      const item = entry as Record<string, unknown>;
+      const name = typeof item.name === "string" ? item.name.trim() : "";
+      if (!name) return null;
+      const str = (key: string) => {
+        const value = item[key];
+        return typeof value === "string" && value.trim() ? value.trim() : undefined;
+      };
+      return {
+        name,
+        strength: str("strength"),
+        form: str("form") ?? str("dosageForm"),
+        quantity: str("quantity"),
+        frequency: str("frequency"),
+        duration: str("duration"),
+        confidence: typeof item.confidence === "number" ? item.confidence : undefined,
+      };
+    })
+    .filter((entry): entry is VisionReading => entry !== null)
+    .slice(0, 40);
 }
 
-/**
- * Read the medicine names out of the upload itself.
- *
- * Text-based PDFs carry their words in the page content stream, so those are
- * parsed directly — far more accurate than OCR and it costs nothing. Scanned
- * PDFs and photos have no text layer; those come back with `needsOcr` set so
- * the caller can hand them to a vision model instead.
- */
-export function extractUploadText(fileName: string, buffer: Buffer, rawContent = ""): ExtractedUpload {
-  const isPdf = looksLikePdf(buffer) || rawContent.trimStart().startsWith("%PDF-");
+/** Shape a model reading like any other, and always ask the user to confirm it. */
+function fromVisionReading(reading: VisionReading): ScannedMedicine | null {
+  const name = titleCase(reading.name);
+  if (name.length < 2 || name.length > 120) return null;
 
-  let body = "";
-  let needsOcr = true;
+  const confidence = computeConfidence({
+    nameSimilarity: typeof reading.confidence === "number" ? Math.min(1, Math.max(0, reading.confidence)) : 0.8,
+    source: "vision",
+    evidence: { strength: Boolean(reading.strength), form: Boolean(reading.form), nameLike: true },
+  });
 
-  if (isPdf) {
-    const source = buffer.length ? buffer : Buffer.from(rawContent, "latin1");
-    const result = extractPdfText(source);
-    body = result.text;
-    needsOcr = result.needsOcr;
-  } else if (!looksLikeImage(buffer, fileName)) {
-    const plain = (rawContent && isMostlyText(rawContent) ? rawContent : null) ?? decodeAsText(buffer);
-    if (plain) {
-      body = normalizeExtractedText(plain);
-      needsOcr = false;
-    }
-  }
-
-  // The filename often names the medicine ("Dolo 650.pdf") but is not document
-  // content, so it is searched without counting as extracted text.
-  const fileNameWords = fileName ? fileName.replace(/[._-]+/g, " ") : "";
-  const searchText = normalizeExtractedText([fileNameWords, body].filter(Boolean).join("\n"));
-
-  return { body, searchText, needsOcr };
+  return {
+    name,
+    strength: reading.strength,
+    dosageForm: reading.form ? titleCase(reading.form) : undefined,
+    quantity: reading.quantity ?? extractQuantity(reading.name),
+    frequency: reading.frequency,
+    duration: reading.duration,
+    confidence,
+    requiresConfirmation: needsConfirmation(confidence, "vision"),
+    source: "vision",
+    note: "Read by assisted reading — please confirm",
+    page: 1,
+  };
 }
 
-/**
- * Offline medicine detection for one upload: read its text, then match against
- * the ZoikoMeds catalog. Exported for the route tests.
- *
- * `fileSize` is unused — kept so existing callers don't have to change.
- */
-export function getDynamicMedsForFile(
-  fileName: string,
-  fileSize: number,
-  buffer: Buffer,
-  rawContent: string = "",
-): string[] {
-  return matchCatalog(extractUploadText(fileName, buffer, rawContent).searchText);
-}
-
-/** Ask Gemini to read a prescription image or PDF. Returns [] when unavailable. */
-async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<string[]> {
+/** Gemini reads images and PDFs directly. */
+async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<VisionReading[]> {
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
   if (!key) return [];
 
@@ -146,12 +158,7 @@ async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<stri
             {
               parts: [
                 { inline_data: { mime_type: mediaType, data: buffer.toString("base64") } },
-                {
-                  text: `Extract ONLY prescribed medicine/drug names with dosages from this prescription.
-CRITICAL EXCLUSIONS: DO NOT extract doctor names, hospital details, dates, patient info (age/gender/weight), or clinical diagnosis notes (URTI, RR, RS).
-Extract ONLY prescribed medicines listed under Advice/Rx, e.g. "Calpol 250mg", "Delcon Syrup", "Levolin Syrup", "Meftal-P 100mg".
-Return ONLY a JSON array of strings. No explanations.`,
-                },
+                { text: VISION_INSTRUCTIONS },
               ],
             },
           ],
@@ -161,32 +168,30 @@ Return ONLY a JSON array of strings. No explanations.`,
     );
     if (!response.ok) return [];
     const body = await response.json();
-    const rawText = String(body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "[]").replace(/```json|```/g, "").trim();
-    const medicines = JSON.parse(rawText);
-    return Array.isArray(medicines) ? medicines.filter((m): m is string => typeof m === "string") : [];
+    return parseVisionReadings(String(body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "[]"));
   } catch (err) {
-    console.warn("[medicine/scan] Gemini OCR unavailable:", err);
+    console.warn("[medicine/scan] Gemini fallback unavailable:", err instanceof Error ? err.message : err);
     return [];
   }
 }
 
-/** Ask Claude to read a prescription image or PDF. Returns [] when unavailable. */
-async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<string[]> {
+/** Claude reads images and PDFs; used when Gemini is absent or finds nothing. */
+async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<VisionReading[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY ?? "";
   if (!apiKey) return [];
 
   const data = buffer.toString("base64");
-  const isPdf = mimeType === "application/pdf";
-  const source = isPdf
-    ? { type: "document" as const, source: { type: "base64", media_type: "application/pdf", data } }
-    : {
-        type: "image" as const,
-        source: {
-          type: "base64",
-          media_type: mimeType === "image/heic" || mimeType === "image/heif" ? "image/jpeg" : mimeType,
-          data,
-        },
-      };
+  const source =
+    mimeType === "application/pdf"
+      ? { type: "document" as const, source: { type: "base64", media_type: "application/pdf", data } }
+      : {
+          type: "image" as const,
+          source: {
+            type: "base64",
+            media_type: mimeType === "image/heic" || mimeType === "image/heif" ? "image/jpeg" : mimeType,
+            data,
+          },
+        };
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -199,46 +204,118 @@ async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<stri
       body: JSON.stringify({
         model: "claude-opus-5",
         // Thinking is on by default and shares this budget with the reply.
-        max_tokens: 4096,
+        max_tokens: 8000,
         output_config: { effort: "low" },
-        messages: [
-          {
-            role: "user",
-            content: [
-              source,
-              {
-                type: "text",
-                text: 'Extract ONLY prescribed medicine/drug names with dosages from this prescription. DO NOT extract doctor names, hospital details, dates, patient info, or clinical diagnosis notes (URTI, etc.). Return a JSON array of strings like ["Calpol 250mg","Delcon Syrup"]. No explanations.',
-              },
-            ],
-          },
-        ],
+        messages: [{ role: "user", content: [source, { type: "text", text: VISION_INSTRUCTIONS }] }],
       }),
     });
     if (!response.ok) return [];
 
     const body = await response.json();
+    // Safety classifiers can decline; content is then empty or partial.
     if (body?.stop_reason === "refusal") return [];
     const text = (body?.content ?? [])
       .filter((block: { type?: string }) => block?.type === "text")
       .map((block: { text?: string }) => block.text ?? "")
-      .join("")
-      .replace(/```json|```/g, "")
-      .trim();
-    const medicines = JSON.parse(text || "[]");
-    return Array.isArray(medicines) ? medicines.filter((m): m is string => typeof m === "string") : [];
+      .join("");
+    return parseVisionReadings(text || "[]");
   } catch (err) {
-    console.warn("[medicine/scan] Claude OCR unavailable:", err);
+    console.warn("[medicine/scan] Claude fallback unavailable:", err instanceof Error ? err.message : err);
     return [];
   }
 }
 
-function ok(medicines: string[], source: string) {
-  return NextResponse.json(
-    { success: true, data: { medicines, source } },
-    { headers: NO_STORE_HEADERS },
-  );
+async function runVisionFallback(buffer: Buffer, mimeType: string): Promise<ScannedMedicine[]> {
+  let readings = await extractWithGemini(buffer, mimeType);
+  if (readings.length === 0) readings = await extractWithClaude(buffer, mimeType);
+  return readings
+    .map(fromVisionReading)
+    .filter((medicine): medicine is ScannedMedicine => medicine !== null);
 }
+
+/* ────────────────────────── the pipeline ────────────────────────── */
+
+/**
+ * Read a prescription. Never throws for "no medicines" — an empty list with a
+ * reason is a correct and useful answer.
+ */
+export async function scanPrescription(buffer: Buffer, mimeType: string): Promise<ScanReport> {
+  const warnings: string[] = [];
+  const isPdf = mimeType === "application/pdf" || looksLikePdf(buffer);
+
+  // 1. A digital PDF already carries its text. No OCR, no loss.
+  if (isPdf) {
+    try {
+      const { text } = extractPdfText(buffer);
+      if (text.trim()) {
+        const medicines = await detectMedicines([{ page: 1, text }]);
+        if (medicines.length > 0) {
+          return { medicines, stage: "text-layer", pages: 1, warnings };
+        }
+      }
+    } catch (err) {
+      console.warn("[medicine/scan] PDF text layer unreadable:", err instanceof Error ? err.message : err);
+      warnings.push("This PDF's text could not be read directly, so it was scanned as an image.");
+    }
+  }
+
+  // 2. Otherwise OCR every page. PDF pages are rasterized and contrast-
+  //    corrected on the way out of the file; an uploaded image is one page.
+  let pageImages: Buffer[] = [];
+  try {
+    pageImages = isPdf ? extractPdfImages(buffer).map((image: { data: Buffer }) => image.data) : [buffer];
+  } catch (err) {
+    console.warn("[medicine/scan] Could not prepare page images:", err instanceof Error ? err.message : err);
+    warnings.push("The pages of this file could not be prepared for reading.");
+  }
+
+  let ocrMedicines: ScannedMedicine[] = [];
+  let pagesRead = 0;
+
+  if (pageImages.length > 0) {
+    try {
+      const pages = await recognizePages(pageImages);
+      pagesRead = pages.length;
+      if (pages.length > 0) {
+        const asText: PageText[] = pages.map((page) => ({
+          page: page.page,
+          text: page.text,
+          ocrConfidence: page.confidence,
+        }));
+        ocrMedicines = await detectMedicines(asText);
+      } else {
+        warnings.push("No readable text was found on this file.");
+      }
+    } catch (err) {
+      console.warn("[medicine/scan] OCR failed:", err instanceof Error ? err.message : err);
+      warnings.push("On-server reading failed for this file.");
+    }
+  } else if (isPdf) {
+    warnings.push("This PDF's pages use an image format that cannot be read here.");
+  }
+
+  // 3. Escalate to the vision models when the reading is empty or all-uncertain
+  //    — handwriting, poor contrast, unusual layouts.
+  if (shouldTryVision(ocrMedicines)) {
+    const viaVision = await runVisionFallback(buffer, isPdf ? "application/pdf" : mimeType || "image/jpeg");
+    if (viaVision.length > 0) {
+      return { medicines: viaVision, stage: "vision", pages: Math.max(pagesRead, 1), warnings };
+    }
+  }
+
+  if (ocrMedicines.length > 0) {
+    return { medicines: ocrMedicines, stage: "ocr", pages: pagesRead, warnings };
+  }
+
+  return { medicines: [], stage: "none", pages: pagesRead, warnings };
+}
+
+/** The searchable label the availability search already expects. */
+function searchLabel(medicine: ScannedMedicine): string {
+  return [medicine.name, medicine.strength].filter(Boolean).join(" ").trim();
+}
+
+/* ────────────────────────── HTTP ────────────────────────── */
 
 export async function POST(req: NextRequest) {
   try {
@@ -248,10 +325,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "No file uploaded" }, { status: 400 });
     }
 
-    const named = file as unknown as { name?: string; filename?: string };
-    const fileName = named.name || named.filename || "";
     const mimeType = file.type || "";
-
     const isAllowed =
       !mimeType ||
       mimeType.startsWith("image/") ||
@@ -259,52 +333,63 @@ export async function POST(req: NextRequest) {
       mimeType === "application/octet-stream" ||
       mimeType === "text/plain";
     if (!isAllowed) {
-      return NextResponse.json({ success: false, error: "Unsupported file type" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Unsupported file type. Upload a JPG, PNG, or PDF prescription." },
+        { status: 400 },
+      );
     }
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > MAX_UPLOAD_BYTES) {
       return NextResponse.json({ success: false, error: "File too large (max 10 MB)" }, { status: 400 });
     }
 
-    let buffer = Buffer.from([]);
+    let buffer: Buffer;
     try {
       buffer = Buffer.from(await file.arrayBuffer());
     } catch (err) {
-      console.warn("[medicine/scan] Could not read upload bytes:", err);
+      console.error("[medicine/scan] Could not read upload bytes:", err);
+      return NextResponse.json(
+        { success: false, error: "This file could not be read. Please try uploading it again." },
+        { status: 400, headers: NO_STORE_HEADERS },
+      );
+    }
+    if (buffer.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "This file is empty. Please upload the prescription again." },
+        { status: 400, headers: NO_STORE_HEADERS },
+      );
     }
 
-    // 1. Read the document's own text layer first — accurate, instant, free.
-    //    Every layer runs over the whole document and contributes; none of them
-    //    short-circuits, so a prescription listing several medicines returns
-    //    all of them even when they resolve through different sources.
-    const extracted = extractUploadText(fileName, buffer, "");
-    const medicines: string[] = matchCatalog(extracted.searchText);
+    // A plain-text upload has no pages to rasterize — read it as written.
+    const report =
+      mimeType === "text/plain" && !looksLikePdf(buffer)
+        ? {
+            medicines: await detectMedicines([{ page: 1, text: buffer.toString("utf-8") }]),
+            stage: "text-layer" as ScanStage,
+            pages: 1,
+            warnings: [] as string[],
+          }
+        : await scanPrescription(buffer, mimeType);
 
-    if (extracted.body) {
-      // Names the local catalog doesn't carry, confirmed against MediBase.
-      medicines.push(...(await canonicalizeUnknownCandidates(extracted.body, medicines)));
-      // Names neither catalog knows: keep what the prescription actually says
-      // rather than dropping a medicine we read correctly.
-      medicines.push(...unrecognizedMedicineLines(extracted.body, medicines));
-    }
-
-    if (medicines.length > 0) return ok(medicines, "text-layer");
-
-    // 2. Scanned PDF or photo: no text to read, so fall back to OCR.
-    if (buffer.length > 0) {
-      const effectiveType = mimeType || (looksLikePdf(buffer) ? "application/pdf" : "image/jpeg");
-
-      const viaGemini = await extractWithGemini(buffer, effectiveType);
-      if (viaGemini.length > 0) return ok(viaGemini, "ocr:gemini");
-
-      const viaClaude = await extractWithClaude(buffer, effectiveType);
-      if (viaClaude.length > 0) return ok(viaClaude, "ocr:claude");
-    }
-
-    return ok([], extracted.needsOcr ? "ocr-unavailable" : "no-match");
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          // Unchanged contract: the search widget reads this array as-is.
+          medicines: report.medicines.map(searchLabel),
+          // Structured detail alongside it, for anything that wants more.
+          items: report.medicines,
+          requiresConfirmation: report.medicines.some((m) => m.requiresConfirmation),
+          pages: report.pages,
+          stage: report.stage,
+          warnings: report.warnings,
+        },
+      },
+      { headers: NO_STORE_HEADERS },
+    );
   } catch (err) {
     console.error("[medicine/scan] Server error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to process prescription image." },
+      { success: false, error: "Failed to process this prescription. Please try another file." },
       { status: 500, headers: NO_STORE_HEADERS },
     );
   }

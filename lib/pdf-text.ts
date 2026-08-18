@@ -13,6 +13,7 @@
  * Those come back with `needsOcr: true` so the caller can fall back to OCR.
  */
 import zlib from "node:zlib";
+import { stretchToGray8 } from "./scan/preprocess";
 
 /** Result of parsing an upload's text layer. */
 export interface PdfTextResult {
@@ -843,4 +844,128 @@ export function extractPdfText(buffer: Buffer): PdfTextResult {
 
   const text = normalizeExtractedText(chunks.join("\n"));
   return { text, needsOcr: text.length === 0 };
+}
+
+function crc32(buf: Buffer): number {
+  let c = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) {
+    c ^= buf[i];
+    for (let k = 0; k < 8; k++) {
+      c = (c >>> 1) ^ (c & 1 ? 0xedb88320 : 0);
+    }
+  }
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function buildPng(width: number, height: number, isRgb: boolean, rawBytes: Buffer): Buffer {
+  const bytesPerPixel = isRgb ? 3 : 1;
+  const colorType = isRgb ? 2 : 0;
+
+  const rowLen = width * bytesPerPixel;
+  const scanlines: Buffer[] = [];
+  for (let r = 0; r < height; r++) {
+    const row = rawBytes.subarray(r * rowLen, (r + 1) * rowLen);
+    scanlines.push(Buffer.concat([Buffer.from([0]), row]));
+  }
+  const idatPayload = zlib.deflateSync(Buffer.concat(scanlines));
+
+  const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+  const ihdrData = Buffer.alloc(13);
+  ihdrData.writeUInt32BE(width, 0);
+  ihdrData.writeUInt32BE(height, 4);
+  ihdrData[8] = 8;
+  ihdrData[9] = colorType;
+  ihdrData[10] = 0;
+  ihdrData[11] = 0;
+  ihdrData[12] = 0;
+
+  const ihdrChunk = Buffer.alloc(4 + 4 + 13 + 4);
+  ihdrChunk.writeUInt32BE(13, 0);
+  ihdrChunk.write("IHDR", 4, "latin1");
+  ihdrData.copy(ihdrChunk, 8);
+  const ihdrCrc = crc32(ihdrChunk.subarray(4, 21));
+  ihdrChunk.writeUInt32BE(ihdrCrc, 21);
+
+  const idatChunk = Buffer.alloc(4 + 4 + idatPayload.length + 4);
+  idatChunk.writeUInt32BE(idatPayload.length, 0);
+  idatChunk.write("IDAT", 4, "latin1");
+  idatPayload.copy(idatChunk, 8);
+  const idatCrc = crc32(idatChunk.subarray(4, 8 + idatPayload.length));
+  idatChunk.writeUInt32BE(idatCrc, 8 + idatPayload.length);
+
+  const iendChunk = Buffer.from([0, 0, 0, 0, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82]);
+
+  return Buffer.concat([sig, ihdrChunk, idatChunk, iendChunk]);
+}
+
+export interface PdfImage {
+  page: number;
+  data: Buffer;
+  mime: string;
+}
+
+export function extractPdfImages(buffer: Buffer, maxPages = 8): PdfImage[] {
+  if (!buffer || !buffer.length) return [];
+  const raw = buffer.toString("latin1");
+  const objects = parseObjects(raw);
+  expandObjectStreams(objects);
+
+  const images: PdfImage[] = [];
+
+  for (const obj of objects.values()) {
+    if (images.length >= maxPages) break;
+    if (!/\/Type\s*\/Page\b/.test(obj.dict)) continue;
+
+    const pageNum = images.length + 1;
+    let resources = subDict(obj.dict, "Resources", objects);
+    let parentRef = refInt(obj.dict, "Parent");
+    let hops = 0;
+    while (!resources && parentRef != null && hops++ < 8) {
+      const parent = objects.get(parentRef);
+      if (!parent) break;
+      resources = subDict(parent.dict, "Resources", objects);
+      parentRef = refInt(parent.dict, "Parent");
+    }
+
+    if (!resources) continue;
+
+    const xobjDict = subDict(resources, "XObject", objects);
+    if (!xobjDict) continue;
+
+    for (const [, , refStr] of xobjDict.matchAll(/\/([A-Za-z0-9#-]+)\s+(\d+)\s+\d+\s+R/g)) {
+      if (images.length >= maxPages) break;
+      const refNum = Number(refStr);
+      const imgObj = objects.get(refNum);
+      if (!imgObj || !/\/Subtype\s*\/Image\b/.test(imgObj.dict)) continue;
+
+      if (/\/CCITTFaxDecode\b|\bCCITT\b|\bJBIG2Decode\b|\bJPXDecode\b/.test(imgObj.dict)) {
+        continue;
+      }
+
+      const w = directInt(imgObj.dict, "Width") ?? 0;
+      const h = directInt(imgObj.dict, "Height") ?? 0;
+      if (w > 0 && h > 0 && (w < 100 || h < 100)) continue;
+
+      const isJpeg = /\/DCTDecode\b|\bDCT\b/.test(imgObj.dict);
+      if (isJpeg) {
+        if (imgObj.stream && imgObj.stream.length > 100) {
+          images.push({ page: pageNum, data: imgObj.stream, mime: "image/jpeg" });
+        }
+      } else {
+        const decoded = decodeStream(imgObj);
+        if (decoded && decoded.length > 100 && w > 0 && h > 0) {
+          const isRgb = /\/DeviceRGB\b/.test(imgObj.dict);
+          const bitDepth = directInt(imgObj.dict, "BitsPerComponent") === 1 ? 1 : 8;
+          const prepared = stretchToGray8(decoded, w, h, isRgb ? 3 : 1, bitDepth);
+          const pngBuf = prepared
+            ? buildPng(w, h, false, prepared)
+            : buildPng(w, h, isRgb, decoded);
+          images.push({ page: pageNum, data: pngBuf, mime: "image/png" });
+        }
+      }
+    }
+  }
+
+  return images;
 }
