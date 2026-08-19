@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Metadata } from "next";
 const ACCENT = "#13A594";
-
-export const metadata: Metadata = {
-  title: "Secure Medicine Availability Portal Login | ZoikoMeds",
-  description:
-    "Sign in to your ZoikoMeds portal for secure access to medicine workflows, wholesale access, enterprise intelligence & reports.",
-};
 
 export default function SignInCreateAccountPage({
   defaultTab = "signin",
