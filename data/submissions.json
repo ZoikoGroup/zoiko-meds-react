@@ -886,5 +886,24 @@
     },
     "submittedAt": "2026-08-12T06:26:46.047Z",
     "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1787055235822_gf72s",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Hospital / health system)",
+    "fullName": "naveen sangepu",
+    "email": "naveeen@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Hospital / health system)",
+      "fullName": "naveen sangepu",
+      "workEmail": "naveeen@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "",
+      "note": "Organization Type: Hospital / health system\nFacilities: 2–5\nRegion: Indian\nInterests: Medicine Availability\nNote:"
+    },
+    "submittedAt": "2026-08-18T12:13:55.822Z",
+    "status": "RECEIVED"
   }
 ]
