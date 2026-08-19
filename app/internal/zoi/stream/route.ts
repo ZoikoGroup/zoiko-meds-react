@@ -3,6 +3,9 @@ import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
 import { isDrugLikeTerm } from "@/lib/medibase";
 import { searchContent, type ContentDocument } from "@/lib/site-content";
 import { lookupAvailabilityAsync, findMedicineInQuery, extractRegion } from "@/lib/availability";
+import { redactPII } from "@/lib/zoi/redaction";
+import { validateToolPermission } from "@/lib/zoi/permissions";
+import { sanitizeErrorPayload } from "@/lib/zoi/sanitizer";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -570,7 +573,9 @@ export async function POST(req: NextRequest) {
   const persona = VALID_PERSONAS.includes(rawPersona) ? rawPersona : "other";
   const rawMessages = Array.isArray(body.messages) ? (body.messages as { role: string; content: string }[]) : [];
 
-  const query = message;
+  // ZoikoMeds Minimisation / Redaction Layer (CT-012)
+  const redactionResult = redactPII(message);
+  const query = redactionResult.redactedText;
 
   // ── Layer 1: Safety & scope classifier ──
   const classification = classifyQuery(query);
@@ -580,6 +585,10 @@ export async function POST(req: NextRequest) {
     query: query.slice(0, 200),
     persona,
     classifier: classification,
+    redaction: {
+      hasRedactions: redactionResult.hasRedactions,
+      removedClasses: redactionResult.removedClasses,
+    },
   };
 
   // ── Layer 1: Guardrail responses ──
@@ -864,9 +873,10 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("[Zoi Stream Fatal Error]:", err);
+    const sanitizedErr = sanitizeErrorPayload(err);
+    console.error("[Zoi Stream Fatal Error]:", sanitizedErr);
     return new Response(
-      JSON.stringify({ success: false, error: "internal_server_error", detail: String(err) }),
+      JSON.stringify(sanitizedErr),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

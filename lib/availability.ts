@@ -177,6 +177,20 @@ const PHARMACY_DB: Record<string, StockEntry[]> = {
     { pharmacyId: 106, name: "CVS Pharmacy Broadway", address: "1500 Broadway, Times Square", city: "New York", phone: "+1 212 555 0199", reportedAt: "2026-07-28T10:00:00-04:00", signalStrength: 0.93 },
     { pharmacyId: 111, name: "Walgreens Pharmacy 5th Ave", address: "350 5th Ave, Midtown", city: "New York", phone: "+1 212 555 0220", reportedAt: "2026-07-28T09:30:00-04:00", signalStrength: 0.91 },
   ],
+  morphine: [
+    { pharmacyId: 101, name: "Boots Pharmacy", address: "Oxford St, London", city: "London", phone: "+44 20 7946 0123", reportedAt: "2026-07-28T08:30:00+00:00", signalStrength: 0.92 },
+    { pharmacyId: 4, name: "Pristine Medics", address: "Mfangano St, Nairobi", city: "Nairobi", phone: "0711 234 567", reportedAt: "2026-07-28T07:45:00+03:00", signalStrength: 0.88 },
+  ],
+  diazepam: [
+    { pharmacyId: 101, name: "Boots Pharmacy", address: "Oxford St, London", city: "London", phone: "+44 20 7946 0123", reportedAt: "2026-07-28T08:30:00+00:00", signalStrength: 0.90 },
+    { pharmacyId: 4, name: "Pristine Medics", address: "Mfangano St, Nairobi", city: "Nairobi", phone: "0711 234 567", reportedAt: "2026-07-28T07:45:00+03:00", signalStrength: 0.85 },
+  ],
+  fentanyl: [
+    { pharmacyId: 101, name: "Boots Pharmacy", address: "Oxford St, London", city: "London", phone: "+44 20 7946 0123", reportedAt: "2026-07-28T08:30:00+00:00", signalStrength: 0.91 },
+  ],
+  oxycodone: [
+    { pharmacyId: 106, name: "CVS Pharmacy Broadway", address: "1500 Broadway, Times Square", city: "New York", phone: "+1 212 555 0199", reportedAt: "2026-07-28T10:00:00-04:00", signalStrength: 0.94 },
+  ],
 };
 
 const MEDICINE_ALIASES: Record<string, string> = {
@@ -217,6 +231,22 @@ const MEDICINE_ALIASES: Record<string, string> = {
   "co-amoxiclav": "amoxiclav",
   augmentin: "amoxiclav",
   clavulin: "amoxiclav",
+  morphine: "morphine",
+  diazepam: "diazepam",
+  fentanyl: "fentanyl",
+  oxycodone: "oxycodone",
+  alprazolam: "alprazolam",
+  tramadol: "tramadol",
+  codeine: "codeine",
+  buprenorphine: "buprenorphine",
+  lorazepam: "lorazepam",
+  clonazepam: "clonazepam",
+  midazolam: "midazolam",
+  zolpidem: "zolpidem",
+  methylphenidate: "methylphenidate",
+  mifepristone: "mifepristone",
+  misoprostol: "misoprostol",
+  isotretinoin: "isotretinoin",
 };
 
 export const VALID_REGIONS = [
@@ -268,13 +298,14 @@ export function extractRegion(text: string): string | null {
 
 function resolveMedicine(input: string): string | null {
   const lower = input.toLowerCase().trim();
-  for (const [alias, canonical] of Object.entries(MEDICINE_ALIASES)) {
-    if (lower.includes(alias)) {
-      return canonical;
+  const sortedAliases = Object.keys(MEDICINE_ALIASES).sort((a, b) => b.length - a.length);
+  for (const alias of sortedAliases) {
+    const regex = new RegExp(`\\b${alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+    if (regex.test(lower)) {
+      return MEDICINE_ALIASES[alias];
     }
   }
-  const key = lower.split(" ")[0].replace(/[^a-z0-9]/g, "");
-  return MEDICINE_ALIASES[key] ?? null;
+  return null;
 }
 
 export function findMedicineInQuery(query: string): string | null {

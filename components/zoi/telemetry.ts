@@ -1,3 +1,5 @@
+import { sanitizeTelemetryProperties } from "@/lib/zoi/sanitizer";
+
 export interface TelemetryEvent {
   name: string;
   properties?: Record<string, string | number | boolean>;
@@ -26,7 +28,8 @@ export function configureTelemetry(impl: Telemetry): void {
 }
 
 export function trackEvent(name: string, properties?: Record<string, string | number | boolean>): void {
-  telemetry.track({ name, properties });
+  const sanitizedProps = sanitizeTelemetryProperties(properties);
+  telemetry.track({ name, properties: sanitizedProps });
 }
 
 export function trackPageView(page: string): void {
