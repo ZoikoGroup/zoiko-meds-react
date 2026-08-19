@@ -48,10 +48,22 @@ type ZoiAction =
   | { type: "SET_VIEW_MODE"; mode: ViewMode }
   | { type: "SET_SAVED_SESSIONS"; sessions: ChatSession[] }
   | { type: "SET_ACTIVE_SESSION_ID"; id: string }
-  | { type: "LOAD_SESSION"; session: ChatSession };
+  | { type: "LOAD_SESSION"; session: ChatSession }
+  | { type: "TOGGLE_SAVE_SESSION"; sessionId: string };
 
 function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
   switch (action.type) {
+    case "TOGGLE_SAVE_SESSION": {
+      const updated = state.savedSessions.map((s) =>
+        s.id === action.sessionId ? { ...s, isExplicitlySaved: !s.isExplicitlySaved } : s
+      );
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("zoi_chat_history", JSON.stringify(updated));
+        } catch {}
+      }
+      return { ...state, savedSessions: updated };
+    }
     case "SET_PANEL_VIEW":
       return { ...state, panelView: action.view };
     case "SET_PERSONA":
@@ -216,6 +228,7 @@ interface ZoiContextValue {
   loadSession: (sessionId: string) => void;
   deleteSession: (sessionId: string) => void;
   clearAllHistory: () => void;
+  toggleSaveSession: (sessionId: string) => void;
 }
 
 const ZoiContext = createContext<ZoiContextValue | null>(null);
@@ -766,6 +779,10 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, []);
 
+  const toggleSaveSession = useCallback((sessionId: string) => {
+    dispatch({ type: "TOGGLE_SAVE_SESSION", sessionId });
+  }, []);
+
   return (
     <ZoiContext.Provider
       value={{
@@ -786,6 +803,7 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
         loadSession,
         deleteSession,
         clearAllHistory,
+        toggleSaveSession,
       }}
     >
       {children}

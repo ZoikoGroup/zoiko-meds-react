@@ -4,7 +4,7 @@ import { useZoi } from "./ZoiProvider";
 import type { ChatSession } from "./types";
 
 export default function ZoiHistoryView() {
-  const { state, loadSession, deleteSession, clearAllHistory, startNewConversation, toggleHistoryView } = useZoi();
+  const { state, loadSession, deleteSession, clearAllHistory, startNewConversation, toggleHistoryView, toggleSaveSession } = useZoi();
 
   const sessions = state.savedSessions || [];
 
@@ -185,7 +185,35 @@ export default function ZoiHistoryView() {
                   )}
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSaveSession(sess.id);
+                    }}
+                    aria-label={sess.isExplicitlySaved ? "Unsave conversation" : "Save conversation"}
+                    title={sess.isExplicitlySaved ? "Approved & Saved (Protected from 24h TTL purge)" : "Save conversation (Prevents 24h auto-purge)"}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      padding: "4px 8px",
+                      borderRadius: "6px",
+                      border: sess.isExplicitlySaved ? "1px solid #10B981" : "1px solid #CBD5E1",
+                      background: sess.isExplicitlySaved ? "#ECFDF5" : "#FFFFFF",
+                      color: sess.isExplicitlySaved ? "#047857" : "#64748B",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill={sess.isExplicitlySaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {sess.isExplicitlySaved ? "Saved" : "Save"}
+                  </button>
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -223,6 +251,10 @@ export default function ZoiHistoryView() {
               </div>
             );
           })}
+
+          <div style={{ padding: "10px 12px", background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: "8px", fontSize: "11.5px", color: "#92400E", lineHeight: 1.4, marginTop: "8px" }}>
+            <strong>Retention Policy:</strong> Default transcript retention is 24 hours. Unsaved conversations are automatically purged unless explicitly saved above.
+          </div>
 
           <div style={{ marginTop: "auto", paddingTop: "16px", display: "flex", justifyContent: "center" }}>
             <button

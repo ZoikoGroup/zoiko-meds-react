@@ -3,6 +3,7 @@
 import type { AvailabilityPayload } from "./types";
 import { CONFIDENCE_COLORS, CARD_STATE_LABELS } from "./types";
 import { useZoi } from "./ZoiProvider";
+import { getMedicineSensitivity } from "@/lib/zoi/sensitivity";
 
 const DOT_COLORS: Record<string, string> = {
   available: "#008882",
@@ -19,6 +20,7 @@ function capitalize(str: string): string {
 export default function AvailabilityCard({ card }: { card: AvailabilityPayload }) {
   const { handleChipAction } = useZoi();
   const isInsufficientSignal = card.cardState === "insufficient-signal";
+  const sensitivity = getMedicineSensitivity(card.medicine);
 
   return (
     <div
@@ -31,9 +33,44 @@ export default function AvailabilityCard({ card }: { card: AvailabilityPayload }
         marginBottom: "4px",
       }}
     >
-      <div style={{ fontSize: "14px", fontWeight: 700, color: "#263D88", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
-        {card.medicine}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ fontSize: "14px", fontWeight: 700, color: "#263D88", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+          {card.medicine}
+        </div>
+        {sensitivity.isSensitive && (
+          <span
+            style={{
+              fontSize: "10px",
+              fontWeight: 700,
+              padding: "2px 8px",
+              borderRadius: "6px",
+              background: "#FEE2E2",
+              color: "#991B1B",
+              textTransform: "uppercase",
+              letterSpacing: "0.03em",
+            }}
+          >
+            {sensitivity.badgeLabel}
+          </span>
+        )}
       </div>
+      {sensitivity.isSensitive && sensitivity.warningText && (
+        <div
+          style={{
+            fontSize: "11.5px",
+            color: "#991B1B",
+            background: "#FEF2F2",
+            border: "1px solid #FCA5A5",
+            borderRadius: "6px",
+            padding: "6px 10px",
+            marginTop: "6px",
+            marginBottom: "6px",
+            lineHeight: 1.4,
+          }}
+        >
+          <strong>Safety Note:</strong> {sensitivity.warningText}
+        </div>
+      )}
       <div style={{ fontSize: "13px", fontWeight: 500, color: "#6B7280", marginTop: "2px", marginBottom: "12px" }}>
         {card.region}
       </div>
