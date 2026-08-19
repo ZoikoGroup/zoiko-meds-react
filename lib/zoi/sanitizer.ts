@@ -23,7 +23,7 @@ export function sanitizeString(val: string): string {
   // Replace sensitive query or medicine text if present
   let scrubbed = redacted;
   for (const pattern of MEDICINE_SCRUB_PATTERNS) {
-    scrubbed = scrubbed.replace(pattern, (match) => {
+    scrubbed = scrubbed.replace(pattern, () => {
       return "[CONTENT_SCRUBBED_FOR_APM]";
     });
   }

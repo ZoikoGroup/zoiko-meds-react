@@ -37,12 +37,6 @@ const IDENTIFIER_PATTERNS = [
   /\b(ssn|social security)\s*[:=]?\s*(\d{3}-\d{2}-\d{4})\b/gi,
 ];
 
-const NAME_PATTERNS = [
-  /\bmy name is\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi,
-  /\bpatient(?:\s+name)?\s*[:=]?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi,
-  /\bfor\s+patient\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi,
-];
-
 export function redactPII(input: string): RedactionResult {
   if (!input || typeof input !== "string") {
     return { redactedText: "", removedClasses: [], hasRedactions: false };
@@ -82,36 +76,36 @@ export function redactPII(input: string): RedactionResult {
 
   // 4. Date of Birth (DOB)
   for (const pattern of DOB_PATTERNS) {
-    text = text.replace(pattern, (match) => {
+    text = text.replace(pattern, () => {
       removedClasses.add("dob");
       return "[REDACTED_DOB]";
     });
   }
 
   // 5. Prescription IDs
-  text = text.replace(RX_ID_REGEX, (match, prefix) => {
+  text = text.replace(RX_ID_REGEX, (_match, prefix) => {
     removedClasses.add("prescription_ids");
     return `${prefix}: [REDACTED_RX_ID]`;
   });
 
   // 6. Prescriber Identity
   for (const pattern of PRESCRIBER_PATTERNS) {
-    text = text.replace(pattern, (match, prefix) => {
+    text = text.replace(pattern, (_match, prefix) => {
       removedClasses.add("prescriber_identity");
       return `${prefix} [REDACTED_PRESCRIBER]`;
     });
   }
 
   // 7. Patient Names
-  text = text.replace(/\bmy name is\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi, (match) => {
+  text = text.replace(/\bmy name is\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi, () => {
     removedClasses.add("names");
     return "my name is [REDACTED_NAME]";
   });
-  text = text.replace(/\bpatient(?:\s+name)?\s*[:=]?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi, (match) => {
+  text = text.replace(/\bpatient(?:\s+name)?\s*[:=]?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi, () => {
     removedClasses.add("names");
     return "patient: [REDACTED_NAME]";
   });
-  text = text.replace(/\bfor\s+patient\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi, (match) => {
+  text = text.replace(/\bfor\s+patient\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/gi, () => {
     removedClasses.add("names");
     return "for patient [REDACTED_NAME]";
   });
