@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import {
-
   AboutHero,
   AboutStatsSection,
   AboutWhyZoikomeds,
@@ -10,16 +9,13 @@ import {
   AboutThreeEngines,
   AboutMedicineAccessChain,
   AboutWhatZoikomedsDoesNot,
-  AboutGlobalReachAndCta
-
+  AboutGlobalReachAndCta,
 } from "@/components/about/";
-
-
 
 export const metadata: Metadata = {
   title: "About ZoikoMeds | Medicine Availability Platform",
   description:
-    "Learn about ZoikoMeds, a platform making medicine availability visible through verified pharmacy signals, intelligence engines, and secure systems.",
+    "Learn about ZoikoMeds, a platform making medicine availability pharmacy signals, intelligence engines, and secure systems.",
 };
 
 export default function AboutPage() {
