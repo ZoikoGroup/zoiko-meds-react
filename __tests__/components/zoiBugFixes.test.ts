@@ -3,6 +3,7 @@ import { lookupAvailability } from "@/lib/availability";
 import { searchContent } from "@/lib/site-content";
 import { POST } from "@/app/internal/zoi/stream/route";
 import { NextRequest } from "next/server";
+import type { Message } from "@/components/zoi/types";
 
 describe("Zoi Chatbot Bug Fixes (BUG-01 to BUG-06)", () => {
   it("BUG-01: Stream API prompts user for region when medicine is queried without location", async () => {
@@ -186,9 +187,9 @@ describe("Zoi Chatbot Bug Fixes (BUG-01 to BUG-06)", () => {
   it("BUG-06: Persists multi-turn session logs without dropping prior turns", () => {
     // Test that multi-turn messages update active session in savedSessions atomically
     const session1Id = "session-test-01";
-    let state = {
+    const state = {
       messages: [] as Array<{ id: string; role: "user" | "assistant"; content: string; timestamp: number }>,
-      savedSessions: [] as Array<{ id: string; title: string; createdAt: number; messages: Array<any>; persona: any }>,
+      savedSessions: [] as Array<{ id: string; title: string; createdAt: number; messages: Array<unknown>; persona: unknown }>,
       activeSessionId: session1Id,
       persona: "patient" as const,
       personaSet: true,
@@ -242,7 +243,7 @@ describe("Zoi Chatbot Bug Fixes (BUG-01 to BUG-06)", () => {
     // Verify session 1 retains all 6 messages across 3 turns
     expect(state.savedSessions.length).toBe(1);
     expect(state.savedSessions[0].messages.length).toBe(6);
-    expect(state.savedSessions[0].messages.map((m) => m.content)).toEqual([
+    expect(state.savedSessions[0].messages.map((m: Message) => m.content)).toEqual([
       "Paracetamol search",
       "I found Paracetamol in stock",
       "API access inquiry",

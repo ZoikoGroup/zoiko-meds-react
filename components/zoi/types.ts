@@ -113,6 +113,7 @@ export interface ChatSession {
   createdAt: number;
   messages: Message[];
   persona: Persona | null;
+  isExplicitlySaved?: boolean;
 }
 
 export const CONFIDENCE_COLORS: Record<ConfidenceTier, string> = {

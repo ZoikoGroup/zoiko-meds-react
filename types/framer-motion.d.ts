@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module "framer-motion" {
   import * as React from "react";
 
@@ -8,3 +9,4 @@ declare module "framer-motion" {
   export const useScroll: (options?: any) => any;
   export const useTransform: (...args: any[]) => any;
 }
+
