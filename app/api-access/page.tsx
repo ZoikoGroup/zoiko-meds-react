@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import {
   Hero,
   TrustBoundary,
@@ -11,8 +13,14 @@ import {
   RetentionCustomerSuccessSection,
   RequestApiAccessBriefingSection,
   ApiAccessFaqSection,
-  CtaPage
+  CtaPage,
 } from "@/components/api-access";
+
+export const metadata: Metadata = {
+  title: "Enterprise Healthcare API Access | ZoikoMeds",
+  description:
+    "Access secure healthcare APIs for medicine availability intelligence, pharmacy network signals, shortage indicators, alerts, and governed reporting.",
+};
 
 export default function page() {
   return (
