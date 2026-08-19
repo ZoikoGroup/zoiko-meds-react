@@ -2,10 +2,20 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
+import type { Metadata } from "next";
 const ACCENT = "#13A594";
 
-export default function SignInCreateAccountPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "signup" }) {
+export const metadata: Metadata = {
+  title: "Secure Medicine Availability Portal Login | ZoikoMeds",
+  description:
+    "Sign in to your ZoikoMeds portal for secure access to medicine workflows, wholesale access, enterprise intelligence & reports.",
+};
+
+export default function SignInCreateAccountPage({
+  defaultTab = "signin",
+}: {
+  defaultTab?: "signin" | "signup";
+}) {
   const [activeTab, setActiveTab] = useState<"signin" | "signup">(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -84,7 +94,6 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
     <main className="relative w-full min-h-screen bg-[#F4F6FA]">
       <div className="mx-auto max-w-7xl px-6 py-12 sm:py-16 lg:px-8 lg:py-20">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
-
           {/* ── Left: Content ── */}
           <div>
             <p
@@ -101,25 +110,34 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                   Sign in to your ZoikoMeds portal
                 </h1>
                 <p className="mt-4 text-[14px] leading-relaxed text-[#5B6478]">
-                  Access secure medicine availability tools, pharmacy partner workflows, wholesale access, enterprise
-                  intelligence, reports, and administrative workflows through one role-aware gateway.
+                  Access secure medicine availability tools, pharmacy partner
+                  workflows, wholesale access, enterprise intelligence, reports,
+                  and administrative workflows through one role-aware gateway.
                 </p>
                 <div className="mt-8 space-y-3">
                   <div className="flex items-start gap-3">
                     <CheckIcon />
-                    <span className="text-[13px] text-[#5B6478]">Role-based access</span>
+                    <span className="text-[13px] text-[#5B6478]">
+                      Role-based access
+                    </span>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckIcon />
-                    <span className="text-[13px] text-[#5B6478]">MFA & SSO ready</span>
+                    <span className="text-[13px] text-[#5B6478]">
+                      MFA & SSO ready
+                    </span>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckIcon />
-                    <span className="text-[13px] text-[#5B6478]">Privacy-aware workflows</span>
+                    <span className="text-[13px] text-[#5B6478]">
+                      Privacy-aware workflows
+                    </span>
                   </div>
                   <div className="flex items-start gap-3">
                     <XIcon />
-                    <span className="text-[13px] text-[#5B6478]">No dispensing or advice</span>
+                    <span className="text-[13px] text-[#5B6478]">
+                      No dispensing or advice
+                    </span>
                   </div>
                 </div>
               </>
@@ -129,34 +147,51 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                   Create your free ZoikoMeds account
                 </h1>
                 <p className="mt-4 text-[14px] leading-relaxed text-[#5B6478]">
-                  Save medicine searches, manage availability alerts, and review your access activity — all in one secure,
-                  privacy-aware account.
+                  Save medicine searches, manage availability alerts, and review
+                  your access activity — all in one secure, privacy-aware
+                  account.
                 </p>
                 <div className="mt-8 space-y-3">
                   <div className="flex items-start gap-3">
                     <SaveIcon />
                     <div>
-                      <p className="text-[13px] font-bold text-[#0F1F4E]">Save searches</p>
-                      <p className="text-[12px] text-[#5B6478]">Keep the medicines and locations you follow close at hand.</p>
+                      <p className="text-[13px] font-bold text-[#0F1F4E]">
+                        Save searches
+                      </p>
+                      <p className="text-[12px] text-[#5B6478]">
+                        Keep the medicines and locations you follow close at
+                        hand.
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <BellIcon />
                     <div>
-                      <p className="text-[13px] font-bold text-[#0F1F4E]">Availability alerts</p>
-                      <p className="text-[12px] text-[#5B6478]">Get notified when confidence signals change.</p>
+                      <p className="text-[13px] font-bold text-[#0F1F4E]">
+                        Availability alerts
+                      </p>
+                      <p className="text-[12px] text-[#5B6478]">
+                        Get notified when confidence signals change.
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <LockIcon />
                     <div>
-                      <p className="text-[13px] font-bold text-[#0F1F4E]">Privately by design</p>
-                      <p className="text-[12px] text-[#5B6478]">You control your data and can leave any time.</p>
+                      <p className="text-[13px] font-bold text-[#0F1F4E]">
+                        Privately by design
+                      </p>
+                      <p className="text-[12px] text-[#5B6478]">
+                        You control your data and can leave any time.
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[#E0F7F3] px-3 py-1.5 text-[11px] font-semibold" style={{ color: ACCENT }}>
+                  <span
+                    className="rounded-full bg-[#E0F7F3] px-3 py-1.5 text-[11px] font-semibold"
+                    style={{ color: ACCENT }}
+                  >
                     Privacy-aware
                   </span>
                   <span className="rounded-full bg-[#F5F5F5] px-3 py-1.5 text-[11px] font-semibold text-[#5B6478]">
@@ -171,7 +206,13 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
           </div>
 
           {/* ── Right: Form Card ── */}
-          <div className="rounded-3xl border bg-white p-8 sm:p-10" style={{ borderColor: "#E7EAF1", boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)" }}>
+          <div
+            className="rounded-3xl border bg-white p-8 sm:p-10"
+            style={{
+              borderColor: "#E7EAF1",
+              boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
+            }}
+          >
             {/* ── Tab Bar ── */}
             <div
               className="mb-8 flex gap-1 rounded-xl p-1.5"
@@ -182,12 +223,23 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all duration-200"
                 style={{
                   color: activeTab === "signin" ? ACCENT : "#5B6478",
-                  backgroundColor: activeTab === "signin" ? "#FFFFFF" : "transparent",
-                  boxShadow: activeTab === "signin" ? "0 1px 3px rgba(15,31,78,0.08)" : "none",
+                  backgroundColor:
+                    activeTab === "signin" ? "#FFFFFF" : "transparent",
+                  boxShadow:
+                    activeTab === "signin"
+                      ? "0 1px 3px rgba(15,31,78,0.08)"
+                      : "none",
                 }}
               >
                 <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
-                  <path d="M6 3l5 5-5 5M4 8h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  <path
+                    d="M6 3l5 5-5 5M4 8h7"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
                 </svg>
                 Sign In
               </button>
@@ -196,14 +248,37 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all duration-200"
                 style={{
                   color: activeTab === "signup" ? ACCENT : "#5B6478",
-                  backgroundColor: activeTab === "signup" ? "#FFFFFF" : "transparent",
-                  boxShadow: activeTab === "signup" ? "0 1px 3px rgba(15,31,78,0.08)" : "none",
+                  backgroundColor:
+                    activeTab === "signup" ? "#FFFFFF" : "transparent",
+                  boxShadow:
+                    activeTab === "signup"
+                      ? "0 1px 3px rgba(15,31,78,0.08)"
+                      : "none",
                 }}
               >
                 <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
-                  <circle cx="6" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-                  <path d="M1.5 14c0-2.8 2-4.5 4.5-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-                  <path d="M11.5 5.5v4M9.5 7.5h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+                  <circle
+                    cx="6"
+                    cy="5.5"
+                    r="2.5"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    fill="none"
+                  />
+                  <path
+                    d="M1.5 14c0-2.8 2-4.5 4.5-4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                  <path
+                    d="M11.5 5.5v4M9.5 7.5h4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
                 </svg>
                 Create Account
               </button>
@@ -224,10 +299,14 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                     onChange={handleSignInChange}
                     placeholder="you@organization.org"
                     className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
-                    style={{ borderColor: signInErrors.email ? "#DC2626" : "#E7EAF1" }}
+                    style={{
+                      borderColor: signInErrors.email ? "#DC2626" : "#E7EAF1",
+                    }}
                   />
                   {signInErrors.email && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{signInErrors.email}</p>
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {signInErrors.email}
+                    </p>
                   )}
                 </div>
 
@@ -244,7 +323,11 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                       onChange={handleSignInChange}
                       placeholder="Enter your password"
                       className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
-                      style={{ borderColor: signInErrors.password ? "#DC2626" : "#E7EAF1" }}
+                      style={{
+                        borderColor: signInErrors.password
+                          ? "#DC2626"
+                          : "#E7EAF1",
+                      }}
                     />
                     <button
                       type="button"
@@ -255,7 +338,9 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                     </button>
                   </div>
                   {signInErrors.password && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{signInErrors.password}</p>
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {signInErrors.password}
+                    </p>
                   )}
                 </div>
 
@@ -271,7 +356,10 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                       className="h-4 w-4 rounded cursor-pointer"
                       style={{ accentColor: ACCENT }}
                     />
-                    <label htmlFor="trustDevice" className="text-[12px] text-[#5B6478] cursor-pointer">
+                    <label
+                      htmlFor="trustDevice"
+                      className="text-[12px] text-[#5B6478] cursor-pointer"
+                    >
                       Trust this device
                     </label>
                   </div>
@@ -296,7 +384,10 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                 {/* Divider */}
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t" style={{ borderColor: "#E7EAF1" }} />
+                    <div
+                      className="w-full border-t"
+                      style={{ borderColor: "#E7EAF1" }}
+                    />
                   </div>
                   <div className="relative flex justify-center text-[11px] uppercase tracking-wide text-[#8A93A6]">
                     <span className="bg-white px-2">or continue with</span>
@@ -327,8 +418,9 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                 <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[#8A93A6]">
                   <InfoIcon />
                   <span>
-                    Access is required by organization, role policy, and approved use case. Enterprise users may be
-                    redirected to their organization sign-in provider.
+                    Access is required by organization, role policy, and
+                    approved use case. Enterprise users may be redirected to
+                    their organization sign-in provider.
                   </span>
                 </p>
               </form>
@@ -349,10 +441,16 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                     onChange={handleSignUpChange}
                     placeholder="Your legal or professional name"
                     className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
-                    style={{ borderColor: signUpErrors.fullName ? "#DC2626" : "#E7EAF1" }}
+                    style={{
+                      borderColor: signUpErrors.fullName
+                        ? "#DC2626"
+                        : "#E7EAF1",
+                    }}
                   />
                   {signUpErrors.fullName && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{signUpErrors.fullName}</p>
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {signUpErrors.fullName}
+                    </p>
                   )}
                 </div>
 
@@ -368,17 +466,22 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                     onChange={handleSignUpChange}
                     placeholder="you@email.com"
                     className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
-                    style={{ borderColor: signUpErrors.email ? "#DC2626" : "#E7EAF1" }}
+                    style={{
+                      borderColor: signUpErrors.email ? "#DC2626" : "#E7EAF1",
+                    }}
                   />
                   {signUpErrors.email && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{signUpErrors.email}</p>
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {signUpErrors.email}
+                    </p>
                   )}
                 </div>
 
                 {/* Phone */}
                 <div>
                   <label className="block text-[12px] font-bold text-[#0F1F4E] mb-1.5">
-                    Phone number <span className="text-[#8A93A6]">(optional)</span>
+                    Phone number{" "}
+                    <span className="text-[#8A93A6]">(optional)</span>
                   </label>
                   <input
                     type="tel"
@@ -389,7 +492,10 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                     className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
                     style={{ borderColor: "#E7EAF1" }}
                   />
-                  <p className="mt-1.5 text-[11px] text-[#8A93A6]">Used only for optional SMS availability alerts. You can add it later.</p>
+                  <p className="mt-1.5 text-[11px] text-[#8A93A6]">
+                    Used only for optional SMS availability alerts. You can add
+                    it later.
+                  </p>
                 </div>
 
                 {/* Password */}
@@ -405,7 +511,11 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                       onChange={handleSignUpChange}
                       placeholder="Create a password"
                       className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
-                      style={{ borderColor: signUpErrors.password ? "#DC2626" : "#E7EAF1" }}
+                      style={{
+                        borderColor: signUpErrors.password
+                          ? "#DC2626"
+                          : "#E7EAF1",
+                      }}
                     />
                     <button
                       type="button"
@@ -415,7 +525,10 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                       {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                     </button>
                   </div>
-                  <p className="mt-1.5 text-[11px] text-[#8A93A6]">At least 8 characters with a mix of letters, numbers, and a symbol.</p>
+                  <p className="mt-1.5 text-[11px] text-[#8A93A6]">
+                    At least 8 characters with a mix of letters, numbers, and a
+                    symbol.
+                  </p>
                 </div>
 
                 {/* Confirm Password */}
@@ -431,18 +544,26 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                       onChange={handleSignUpChange}
                       placeholder="Re-enter your password"
                       className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[13px] text-[#0F1F4E] placeholder-[#8A93A6] transition-colors"
-                      style={{ borderColor: signUpErrors.confirmPassword ? "#DC2626" : "#E7EAF1" }}
+                      style={{
+                        borderColor: signUpErrors.confirmPassword
+                          ? "#DC2626"
+                          : "#E7EAF1",
+                      }}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A93A6] hover:text-[#0F1F4E]"
                     >
                       {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
                     </button>
                   </div>
                   {signUpErrors.confirmPassword && (
-                    <p className="mt-1 text-[11px] text-[#DC2626]">{signUpErrors.confirmPassword}</p>
+                    <p className="mt-1 text-[11px] text-[#DC2626]">
+                      {signUpErrors.confirmPassword}
+                    </p>
                   )}
                 </div>
 
@@ -457,13 +578,19 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                     className="mt-1 h-4 w-4 rounded cursor-pointer shrink-0"
                     style={{ accentColor: ACCENT }}
                   />
-                  <label htmlFor="terms" className="text-[12px] leading-relaxed text-[#5B6478] cursor-pointer">
-                    I agree to the Terms & Conditions and Privacy Policy and understand ZoikoMeds provides medicine
-                    availability information — not medical advice or dispensing.
+                  <label
+                    htmlFor="terms"
+                    className="text-[12px] leading-relaxed text-[#5B6478] cursor-pointer"
+                  >
+                    I agree to the Terms & Conditions and Privacy Policy and
+                    understand ZoikoMeds provides medicine availability
+                    information — not medical advice or dispensing.
                   </label>
                 </div>
                 {signUpErrors.terms && (
-                  <p className="text-[11px] text-[#DC2626]">{signUpErrors.terms}</p>
+                  <p className="text-[11px] text-[#DC2626]">
+                    {signUpErrors.terms}
+                  </p>
                 )}
 
                 {/* Create Account Button */}
@@ -479,8 +606,9 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
                 <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[#8A93A6]">
                   <InfoIcon />
                   <span>
-                    We use this information to verify your account and protect approved healthcare workflows. We&apos;ll
-                    send a verification email before your account is active.
+                    We use this information to verify your account and protect
+                    approved healthcare workflows. We&apos;ll send a
+                    verification email before your account is active.
                   </span>
                 </p>
               </form>
@@ -495,42 +623,106 @@ export default function SignInCreateAccountPage({ defaultTab = "signin" }: { def
 /* Icons */
 function LockIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" style={{ color: "#13A594" }}>
-      <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
-      <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" strokeWidth="1.4" fill="none" />
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-4 w-4"
+      style={{ color: "#13A594" }}
+    >
+      <rect
+        x="3.5"
+        y="7"
+        width="9"
+        height="6.5"
+        rx="1.2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
+      <path
+        d="M5.5 7V5a2.5 2.5 0 015 0v2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
     </svg>
   );
 }
 
 function CheckIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-5 w-5 shrink-0 flex-none" style={{ color: "#13A594" }}>
-      <path d="M3 8.5l3 3 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-5 w-5 shrink-0 flex-none"
+      style={{ color: "#13A594" }}
+    >
+      <path
+        d="M3 8.5l3 3 7-7"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 function XIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-5 w-5 shrink-0 flex-none text-[#8A93A6]">
-      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-5 w-5 shrink-0 flex-none text-[#8A93A6]"
+    >
+      <path
+        d="M3 3l10 10M13 3L3 13"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function SaveIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-5 w-5 shrink-0 flex-none" style={{ color: "#13A594" }}>
-      <path d="M4.5 2.5h7v11h-7v-11z" stroke="currentColor" strokeWidth="1.4" fill="none" />
-      <path d="M6 5h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-5 w-5 shrink-0 flex-none"
+      style={{ color: "#13A594" }}
+    >
+      <path
+        d="M4.5 2.5h7v11h-7v-11z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
+      <path
+        d="M6 5h4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function BellIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-5 w-5 shrink-0 flex-none" style={{ color: "#13A594" }}>
-      <path d="M3 6.5c0-.8.1-1.5.3-2.2L8 2l4.7 2.3c.2.7.3 1.4.3 2.2v1.5c0 1.8-.7 3.4-1.9 4.6L8 13.5l-3.1-2.2c-1.2-1.2-1.9-2.8-1.9-4.6V6.5z" stroke="currentColor" strokeWidth="1.4" fill="none" />
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-5 w-5 shrink-0 flex-none"
+      style={{ color: "#13A594" }}
+    >
+      <path
+        d="M3 6.5c0-.8.1-1.5.3-2.2L8 2l4.7 2.3c.2.7.3 1.4.3 2.2v1.5c0 1.8-.7 3.4-1.9 4.6L8 13.5l-3.1-2.2c-1.2-1.2-1.9-2.8-1.9-4.6V6.5z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
     </svg>
   );
 }
@@ -538,8 +730,20 @@ function BellIcon() {
 function EyeIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
-      <path d="M1 8s2.5-4 7-4 7 4 7 4-2.5 4-7 4-7-4-7-4z" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      <path
+        d="M1 8s2.5-4 7-4 7 4 7 4-2.5 4-7 4-7-4-7-4z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        fill="none"
+      />
+      <circle
+        cx="8"
+        cy="8"
+        r="2"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        fill="none"
+      />
     </svg>
   );
 }
@@ -547,8 +751,20 @@ function EyeIcon() {
 function EyeOffIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
-      <path d="M2 2l12 12M9.5 9.5c.8.8 2 .8 2.8 0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-      <path d="M1 8s2.5-4 7-4 7 4 7 4" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      <path
+        d="M2 2l12 12M9.5 9.5c.8.8 2 .8 2.8 0"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M1 8s2.5-4 7-4 7 4 7 4"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        fill="none"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -556,8 +772,22 @@ function EyeOffIcon() {
 function PasskeyIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
-      <rect x="3.5" y="7" width="9" height="6.5" rx="1.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
-      <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <rect
+        x="3.5"
+        y="7"
+        width="9"
+        height="6.5"
+        rx="1.2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
+      <path
+        d="M5.5 7V5a2.5 2.5 0 015 0v2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
     </svg>
   );
 }
@@ -565,17 +795,39 @@ function PasskeyIcon() {
 function SSOIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
-      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-      <path d="M8 5.5v5M5.5 8h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+      <circle
+        cx="8"
+        cy="8"
+        r="6.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
+      <path
+        d="M8 5.5v5M5.5 8h5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   );
 }
 
 function InfoIcon() {
   return (
-    <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5 shrink-0 flex-none">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-3.5 w-3.5 shrink-0 flex-none"
+    >
       <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M8 7.2v4M8 5v.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path
+        d="M8 7.2v4M8 5v.01"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

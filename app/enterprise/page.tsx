@@ -5,14 +5,13 @@ import {
   EnterpriseIntelligenceStack,
   EnterpriseSectorsSection,
   EnterpriseStatsSection,
-  EnterpriseContactSection
-
+  EnterpriseContactSection,
 } from "@/components/enterprise";
 
 export const metadata: Metadata = {
-  title: "Enterprise — ZoikoMeds",
+  title: "Enterprise Medicine Availability Intelligence | ZoikoMeds",
   description:
-    "The institutional infrastructure for medicine availability intelligence. Built for health systems, governments, and digital-health platforms.",
+    "Access real-time medicine availability intelligence with ZoikoMeds. Empower health systems, pharmacies, governments, and enterprises with trusted data.",
 };
 
 export default function EnterprisePage() {

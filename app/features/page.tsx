@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import {
   FeaturesHeroSection,
   FeaturesTrustSafetySection,
@@ -15,8 +17,14 @@ import {
   FeaturesComparisonTableSection,
   FeaturesBookDemoSection,
   FeaturesFaqSection,
-  FeaturesFinalCtaSection
+  FeaturesFinalCtaSection,
 } from "@/components/features";
+
+export const metadata: Metadata = {
+  title: "Healthcare Access Platform Features | ZoikoMeds",
+  description:
+    "ZoikoMeds delivers healthcare access intelligence with medicine availability tracking, shortage signals, regional insights, analytics, reporting & more.",
+};
 
 export default function FeaturesPage() {
   return (

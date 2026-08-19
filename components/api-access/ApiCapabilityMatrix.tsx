@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   Radar,
   Network,
@@ -71,18 +71,58 @@ const rows: Row[] = [
 
 export default function ApiCapabilityMatrix() {
   return (
-    <section className="bg-[#f6f9fc] px-6 py-16 sm:px-10 lg:px-16">
+    <section className="bg-[#f6f9fc] px-4 py-12 sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <p className="mb-3 text-sm uppercase font-semibold tracking-[2px] text-[#13A594]">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[2px] text-[#13A594]">
           04 · API capability matrix
         </p>
-        <h2 className="max-w-2xl text-3xl md:text-[32px] font-semibold leading-snug text-gray-900">
+        <h2 className="max-w-2xl text-2xl font-semibold leading-snug text-gray-900 md:text-[32px]">
           Key API families and their{" "}
           <span className="text-[#0FAA87]">access boundaries.</span>
         </h2>
 
-        <div className="mt-10 overflow-hidden rounded-xl border bg-white border-gray-200 shadow-sm">
-          <table className="w-full mt-4 border-collapse bg-white text-left">
+        {/* Mobile View: Stacked Cards (Visible below `md`) */}
+        <div className="mt-8 space-y-4 md:hidden">
+          {rows.map(({ icon: Icon, family, capability, boundary }) => (
+            <div
+              key={family}
+              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#13A5941A] text-teal-600">
+                  <Icon size={16} strokeWidth={2} />
+                </span>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {family}
+                </h3>
+              </div>
+
+              <div className="mt-4 space-y-3 text-sm">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Capability
+                  </p>
+                  <p className="mt-1 leading-relaxed text-gray-600">
+                    {capability}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Access Boundary
+                  </p>
+                  <p className="mt-1 leading-relaxed text-[#C2552E]">
+                    {boundary}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View: Full Table (Visible on `md` and larger) */}
+        <div className="mt-10 hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
+          <table className="w-full border-collapse bg-white text-left">
             <thead>
               <tr className="bg-[#0B1220]">
                 <th className="w-[26%] px-6 py-3 text-xs font-semibold uppercase tracking-[1.5px] text-gray-300">
@@ -100,7 +140,9 @@ export default function ApiCapabilityMatrix() {
               {rows.map(({ icon: Icon, family, capability, boundary }, i) => (
                 <tr
                   key={family}
-                  className={i !== rows.length - 1 ? "border-b border-gray-100" : ""}
+                  className={
+                    i !== rows.length - 1 ? "border-b border-gray-100" : ""
+                  }
                 >
                   <td className="px-6 py-5 align-top">
                     <div className="flex items-center gap-2.5">
