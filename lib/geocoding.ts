@@ -47,12 +47,16 @@ type BigDataCloudResponse = {
 };
 
 async function getJson<T>(url: string, headers?: Record<string, string>): Promise<T | null> {
-  const resp = await fetch(url, {
-    headers,
-    cache: "no-store",
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
-  return resp.ok ? ((await resp.json()) as T) : null;
+  try {
+    const resp = await fetch(url, {
+      headers,
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    return resp.ok ? ((await resp.json()) as T) : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -119,12 +123,23 @@ async function forwardViaNominatim(address: string): Promise<Coords | null> {
   return { lat: parseFloat(top.lat), lng: parseFloat(top.lon), display: top.display_name };
 }
 
+const geocodeCache = new Map<string, Coords>();
+const reverseGeocodeCache = new Map<string, string>();
+
 /** Resolve a free-form address to coordinates, or null if no provider can. */
 export async function geocodeAddress(address: string): Promise<Coords | null> {
+  const key = address.trim().toLowerCase();
+  if (geocodeCache.has(key)) {
+    return geocodeCache.get(key)!;
+  }
+
   for (const provider of [forwardViaGoogle, forwardViaNominatim]) {
     try {
       const hit = await provider(address);
-      if (hit) return hit;
+      if (hit) {
+        geocodeCache.set(key, hit);
+        return hit;
+      }
     } catch {
       // try the next provider
     }
