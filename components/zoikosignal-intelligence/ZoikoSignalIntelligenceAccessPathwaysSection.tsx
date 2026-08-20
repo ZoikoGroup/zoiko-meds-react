@@ -69,15 +69,15 @@ export default function ZoikoSignalIntelligenceAccessPathwaysSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl px-6 lg:px-8">
+    <section ref={ref} className="relative w-full bg-[#F4F6FA] py-10 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* ---------------- Header (left-aligned) ---------------- */}
         <div>
           {mounted ? (
             <>
               <Reveal index={0}>
                 <p
-                  className="text-[12px] font-bold uppercase tracking-[0.14em]"
+                  className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.14em]"
                   style={{ color: ACCENT }}
                 >
                   06 · Access pathways
@@ -85,7 +85,7 @@ export default function ZoikoSignalIntelligenceAccessPathwaysSection() {
               </Reveal>
 
               <Reveal index={1}>
-                <h2 className="font-[var(--font-plus-jakarta-sans)] mt-2 text-3xl font-bold leading-tight text-[#0F1F4E] sm:text-[2.1rem]">
+                <h2 className="font-[var(--font-plus-jakarta-sans)] mt-1.5 sm:mt-2 text-2xl font-bold leading-tight text-[#0F1F4E] sm:text-[2.1rem]">
                   Convert into the right evaluation path.
                 </h2>
               </Reveal>
@@ -96,7 +96,7 @@ export default function ZoikoSignalIntelligenceAccessPathwaysSection() {
         </div>
 
         {/* ---------------- Pathway cards ---------------- */}
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 sm:mt-8 grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {mounted
             ? PATHWAYS.map((p, i) => (
                 <PathwayCard key={p.title} {...p} index={i} />
@@ -105,7 +105,7 @@ export default function ZoikoSignalIntelligenceAccessPathwaysSection() {
         </div>
 
         {/* ---------------- Closing CTA banner ---------------- */}
-        <div className="mt-6">
+        <div className="mt-6 sm:mt-8">
           {mounted ? <ClosingCta /> : <ClosingCtaSkeleton />}
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function ZoikoSignalIntelligenceAccessPathwaysSection() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Reveal: bottom -> top staggered fade-up wrapper                   */
+/*  Reveal: bottom -> top staggered fade-up wrapper                  */
 /* ----------------------------------------------------------------- */
 function Reveal({
   children,
@@ -146,7 +146,7 @@ function Reveal({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Pathway card                                                        */
+/*  Pathway card                                                     */
 /* ----------------------------------------------------------------- */
 function PathwayCard({
   icon,
@@ -164,7 +164,7 @@ function PathwayCard({
 }) {
   return (
     <div
-      className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6 transition-all duration-300 ease-out animate-[zoikoSignalAccessFadeUp_0.6s_ease-out_forwards] hover:-translate-y-1"
+      className="group flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-5 sm:p-6 transition-all duration-300 ease-out animate-[zoikoSignalAccessFadeUp_0.6s_ease-out_forwards] hover:-translate-y-1 shadow-sm sm:shadow-none"
       style={{
         opacity: 0,
         animationDelay: `${250 + index * 90}ms`,
@@ -180,15 +180,17 @@ function PathwayCard({
       }}
     >
       <div
-        className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+        className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 shrink-0"
         style={{ backgroundColor: "#0F1F4E", color: "#FFFFFF" }}
       >
         <PathwayIcon name={icon} />
       </div>
 
-      <h3 className="mt-4 text-[14.5px] font-bold text-[#0F1F4E]">{title}</h3>
+      <h3 className="mt-3.5 sm:mt-4 text-sm sm:text-[14.5px] font-bold text-[#0F1F4E]">
+        {title}
+      </h3>
 
-      <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#5B6478]">
+      <p className="mt-2 flex-1 text-xs sm:text-[12.5px] leading-relaxed text-[#5B6478]">
         {description}
       </p>
     </div>
@@ -281,12 +283,12 @@ function PathwayIcon({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Closing CTA banner                                                  */
+/*  Closing CTA banner                                               */
 /* ----------------------------------------------------------------- */
 function ClosingCta() {
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-[#1F2E55] px-6 py-14 text-center sm:px-12 sm:py-16 animate-[zoikoSignalAccessFadeUp_0.6s_ease-out_forwards]"
+      className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#1F2E55] px-5 py-10 sm:px-12 sm:py-16 text-center animate-[zoikoSignalAccessFadeUp_0.6s_ease-out_forwards]"
       style={{
         opacity: 0,
         animationDelay: "750ms",
@@ -294,27 +296,27 @@ function ClosingCta() {
           "radial-gradient(120% 140% at 50% -10%, #16234A 0%, #0B1226 60%, #0A0F1F 100%)",
       }}
     >
-      <h3 className="font-[var(--font-plus-jakarta-sans)] text-2xl font-bold leading-tight text-white sm:text-[1.85rem]">
+      <h3 className="font-[var(--font-plus-jakarta-sans)] text-xl sm:text-[1.85rem] font-bold leading-tight text-white">
         See medicine access pressure before it becomes institutional friction.
       </h3>
 
-      <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-[#A9B2C8]">
+      <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-xs sm:text-[14px] leading-relaxed text-[#A9B2C8]">
         Use ZoikoSignal™ to understand medicine availability pressure, shortage
         movement, demand signals, and regional access risk through governed
         enterprise intelligence.
       </p>
 
-      <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <div className="mt-6 sm:mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <a
           href="#request"
-          className="inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
+          className="inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-xs sm:text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
           style={{ backgroundColor: ACCENT }}
         >
           Request ZoikoSignal™ Briefing
         </a>
         <a
           href="/pharmacy-dashboard"
-          className="inline-flex w-full items-center justify-center rounded-xl border border-[#3A4668] bg-transparent px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-white/5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
+          className="inline-flex w-full items-center justify-center rounded-xl border border-[#3A4668] bg-transparent px-6 py-3 text-xs sm:text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-white/5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
         >
           View Sample Intelligence Dashboard
         </a>
@@ -324,7 +326,7 @@ function ClosingCta() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Skeletons                                                           */
+/*  Skeletons                                                        */
 /* ----------------------------------------------------------------- */
 function HeaderSkeleton() {
   return (
@@ -337,27 +339,26 @@ function HeaderSkeleton() {
 
 function PathwayCardSkeleton() {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-6">
+    <div className="flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-5 sm:p-6">
       <div className="h-10 w-10 animate-pulse rounded-xl bg-[#E4E8F0]" />
       <div className="mt-4 h-4 w-2/3 animate-pulse rounded bg-[#E4E8F0]" />
       <div className="mt-3 flex-1 space-y-2">
         <div className="h-3 w-full animate-pulse rounded bg-[#E4E8F0]" />
         <div className="h-3 w-5/6 animate-pulse rounded bg-[#E4E8F0]" />
       </div>
-      <div className="mt-5 h-9 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
     </div>
   );
 }
 
 function ClosingCtaSkeleton() {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#1F2E55] bg-[#0B1226] px-6 py-14 sm:px-12 sm:py-16">
+    <div className="flex flex-col items-center gap-4 rounded-2xl sm:rounded-3xl border border-[#1F2E55] bg-[#0B1226] px-5 py-10 sm:px-12 sm:py-16 text-center">
       <div className="h-7 w-full max-w-md animate-pulse rounded-lg bg-white/10" />
       <div className="h-4 w-full max-w-lg animate-pulse rounded bg-white/10" />
       <div className="h-4 w-2/3 max-w-md animate-pulse rounded bg-white/10" />
-      <div className="mt-3 flex gap-3">
-        <div className="h-11 w-60 animate-pulse rounded-xl bg-white/10" />
-        <div className="h-11 w-60 animate-pulse rounded-xl bg-white/10" />
+      <div className="mt-3 flex w-full flex-col sm:flex-row justify-center gap-3">
+        <div className="h-11 w-full sm:w-60 animate-pulse rounded-xl bg-white/10" />
+        <div className="h-11 w-full sm:w-60 animate-pulse rounded-xl bg-white/10" />
       </div>
     </div>
   );

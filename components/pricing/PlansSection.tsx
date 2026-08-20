@@ -45,6 +45,7 @@ export default function PlansSection() {
         "Confidence & freshness guidance",
       ],
       buttonText: "Create Free Account",
+      href: "/register",
       buttonStyle:
         "bg-white hover:bg-gray-50 text-[#101828] border border-gray-200",
       footerNote: "No payment info required to search.",
@@ -67,6 +68,7 @@ export default function PlansSection() {
         "Pharmacist visibility controls",
       ],
       buttonText: "Join the Network",
+      href: "/join-the-network",
       buttonStyle:
         "bg-white hover:bg-gray-50 text-[#101828] border border-gray-200",
       footerNote: "No card. Never auto-converts to paid.",
@@ -89,6 +91,7 @@ export default function PlansSection() {
         "Approved analytics features",
       ],
       buttonText: "Start 30-Day Evaluation",
+      href: "https://zoiko-meds-platform.vercel.app/dashboard",
       buttonStyle: "bg-[#13A594] hover:bg-[#0f8779] text-white",
       footerNote: "Verified locations · no card · no auto-conversion.",
       isPopular: true,
@@ -109,6 +112,7 @@ export default function PlansSection() {
         "ZoikoAvail™ / ZoikoSignal™ / MediBase™",
       ],
       buttonText: "Request a Briefing",
+      href: "/request-a-briefing",
       buttonStyle:
         "bg-white hover:bg-gray-50 text-[#101828] border border-gray-200",
       footerNote: "Sales-led · invoice or Stripe per contract.",
@@ -117,7 +121,10 @@ export default function PlansSection() {
   ];
 
   return (
-    <section className="relative w-full bg-[#EEF2F7] text-[#1D1D1F] py-16 sm:py-20 md:py-24 px-6 sm:px-12 md:px-16 lg:px-24 font-sans antialiased overflow-hidden">
+    <section
+      id="plans"
+      className="relative w-full bg-[#EEF2F7] text-[#1D1D1F] py-16 sm:py-20 md:py-24 px-6 sm:px-12 md:px-16 lg:px-24 font-sans antialiased overflow-hidden"
+    >
       <div className="relative max-w-6xl mx-auto w-full z-10">
         <motion.div
           variants={containerVariants}
@@ -215,7 +222,7 @@ export default function PlansSection() {
                   {/* Bottom Action Area */}
                   <div className="pt-2">
                     <a
-                      href="#"
+                      href={plan.href}
                       className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-medium transition-colors duration-200 shadow-sm flex items-center justify-center text-center ${plan.buttonStyle}`}
                     >
                       {plan.buttonText}

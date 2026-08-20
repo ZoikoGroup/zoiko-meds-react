@@ -42,13 +42,13 @@ export default function CtaBannerSection() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
             <a
-              href="#"
+              href="https://zoiko-meds-platform.vercel.app/dashboard"
               className="bg-[#13A594] hover:bg-[#0f8779] text-white font-medium text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-colors duration-200 shadow-sm text-center min-w-[220px]"
             >
               Start 30-Day Pro Evaluation
             </a>
             <a
-              href="#"
+              href="/request-a-briefing"
               className="bg-transparent hover:bg-[#1B2B45] text-white border border-[#2B3E5C] font-medium text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-colors duration-200 text-center min-w-[220px]"
             >
               Request an Enterprise Briefing

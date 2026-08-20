@@ -32,7 +32,7 @@ export default function Hero() {
                                 Join Pharmacy Network
                             </button>
 
-                            <button className="rounded-xl border border-[#D0D5DD] bg-white px-6 cursor-pointer py-3 font-semibold text-[#0D1B2E] transition hover:bg-gray-50">
+                            <button onClick={()=>router.push("#join-the-network")} className="rounded-xl border border-[#D0D5DD] bg-white px-6 cursor-pointer py-3 font-semibold text-[#0D1B2E] transition hover:bg-gray-50">
                                 Request a Dashboard Demo
                             </button>
                         </div>
