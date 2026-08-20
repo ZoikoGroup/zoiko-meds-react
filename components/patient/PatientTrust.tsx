@@ -21,7 +21,7 @@ export default function PatientTrust() {
               "We never ask for or store prescription numbers",
               "Your search history is never sold to third parties",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2 text[16px] text[#151C27]">
+              <li key={item} className="flex items-start gap-2 text[16px] text-[#151C27]">
                 {item}
               </li>
             ))}
@@ -45,7 +45,7 @@ export default function PatientTrust() {
               "We cannot issue or verify prescriptions",
               "Availability signals are estimates and can change quickly",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2 text[16px] text[#151C27]">
+              <li key={item} className="flex items-start gap-2 text[16px] text-[#151C27]">
                 {item}
               </li>
             ))}

@@ -20,22 +20,26 @@ export default function GovernmentPublicHealthHeroSection() {
           <div className="flex flex-col">
             {/* Breadcrumb */}
             <Reveal index={0} active={mounted}>
-              <nav className="mb-5 flex items-center gap-1.5 text-[11.5px] text-[#8A96B0]">
+              <nav className="mb-5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10.5px] sm:text-[11.5px] leading-relaxed text-[#8A96B0]">
                 <Link
                   href="/"
-                  className="hover:text-[#0F1F4E] transition-colors"
+                  className="shrink-0 transition-colors hover:text-[#0F1F4E]"
                 >
                   Home
                 </Link>
-                <span>/</span>
+
+                <span className="shrink-0">/</span>
+
                 <Link
                   href="/enterprise"
-                  className="hover:text-[#0F1F4E] transition-colors"
+                  className="transition-colors hover:text-[#0F1F4E]"
                 >
                   Enterprise &amp; Intelligence
                 </Link>
-                <span>/</span>
-                <span className="text-[#0F1F4E] font-medium">
+
+                <span className="shrink-0">/</span>
+
+                <span className="font-medium text-[#0F1F4E]">
                   Government &amp; public health
                 </span>
               </nav>

@@ -9,6 +9,7 @@ import {
   sanitizePhoneInput,
   scrollToFirstError,
 } from "@/lib/validation";
+import { useRouter } from "next/navigation";
 
 type CapabilityOption =
   | "Availability Intelligence"
@@ -54,11 +55,13 @@ const WHY_ITEMS: WhyItem[] = [
   },
   {
     title: "Confidence-based",
-    description: "Signals and tiers, never exact inventory or unauthorized users.",
+    description:
+      "Signals and tiers, never exact inventory or unauthorized users.",
   },
   {
     title: "Enterprise-ready",
-    description: "SSO, role-based access, APIs, audit trails, and compliance-ready reporting.",
+    description:
+      "SSO, role-based access, APIs, audit trails, and compliance-ready reporting.",
   },
   {
     title: "Responsible AI",
@@ -77,10 +80,14 @@ export default function FeaturesBookDemoSection() {
   const [jobTitle, setJobTitle] = useState("");
   const [orgType, setOrgType] = useState("");
   const [country, setCountry] = useState("");
-  const [capabilities, setCapabilities] = useState<Set<CapabilityOption>>(new Set());
+  const [capabilities, setCapabilities] = useState<Set<CapabilityOption>>(
+    new Set(),
+  );
   const [message, setMessage] = useState("");
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const router = useRouter();
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -93,7 +100,7 @@ export default function FeaturesBookDemoSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(node);
@@ -122,24 +129,36 @@ export default function FeaturesBookDemoSection() {
 
   useEffect(() => {
     if (status === "success" && successRef.current) {
-      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      successRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   }, [status]);
 
   function validateSingleField(name: string, value: string): string {
-    if (name === "fullName") return !value.trim() ? "Full name is required." : "";
+    if (name === "fullName")
+      return !value.trim() ? "Full name is required." : "";
     if (name === "workEmail") {
       const res = validateEmail(value);
-      return res.isValid ? "" : res.error || "Please enter a valid email address.";
+      return res.isValid
+        ? ""
+        : res.error || "Please enter a valid email address.";
     }
     if (name === "phone") {
       const res = validatePhone(value, false);
-      return res.isValid ? "" : res.error || "Please enter a valid phone number.";
+      return res.isValid
+        ? ""
+        : res.error || "Please enter a valid phone number.";
     }
-    if (name === "organization") return !value.trim() ? "Organization is required." : "";
-    if (name === "jobTitle") return !value.trim() ? "Job title is required." : "";
-    if (name === "orgType") return !value.trim() ? "Please select an organization type." : "";
-    if (name === "country") return !value.trim() ? "Country / region is required." : "";
+    if (name === "organization")
+      return !value.trim() ? "Organization is required." : "";
+    if (name === "jobTitle")
+      return !value.trim() ? "Job title is required." : "";
+    if (name === "orgType")
+      return !value.trim() ? "Please select an organization type." : "";
+    if (name === "country")
+      return !value.trim() ? "Country / region is required." : "";
     return "";
   }
 
@@ -234,7 +253,11 @@ export default function FeaturesBookDemoSection() {
         }),
       });
 
-      let data: { success?: boolean; errors?: Record<string, string>; message?: string } = {};
+      let data: {
+        success?: boolean;
+        errors?: Record<string, string>;
+        message?: string;
+      } = {};
       try {
         data = await res.json();
       } catch {}
@@ -270,7 +293,11 @@ export default function FeaturesBookDemoSection() {
   }
 
   return (
-    <section id="book-a-demo" ref={sectionRef} className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20">
+    <section
+      id="book-a-demo"
+      ref={sectionRef}
+      className="bg-[#F4F6FA] px-6 py-20 md:px-12 lg:px-20"
+    >
       <div className="mx-auto max-w-6xl">
         <BookDemoFadeUp show={isVisible} delay={0}>
           <span className="text-xs font-bold tracking-[0.18em] text-[#0FAA87]">
@@ -280,15 +307,17 @@ export default function FeaturesBookDemoSection() {
 
         <BookDemoFadeUp show={isVisible} delay={80}>
           <h2 className="mt-4 max-w-2xl text-[1.9rem] font-bold leading-[1.2] text-[#0F1F4E] sm:text-[2.3rem] lg:text-[2.5rem]">
-            See ZoikoMeds capabilities <span className="text-[#0FAA87]">matched to</span>{" "}
+            See ZoikoMeds capabilities{" "}
+            <span className="text-[#0FAA87]">matched to</span>{" "}
             <span className="text-[#0FAA87]">your organization.</span>
           </h2>
         </BookDemoFadeUp>
 
         <BookDemoFadeUp show={isVisible} delay={140}>
           <p className="mt-3 max-w-2xl text-[0.95rem] leading-relaxed text-[#6B7385]">
-            Book a demo or talk to sales to explore availability intelligence, pharmacy network
-            workflows, shortage awareness, analytics, reporting, and secure integrations.
+            Book a demo or talk to sales to explore availability intelligence,
+            pharmacy network workflows, shortage awareness, analytics,
+            reporting, and secure integrations.
           </p>
         </BookDemoFadeUp>
 
@@ -308,11 +337,14 @@ export default function FeaturesBookDemoSection() {
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
-                      if (errors.fullName) handleBlur("fullName", e.target.value);
+                      if (errors.fullName)
+                        handleBlur("fullName", e.target.value);
                     }}
                     onBlur={(e) => handleBlur("fullName", e.target.value)}
                     aria-invalid={!!errors.fullName}
-                    aria-describedby={errors.fullName ? "fullName-error" : undefined}
+                    aria-describedby={
+                      errors.fullName ? "fullName-error" : undefined
+                    }
                     className={`input ${errors.fullName ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
@@ -325,11 +357,14 @@ export default function FeaturesBookDemoSection() {
                     value={workEmail}
                     onChange={(e) => {
                       setWorkEmail(e.target.value);
-                      if (errors.workEmail) handleBlur("workEmail", e.target.value);
+                      if (errors.workEmail)
+                        handleBlur("workEmail", e.target.value);
                     }}
                     onBlur={(e) => handleBlur("workEmail", e.target.value)}
                     aria-invalid={!!errors.workEmail}
-                    aria-describedby={errors.workEmail ? "workEmail-error" : undefined}
+                    aria-describedby={
+                      errors.workEmail ? "workEmail-error" : undefined
+                    }
                     className={`input placeholder:text-[#A6ACBB] ${errors.workEmail ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
@@ -349,18 +384,25 @@ export default function FeaturesBookDemoSection() {
                   />
                 </Field>
 
-                <Field label="Organization" required error={errors.organization}>
+                <Field
+                  label="Organization"
+                  required
+                  error={errors.organization}
+                >
                   <input
                     type="text"
                     name="organization"
                     value={organization}
                     onChange={(e) => {
                       setOrganization(e.target.value);
-                      if (errors.organization) handleBlur("organization", e.target.value);
+                      if (errors.organization)
+                        handleBlur("organization", e.target.value);
                     }}
                     onBlur={(e) => handleBlur("organization", e.target.value)}
                     aria-invalid={!!errors.organization}
-                    aria-describedby={errors.organization ? "organization-error" : undefined}
+                    aria-describedby={
+                      errors.organization ? "organization-error" : undefined
+                    }
                     className={`input ${errors.organization ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
@@ -372,27 +414,37 @@ export default function FeaturesBookDemoSection() {
                     value={jobTitle}
                     onChange={(e) => {
                       setJobTitle(e.target.value);
-                      if (errors.jobTitle) handleBlur("jobTitle", e.target.value);
+                      if (errors.jobTitle)
+                        handleBlur("jobTitle", e.target.value);
                     }}
                     onBlur={(e) => handleBlur("jobTitle", e.target.value)}
                     aria-invalid={!!errors.jobTitle}
-                    aria-describedby={errors.jobTitle ? "jobTitle-error" : undefined}
+                    aria-describedby={
+                      errors.jobTitle ? "jobTitle-error" : undefined
+                    }
                     className={`input ${errors.jobTitle ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                   />
                 </Field>
 
-                <Field label="Organization type" required error={errors.orgType}>
+                <Field
+                  label="Organization type"
+                  required
+                  error={errors.orgType}
+                >
                   <div className="relative">
                     <select
                       name="orgType"
                       value={orgType}
                       onChange={(e) => {
                         setOrgType(e.target.value);
-                        if (errors.orgType) handleBlur("orgType", e.target.value);
+                        if (errors.orgType)
+                          handleBlur("orgType", e.target.value);
                       }}
                       onBlur={(e) => handleBlur("orgType", e.target.value)}
                       aria-invalid={!!errors.orgType}
-                      aria-describedby={errors.orgType ? "orgType-error" : undefined}
+                      aria-describedby={
+                        errors.orgType ? "orgType-error" : undefined
+                      }
                       className={`input appearance-none pr-9 text-[#0F1F4E] ${errors.orgType ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                     >
                       <option value="" disabled className="text-[#A6ACBB]">
@@ -421,7 +473,11 @@ export default function FeaturesBookDemoSection() {
                 </Field>
 
                 <div className="sm:col-span-2">
-                  <Field label="Country / region" required error={errors.country}>
+                  <Field
+                    label="Country / region"
+                    required
+                    error={errors.country}
+                  >
                     <input
                       type="text"
                       name="country"
@@ -429,11 +485,14 @@ export default function FeaturesBookDemoSection() {
                       value={country}
                       onChange={(e) => {
                         setCountry(e.target.value);
-                        if (errors.country) handleBlur("country", e.target.value);
+                        if (errors.country)
+                          handleBlur("country", e.target.value);
                       }}
                       onBlur={(e) => handleBlur("country", e.target.value)}
                       aria-invalid={!!errors.country}
-                      aria-describedby={errors.country ? "country-error" : undefined}
+                      aria-describedby={
+                        errors.country ? "country-error" : undefined
+                      }
                       className={`input placeholder:text-[#A6ACBB] ${errors.country ? "!border-[#E14B4B] focus:!border-[#E14B4B]" : ""}`}
                     />
                   </Field>
@@ -460,7 +519,11 @@ export default function FeaturesBookDemoSection() {
                           }`}
                         >
                           {checked && (
-                            <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="none">
+                            <svg
+                              viewBox="0 0 12 12"
+                              className="h-2.5 w-2.5 text-white"
+                              fill="none"
+                            >
                               <path
                                 d="M2 6L4.8 8.8L10 3"
                                 stroke="currentColor"
@@ -483,7 +546,10 @@ export default function FeaturesBookDemoSection() {
                   })}
                 </div>
                 {errors.capabilities && (
-                  <p className="mt-1.5 text-[12px] font-medium text-[#E14B4B]" role="alert">
+                  <p
+                    className="mt-1.5 text-[12px] font-medium text-[#E14B4B]"
+                    role="alert"
+                  >
                     {errors.capabilities}
                   </p>
                 )}
@@ -505,11 +571,17 @@ export default function FeaturesBookDemoSection() {
                 <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[0.8rem] leading-relaxed text-[#6B7385]">
                   <span
                     className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-                      consent ? "border-[#0FAA87] bg-[#0FAA87]" : "border-[#CBD1DE] bg-white"
+                      consent
+                        ? "border-[#0FAA87] bg-[#0FAA87]"
+                        : "border-[#CBD1DE] bg-white"
                     }`}
                   >
                     {consent && (
-                      <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="none">
+                      <svg
+                        viewBox="0 0 12 12"
+                        className="h-2.5 w-2.5 text-white"
+                        fill="none"
+                      >
                         <path
                           d="M2 6L4.8 8.8L10 3"
                           stroke="currentColor"
@@ -531,14 +603,21 @@ export default function FeaturesBookDemoSection() {
                       }
                     }}
                   />
-                  I consent for ZoikoMeds to contact me about this request and acknowledge the{" "}
-                  <a href="/privacy-center" className="font-semibold text-[#0FAA87] hover:underline">
+                  I consent for ZoikoMeds to contact me about this request and
+                  acknowledge the{" "}
+                  <a
+                    href="/privacy-center"
+                    className="font-semibold text-[#0FAA87] hover:underline"
+                  >
                     privacy notice
                   </a>
                   . <span className="text-[#E14B4B]">*</span>
                 </label>
                 {errors.consent && (
-                  <p className="mt-1 text-[12px] font-medium text-[#E14B4B]" role="alert">
+                  <p
+                    className="mt-1 text-[12px] font-medium text-[#E14B4B]"
+                    role="alert"
+                  >
                     {errors.consent}
                   </p>
                 )}
@@ -552,9 +631,25 @@ export default function FeaturesBookDemoSection() {
                 >
                   {submitting ? (
                     <>
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" />
-                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                      <svg
+                        className="h-4 w-4 animate-spin"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="9"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        />
+                        <path
+                          d="M21 12a9 9 0 0 0-9-9"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                        />
                       </svg>
                       <span>Submitting...</span>
                     </>
@@ -564,8 +659,7 @@ export default function FeaturesBookDemoSection() {
                 </button>
                 <button
                   type="button"
-                  onClick={(e) => handleSubmit(e, "sales")}
-                  disabled={submitting}
+                  onClick={() => router.push("/talk-to-sales")}
                   className="inline-flex items-center justify-center rounded-lg border border-[#DADFE8] bg-white px-5 py-3 text-sm font-semibold text-[#0F1F4E] transition-colors duration-300 hover:border-[#0FAA87] hover:text-[#0FAA87] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Talk to Sales
@@ -573,21 +667,36 @@ export default function FeaturesBookDemoSection() {
               </div>
 
               <p className="mt-4 text-[0.75rem] leading-relaxed text-[#8A90A0]">
-                A ZoikoMeds representative will review your request and route you to the most
-                relevant path. Not medical advice, dispensing, or a pharmacy service — don&apos;t
-                include PHI, prescriptions, or exact stock.
+                A ZoikoMeds representative will review your request and route
+                you to the most relevant path. Not medical advice, dispensing,
+                or a pharmacy service — don&apos;t include PHI, prescriptions,
+                or exact stock.
               </p>
 
               {status === "success" && (
-                <div ref={successRef} className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]">
+                <div
+                  ref={successRef}
+                  className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-4 text-center text-[13.5px] text-[#00786F]"
+                >
                   <div className="flex flex-col items-center justify-center gap-1.5 text-center">
-                    <svg className="h-6 w-6 text-[#13A594]" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      className="h-6 w-6 text-[#13A594]"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     <div>
-                      <p className="font-bold text-[#00786F]">Request Submitted Successfully</p>
+                      <p className="font-bold text-[#00786F]">
+                        Request Submitted Successfully
+                      </p>
                       <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#056059]">
-                        Thank you! Our team will review your request and contact you soon.
+                        Thank you! Our team will review your request and contact
+                        you soon.
                       </p>
                     </div>
                   </div>
@@ -596,7 +705,9 @@ export default function FeaturesBookDemoSection() {
 
               {status === "error" && Object.keys(errors).length === 0 && (
                 <div className="mt-4 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
-                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                  <p className="font-medium">
+                    {errorMessage || "Something went wrong. Please try again."}
+                  </p>
                 </div>
               )}
             </form>
@@ -616,7 +727,9 @@ export default function FeaturesBookDemoSection() {
                       strokeWidth={2}
                     />
                     <div>
-                      <p className="text-[0.83rem] font-bold text-white">{item.title}</p>
+                      <p className="text-[0.83rem] font-bold text-white">
+                        {item.title}
+                      </p>
                       <p className="mt-1 text-[0.8rem] leading-relaxed text-[#AEB6CC]">
                         {item.description}
                       </p>
@@ -670,11 +783,16 @@ function Field({
       <span className="text-[0.8rem] font-semibold text-[#0F1F4E]">
         {label}
         {required && <span className="text-[#E14B4B]"> *</span>}
-        {optional && <span className="ml-1 font-normal text-[#A6ACBB]">(optional)</span>}
+        {optional && (
+          <span className="ml-1 font-normal text-[#A6ACBB]">(optional)</span>
+        )}
       </span>
       <div className="mt-1.5">{children}</div>
       {error && (
-        <p className="mt-1.5 text-[12px] font-medium text-[#E14B4B]" role="alert">
+        <p
+          className="mt-1.5 text-[12px] font-medium text-[#E14B4B]"
+          role="alert"
+        >
           {error}
         </p>
       )}
