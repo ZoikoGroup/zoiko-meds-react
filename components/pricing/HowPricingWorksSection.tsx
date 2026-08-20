@@ -62,12 +62,12 @@ export default function HowPricingWorksSection() {
           {/* Header Section */}
           <motion.div
             variants={itemVariants}
-            className="space-y-3 text-left max-w-3xl"
+            className="space-y-3 mx-auto text-center"
           >
             <span className="text-xs sm:text-sm font-semibold tracking-[1px] text-[#13A594] uppercase block">
               03 &nbsp;·&nbsp; HOW PRICING WORKS
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-[2.5rem] font-bold text-[#101828] leading-[1.15] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-[35px] max-w-2xl font-bold text-[#101828] leading-[1.15] tracking-tight">
               The billing unit is the verified pharmacy location.
             </h2>
           </motion.div>

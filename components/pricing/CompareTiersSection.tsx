@@ -159,11 +159,11 @@ export default function CompareTiersSection() {
           className="flex flex-col gap-8"
         >
           {/* Header Section */}
-          <motion.div variants={itemVariants} className="space-y-2 text-left">
+          <motion.div variants={itemVariants} className="space-y-2 text-center">
             <span className="text-xs sm:text-sm font-semibold tracking-[1px] text-[#13A594] uppercase block">
               04 &nbsp;·&nbsp; COMPARE TIERS
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-[2.5rem] font-bold text-[#0D1B2E] leading-[1.15] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-[35px] font-bold text-[#0D1B2E] leading-[1.15] tracking-tight">
               What's included at each tier.
             </h2>
           </motion.div>
