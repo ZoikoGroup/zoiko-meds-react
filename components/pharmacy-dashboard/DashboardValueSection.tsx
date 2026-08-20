@@ -1,9 +1,14 @@
+"use client"
+
+import { useRouter } from "next/navigation";
+
 interface RoleRow {
   title: string;
   subtitle: string;
   details: string;
   action: string;
   primary?: boolean;
+  href: string;
 }
 
 const rows: RoleRow[] = [
@@ -13,34 +18,40 @@ const rows: RoleRow[] = [
     details:
       "Profile, service area, and confidence signals improve responsible discoverability.",
     action: "Join Pharmacy Network",
+    href: "#join-the-network",
     primary: true,
   },
+
   {
     title: "Multi-location oversight",
     subtitle: "A pharmacy group wants location-level participation control.",
     details:
       "Network admin view shows activity, role permissions, and location health.",
     action: "Request Group Demo",
+    href: "#join-the-network",
   },
+
   {
     title: "Access signal reporting",
     subtitle:
       "Leadership needs visibility into demand, response, and access patterns.",
-    details:
-      "Reports summarize pharmacy contribution and access intelligence.",
+    details: "Reports summarize pharmacy contribution and access intelligence.",
     action: "Request Sample Report",
+    href: "/reports",
   },
+
   {
     title: "Controlled visibility",
-    subtitle:
-      "Wants participation without unsafe public stock exposure.",
+    subtitle: "Wants participation without unsafe public stock exposure.",
     details:
       "Role-based controls and confidence tiers protect sensitive information.",
     action: "Review Trust Controls",
+    href: "/trust-center",
   },
 ];
 
 export default function DashboardValueSection() {
+  const router = useRouter();
   return (
     <section className="bg-[#f6f9fc] px-6 py-16 sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
@@ -49,16 +60,16 @@ export default function DashboardValueSection() {
         </p>
         <h2 className="max-w-2xl text-3xl md:text-[32px] font-semibold leading-snug text-gray-900">
           Dashboard value, mapped to{" "}
-          <span className="text-[#0FAA87]">pharmacy
-            roles.</span>
+          <span className="text-[#0FAA87]">pharmacy roles.</span>
         </h2>
 
         <div className="mt-10 overflow-hidden rounded-xl border border-gray-200 bg-white">
           {rows.map((row, index) => (
             <div
               key={row.title}
-              className={`grid gap-6 p-6 md:grid-cols-[1.2fr_2fr_auto] md:items-center ${index !== rows.length - 1 ? "border-b border-gray-200" : ""
-                }`}
+              className={`grid gap-6 p-6 md:grid-cols-[1.2fr_2fr_auto] md:items-center ${
+                index !== rows.length - 1 ? "border-b border-gray-200" : ""
+              }`}
             >
               {/* Left */}
               <div>
@@ -77,10 +88,12 @@ export default function DashboardValueSection() {
 
               {/* Right */}
               <button
-                className={`h-12 rounded-xl px-8 text-base font-semibold transition ${row.primary
+                onClick={() => router.push(row.href)}
+                className={`h-12 cursor-pointer rounded-xl px-8 text-base font-semibold transition ${
+                  row.primary
                     ? "bg-[#1AA89C] text-white hover:bg-[#16988D]"
                     : "border border-[#D8E2EC] bg-white text-[#0D1526] hover:bg-gray-50"
-                  }`}
+                }`}
               >
                 {row.action}
               </button>

@@ -15,38 +15,44 @@ export default function ZoikoSignalIntelligenceHeroSection() {
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-10 sm:py-20">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ---------------- Breadcrumb ---------------- */}
         {mounted ? (
           <Reveal index={0}>
-            <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
+            <nav className="mb-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-1 text-[11px] sm:text-[12.5px] leading-relaxed text-[#8891A4]">
               <a
                 href="/"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                className="shrink-0 transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Home
               </a>
-              <span>/</span>
+
+              <span className="shrink-0">/</span>
+
               <a
                 href="/enterprise"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Enterprise &amp; Intelligence
               </a>
-              <span>/</span>
-              <span className="text-[#0F1F4E]">ZoikoSignal™ intelligence</span>
+
+              <span className="shrink-0">/</span>
+
+              <span className="font-medium text-[#0F1F4E]">
+                ZoikoSignal™ intelligence
+              </span>
             </nav>
           </Reveal>
         ) : (
-          <div className="mb-6 h-4 w-72 animate-pulse rounded bg-[#E4E8F0]" />
+          <div className="mb-6 h-4 w-60 sm:w-72 mx-auto lg:mx-0 animate-pulse rounded bg-[#E4E8F0]" />
         )}
 
-        <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-16">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
           {/* ---------------- Left column ---------------- */}
-          <div>
+          <div className="text-center lg:text-left">
             {mounted ? (
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col items-center lg:items-start gap-4 sm:gap-5">
                 <Reveal index={1}>
                   <span
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
@@ -57,15 +63,15 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                 </Reveal>
 
                 <Reveal index={2}>
-                  <h1 className="font-[var(--font-plus-jakarta-sans)] text-4xl font-bold leading-[1.15] text-[#0F1F4E] sm:text-[2.65rem]">
+                  <h1 className="font-[var(--font-plus-jakarta-sans)] text-3xl font-bold leading-[1.2] text-[#0F1F4E] sm:text-[2.65rem] sm:leading-[1.15]">
                     Medicine availability
-                    <br />
-                    intelligence for institutions.
+                    <br className="hidden sm:inline" /> intelligence for
+                    institutions.
                   </h1>
                 </Reveal>
 
                 <Reveal index={3}>
-                  <p className="max-w-lg text-[15px] leading-relaxed text-[#5B6478]">
+                  <p className="max-w-lg text-sm sm:text-[15px] leading-relaxed text-[#5B6478]">
                     ZoikoSignal™ turns aggregated medicine availability signals,
                     shortage pressure, demand movement, restock patterns, and
                     regional access risk into governed intelligence for health
@@ -75,11 +81,11 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                 </Reveal>
 
                 <Reveal index={4}>
-                  <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+                  <div className="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                     <button
                       onClick={() => router.push("#request")}
                       type="button"
-                      className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                      className="group cursor-pointer relative w-full sm:w-auto overflow-hidden rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.boxShadow =
@@ -98,7 +104,7 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                     <button
                       type="button"
                       onClick={() => router.push("/pharmacy-dashboard")}
-                      className="rounded-xl border border-[#D7DCE6] cursor-pointer bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+                      className="w-full sm:w-auto rounded-xl border border-[#D7DCE6] cursor-pointer bg-white px-6 py-3.5 text-center text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
                       View Sample Intelligence Dashboard
                     </button>
@@ -106,7 +112,7 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                 </Reveal>
 
                 <Reveal index={6}>
-                  <p className="mt-1 flex max-w-lg items-start gap-2.5 text-[12.5px] leading-relaxed text-[#8891A4]">
+                  <p className="mt-1 flex max-w-lg items-start gap-2.5 text-left text-[11.5px] sm:text-[12.5px] leading-relaxed text-[#8891A4]">
                     <svg
                       className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
                       viewBox="0 0 16 16"
@@ -119,9 +125,11 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Aggregated intelligence. Privacy thresholds. Contract-scoped
-                    outputs. No identifiable patient-data sales. No exact public
-                    pharmacy stock exposure.
+                    <span>
+                      Aggregated intelligence. Privacy thresholds.
+                      Contract-scoped outputs. No identifiable patient-data
+                      sales. No exact public pharmacy stock exposure.
+                    </span>
                   </p>
                 </Reveal>
               </div>
@@ -137,11 +145,11 @@ export default function ZoikoSignalIntelligenceHeroSection() {
                 <img
                   src="/signal/hero.png"
                   alt="ZoikoSignal Intelligence Dashboard"
-                  className="w-full h-auto object-contain rounded-2xl"
+                  className="w-full h-auto max-h-[380px] sm:max-h-none object-contain rounded-2xl shadow-sm sm:shadow-none"
                 />
               </Reveal>
             ) : (
-              <div className="h-80 w-full animate-pulse rounded-2xl bg-[#E4E8F0]" />
+              <div className="h-64 sm:h-80 w-full animate-pulse rounded-2xl bg-[#E4E8F0]" />
             )}
           </div>
         </div>
@@ -151,7 +159,7 @@ export default function ZoikoSignalIntelligenceHeroSection() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Reveal: bottom -> top staggered fade-up wrapper                  */
+/* Reveal: bottom -> top staggered fade-up wrapper                  */
 /* ----------------------------------------------------------------- */
 function Reveal({
   children,
@@ -162,7 +170,7 @@ function Reveal({
 }) {
   return (
     <div
-      className="animate-[zoikoSignalFadeUp_0.6s_ease-out_forwards]"
+      className="w-full animate-[zoikoSignalFadeUp_0.6s_ease-out_forwards]"
       style={{ opacity: 0, animationDelay: `${index * 90}ms` }}
     >
       {children}
@@ -183,24 +191,23 @@ function Reveal({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Skeleton                                                         */
+/* Skeleton                                                         */
 /* ----------------------------------------------------------------- */
 function LeftSkeleton() {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col items-center lg:items-start gap-4 sm:gap-5">
       <div className="h-4 w-44 animate-pulse rounded bg-[#E4E8F0]" />
-      <div className="space-y-3">
-        <div className="h-9 w-full max-w-lg animate-pulse rounded-lg bg-[#E4E8F0]" />
-        <div className="h-9 w-5/6 max-w-lg animate-pulse rounded-lg bg-[#E4E8F0]" />
+      <div className="space-y-3 w-full flex flex-col items-center lg:items-start">
+        <div className="h-8 sm:h-9 w-full max-w-lg animate-pulse rounded-lg bg-[#E4E8F0]" />
+        <div className="h-8 sm:h-9 w-5/6 max-w-lg animate-pulse rounded-lg bg-[#E4E8F0]" />
       </div>
       <div className="h-4 w-full max-w-lg animate-pulse rounded bg-[#E4E8F0]" />
       <div className="h-4 w-5/6 max-w-lg animate-pulse rounded bg-[#E4E8F0]" />
       <div className="h-4 w-3/4 max-w-md animate-pulse rounded bg-[#E4E8F0]" />
-      <div className="mt-2 flex gap-3">
-        <div className="h-11 w-60 animate-pulse rounded-xl bg-[#E4E8F0]" />
-        <div className="h-11 w-64 animate-pulse rounded-xl bg-[#E4E8F0]" />
+      <div className="mt-2 flex w-full flex-col sm:flex-row gap-3">
+        <div className="h-11 w-full sm:w-60 animate-pulse rounded-xl bg-[#E4E8F0]" />
+        <div className="h-11 w-full sm:w-64 animate-pulse rounded-xl bg-[#E4E8F0]" />
       </div>
-      <div className="h-4 w-48 animate-pulse rounded bg-[#E4E8F0]" />
       <div className="h-10 w-full max-w-lg animate-pulse rounded bg-[#E4E8F0]" />
     </div>
   );

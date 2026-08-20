@@ -103,10 +103,6 @@ export default function CoreModulesSection() {
               </div>
               <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-gray-500">{description}</p>
-              <button className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal-600 hover:text-teal-700">
-                {action}
-                <ArrowRight size={14} />
-              </button>
             </div>
           ))}
         </div>

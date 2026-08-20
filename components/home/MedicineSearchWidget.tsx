@@ -650,7 +650,7 @@ export default function MedicineSearchWidget() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] text-xs font-medium
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-[10px] text-xs font-medium
               transition-all duration-200 whitespace-nowrap
               ${tab === t ? "bg-white text-[#0D1A33] shadow-[0_1px_6px_rgba(0,0,0,0.10)]" : "text-[#6A7A9A] hover:text-[#0D1A33]"}`}
           >
