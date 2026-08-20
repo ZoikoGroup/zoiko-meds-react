@@ -17,6 +17,7 @@ interface CardData {
   features: Feature[];
   buttonText: string;
   buttonVariant: "primary" | "secondary";
+  href:string;
 }
 
 const CARDS_DATA: CardData[] = [
@@ -24,6 +25,7 @@ const CARDS_DATA: CardData[] = [
     icon: BarChart2,
     title: "Intelligence Pro",
     badge: "30-day evaluation · no card · no auto-conversion",
+    href:"https://zoiko-meds-platform.vercel.app/dashboard",
     description:
       "A predictable per-location subscription for decision-support intelligence — demand visibility, unfulfilled-search insight, restock signals, and advanced routing. It never converts routing or dashboards into paid search ranking.",
     features: [
@@ -55,6 +57,7 @@ const CARDS_DATA: CardData[] = [
     icon: Building2,
     title: "Enterprise, API & Data",
     badge: "Signed Order Form · explicit metric · customer-visible usage",
+    href:"/request-a-briefing",
     description:
       "Custom agreements for chains, hospitals, health systems, governments, PMS partners, and data customers who need multi-location governance, SLAs, residency, or custom deployment.",
     features: [
@@ -187,7 +190,7 @@ export default function ProAndEnterpriseDetailSection() {
                   {/* Action Button (Aligned to start with horizontal padding instead of full width) */}
                   <div className="pt-2 flex justify-start">
                     <a
-                      href="#"
+                      href={card.href}
                       className={`inline-flex items-center justify-center px border text-xs sm:text-sm font-medium rounded-xl transition-colors duration-200 shadow-sm ${
                         card.buttonVariant === "primary"
                           ? "bg-[#13A594] px-10 py-3 hover:bg-[#0f8779] text-white border-transparent"

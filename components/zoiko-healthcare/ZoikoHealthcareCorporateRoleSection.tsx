@@ -23,7 +23,7 @@ const ROLE_ROWS = [
   {
     tag: "Parent group",
     name: "Zoiko Group Inc.",
-    link: "/about",
+    link: "/zoiko-group",
     description:
       "Parent group and broader corporate ecosystem supporting strategic direction and group governance.",
     cta: "Learn About Zoiko Group",
