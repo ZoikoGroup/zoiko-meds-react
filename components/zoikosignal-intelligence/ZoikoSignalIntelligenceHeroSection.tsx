@@ -20,22 +20,28 @@ export default function ZoikoSignalIntelligenceHeroSection() {
         {/* ---------------- Breadcrumb ---------------- */}
         {mounted ? (
           <Reveal index={0}>
-            <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
+            <nav className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-[12.5px] leading-relaxed text-[#8891A4]">
               <a
                 href="/"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                className="shrink-0 transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Home
               </a>
-              <span>/</span>
+
+              <span className="shrink-0">/</span>
+
               <a
                 href="/enterprise"
                 className="transition-colors duration-200 hover:text-[#0F1F4E]"
               >
                 Enterprise &amp; Intelligence
               </a>
-              <span>/</span>
-              <span className="text-[#0F1F4E]">ZoikoSignal™ intelligence</span>
+
+              <span className="shrink-0">/</span>
+
+              <span className="font-medium text-[#0F1F4E]">
+                ZoikoSignal™ intelligence
+              </span>
             </nav>
           </Reveal>
         ) : (

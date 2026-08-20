@@ -50,12 +50,12 @@ export default function IntelligenceStack() {
               <h2
                 className="font-bold mb-3"
                 style={{
-                     fontFamily: 'Inter, sans-serif',
-                        fontSize: '24px',
-                        fontWeight: 600,
-                        lineHeight: '32px',
-                        letterSpacing: '0px',
-                        color: '#000615',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '24px',
+                  fontWeight: 600,
+                  lineHeight: '32px',
+                  letterSpacing: '0px',
+                  color: '#000615',
                 }}
               >
                 Intelligence Delivery
@@ -79,11 +79,11 @@ export default function IntelligenceStack() {
               <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-4 mb-4">
                   {/* Icon Container */}
-                  <div className="bg-slate-900  rounded-lg p-3 flex-shrink-0 flex items-center justify-center w-12 h-12">
+                  <div className="bg-slate-900 rounded-lg p-3 flex-shrink-0 flex items-center justify-center w-12 h-12">
                     <TiChartLine size={24} className="text-white" />
                   </div>
                   {/* Card Title and Link */}
-                  <div className="flex-1 flex items-center justify-between gap-4">
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                     <h3
                       style={{
                         fontFamily: 'Inter, sans-serif',
@@ -141,7 +141,7 @@ export default function IntelligenceStack() {
                     <MdSettings size={24} className="text-white" />
                   </div>
                   {/* Card Title and Link */}
-                  <div className="flex-1 flex items-center justify-between gap-4">
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                     <h3
                       style={{
                         fontFamily: 'Inter, sans-serif',
@@ -192,12 +192,12 @@ export default function IntelligenceStack() {
               <h2
                 className="font-bold mb-3"
                 style={{
-                    fontFamily: 'Inter, sans-serif',
-                        fontSize: '24px',
-                        fontWeight: 600,
-                        lineHeight: '32px',
-                        letterSpacing: '0px',
-                        color: '#000615',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '24px',
+                  fontWeight: 600,
+                  lineHeight: '32px',
+                  letterSpacing: '0px',
+                  color: '#000615',
                 }}
               >
                 Availability API
@@ -224,12 +224,12 @@ export default function IntelligenceStack() {
               <h2
                 className="font-bold mb-3"
                 style={{
-                     fontFamily: 'Inter, sans-serif',
-                        fontSize: '24px',
-                        fontWeight: 600,
-                        lineHeight: '32px',
-                        letterSpacing: '0px',
-                        color: '#000615',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '24px',
+                  fontWeight: 600,
+                  lineHeight: '32px',
+                  letterSpacing: '0px',
+                  color: '#000615',
                 }}
               >
                 Core Substrate
@@ -257,7 +257,7 @@ export default function IntelligenceStack() {
                     <FaBook size={20} className="text-white" />
                   </div>
                   {/* Card Title and Link */}
-                  <div className="flex-1 flex items-center justify-between gap-4">
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                     <h3
                       style={{
                         fontFamily: 'Inter, sans-serif',
