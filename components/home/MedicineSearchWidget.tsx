@@ -50,7 +50,7 @@ const POPULAR_MEDICINES = [
   "Zyrtec 10mg", "Zithromax 500mg", "Zantac 150mg", "Zero-Dol SP", "Zincovit",
 ];
 
-/** Live medicine-name suggestions with strict substring/prefix filtering. */
+/** Live medicine-name suggestions with strict starting-letter filtering (minimum 1 character). */
 async function getMedicineSuggestions(query: string, limit = 8): Promise<string[]> {
   const q = query.trim();
   if (q.length < 1) return [];
@@ -60,9 +60,11 @@ async function getMedicineSuggestions(query: string, limit = 8): Promise<string[
     const matches = await matchMedibase(q, limit * 3);
     const candidateSet = new Set<string>();
 
-    // 1) Add candidates from master dictionary matching typed prefix
+    // 1) Add candidates from master dictionary matching starting letters
     for (const pop of POPULAR_MEDICINES) {
-      if (pop.toLowerCase().includes(qLower)) {
+      const popLower = pop.toLowerCase();
+      const words = popLower.split(/\s+/);
+      if (popLower.startsWith(qLower) || words.some((w) => w.startsWith(qLower))) {
         candidateSet.add(pop);
       }
     }
@@ -80,47 +82,29 @@ async function getMedicineSuggestions(query: string, limit = 8): Promise<string[
 
     const allCandidates = Array.from(candidateSet);
 
-    // STRICT PREFIX MATCHING: filter names that START with the typed query (case-insensitive)
-    const prefixMatches = allCandidates.filter((name) =>
-      name.toLowerCase().startsWith(qLower)
-    );
-
-    prefixMatches.sort((a, b) => a.localeCompare(b));
-
-    // If we have prefix matches starting with the typed letters, return ONLY prefix matches!
-    if (prefixMatches.length > 0) {
-      return prefixMatches.slice(0, limit);
-    }
-
-    // Fallback: word-boundary matches (e.g. "Ibuprofen" for "bu")
-    const wordBoundaryMatches = allCandidates.filter((name) => {
-      const words = name.toLowerCase().split(/\s+/);
+    // STRICT STARTING LETTER MATCHING: filter names where the name or any word in the name starts with qLower
+    const startingMatches = allCandidates.filter((name) => {
+      const nameLower = name.toLowerCase();
+      if (nameLower.startsWith(qLower)) return true;
+      const words = nameLower.split(/\s+/);
       return words.some((w) => w.startsWith(qLower));
     });
-    wordBoundaryMatches.sort((a, b) => a.localeCompare(b));
 
-    if (wordBoundaryMatches.length > 0) {
-      return wordBoundaryMatches.slice(0, limit);
-    }
-
-    // Fallback: substring matches sorted by match index
-    const subMatches = allCandidates.filter((name) =>
-      name.toLowerCase().includes(qLower)
-    );
-    subMatches.sort((a, b) => {
-      const idxA = a.toLowerCase().indexOf(qLower);
-      const idxB = b.toLowerCase().indexOf(qLower);
-      if (idxA !== idxB) return idxA - idxB;
+    startingMatches.sort((a, b) => {
+      const aStarts = a.toLowerCase().startsWith(qLower);
+      const bStarts = b.toLowerCase().startsWith(qLower);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
       return a.localeCompare(b);
     });
 
-    return subMatches.slice(0, limit);
+    return startingMatches.slice(0, limit);
   } catch {
-    const localPrefix = POPULAR_MEDICINES.filter((name) =>
-      name.toLowerCase().startsWith(qLower)
-    );
-    localPrefix.sort((a, b) => a.localeCompare(b));
-    return localPrefix.slice(0, limit);
+    // Fallback: match popular medicines starting with qLower
+    return POPULAR_MEDICINES.filter((name) => {
+      const nameLower = name.toLowerCase();
+      return nameLower.startsWith(qLower) || nameLower.split(/\s+/).some((w) => w.startsWith(qLower));
+    }).slice(0, limit);
   }
 }
 
