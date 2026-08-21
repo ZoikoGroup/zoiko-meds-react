@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-
 const ACCENT = "#0FAA87";
 
 const BREADCRUMBS = [
@@ -21,9 +20,12 @@ export default function PrivacyCenterHeroSection() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { setMounted(true); observer.disconnect(); }
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -33,7 +35,6 @@ export default function PrivacyCenterHeroSection() {
     <section ref={ref} className="relative w-full bg-[#F4F6FA] py-14 sm:py-20">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-
           {/* ── Left column ── */}
           <div>
             {/* Breadcrumb */}
@@ -45,7 +46,10 @@ export default function PrivacyCenterHeroSection() {
                     {i === BREADCRUMBS.length - 1 ? (
                       <span className="text-[#8B93A7]">{crumb.label}</span>
                     ) : (
-                      <a href={crumb.href} className="transition-colors duration-150 hover:text-[#0F1F4E]">
+                      <a
+                        href={crumb.href}
+                        className="transition-colors duration-150 hover:text-[#0F1F4E]"
+                      >
                         {crumb.label}
                       </a>
                     )}
@@ -56,7 +60,10 @@ export default function PrivacyCenterHeroSection() {
 
             {/* Eyebrow */}
             <Reveal index={1} active={mounted}>
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: ACCENT }}>
+              <p
+                className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: ACCENT }}
+              >
                 Privacy Center
               </p>
             </Reveal>
@@ -64,31 +71,35 @@ export default function PrivacyCenterHeroSection() {
             {/* Headline */}
             <Reveal index={2} active={mounted}>
               <h1 className="text-[2.3rem] font-extrabold leading-tight sm:text-[2.7rem]">
-                <span className="text-[#0F1F4E]">Your privacy controls for</span>
+                <span className="text-[#0F1F4E]">
+                  Your privacy controls for
+                </span>
                 <br />
-                <span style={{ color: ACCENT }}>medicine availability search.</span>
+                <span style={{ color: ACCENT }}>
+                  medicine availability search.
+                </span>
               </h1>
             </Reveal>
 
             {/* Description */}
             <Reveal index={3} active={mounted}>
               <p className="mt-5 max-w-lg text-[14.5px] leading-relaxed text-[#5B6478]">
-                ZoikoMeds lets users search without an account, manage saved-search and alert
-                data, control cookies and notifications, and submit privacy requests through
-                governed privacy workflows.
+                ZoikoMeds lets users search without an account, manage
+                saved-search and alert data, control cookies and notifications,
+                and submit privacy requests through governed privacy workflows.
               </p>
             </Reveal>
 
             {/* CTAs */}
             <Reveal index={4} active={mounted}>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-           { /*    <a
-                  href="#"
+                <a
+                  href="https://zoiko-meds-platform.vercel.app/login"
                   className="inline-flex items-center justify-center rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90"
                   style={{ backgroundColor: ACCENT }}
                 >
                   Manage Privacy Choices
-                </a>*/}
+                </a>
                 <a
                   href="#request"
                   className="inline-flex items-center justify-center rounded-lg border border-[#E7EAF1] bg-white px-5 py-3 text-[13.5px] font-semibold text-[#0F1F4E] transition-colors duration-150 hover:border-[#0F1F4E]"
@@ -112,13 +123,30 @@ export default function PrivacyCenterHeroSection() {
             {/* Disclaimer line */}
             <Reveal index={6} active={mounted}>
               <div className="mt-5 flex items-start gap-2.5 max-w-md">
-                <svg className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: ACCENT }} viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.4" />
-                  <path d="M8 7.25v4M8 5.1v.05" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <svg
+                  className="mt-0.5 h-4 w-4 flex-shrink-0"
+                  style={{ color: ACCENT }}
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.25"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                  />
+                  <path
+                    d="M8 7.25v4M8 5.1v.05"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 <p className="text-[12.5px] leading-relaxed text-[#8B93A7]">
-                  ZoikoMeds does not require prescription uploads, diagnosis, symptoms,
-                  insurance details, or medical records for public medicine availability search.
+                  ZoikoMeds does not require prescription uploads, diagnosis,
+                  symptoms, insurance details, or medical records for public
+                  medicine availability search.
                 </p>
               </div>
             </Reveal>
@@ -137,7 +165,6 @@ export default function PrivacyCenterHeroSection() {
               />
             </div>
           </Reveal>
-
         </div>
       </div>
     </section>
@@ -147,9 +174,24 @@ export default function PrivacyCenterHeroSection() {
 /* ------------------------------------------------------------------ */
 /*  Reveal                                                               */
 /* ------------------------------------------------------------------ */
-function Reveal({ children, index, active }: { children: React.ReactNode; index: number; active: boolean }) {
+function Reveal({
+  children,
+  index,
+  active,
+}: {
+  children: React.ReactNode;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <div style={{ opacity: active ? undefined : 0, animation: active ? `privacyHeroFadeUp 0.6s ease-out ${index * 90}ms both` : "none" }}>
+    <div
+      style={{
+        opacity: active ? undefined : 0,
+        animation: active
+          ? `privacyHeroFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
+      }}
+    >
       {children}
       <style>{`
         @keyframes privacyHeroFadeUp {

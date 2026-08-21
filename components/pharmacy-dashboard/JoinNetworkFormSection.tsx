@@ -340,7 +340,7 @@ export default function JoinNetworkFormSection() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="h-12 flex-1 rounded-xl bg-[#00A99D] font-semibold text-white transition hover:bg-[#009487] disabled:opacity-50 cursor-pointer"
+                  className="h-12 flex-1 rounded-xl bg-[#00A99D] px-6 py-3 font-semibold text-white transition hover:bg-[#009487] disabled:opacity-50 cursor-pointer"
                 >
                   {submitting ? "Submitting..." : "Join Pharmacy Network"}
                 </button>
