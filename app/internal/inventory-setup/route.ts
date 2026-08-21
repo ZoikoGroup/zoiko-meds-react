@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
-import { sendNotificationEmail } from "@/lib/email/emailService";
+import { dispatchFormEmails } from "@/lib/email/formMail";
+import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
 import { validateEmail } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -60,33 +61,23 @@ export async function POST(req: NextRequest) {
     });
 
     // 2. Dispatch notification email via Nodemailer / GoDaddy SMTP to info@zoikomeds.com
-    const emailResult = await sendNotificationEmail({
-      title: "New Inventory Signal Setup Request",
+    const mail = await dispatchFormEmails({
+      formName: "Inventory Setup",
+      submittedAt: submissionTimeForRequest(req, body),
+      userEmail: email,
+      userName: name,
       subject: "New Inventory Signal Setup Request – ZoikoMeds",
-      recipient: "info@zoikomeds.com",
-      replyTo: email,
       note: note || undefined,
-      fields: [
+      submission: [
         { label: "Work Email", value: email },
         { label: "Full Name", value: name },
         { label: "Pharmacy / Organization Name", value: org },
         { label: "Pharmacy Type", value: pharmacyType },
         { label: "Setup Interest", value: setupInterest || "Not specified" },
         { label: "Brief Note", value: note || "None" },
-        { label: "Submitted At", value: new Date(record.submittedAt).toLocaleString("en-US", { dateStyle: "full", timeStyle: "medium" }) },
       ],
     });
 
-    if (!emailResult.success) {
-      console.error("[POST /internal/inventory-setup] Email notification failed:", emailResult.error);
-      return NextResponse.json(
-        {
-          success: false,
-          message: emailResult.error || "Failed to dispatch email notification. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json(
       {
@@ -95,7 +86,7 @@ export async function POST(req: NextRequest) {
         data: {
           id: record.id,
           submittedAt: record.submittedAt,
-          messageId: emailResult.messageId,
+          messageId: mail.internal.messageId,
         },
       },
       { status: 200 }

@@ -189,7 +189,7 @@ describe("Zoi Chatbot Bug Fixes (BUG-01 to BUG-06)", () => {
     const session1Id = "session-test-01";
     const state = {
       messages: [] as Array<{ id: string; role: "user" | "assistant"; content: string; timestamp: number }>,
-      savedSessions: [] as Array<{ id: string; title: string; createdAt: number; messages: Array<unknown>; persona: unknown }>,
+      savedSessions: [] as Array<{ id: string; title: string; createdAt: number; messages: Message[]; persona: unknown }>,
       activeSessionId: session1Id,
       persona: "patient" as const,
       personaSet: true,
