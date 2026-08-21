@@ -2,11 +2,36 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { internalApi } from "@/lib/config";
 
 export default function SSORequirementsFormSection() {
-  const [currentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // Form State
+  const [organizationName, setOrganizationName] = useState("");
+  const [organizationType, setOrganizationType] = useState("");
+  const [countryRegion, setCountryRegion] = useState("");
+  const [relationship, setRelationship] = useState("");
+  const [evaluationStage, setEvaluationStage] = useState("");
+  const [expectedUsers, setExpectedUsers] = useState("");
   const [deploymentScopes, setDeploymentScopes] = useState<string[]>([]);
   const [ssoRequirements, setSsoRequirements] = useState<string[]>([]);
+
+  // Step 2 & 3 & 4 fields
+  const [idpProvider, setIdpProvider] = useState("");
+  const [ssoProtocol, setSsoProtocol] = useState("");
+  const [provisioningType, setProvisioningType] = useState("");
+
+  // Step 5 Contact fields
+  const [contactName, setContactName] = useState("");
+  const [workEmail, setWorkEmail] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [notes, setNotes] = useState("");
+
+  // Status state
+  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const toggleDeploymentScope = (item: string) => {
     setDeploymentScopes((prev) =>
@@ -47,6 +72,85 @@ export default function SSORequirementsFormSection() {
     "Not sure",
   ];
 
+  const handleNextStep = () => {
+    setErrorMessage(null);
+    if (currentStep === 1) {
+      if (!organizationName.trim()) {
+        setErrorMessage("Please enter your organization name to continue.");
+        return;
+      }
+    }
+    if (currentStep < 5) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    setErrorMessage(null);
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    if (!organizationName.trim()) {
+      setErrorMessage("Organization name is required.");
+      setCurrentStep(1);
+      return;
+    }
+
+    if (!contactName.trim()) {
+      setErrorMessage("Contact name is required.");
+      return;
+    }
+
+    if (!workEmail.trim() || !workEmail.includes("@")) {
+      setErrorMessage("Please enter a valid work email address.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(internalApi("sso-requirement"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          organizationName,
+          organizationType,
+          countryRegion,
+          relationship,
+          evaluationStage,
+          expectedUsers,
+          deploymentScopes,
+          ssoRequirements,
+          idpProvider,
+          ssoProtocol,
+          provisioningType,
+          contactName,
+          workEmail,
+          jobTitle,
+          notes,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsSubmitted(true);
+      } else {
+        setErrorMessage(data.message || "Failed to submit SSO requirements. Please try again.");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setErrorMessage(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <section className="relative w-full bg-[#F6F9FC] text-[#1D1D1F] py-20 px-6 sm:px-12 md:px-16 lg:px-24 font-sans antialiased overflow-hidden">
       <div className="max-w-6xl mx-auto w-full space-y-10">
@@ -83,7 +187,15 @@ export default function SSORequirementsFormSection() {
 
                 return (
                   <React.Fragment key={step.number}>
-                    <div className="flex items-center space-x-2 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isCompleted || step.number === currentStep) {
+                          setCurrentStep(step.number);
+                        }
+                      }}
+                      className="flex items-center space-x-2 flex-shrink-0 cursor-pointer"
+                    >
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                           isActive
@@ -93,7 +205,7 @@ export default function SSORequirementsFormSection() {
                               : "bg-gray-100 text-gray-400"
                         }`}
                       >
-                        {step.number}
+                        {isCompleted ? "✓" : step.number}
                       </div>
                       <span
                         className={`text-xs font-medium ${
@@ -104,7 +216,7 @@ export default function SSORequirementsFormSection() {
                       >
                         {step.label}
                       </span>
-                    </div>
+                    </button>
                     {idx < steps.length - 1 && (
                       <div className="w-4 sm:w-8 h-[1px] bg-gray-200 flex-shrink-0" />
                     )}
@@ -113,187 +225,420 @@ export default function SSORequirementsFormSection() {
               })}
             </div>
 
-            {/* Step Subheader */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-semibold text-gray-400 tracking-[1px] uppercase">
-                STEP 1 OF 5 &nbsp;&bull;&nbsp; ORGANIZATION & USE CASE
-              </span>
-              <h3 className="text-lg font-bold text-[#101828]">
-                Organization & use case
-              </h3>
-              <p className="text-[13.3px] max-w-xl text-[#566476] font-normal leading-relaxed">
-                Who you are, what you are evaluating, and the shape of the
-                deployment. This drives which requirement steps matter most.
-              </p>
-            </div>
+            {/* Error Banner */}
+            {errorMessage && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs font-medium text-red-700 flex items-center justify-between">
+                <span>{errorMessage}</span>
+                <button type="button" onClick={() => setErrorMessage(null)} className="text-red-500 font-bold ml-2">✕</button>
+              </div>
+            )}
 
-            {/* Form Fields */}
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              {/* Organization Name */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#101828]">
-                  Organization name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Your organization"
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
-                />
-                <p className="text-[11px] text-gray-400">
-                  Used to identify the evaluating entity. We do not infer it
-                  from your email domain.
+            {/* Confirmation State */}
+            {isSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-8 bg-[#EDF8F6] border border-[#0FAA87]/30 rounded-2xl space-y-4 text-center"
+              >
+                <div className="w-12 h-12 bg-[#0FAA87] text-white rounded-full flex items-center justify-center mx-auto text-xl font-bold shadow-md">
+                  ✓
+                </div>
+                <h3 className="text-xl font-bold text-[#101828]">
+                  SSO Requirements Submitted
+                </h3>
+                <p className="text-xs sm:text-sm text-[#344054] max-w-lg mx-auto leading-relaxed">
+                  Thank you! Your requirements review has been dispatched directly to{" "}
+                  <span className="font-semibold text-[#101828]">info@zoikomeds.com</span>. Our enterprise security and architecture team will review your specifications and reach out shortly.
                 </p>
-              </div>
-
-              {/* Grid: Type & Region */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#101828]">
-                    Organization type <span className="text-red-500">*</span>
-                  </label>
-                  <select className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all">
-                    <option value="">Select type</option>
-                    <option value="enterprise">Enterprise</option>
-                    <option value="healthcare">Healthcare Provider</option>
-                    <option value="government">
-                      Government / Public Sector
-                    </option>
-                    <option value="other">Other</option>
-                  </select>
+                <div className="pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setCurrentStep(1);
+                    }}
+                    className="px-6 py-2.5 bg-[#13A594] hover:bg-[#108B7D] text-white text-xs font-semibold rounded-xl transition-colors"
+                  >
+                    Submit Another Requirement Review
+                  </button>
                 </div>
+              </motion.div>
+            ) : (
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                {/* STEP 1: ORGANIZATION */}
+                {currentStep === 1 && (
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-semibold text-gray-400 tracking-[1px] uppercase">
+                        STEP 1 OF 5 &nbsp;&bull;&nbsp; ORGANIZATION & USE CASE
+                      </span>
+                      <h3 className="text-lg font-bold text-[#101828]">
+                        Organization & use case
+                      </h3>
+                      <p className="text-[13.3px] max-w-xl text-[#566476] font-normal leading-relaxed">
+                        Who you are, what you are evaluating, and the shape of the deployment.
+                      </p>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#101828]">
-                    Country / primary operating region{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <select className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all">
-                    <option value="">Select country/region</option>
-                    <option value="us">United States</option>
-                    <option value="ca">Canada</option>
-                    <option value="eu">Europe</option>
-                    <option value="global">Global / Multiple</option>
-                  </select>
-                </div>
-              </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Organization name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={organizationName}
+                        onChange={(e) => setOrganizationName(e.target.value)}
+                        placeholder="Your organization"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                      />
+                    </div>
 
-              {/* Grid: Relationship & Stage */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#101828]">
-                    Relationship to ZoikoMeds{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <select className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all">
-                    <option value="">Select relationship</option>
-                    <option value="prospective">Prospective Customer</option>
-                    <option value="existing">Existing Customer</option>
-                    <option value="partner">Partner / Integrator</option>
-                  </select>
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[#101828]">
+                          Organization type
+                        </label>
+                        <select
+                          value={organizationType}
+                          onChange={(e) => setOrganizationType(e.target.value)}
+                          className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                        >
+                          <option value="">Select type</option>
+                          <option value="Enterprise">Enterprise</option>
+                          <option value="Healthcare Provider">Healthcare Provider</option>
+                          <option value="Government / Public Sector">Government / Public Sector</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#101828]">
-                    Evaluation stage <span className="text-red-500">*</span>
-                  </label>
-                  <select className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all">
-                    <option value="">Select stage</option>
-                    <option value="early">Early Exploration</option>
-                    <option value="active">Active Evaluation</option>
-                    <option value="procurement">Procurement / Legal</option>
-                  </select>
-                </div>
-              </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[#101828]">
+                          Country / primary operating region
+                        </label>
+                        <select
+                          value={countryRegion}
+                          onChange={(e) => setCountryRegion(e.target.value)}
+                          className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                        >
+                          <option value="">Select country/region</option>
+                          <option value="United States">United States</option>
+                          <option value="Canada">Canada</option>
+                          <option value="Europe">Europe</option>
+                          <option value="Global / Multiple">Global / Multiple</option>
+                        </select>
+                      </div>
+                    </div>
 
-              {/* Expected user population */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#101828]">
-                  Expected user population{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
-                <select className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all">
-                  <option value="">Select</option>
-                  <option value="1-100">1 - 100 users</option>
-                  <option value="101-500">101 - 500 users</option>
-                  <option value="501-2500">501 - 2,500 users</option>
-                  <option value="2500+">2,500+ users</option>
-                </select>
-                <p className="text-[11px] text-gray-400">
-                  A range only. Do not submit user lists, rosters, or exact
-                  directory counts.
-                </p>
-              </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[#101828]">
+                          Relationship to ZoikoMeds
+                        </label>
+                        <select
+                          value={relationship}
+                          onChange={(e) => setRelationship(e.target.value)}
+                          className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                        >
+                          <option value="">Select relationship</option>
+                          <option value="Prospective Customer">Prospective Customer</option>
+                          <option value="Existing Customer">Existing Customer</option>
+                          <option value="Partner / Integrator">Partner / Integrator</option>
+                        </select>
+                      </div>
 
-              {/* Deployment scope */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-[#101828]">
-                  Deployment scope <span className="text-red-500">*</span>
-                </label>
-                <div className="flex flex-wrap gap-2 max-w-xl">
-                  {deploymentScopeOptions.map((opt) => {
-                    const selected = deploymentScopes.includes(opt);
-                    return (
-                      <button
-                        type="button"
-                        key={opt}
-                        onClick={() => toggleDeploymentScope(opt)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                          selected
-                            ? "bg-[#13A594]/10 border-[#13A594] text-[#13A594]"
-                            : "bg-[#F6F9FC] border-gray-200 text-[#475467] hover:border-gray-300"
-                        }`}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[#101828]">
+                          Evaluation stage
+                        </label>
+                        <select
+                          value={evaluationStage}
+                          onChange={(e) => setEvaluationStage(e.target.value)}
+                          className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                        >
+                          <option value="">Select stage</option>
+                          <option value="Early Exploration">Early Exploration</option>
+                          <option value="Active Evaluation">Active Evaluation</option>
+                          <option value="Procurement / Legal">Procurement / Legal</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Expected user population
+                      </label>
+                      <select
+                        value={expectedUsers}
+                        onChange={(e) => setExpectedUsers(e.target.value)}
+                        className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
                       >
-                        {opt}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="text-[11px] text-gray-400">
-                  Surfaces architecture complexity. Select at least one, or
-                  choose &quot;Not sure&quot;.
-                </p>
-              </div>
+                        <option value="">Select range</option>
+                        <option value="1 - 100 users">1 - 100 users</option>
+                        <option value="101 - 500 users">101 - 500 users</option>
+                        <option value="501 - 2,500 users">501 - 2,500 users</option>
+                        <option value="2,500+ users">2,500+ users</option>
+                      </select>
+                    </div>
 
-              {/* SSO requirement areas */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-[#101828]">
-                  SSO requirement areas <span className="text-red-500">*</span>
-                </label>
-                <div className="flex flex-wrap gap-2 max-w-xl">
-                  {ssoRequirementOptions.map((opt) => {
-                    const selected = ssoRequirements.includes(opt);
-                    return (
-                      <button
-                        type="button"
-                        key={opt}
-                        onClick={() => toggleSsoRequirement(opt)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                          selected
-                            ? "bg-[#13A594]/10 border-[#13A594] text-[#13A594]"
-                            : "bg-[#F6F9FC] border-gray-200 text-[#475467] hover:border-gray-300"
-                        }`}
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Deployment scope
+                      </label>
+                      <div className="flex flex-wrap gap-2 max-w-xl">
+                        {deploymentScopeOptions.map((opt) => {
+                          const selected = deploymentScopes.includes(opt);
+                          return (
+                            <button
+                              type="button"
+                              key={opt}
+                              onClick={() => toggleDeploymentScope(opt)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                                selected
+                                  ? "bg-[#13A594]/10 border-[#13A594] text-[#13A594]"
+                                  : "bg-[#F6F9FC] border-gray-200 text-[#475467] hover:border-gray-300"
+                              }`}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        SSO requirement areas
+                      </label>
+                      <div className="flex flex-wrap gap-2 max-w-xl">
+                        {ssoRequirementOptions.map((opt) => {
+                          const selected = ssoRequirements.includes(opt);
+                          return (
+                            <button
+                              type="button"
+                              key={opt}
+                              onClick={() => toggleSsoRequirement(opt)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                                selected
+                                  ? "bg-[#13A594]/10 border-[#13A594] text-[#13A594]"
+                                  : "bg-[#F6F9FC] border-gray-200 text-[#475467] hover:border-gray-300"
+                              }`}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 2: IDENTITY & FEDERATION */}
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-semibold text-gray-400 tracking-[1px] uppercase">
+                        STEP 2 OF 5 &nbsp;&bull;&nbsp; IDENTITY & FEDERATION
+                      </span>
+                      <h3 className="text-lg font-bold text-[#101828]">
+                        Identity provider & federation
+                      </h3>
+                      <p className="text-[13.3px] max-w-xl text-[#566476] font-normal leading-relaxed">
+                        Specify your primary identity provider and protocol requirements.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Primary Identity Provider (IdP)
+                      </label>
+                      <select
+                        value={idpProvider}
+                        onChange={(e) => setIdpProvider(e.target.value)}
+                        className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
                       >
-                        {opt}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="text-[11px] text-gray-400">
-                  Drives which later questions are shown. Selecting a card
-                  higher on this page pre-selects these for you.
-                </p>
-              </div>
+                        <option value="">Select IdP</option>
+                        <option value="Microsoft Entra ID / Azure AD">Microsoft Entra ID (Azure AD)</option>
+                        <option value="Okta">Okta</option>
+                        <option value="Ping Identity">Ping Identity</option>
+                        <option value="Google Workspace">Google Workspace</option>
+                        <option value="Auth0">Auth0</option>
+                        <option value="Custom / Other">Custom / Other SAML Provider</option>
+                      </select>
+                    </div>
 
-              {/* Submit / Continue Button */}
-              <div className="pt-4">
-                <button
-                  type="button"
-                  className="w-full py-3 px-4 bg-[#13A594] hover:bg-[#108B7D] text-white font-semibold text-sm rounded-xl shadow-sm transition-colors duration-150 text-center"
-                >
-                  Continue to identity &amp; federation
-                </button>
-              </div>
-            </form>
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Preferred Protocol
+                      </label>
+                      <select
+                        value={ssoProtocol}
+                        onChange={(e) => setSsoProtocol(e.target.value)}
+                        className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                      >
+                        <option value="">Select protocol</option>
+                        <option value="SAML 2.0">SAML 2.0</option>
+                        <option value="OIDC / OAuth 2.0">OIDC / OpenID Connect</option>
+                        <option value="WS-Federation">WS-Federation</option>
+                        <option value="Flexible / Either">Flexible / Either</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 3: PROVISIONING */}
+                {currentStep === 3 && (
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-semibold text-gray-400 tracking-[1px] uppercase">
+                        STEP 3 OF 5 &nbsp;&bull;&nbsp; PROVISIONING & LIFECYCLE
+                      </span>
+                      <h3 className="text-lg font-bold text-[#101828]">
+                        Provisioning & user lifecycle
+                      </h3>
+                      <p className="text-[13.3px] max-w-xl text-[#566476] font-normal leading-relaxed">
+                        How accounts, attributes, and user deprovisioning should be managed.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Provisioning mechanism
+                      </label>
+                      <select
+                        value={provisioningType}
+                        onChange={(e) => setProvisioningType(e.target.value)}
+                        className="w-full px-3 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                      >
+                        <option value="">Select provisioning method</option>
+                        <option value="Just-In-Time (JIT)">Just-In-Time (JIT) Provisioning</option>
+                        <option value="SCIM 2.0">SCIM 2.0 Automated Lifecycle</option>
+                        <option value="Manual Admin Provisioning">Manual Admin Invitation</option>
+                        <option value="Not sure">Not sure</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 4: ROLLOUT */}
+                {currentStep === 4 && (
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-semibold text-gray-400 tracking-[1px] uppercase">
+                        STEP 4 OF 5 &nbsp;&bull;&nbsp; ROLLOUT & GOVERNANCE
+                      </span>
+                      <h3 className="text-lg font-bold text-[#101828]">
+                        Rollout timeline & security review
+                      </h3>
+                      <p className="text-[13.3px] max-w-xl text-[#566476] font-normal leading-relaxed">
+                        Expected deployment timeline and security review process.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Additional architecture / governance notes
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Any specific MFA requirements, IP restriction policies, or domain verification details..."
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all resize-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 5: CONTACT & SUBMIT */}
+                {currentStep === 5 && (
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-semibold text-gray-400 tracking-[1px] uppercase">
+                        STEP 5 OF 5 &nbsp;&bull;&nbsp; CONTACT DETAILS
+                      </span>
+                      <h3 className="text-lg font-bold text-[#101828]">
+                        Contact details & review dispatch
+                      </h3>
+                      <p className="text-[13.3px] max-w-xl text-[#566476] font-normal leading-relaxed">
+                        Where should our enterprise architecture team send your SSO specifications?
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[#101828]">
+                        Contact name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="Full name"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[#101828]">
+                          Work email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          value={workEmail}
+                          onChange={(e) => setWorkEmail(e.target.value)}
+                          placeholder="name@company.com"
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[#101828]">
+                          Job title / role
+                        </label>
+                        <input
+                          type="text"
+                          value={jobTitle}
+                          onChange={(e) => setJobTitle(e.target.value)}
+                          placeholder="e.g. Lead Identity Architect / CISO"
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-[#FBFCFE] border border-gray-200 rounded-lg text-[#101828] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#13A594]/30 focus:border-[#13A594] transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step Navigation Buttons */}
+                <div className="flex items-center justify-between pt-4 gap-4">
+                  {currentStep > 1 ? (
+                    <button
+                      type="button"
+                      onClick={handlePrevStep}
+                      className="px-5 py-2.5 border border-gray-200 text-[#475467] font-semibold text-xs rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      &larr; Back
+                    </button>
+                  ) : <div />}
+
+                  {currentStep < 5 ? (
+                    <button
+                      type="button"
+                      onClick={handleNextStep}
+                      className="px-6 py-2.5 bg-[#13A594] hover:bg-[#108B7D] text-white font-semibold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
+                    >
+                      Continue &rarr;
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="px-6 py-3 bg-[#13A594] hover:bg-[#108B7D] text-white font-semibold text-sm rounded-xl shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {submitting ? "Submitting to info@zoikomeds.com..." : "Submit SSO requirements"}
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
           </motion.div>
 
           {/* Right Sidebar Cards (4 Columns) */}
@@ -413,59 +758,7 @@ export default function SSORequirementsFormSection() {
                     </strong>
                     <span className="text-gray-400">
                       No raw assertions, tokens, signed metadata, or certificate
-                      bundles. There is no public upload.
-                    </span>
-                  </div>
-                </div>
-
-                {/* Cross 3 */}
-                <div className="flex items-start space-x-2.5">
-                  <svg
-                    className="w-4 h-4 text-[#34D6C4] flex-shrink-0 mt-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                  <div>
-                    <strong className="block text-white font-semibold">
-                      Never: patient data
-                    </strong>
-                    <span className="text-gray-400">
-                      No patient names, identifiers, prescriptions, or clinical
-                      records &mdash; in any field.
-                    </span>
-                  </div>
-                </div>
-
-                {/* Cross 4 */}
-                <div className="flex items-start space-x-2.5">
-                  <svg
-                    className="w-4 h-4 text-[#34D6C4] flex-shrink-0 mt-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                  <div>
-                    <strong className="block text-white font-semibold">
-                      Never: rosters or logs
-                    </strong>
-                    <span className="text-gray-400">
-                      No employee lists, identity dumps, production logs, or
-                      incident reports.
+                      bundles.
                     </span>
                   </div>
                 </div>
@@ -508,42 +801,10 @@ export default function SSORequirementsFormSection() {
                     className="hover:text-[#13A594] transition-colors flex items-center space-x-1.5"
                   >
                     <span className="text-[#34D6C4]">&rarr;</span>{" "}
-                    <span>
-                      Can&apos;t sign in &mdash; support &amp; recovery
-                    </span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://zoiko-meds-platform.vercel.app/login"
-                    className="hover:text-[#13A594] transition-colors flex items-center space-x-1.5"
-                  >
-                    <span className="text-[#34D6C4]">&rarr;</span>{" "}
-                    <span>Existing customer &mdash; account route</span>
+                    <span>Can&apos;t sign in &mdash; support &amp; recovery</span>
                   </a>
                 </li>
               </ul>
-            </motion.div>
-
-            {/* Card 3: Your progress */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-2"
-            >
-              <h4 className="text-xs font-bold text-[#101828]">
-                Your progress
-              </h4>
-              <p className="text-xs text-[#475467] leading-relaxed">
-                Answers are preserved when you move backward or edit from the
-                review step. Nothing is submitted until you choose{" "}
-                <strong className="font-semibold text-[#101828]">
-                  Submit SSO requirements
-                </strong>
-                , and no form values appear in the page URL.
-              </p>
             </motion.div>
           </div>
         </div>

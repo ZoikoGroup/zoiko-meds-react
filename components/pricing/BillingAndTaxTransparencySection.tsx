@@ -81,12 +81,12 @@ export default function BillingAndTaxTransparencySection() {
           {/* Header Section */}
           <motion.div
             variants={itemVariants}
-            className="space-y-3 text-left max-w-3xl"
+            className="space-y-3 text-center mx-auto"
           >
             <span className="text-xs sm:text-sm font-semibold tracking-[1px] text-[#13A594] uppercase block">
               07 &nbsp;·&nbsp; BILLING &amp; TAX TRANSPARENCY
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-[2.5rem] font-bold text-[#101828] leading-[1.15] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-[35px] font-bold text-[#101828] leading-[1.15] tracking-tight">
               Clear invoices, jurisdiction-aware tax.
             </h2>
           </motion.div>

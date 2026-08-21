@@ -80,12 +80,12 @@ export default function SearchNeutralitySection() {
           {/* Header Section */}
           <motion.div
             variants={itemVariants}
-            className="space-y-3 text-left max-w-3xl"
+            className="space-y-3 text-center mx-auto"
           >
             <span className="text-xs sm:text-sm font-semibold tracking-[1px] text-[#13A594] uppercase block">
               05 &nbsp;·&nbsp; SEARCH NEUTRALITY
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-[2.5rem] font-bold text-white leading-[1.15] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl max-w-2xl md:text-[35px] font-bold text-white leading-[1.15] tracking-tight">
               Commercial spend never touches medicine search.
             </h2>
           </motion.div>

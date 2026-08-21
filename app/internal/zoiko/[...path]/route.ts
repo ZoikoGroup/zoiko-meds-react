@@ -12,6 +12,7 @@ import { API_BASE_URL } from "@/lib/config";
  */
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 async function forward(req: NextRequest, path: string[]): Promise<Response> {
   const target = new URL(`${API_BASE_URL}/${path.join("/")}`);
