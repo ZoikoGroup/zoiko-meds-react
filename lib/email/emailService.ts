@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { describeSmtpTarget, getTransport, readSmtpSettings, redactSecrets } from "./transport";
 
 export interface EmailField {
   label: string;
@@ -169,42 +169,20 @@ function renderTextEmail(title: string, fields: EmailField[], note?: string): st
  */
 export async function sendNotificationEmail(payload: GenericEmailPayload): Promise<EmailDispatchResult> {
   const recipient = payload.recipient || process.env.RECIPIENT_EMAIL || "info@zoikomeds.com";
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 465;
-  const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
-  const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
-  const smtpFromAddress = process.env.SMTP_FROM_ADDRESS || smtpUser || "info@zoikomeds.com";
-  const smtpFromName = process.env.SMTP_FROM_NAME || "ZoikoMeds";
-  const smtpFrom = process.env.SMTP_FROM || `"${smtpFromName}" <${smtpFromAddress}>`;
 
   const htmlContent = renderHtmlEmail(payload.title, payload.fields, payload.note);
   const textContent = renderTextEmail(payload.title, payload.fields, payload.note);
 
-  // 1. SMTP Delivery via Nodemailer
-  if (smtpHost && smtpUser && smtpPass) {
-    const isSecure = smtpPort === 465 || process.env.SMTP_USE_TLS === "true";
-    console.log(`[Email Service] Initiating SMTP connection to ${smtpHost}:${smtpPort} (Secure=${isSecure})...`);
-
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: isSecure,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      tls: {
-        rejectUnauthorized: false, // Prevents self-signed SSL handshake failures on custom hosts
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
-    });
+  // 1. SMTP delivery over the one shared, pooled transport.
+  const settings = readSmtpSettings();
+  const transporter = getTransport();
+  if (settings && transporter) {
+    console.log(`[Email Service] Dispatching via SMTP ${describeSmtpTarget()}...`);
 
     const mailOptions = {
-      from: smtpFrom,
+      from: settings.from,
       to: recipient,
-      replyTo: payload.replyTo || smtpFromAddress,
+      replyTo: payload.replyTo || settings.fromAddress,
       subject: payload.subject,
       text: textContent,
       html: htmlContent,
@@ -220,7 +198,9 @@ export async function sendNotificationEmail(payload: GenericEmailPayload): Promi
         console.log(`[Email Service] SUCCESS: Email delivered to ${recipient}. MessageId: ${info.messageId}`);
         return { success: true, messageId: info.messageId };
       } catch (err: unknown) {
-        lastError = err instanceof Error ? err.message : String(err);
+        // Redacted at the point of capture: an auth failure can echo the
+        // submitted credentials back in its message.
+        lastError = redactSecrets(err instanceof Error ? err.message : String(err));
         console.error(`[Email Service] Attempt ${attempt} failed: ${lastError}`);
         if (attempt <= maxRetries) {
           console.log(`[Email Service] Retrying in 1000ms...`);

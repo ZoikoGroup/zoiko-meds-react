@@ -15,7 +15,7 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
+          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SMTP_FROM_ADDRESS,SMTP_FROM_NAME,APP_TIMEZONE,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
           script_stop: true
           command_timeout: 15m
           script: |
@@ -28,6 +28,9 @@ jobs:
             SMTP_USE_SSL=$SMTP_USE_SSL
             SMTP_USER=$SMTP_USER
             SMTP_PASSWORD=$SMTP_PASSWORD
+            SMTP_FROM_ADDRESS=$SMTP_FROM_ADDRESS
+            SMTP_FROM_NAME=$SMTP_FROM_NAME
+            APP_TIMEZONE=$APP_TIMEZONE
             SUPPORT_EMAIL=$SUPPORT_EMAIL
             NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
             NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
@@ -40,7 +43,24 @@ jobs:
             STRICT_LIVE_INVENTORY_ONLY=$STRICT_LIVE_INVENTORY_ONLY
             GOOGLE_PLACES_API_KEY=$GOOGLE_PLACES_API_KEY
             EOF
+            # This file is recreated on every deploy, so an unset GitHub secret
+            # silently becomes an empty value here. Name the empty ones (never
+            # their values) so a broken mail config is visible in the log
+            # instead of showing up as forms that quietly stop emailing.
+            for required in SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASSWORD; do
+              if ! grep -q "^${required}=." .env; then
+                echo "WARNING: ${required} is empty in .env — outbound email will be disabled."
+              fi
+            done
             npm install
+            # Prescription OCR reads its language model from disk. The file is
+            # normally committed under public/tessdata; fetch it once here so a
+            # deploy can never leave the scanner without a model (and so OCR
+            # never depends on a download at request time).
+            if [ ! -f public/tessdata/eng.traineddata.gz ]; then
+              mkdir -p public/tessdata
+              curl -fsSL --retry 3 -o public/tessdata/eng.traineddata.gz https://raw.githubusercontent.com/naptha/tessdata/gh-pages/4.0.0_best/eng.traineddata.gz
+            fi
             rm -f .next/lock
             npm run build
             pm2 restart zoikomeds
@@ -50,10 +70,15 @@ jobs:
           SMTP_USE_SSL: ${{ secrets.SMTP_USE_SSL }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          # Optional. Without them the From header falls back to SMTP_USER.
+          SMTP_FROM_ADDRESS: ${{ secrets.SMTP_FROM_ADDRESS }}
+          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME || 'ZoikoMeds' }}
+          # Formatting fallback when a visitor's browser sends no timezone.
+          APP_TIMEZONE: ${{ secrets.APP_TIMEZONE || 'UTC' }}
           SUPPORT_EMAIL: ${{ secrets.SUPPORT_EMAIL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'llama-3.3-70b-versatile' }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://zoiko-meds-platform.onrender.com/api' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://get.zoikomeds.com/api' }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://zoiko-meds-platform.vercel.app' }}
           LIVE_INVENTORY_API_URL: ${{ secrets.LIVE_INVENTORY_API_URL || 'https://api.zoikomeds.com/v1/live-inventory' }}
           LIVE_INVENTORY_API_KEY: ${{ secrets.LIVE_INVENTORY_API_KEY }}

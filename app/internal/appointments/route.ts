@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
-import { sendNotificationEmail } from "@/lib/email/emailService";
+import { dispatchFormEmails } from "@/lib/email/formMail";
+import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
 import { validateEmail, validatePhone } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -95,13 +96,14 @@ export async function POST(req: NextRequest) {
     });
 
     // 2. Dispatch notification email to info@zoikomeds.com
-    const emailResult = await sendNotificationEmail({
-      title: `New Appointment Schedule Request [${refNumber}]`,
+    const mail = await dispatchFormEmails({
+      formName: "Appointment Request",
+      submittedAt: submissionTimeForRequest(req, body),
+      userEmail: email,
+      userName: fullName,
       subject: `Appointment Request [${refNumber}]: ${fullName} (${appointmentType})`,
-      recipient: "info@zoikomeds.com",
-      replyTo: email,
       note: reasonForVisit || "No additional context provided.",
-      fields: [
+      submission: [
         { label: "Reference Number", value: refNumber },
         { label: "Patient Name", value: fullName },
         { label: "Email Address", value: email },
@@ -113,20 +115,9 @@ export async function POST(req: NextRequest) {
         { label: "Provider / Location", value: providerLocation || "Any available" },
         { label: "Reminder Preferences", value: reminderChannels || "Email" },
         { label: "Reason for Visit", value: reasonForVisit || "General Consultation" },
-        { label: "Submitted At", value: new Date(record.submittedAt).toLocaleString("en-US", { dateStyle: "full", timeStyle: "medium" }) },
       ],
     });
 
-    if (!emailResult.success) {
-      console.error("[POST /internal/appointments] Email dispatch error:", emailResult.error);
-      return NextResponse.json(
-        {
-          success: false,
-          message: emailResult.error || "Failed to send email notification. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json(
       {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveVerifiedNetworkRegistration } from "@/lib/db/verifiedNetworkDb";
-import { sendVerifiedNetworkRegistrationEmail } from "@/lib/email/emailService";
+import { dispatchFormEmails } from "@/lib/email/formMail";
+import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
 import { validateEmail, validatePhone } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -69,25 +70,25 @@ export async function POST(req: NextRequest) {
       note,
     });
 
-    // 3. Send Email Notification to info@zoikomeds.com
-    const emailResult = await sendVerifiedNetworkRegistrationEmail({
-      workEmail: record.workEmail,
-      fullName: record.fullName,
-      orgName: record.orgName,
-      pharmacyType: record.pharmacyType,
+    // 3. Notify the team and confirm to the applicant. The registration is
+    //    already saved, so neither delivery may fail the request.
+    const mail = await dispatchFormEmails({
+      formName: "Join the Verified Network",
+      submittedAt: submissionTimeForRequest(req, body),
+      userEmail: record.workEmail,
+      userName: record.fullName,
       note: record.note,
-      submittedAt: record.submittedAt,
+      subject: `New Verified Network Registration: ${record.orgName}`,
+      submission: [
+        { label: "Full Name", value: record.fullName },
+        { label: "Work Email", value: record.workEmail },
+        { label: "Organization / Pharmacy Name", value: record.orgName },
+        { label: "Pharmacy Type", value: record.pharmacyType },
+        // Validated above but not part of the stored record, so it is read
+        // from the request to stop it being silently dropped.
+        { label: "Phone Number", value: phone || "Not provided" },
+      ],
     });
-
-    if (!emailResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: emailResult.error || "Email notification delivery failed. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
 
     // 4. Return Success Response
     return NextResponse.json(
@@ -98,7 +99,7 @@ export async function POST(req: NextRequest) {
         data: {
           id: record.id,
           submittedAt: record.submittedAt,
-          messageId: emailResult.messageId,
+          messageId: mail.internal.messageId,
         },
       },
       { status: 200 }

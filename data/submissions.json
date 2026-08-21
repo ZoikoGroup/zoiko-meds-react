@@ -974,5 +974,24 @@
     },
     "submittedAt": "2026-08-20T13:04:33.409Z",
     "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1787314811319_scmfe",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Hospital Systems Briefing (Hospital / health system)",
+    "fullName": "Naveeen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "medszoiko",
+    "payload": {
+      "briefingType": "Hospital Systems Briefing (Hospital / health system)",
+      "fullName": "Naveeen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "medszoiko",
+      "jobTitle": "pharmacist",
+      "phone": "999999999",
+      "note": "Organization Type: Hospital / health system\nFacilities: 2–5\nRegion: ind\nInterests: Medicine Availability\nNote:"
+    },
+    "submittedAt": "2026-08-21T12:20:11.323Z",
+    "status": "RECEIVED"
   }
 ]

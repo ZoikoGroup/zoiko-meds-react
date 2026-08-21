@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
-import { sendBriefingRequestEmail } from "@/lib/email/emailService";
+import { dispatchFormEmails } from "@/lib/email/formMail";
+import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
 import { validateEmail } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -46,26 +47,27 @@ export async function POST(req: NextRequest) {
       payload: { briefingType, fullName, workEmail, organization, note },
     });
 
-    const emailResult = await sendBriefingRequestEmail({
-      briefingType,
-      fullName,
-      workEmail,
-      organization,
+    // Notify the team and confirm to the submitter. The record is already
+    // saved, so neither delivery may fail the request.
+    const mail = await dispatchFormEmails({
+      formName: briefingType,
+      submittedAt: submissionTimeForRequest(req, body),
+      userEmail: workEmail,
+      userName: fullName,
       note,
-      submittedAt: record.submittedAt,
+      subject: `Briefing Request (${briefingType}): ${organization}`,
+      submission: [
+        { label: "Briefing Type", value: briefingType },
+        { label: "Full Name", value: fullName },
+        { label: "Work Email", value: workEmail },
+        { label: "Organization", value: organization },
+      ],
     });
-
-    if (!emailResult.success) {
-      return NextResponse.json(
-        { success: false, message: emailResult.error || "Email delivery failed." },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json({
       success: true,
       message: "MediBase™ data briefing request submitted successfully. Our team will contact you soon.",
-      data: { id: record.id, submittedAt: record.submittedAt, messageId: emailResult.messageId },
+      data: { id: record.id, submittedAt: record.submittedAt, messageId: mail.internal.messageId },
     });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : "An unexpected server error occurred.";

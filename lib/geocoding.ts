@@ -192,13 +192,23 @@ async function reverseViaBigDataCloud(lat: number, lng: number): Promise<string>
 
 /** Human-readable name for coordinates; falls back to formatted lat/lng. */
 export async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  if (reverseGeocodeCache.has(key)) {
+    return reverseGeocodeCache.get(key)!;
+  }
+
   for (const provider of [reverseViaGoogle, reverseViaNominatim, reverseViaBigDataCloud]) {
     try {
       const name = await provider(lat, lng);
-      if (name) return name;
+      if (name) {
+        reverseGeocodeCache.set(key, name);
+        return name;
+      }
     } catch {
       // try the next provider
     }
   }
-  return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  const fallback = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  reverseGeocodeCache.set(key, fallback);
+  return fallback;
 }

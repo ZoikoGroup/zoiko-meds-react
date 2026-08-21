@@ -18,6 +18,27 @@ interface MedicineMatch {
 }
 interface SearchOutcome { medicines: MedicineMatch[]; pharmacies: Pharmacy[]; }
 
+/**
+ * One medicine as the scanner read it, mirroring `ScannedMedicine` from
+ * `lib/scan/resolve.ts`. Everything but `name` is optional because a
+ * prescription rarely states all of it.
+ */
+interface ScannedItem {
+  name: string;
+  genericName?: string;
+  strength?: string;
+  dosageForm?: string;
+  quantity?: string;
+  confidence?: number;
+  requiresConfirmation?: boolean;
+  note?: string;
+}
+
+/** The key the availability search and result map are already keyed by. */
+function scanLabel(item: ScannedItem): string {
+  return [item.name, item.strength].filter(Boolean).join(" ").trim();
+}
+
 /* ─── helpers ─── */
 function buildMapsUrl(dLat: number, dLng: number, oLat?: number, oLng?: number) {
   let u = `https://www.google.com/maps/dir/?api=1&destination=${dLat},${dLng}&travelmode=driving`;
@@ -302,6 +323,11 @@ export default function MedicineSearchWidget() {
   const [scanRadius, setScanRadius] = useState(25);
   const [scanning, setScanning] = useState(false);
   const [scannedMeds, setScannedMeds] = useState<string[]>([]);
+  /** Detail for each entry in `scannedMeds`, keyed by the same label. */
+  const [scanItems, setScanItems] = useState<Record<string, ScannedItem>>({});
+  const [scanWarnings, setScanWarnings] = useState<string[]>([]);
+  /** How many detected medicines the user still has to check. */
+  const needsConfirmCount = scannedMeds.filter((m) => scanItems[m]?.requiresConfirmation).length;
   const [selectedMeds, setSelectedMeds] = useState<Set<string>>(new Set());
   const [scanResults, setScanResults] = useState<{ [med: string]: SearchOutcome | null }>({});
   const [scanSearching, setScanSearching] = useState(false);
@@ -521,22 +547,27 @@ export default function MedicineSearchWidget() {
     return null;
   };
 
+  /** Clear everything derived from the previous upload. */
+  const clearScanOutput = () => {
+    setScannedMeds([]);
+    setScanItems({});
+    setScanWarnings([]);
+    setSelectedMeds(new Set());
+    setScanResults({});
+  };
+
   const handleFile = (file: File) => {
     const err = validateFile(file);
     if (err) {
       setFileError(err);
       setScanFile(null);
-      setScannedMeds([]);
-      setSelectedMeds(new Set());
-      setScanResults({});
+      clearScanOutput();
       setScanError(null);
       return;
     }
     setFileError(null);
     setScanFile(file);
-    setScannedMeds([]);
-    setSelectedMeds(new Set());
-    setScanResults({});
+    clearScanOutput();
     setScanError(null);
   };
 
@@ -544,9 +575,7 @@ export default function MedicineSearchWidget() {
     setScanFile(null);
     setFileError(null);
     setScanError(null);
-    setScannedMeds([]);
-    setSelectedMeds(new Set());
-    setScanResults({});
+    clearScanOutput();
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (cameraRef.current) cameraRef.current.value = "";
     if (galleryRef.current) galleryRef.current.value = "";
@@ -564,9 +593,7 @@ export default function MedicineSearchWidget() {
       return;
     }
     setScanning(true);
-    setScannedMeds([]);
-    setSelectedMeds(new Set());
-    setScanResults({});
+    clearScanOutput();
     setScanError(null);
 
     try {
@@ -576,23 +603,36 @@ export default function MedicineSearchWidget() {
       const d = await r.json();
       if (d.success && Array.isArray(d.data?.medicines)) {
         const meds: string[] = d.data.medicines;
+        const items: ScannedItem[] = Array.isArray(d.data?.items) ? d.data.items : [];
+        const warnings: string[] = Array.isArray(d.data?.warnings) ? d.data.warnings : [];
+
         if (meds.length > 0) {
+          // Detail is matched to a label by the same rule the API used to build
+          // it, so an older response that carries no `items` still works — the
+          // chips just render without the extra detail.
+          const detail: Record<string, ScannedItem> = {};
+          for (const item of items) {
+            if (item?.name) detail[scanLabel(item)] = item;
+          }
+
           setScannedMeds(meds);
-          setSelectedMeds(new Set(meds));
+          setScanItems(detail);
+          setScanWarnings(warnings);
+          // Anything the scanner is unsure about stays unselected until the
+          // user confirms it. Never search a medicine we may have misread.
+          setSelectedMeds(new Set(meds.filter((m) => !detail[m]?.requiresConfirmation)));
           setScanError(null);
         } else {
-          setScannedMeds([]);
-          setSelectedMeds(new Set());
+          clearScanOutput();
+          setScanWarnings(warnings);
           setScanError("No medicines could be detected. Please upload a clearer prescription or try another image.");
         }
       } else {
-        setScannedMeds([]);
-        setSelectedMeds(new Set());
+        clearScanOutput();
         setScanError(d.error || "We couldn't scan this prescription. Please try again or upload a clearer image.");
       }
     } catch {
-      setScannedMeds([]);
-      setSelectedMeds(new Set());
+      clearScanOutput();
       setScanError("We couldn't scan this prescription. Please try again or upload a clearer image.");
     } finally {
       setScanning(false);
@@ -973,6 +1013,18 @@ export default function MedicineSearchWidget() {
             </div>
           )}
 
+          {/* Notes about how the file was read (pages skipped, HEIC, etc.) */}
+          {scanWarnings.length > 0 && (
+            <div className="mt-4 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl">
+              {scanWarnings.map((w) => (
+                <p key={w} className="text-[11px] font-semibold text-[#92400E] leading-relaxed flex gap-1.5">
+                  <span aria-hidden="true">•</span>
+                  <span>{w}</span>
+                </p>
+              ))}
+            </div>
+          )}
+
           {/* Scanned medicines + search */}
           {scannedMeds.length > 0 && (
             <div className="mt-5">
@@ -998,10 +1050,32 @@ export default function MedicineSearchWidget() {
               <div className="flex flex-wrap gap-2 mb-3">
                 {scannedMeds.map((m) => {
                   const isSelected = selectedMeds.has(m);
+                  const item = scanItems[m];
+                  const needsConfirm = Boolean(item?.requiresConfirmation);
+
+                  // Extra detail the prescription gave us, kept short so the
+                  // chip stays one line.
+                  const generic =
+                    item?.genericName && item.genericName.toLowerCase() !== item.name.toLowerCase()
+                      ? item.genericName
+                      : "";
+                  const detail = [generic, item?.dosageForm, item?.quantity ? `×${item.quantity}` : ""]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                  const tooltip = [
+                    item?.note,
+                    typeof item?.confidence === "number" ? `${Math.round(item.confidence * 100)}% confidence` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
+
                   return (
                     <button
                       key={m}
                       type="button"
+                      title={tooltip || undefined}
+                      aria-pressed={isSelected}
                       onClick={() =>
                         setSelectedMeds((prev) => {
                           const next = new Set(prev);
@@ -1013,19 +1087,38 @@ export default function MedicineSearchWidget() {
                       className={`text-[13px] font-semibold px-4 py-1.5 rounded-full border-[1.5px] transition-all flex items-center gap-1.5 cursor-pointer ${
                         isSelected
                           ? "bg-[#0D9A72] border-[#25a874] text-white shadow-sm"
-                          : "bg-[#f0faf5] border-[#b2edcd] text-[#1a6644] hover:border-[#0D9A72]"
+                          : needsConfirm
+                            ? "bg-[#FFFBEB] border-[#FCD34D] text-[#92400E] hover:border-[#D97706]"
+                            : "bg-[#f0faf5] border-[#b2edcd] text-[#1a6644] hover:border-[#0D9A72]"
                       }`}
                     >
-                      {isSelected && (
+                      {isSelected ? (
                         <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                      )}
+                      ) : needsConfirm ? (
+                        <svg className="w-3.5 h-3.5 text-[#D97706]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      ) : null}
                       {m}
+                      {detail && <span className="font-medium opacity-75">{detail}</span>}
                     </button>
                   );
                 })}
               </div>
+
+              {/* Nothing uncertain is searched until the user says so. */}
+              {needsConfirmCount > 0 && (
+                <p className="text-[11px] font-semibold text-[#92400E] mb-3 flex gap-1.5">
+                  <span aria-hidden="true">⚠</span>
+                  <span>
+                    {needsConfirmCount} medicine{needsConfirmCount === 1 ? " was" : "s were"} hard to read. Check
+                    {needsConfirmCount === 1 ? " it" : " them"} against your prescription, then tap to include
+                    {needsConfirmCount === 1 ? " it" : " them"} in the search.
+                  </span>
+                </p>
+              )}
 
               <button
                 type="button"
@@ -1055,52 +1148,4 @@ export default function MedicineSearchWidget() {
       )}
     </div>
   );
-}
-
-/* ─── Dynamic client-side fallback for scan ─── */
-function getDynamicClientMeds(file: File): string[] {
-  const fileName = file.name || "";
-  const fileSize = file.size || 0;
-  const lastMod = file.lastModified || 0;
-  const lower = fileName.toLowerCase();
-
-  const KNOWN_DRUG_MAP: [RegExp, string][] = [
-    [/\bdelcon\b/i, "Delcon Syrup"],
-    [/\blevolin\b/i, "Levolin Syrup"],
-    [/\bmeftal[-_\s]*p\b|\bmeftal\b/i, "Meftal-P Syrup (100mg/5ml)"],
-    [/\bcalpol[-_\s]*250\b|\bcalpol[-_\s]*\(?250\/5\)?\b/i, "Calpol 250mg Syrup"],
-    [/\bcalpol[-_\s]*650\b/i, "Calpol 650mg"],
-    [/\bcalpol\b/i, "Calpol 250mg Syrup"],
-    [/\bparacetamol[-_\s]*650\b/i, "Paracetamol 650mg"],
-    [/\bparacetamol\b|\bacetaminophen\b|\bpcm\b/i, "Paracetamol 650mg"],
-    [/\bnaproxen\b|\baleve\b|\bnaprosyn\b/i, "Naproxen Sodium 500mg"],
-    [/\baugmentin\b/i, "Augmentin 625mg"],
-    [/\bamoxicillin\b|\bamoxil\b|\bamox\b/i, "Amoxicillin 500mg"],
-    [/\bibuprofen\b|\bibugesic\b|\bbrufen\b|\badvil\b|\bmotrin\b/i, "Ibuprofen 400mg"],
-    [/\bomeprazole\b|\bocid\b|\bprilosec\b/i, "Omeprazole 20mg"],
-    [/\bpantoprazole\b|\bpanto\b|\bpan[-_\s]*40\b|\bprotonix\b/i, "Pantoprazole 40mg"],
-    [/\bmetformin\b|\bglycomet\b|\bglucophage\b/i, "Metformin 500mg"],
-    [/\bazithromycin\b|\bazithro\b|\bazithral\b|\bzithromax\b/i, "Azithromycin 500mg"],
-    [/\bcetirizine\b|\bcetri\b|\bcetzine\b|\bzyrtec\b/i, "Cetirizine 10mg"],
-    [/\batorvastatin\b|\batorva\b|\blipitor\b/i, "Atorvastatin 10mg"],
-    [/\bdoxycycline\b|\bdoxy\b/i, "Doxycycline 100mg"],
-    [/\bmontelukast\b|\bmontair\b|\bmontelu\b|\bsingulair\b/i, "Montelukast 10mg"],
-    [/\bamlodipine\b|\bamlo\b|\bnorvasc\b/i, "Amlodipine 5mg"],
-    [/\btelmisartan\b|\btelma\b|\btelmi\b/i, "Telmisartan 40mg"],
-    [/\bgabapentin\b|\bgaba\b|\bneurontin\b/i, "Gabapentin 300mg"],
-    [/\bpregabalin\b|\bpregab\b|\blyrica\b/i, "Pregabalin 75mg"],
-    [/\bciprofloxacin\b|\bcipro\b/i, "Ciprofloxacin 500mg"],
-    [/\blosartan\b|\bcozaar\b/i, "Losartan 50mg"],
-    [/\brosuvastatin\b|\brosuva\b|\bcrestor\b/i, "Rosuvastatin 10mg"],
-    [/\baspirin\b|\becospirin\b/i, "Aspirin 75mg"],
-    [/\bsalbutamol\b|\basthalin\b|\bventolin\b/i, "Salbutamol Inhaler 100mcg"],
-    [/\blevothyroxine\b|\bthyronorm\b|\bsynthroid\b/i, "Levothyroxine 50mcg"],
-  ];
-
-  const found: string[] = [];
-  for (const [pattern, medName] of KNOWN_DRUG_MAP) {
-    if (pattern.test(lower)) found.push(medName);
-  }
-  if (found.length > 0) return Array.from(new Set(found));
-  return [];
 }

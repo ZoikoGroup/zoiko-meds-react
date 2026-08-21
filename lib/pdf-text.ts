@@ -857,7 +857,7 @@ function crc32(buf: Buffer): number {
   return (c ^ 0xffffffff) >>> 0;
 }
 
-function buildPng(width: number, height: number, isRgb: boolean, rawBytes: Buffer): Buffer {
+export function buildPng(width: number, height: number, isRgb: boolean, rawBytes: Buffer): Buffer {
   const bytesPerPixel = isRgb ? 3 : 1;
   const colorType = isRgb ? 2 : 0;
 
@@ -903,6 +903,25 @@ export interface PdfImage {
   page: number;
   data: Buffer;
   mime: string;
+}
+
+/**
+ * How many pages the document declares.
+ *
+ * Used to tell the caller when a scan covered only part of a long PDF, so pages
+ * are never dropped silently.
+ */
+export function countPdfPages(buffer: Buffer): number {
+  if (!buffer?.length) return 0;
+  const objects = parseObjects(buffer.toString("latin1"));
+  expandObjectStreams(objects);
+
+  let pages = 0;
+  for (const obj of objects.values()) {
+    // The word boundary matters: without it the /Pages tree node counts too.
+    if (/\/Type\s*\/Page\b/.test(obj.dict)) pages++;
+  }
+  return pages;
 }
 
 export function extractPdfImages(buffer: Buffer, maxPages = 8): PdfImage[] {

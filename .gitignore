@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Tesseract language data
+# The gzipped model is committed so OCR works without a network fetch at deploy
+# time. Tesseract unpacks it next to itself at runtime; that copy is a cache.
+public/tessdata/*
+!public/tessdata/eng.traineddata.gz

@@ -19,7 +19,8 @@
  * empty list and a reason, not a plausible-looking guess.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { extractPdfImages, extractPdfText, looksLikePdf } from "@/lib/pdf-text";
+import { countPdfPages, extractPdfImages, extractPdfText, looksLikePdf } from "@/lib/pdf-text";
+import { preprocessImageForOcr } from "@/lib/scan/preprocess";
 import { detectMedicines, shouldTryVision, type PageText } from "@/lib/scan/extract";
 import { recognizePages } from "@/lib/scan/ocr";
 import { computeConfidence, extractQuantity, needsConfirmation, type ScannedMedicine } from "@/lib/scan/resolve";
@@ -29,6 +30,12 @@ import { titleCase } from "@/lib/scan/candidate-extract";
 export const runtime = "nodejs";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Upper bound on scanned pages sent to OCR. Generous enough for a real
+ * discharge summary, bounded so one upload cannot monopolise the worker.
+ */
+const MAX_OCR_PAGES = 20;
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -135,10 +142,29 @@ function fromVisionReading(reading: VisionReading): ScannedMedicine | null {
   };
 }
 
+/**
+ * Say once per process that a vision provider has no key configured.
+ *
+ * Once, not per request: a site running OCR-only would otherwise fill its logs
+ * with the same line on every upload.
+ */
+const announced = new Set<string>();
+function announceMissingKey(provider: string, envVar: string): void {
+  if (announced.has(provider)) return;
+  announced.add(provider);
+  console.info(
+    `[medicine/scan] ${provider} vision fallback is not configured (${envVar} is unset). ` +
+      "Scanning will use on-server OCR only.",
+  );
+}
+
 /** Gemini reads images and PDFs directly. */
 async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<VisionReading[]> {
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-  if (!key) return [];
+  if (!key) {
+    announceMissingKey("Gemini", "GEMINI_API_KEY");
+    return [];
+  }
 
   const mediaType =
     mimeType === "application/pdf"
@@ -149,10 +175,12 @@ async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<Visi
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // Header, not `?key=` — a query-string key ends up in any log line or
+        // error message that echoes the request URL.
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
           contents: [
             {
@@ -166,7 +194,11 @@ async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<Visi
         }),
       },
     );
-    if (!response.ok) return [];
+    if (!response.ok) {
+      // Status only. The body can echo the request, key included.
+      console.warn(`[medicine/scan] Gemini fallback returned HTTP ${response.status}; falling back to Claude.`);
+      return [];
+    }
     const body = await response.json();
     return parseVisionReadings(String(body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "[]"));
   } catch (err) {
@@ -178,7 +210,10 @@ async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<Visi
 /** Claude reads images and PDFs; used when Gemini is absent or finds nothing. */
 async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<VisionReading[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY ?? "";
-  if (!apiKey) return [];
+  if (!apiKey) {
+    announceMissingKey("Claude", "ANTHROPIC_API_KEY");
+    return [];
+  }
 
   const data = buffer.toString("base64");
   const source =
@@ -209,7 +244,10 @@ async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<Visi
         messages: [{ role: "user", content: [source, { type: "text", text: VISION_INSTRUCTIONS }] }],
       }),
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.warn(`[medicine/scan] Claude fallback returned HTTP ${response.status}; OCR results stand.`);
+      return [];
+    }
 
     const body = await response.json();
     // Safety classifiers can decline; content is then empty or partial.
@@ -235,18 +273,34 @@ async function runVisionFallback(buffer: Buffer, mimeType: string): Promise<Scan
 
 /* ────────────────────────── the pipeline ────────────────────────── */
 
+import { convertHeicToPng, isHeicUpload } from "@/lib/scan/heic";
+
 /**
  * Read a prescription. Never throws for "no medicines" — an empty list with a
  * reason is a correct and useful answer.
  */
 export async function scanPrescription(buffer: Buffer, mimeType: string): Promise<ScanReport> {
   const warnings: string[] = [];
-  const isPdf = mimeType === "application/pdf" || looksLikePdf(buffer);
+  let activeBuffer = buffer;
+  let activeMime = mimeType;
+
+  // Handle HEIC/HEIF image conversion to PNG before OCR
+  if (isHeicUpload(activeBuffer, activeMime)) {
+    const converted = await convertHeicToPng(activeBuffer);
+    if (converted) {
+      activeBuffer = converted;
+      activeMime = "image/png";
+    } else {
+      warnings.push("HEIC image format could not be decoded. Please upload as JPG or PNG.");
+    }
+  }
+
+  const isPdf = activeMime === "application/pdf" || looksLikePdf(activeBuffer);
 
   // 1. A digital PDF already carries its text. No OCR, no loss.
   if (isPdf) {
     try {
-      const { text } = extractPdfText(buffer);
+      const { text } = extractPdfText(activeBuffer);
       if (text.trim()) {
         const medicines = await detectMedicines([{ page: 1, text }]);
         if (medicines.length > 0) {
@@ -263,10 +317,25 @@ export async function scanPrescription(buffer: Buffer, mimeType: string): Promis
   //    corrected on the way out of the file; an uploaded image is one page.
   let pageImages: Buffer[] = [];
   try {
-    pageImages = isPdf ? extractPdfImages(buffer).map((image: { data: Buffer }) => image.data) : [buffer];
+    if (isPdf) {
+      pageImages = extractPdfImages(activeBuffer, MAX_OCR_PAGES).map((image: { data: Buffer }) => image.data);
+      // Never drop pages silently — say so when the document is longer than the cap.
+      const declared = countPdfPages(activeBuffer);
+      if (declared > pageImages.length && pageImages.length >= MAX_OCR_PAGES) {
+        warnings.push(
+          `Only the first ${MAX_OCR_PAGES} of ${declared} pages were read. Please upload the remaining pages separately.`,
+        );
+      }
+    } else {
+      // A direct image upload is one page, but it still benefits from the same
+      // preparation a PDF raster gets: orientation, grayscale, contrast, scale.
+      const prepared = await preprocessImageForOcr(activeBuffer, activeMime);
+      pageImages = [prepared?.data ?? activeBuffer];
+    }
   } catch (err) {
     console.warn("[medicine/scan] Could not prepare page images:", err instanceof Error ? err.message : err);
     warnings.push("The pages of this file could not be prepared for reading.");
+    if (!isPdf) pageImages = [activeBuffer];
   }
 
   let ocrMedicines: ScannedMedicine[] = [];
@@ -297,7 +366,7 @@ export async function scanPrescription(buffer: Buffer, mimeType: string): Promis
   // 3. Escalate to the vision models when the reading is empty or all-uncertain
   //    — handwriting, poor contrast, unusual layouts.
   if (shouldTryVision(ocrMedicines)) {
-    const viaVision = await runVisionFallback(buffer, isPdf ? "application/pdf" : mimeType || "image/jpeg");
+    const viaVision = await runVisionFallback(activeBuffer, isPdf ? "application/pdf" : activeMime || "image/jpeg");
     if (viaVision.length > 0) {
       return { medicines: viaVision, stage: "vision", pages: Math.max(pagesRead, 1), warnings };
     }
