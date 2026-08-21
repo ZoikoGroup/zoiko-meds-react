@@ -58,9 +58,9 @@ export default function AvailabilityHero() {
 
         {/* Right Image */}
         <div className="flex justify-center">
-          <div className="flex w-full max-w-[592px] items-center justify-center rounded-[28px] bg-[#5AD9D233] shadow-[0_0_20px_#5AD9D233]">
+          <div className="flex w-full max-w-[592px] items-center justify-center">
             <img
-              src="/availability-alert/hero.png" // Replace with your image
+              src="/availability-alert/hero.png" 
               alt="Medicine Alert"
               className="h-auto w-full object-contain z-10"
             />

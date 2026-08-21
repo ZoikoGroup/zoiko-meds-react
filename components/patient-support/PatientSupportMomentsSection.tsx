@@ -54,7 +54,7 @@ const SCENARIOS = [
       "Digital care teams can point patients to safe availability checks and pharmacy confirmation after a remote consultation.",
     highlight: "Keeps access guidance practical while preserving clinical boundaries.",
     cta: "Request Workflow Briefing",
-    ctaFilled: true,
+    ctaFilled: false,
     href: "#request",
   },
   {
@@ -171,11 +171,11 @@ function ScenarioCard({
 }) {
   return (
     <Reveal index={index + 3} active={active}>
-      <div className="flex h-full flex-col rounded-2xl border border-[#E7EAF1] bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#9FE3D3] hover:shadow-[0_12px_28px_-14px_rgba(15,170,135,0.18)]">
+      <div className={`flex h-full flex-col rounded-2xl border border-[#E7EAF1] ${highlight ? "bg-white":"bg-transparent"} p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#9FE3D3] hover:shadow-[0_12px_28px_-14px_rgba(15,170,135,0.18)]`}>
         {/* Icon */}
         <div
           className="flex h-10 w-10 items-center justify-center rounded-xl"
-          style={{ backgroundColor: "#DCF5EE", color: ACCENT }}
+          style={{ backgroundColor: "#13A5941A", color: ACCENT }}
         >
           <ScenarioIcon name={icon} />
         </div>
