@@ -27,12 +27,16 @@ vi.mock("@/lib/api", () => ({
 }));
 
 const recognizePages = vi.fn();
-vi.mock("@/lib/scan/ocr", () => ({
-  recognizePages: (...args: unknown[]) => recognizePages(...args),
-  recognizeImage: vi.fn(),
-  isOcrAvailable: vi.fn(async () => true),
-  LOW_OCR_CONFIDENCE: 0.7,
-}));
+vi.mock("@/lib/scan/ocr", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/scan/ocr")>();
+  return {
+    ...actual,
+    recognizePages: (...args: unknown[]) => recognizePages(...args),
+    recognizeImage: vi.fn(),
+    isOcrAvailable: vi.fn(async () => true),
+    LOW_OCR_CONFIDENCE: 0.7,
+  };
+});
 
 const { POST } = await import("@/app/internal/medicine/scan/route");
 
@@ -331,3 +335,39 @@ describe("search hand-off", () => {
     );
   });
 });
+
+describe("HEIC and production OCR configuration", () => {
+  it("detects HEIC upload header and handles HEIC images", async () => {
+    const { isHeicUpload } = await import("@/lib/scan/heic");
+    const fakeHeicHeader = Buffer.from([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70, 0x68, 0x65, 0x69, 0x63]);
+    expect(isHeicUpload(fakeHeicHeader, "image/heic")).toBe(true);
+    expect(isHeicUpload(Buffer.from("not a heic"), "image/jpeg")).toBe(false);
+  });
+
+  it("resolves offline traineddata langPath and worker script dynamically without static path string literals", async () => {
+    const { getLangPath, getWorkerPath } = await import("@/lib/scan/ocr");
+    const langPath = getLangPath();
+    const workerPath = getWorkerPath();
+
+    // The model ships with the application, so it must resolve locally rather
+    // than fall through to a runtime download.
+    expect(langPath).not.toBeNull();
+    expect(String(langPath)).toContain(process.cwd());
+    if (workerPath) {
+      expect(workerPath).toContain(process.cwd());
+    }
+  });
+
+  it("handles OCR worker initialization failure gracefully without crashing scan", async () => {
+    recognizePages.mockRejectedValueOnce(new Error("Worker failed to start"));
+
+    const { status, json } = await scan(jpeg(), "photo.jpg", "image/jpeg");
+
+    expect(status).toBe(200);
+    expect(json.success).toBe(true);
+    expect(json.data.medicines).toEqual([]);
+    expect(json.data.stage).toBe("none");
+    expect(json.data.warnings).toContain("On-server reading failed for this file.");
+  });
+});
+

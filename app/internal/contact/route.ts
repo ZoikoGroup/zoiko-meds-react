@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
-import { sendNotificationEmail } from "@/lib/email/emailService";
+import { dispatchFormEmails } from "@/lib/email/formMail";
+import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
 import { validateEmail } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -59,31 +60,21 @@ export async function POST(req: NextRequest) {
     });
 
     // 2. Dispatch notification email to info@zoikomeds.com
-    const emailResult = await sendNotificationEmail({
-      title: `Contact Form Inquiry (${subject})`,
+    const mail = await dispatchFormEmails({
+      formName: "Contact",
+      submittedAt: submissionTimeForRequest(req, body),
+      userEmail: email,
+      userName: name,
       subject: `General Inquiry [${subject}]: ${name}`,
-      recipient: "info@zoikomeds.com",
-      replyTo: email,
       note: message,
-      fields: [
+      submission: [
         { label: "Full Name", value: name },
         { label: "Email", value: email },
         { label: "Contact Reason / Subject", value: subject },
         { label: "Organization", value: org || "N/A" },
-        { label: "Submitted At", value: new Date(record.submittedAt).toLocaleString("en-US", { dateStyle: "full", timeStyle: "medium" }) },
       ],
     });
 
-    if (!emailResult.success) {
-      console.error("[POST /internal/contact] Email notification failed:", emailResult.error);
-      return NextResponse.json(
-        {
-          success: false,
-          message: emailResult.error || "Failed to dispatch email notification. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json(
       {
@@ -92,7 +83,7 @@ export async function POST(req: NextRequest) {
         data: {
           id: record.id,
           submittedAt: record.submittedAt,
-          messageId: emailResult.messageId,
+          messageId: mail.internal.messageId,
         },
       },
       { status: 200 }

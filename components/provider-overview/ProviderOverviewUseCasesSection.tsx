@@ -102,9 +102,9 @@ export default function ProviderOverviewUseCasesSection() {
                 />
               </svg>
             </span>
-            <p className="text-[13px] leading-relaxed text-[#5B6478]">
+            <p className="text-[13px] leading-relaxed text-[#2B3A4F]">
               ZoikoMeds supports availability awareness.{" "}
-              <span className="font-semibold text-[#0F1F4E]">
+              <span className="font-bold text-[#2B3A4F]">
                 It does not recommend clinical alternatives, change
                 prescriptions, authorize dispensing, or replace
                 provider–pharmacist communication where required.
