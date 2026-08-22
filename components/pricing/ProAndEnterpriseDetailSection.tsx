@@ -17,6 +17,7 @@ interface CardData {
   features: Feature[];
   buttonText: string;
   buttonVariant: "primary" | "secondary";
+  href: string;
 }
 
 const CARDS_DATA: CardData[] = [
@@ -24,6 +25,7 @@ const CARDS_DATA: CardData[] = [
     icon: BarChart2,
     title: "Intelligence Pro",
     badge: "30-day evaluation · no card · no auto-conversion",
+    href: "https://zoiko-meds-platform.vercel.app/dashboard",
     description:
       "A predictable per-location subscription for decision-support intelligence — demand visibility, unfulfilled-search insight, restock signals, and advanced routing. It never converts routing or dashboards into paid search ranking.",
     features: [
@@ -55,6 +57,7 @@ const CARDS_DATA: CardData[] = [
     icon: Building2,
     title: "Enterprise, API & Data",
     badge: "Signed Order Form · explicit metric · customer-visible usage",
+    href: "/request-a-briefing",
     description:
       "Custom agreements for chains, hospitals, health systems, governments, PMS partners, and data customers who need multi-location governance, SLAs, residency, or custom deployment.",
     features: [
@@ -109,37 +112,37 @@ export default function ProAndEnterpriseDetailSection() {
   } as const;
 
   return (
-    <section className="relative w-full bg-[#F6F9FC] text-[#1D1D1F] py-16 sm:py-20 md:py-24 px-6 sm:px-12 md:px-16 lg:px-24 font-sans antialiased overflow-hidden">
+    <section className="relative w-full bg-[#F6F9FC] text-[#1D1D1F] py-12 sm:py-20 md:py-24 px-4 sm:px-12 md:px-16 lg:px-24 font-sans antialiased overflow-hidden">
       <div className="relative max-w-6xl mx-auto w-full z-10">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="flex flex-col gap-10 md:gap-12"
+          className="flex flex-col gap-8 md:gap-12"
         >
           {/* Header Section */}
           <motion.div
             variants={itemVariants}
-            className="space-y-3 text-left max-w-3xl"
+            className="space-y-3 text-center mx-auto"
           >
             <span className="text-xs sm:text-sm font-semibold tracking-[1px] text-[#13A594] uppercase block">
               06 &nbsp;·&nbsp; PRO &amp; ENTERPRISE IN DETAIL
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-[2.5rem] font-bold text-[#101828] leading-[1.15] tracking-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-[35px] max-w-2xl font-bold text-[#101828] leading-tight sm:leading-[1.15] tracking-tight">
               Predictable for pharmacies, negotiated for institutions.
             </h2>
           </motion.div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
             {CARDS_DATA.map((card, index) => {
               const IconComponent = card.icon;
               return (
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  className="bg-white rounded-2xl p-7 sm:p-8 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between text-left"
+                  className="bg-white rounded-2xl p-5 sm:p-8 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between text-left"
                 >
                   <div>
                     {/* Icon & Title Header */}
@@ -147,16 +150,16 @@ export default function ProAndEnterpriseDetailSection() {
                       <div className="w-10 h-10 rounded-lg bg-[#E6F6F4] flex items-center justify-center flex-shrink-0">
                         <IconComponent className="w-5 h-5 text-[#13A594]" />
                       </div>
-                      <h3 className="text-xl font-bold text-[#101828]">
+                      <h3 className="text-lg sm:text-xl font-bold text-[#101828]">
                         {card.title}
                       </h3>
                     </div>
 
                     {/* Pill Badge */}
                     <div className="mb-4">
-                      <span className="inline-flex items-center gap-1.5 bg-[#E6F6F4] text-[#13A594] text-[11px] font-mono font-medium px-3 py-1 rounded-full">
-                        <Check className="w-3.5 h-3.5" />
-                        {card.badge}
+                      <span className="inline-flex items-start sm:items-center gap-1.5 bg-[#E6F6F4] text-[#13A594] text-[10px] sm:text-[11px] font-mono font-medium px-3 py-1.5 sm:py-1 rounded-full leading-normal">
+                        <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 sm:mt-0" />
+                        <span>{card.badge}</span>
                       </span>
                     </div>
 
@@ -165,7 +168,7 @@ export default function ProAndEnterpriseDetailSection() {
                       {card.description}
                     </p>
 
-                    {/* Feature Bullet List (reduced gaps) */}
+                    {/* Feature Bullet List */}
                     <ul className="space-y-2 mb-6">
                       {card.features.map((feature, featureIdx) => (
                         <li
@@ -184,14 +187,14 @@ export default function ProAndEnterpriseDetailSection() {
                     </ul>
                   </div>
 
-                  {/* Action Button (Aligned to start with horizontal padding instead of full width) */}
+                  {/* Action Button: Full width on Mobile, Start-aligned with fixed padding on Desktop */}
                   <div className="pt-2 flex justify-start">
                     <a
-                      href="#"
-                      className={`inline-flex items-center justify-center px border text-xs sm:text-sm font-medium rounded-xl transition-colors duration-200 shadow-sm ${
+                      href={card.href}
+                      className={`w-full sm:w-auto inline-flex items-center justify-center border text-xs sm:text-sm font-medium rounded-xl transition-colors duration-200 shadow-sm ${
                         card.buttonVariant === "primary"
-                          ? "bg-[#13A594] px-10 py-3 hover:bg-[#0f8779] text-white border-transparent"
-                          : "bg-white px-10 py-3 hover:bg-gray-50 text-[#101828] border-gray-200"
+                          ? "bg-[#13A594] px-6 sm:px-10 py-3 hover:bg-[#0f8779] text-white border-transparent"
+                          : "bg-white px-6 sm:px-10 py-3 hover:bg-gray-50 text-[#101828] border-gray-200"
                       }`}
                     >
                       {card.buttonText}

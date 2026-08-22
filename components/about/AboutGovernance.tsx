@@ -110,8 +110,10 @@ export default function AboutGovernance() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
-      { threshold: 0.08 }
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.08 },
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -128,34 +130,51 @@ export default function AboutGovernance() {
       `}</style>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-
         {/* ── HEADER ROW ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-10">
           {/* Left: eyebrow + heading + copy */}
           <div className={isVisible ? "gov-animate" : "opacity-0"}>
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-block w-6 h-[3px] rounded-full" style={{ backgroundColor: TEAL }} />
-              <span className="text-xs font-bold tracking-widest uppercase" style={{ color: TEAL }}>
+              <span
+                className="inline-block w-6 h-[3px] rounded-full"
+                style={{ backgroundColor: TEAL }}
+              />
+              <span
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: TEAL }}
+              >
                 Leadership &amp; Oversight
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.5rem] font-extrabold leading-tight mb-4" style={{ color: NAVY }}>
+            <h2
+              className="text-3xl sm:text-4xl lg:text-[2.5rem] font-extrabold leading-tight mb-4"
+              style={{ color: NAVY }}
+            >
               Accountable by design.
             </h2>
             <p className="text-[#4a6070] text-sm sm:text-[15px] leading-relaxed mb-3 max-w-md">
-              ZoikoMeds is governed through defined oversight functions — each with clear
-              accountability for how the platform is built, protected, and commercialized.
+              ZoikoMeds is governed through defined oversight functions — each
+              with clear accountability for how the platform is built,
+              protected, and commercialized.
             </p>
             <p className="text-[#4a6070] text-sm sm:text-[15px] leading-relaxed max-w-md">
-              Every function below is anchored to published standards in the ZoikoMeds{" "}
-              <Link href="/trust-center" className="font-semibold" style={{ color: TEAL }}>
+              Every function below is anchored to published standards in the
+              ZoikoMeds{" "}
+              <Link
+                href="/trust-center"
+                className="font-semibold"
+                style={{ color: TEAL }}
+              >
                 Trust Center.
               </Link>
             </p>
           </div>
 
           {/* Right: Stage 1 callout */}
-          <div className={isVisible ? "gov-animate" : "opacity-0"} style={{ animationDelay: "80ms" }}>
+          <div
+            className={isVisible ? "gov-animate" : "opacity-0"}
+            style={{ animationDelay: "80ms" }}
+          >
             <div className="flex items-start gap-4">
               <span
                 className="flex items-center justify-center w-11 h-11 rounded-full flex-shrink-0"
@@ -164,12 +183,16 @@ export default function AboutGovernance() {
                 <Users size={20} strokeWidth={2} />
               </span>
               <div>
-                <h3 className="text-base sm:text-lg font-bold leading-snug" style={{ color: NAVY }}>
+                <h3
+                  className="text-base sm:text-lg font-bold leading-snug"
+                  style={{ color: NAVY }}
+                >
                   Stage 1 → Position-based governance.
                 </h3>
                 <p className="mt-2 text-[#4a6070] text-sm leading-relaxed">
-                  We&apos;re building ZoikoMeds with a disciplined governance model. Names and
-                  advisors will be added when formally appointed and consented.
+                  We&apos;re building ZoikoMeds with a disciplined governance
+                  model. Names and advisors will be added when formally
+                  appointed and consented.
                 </p>
               </div>
             </div>
@@ -177,9 +200,10 @@ export default function AboutGovernance() {
               className="mt-4 rounded-xl px-4 py-3 text-[13px] leading-relaxed"
               style={{ backgroundColor: "#E3F5F1", color: "#0d3b30" }}
             >
-              <span className="font-bold">Stage 2 Trigger:</span> Activated when (a) first
-              enterprise contract is signed, (b) advisory appointments are contracted, or (c)
-              institutional funding begins — whichever comes first.
+              <span className="font-bold">Stage 2 Trigger:</span> Activated when
+              (a) first enterprise contract is signed, (b) advisory appointments
+              are contracted, or (c) institutional funding begins — whichever
+              comes first.
             </div>
           </div>
         </div>
@@ -196,11 +220,17 @@ export default function AboutGovernance() {
               >
                 <span
                   className="flex items-center justify-center w-12 h-12 rounded-full mb-4"
-                  style={{ backgroundColor: card.iconBg, color: card.iconColor }}
+                  style={{
+                    backgroundColor: card.iconBg,
+                    color: card.iconColor,
+                  }}
                 >
                   <Icon size={20} strokeWidth={2} />
                 </span>
-                <h3 className="text-[15px] font-bold leading-snug mb-2" style={{ color: NAVY }}>
+                <h3
+                  className="text-[15px] font-bold leading-snug mb-2"
+                  style={{ color: NAVY }}
+                >
                   {idx + 1}. {card.title}
                 </h3>
                 <p className="text-[13px] text-[#6b7280] leading-relaxed mb-4">
@@ -208,7 +238,11 @@ export default function AboutGovernance() {
                 </p>
                 <span
                   className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold"
-                  style={{ backgroundColor: `${TEAL}10`, border: `1px solid ${TEAL}55`, color: TEAL }}
+                  style={{
+                    backgroundColor: `${TEAL}10`,
+                    border: `1px solid ${TEAL}55`,
+                    color: TEAL,
+                  }}
                 >
                   {card.tag}
                 </span>
@@ -220,16 +254,22 @@ export default function AboutGovernance() {
         {/* ── STANDARDS ROW ── */}
         <div className="mt-8 rounded-2xl border border-[#ECEEF3] bg-white p-6 flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-start gap-3 lg:max-w-[220px] flex-shrink-0">
-            <span className="flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: "#E3F5F1", color: TEAL }}>
+            <span
+              className="flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0"
+              style={{ backgroundColor: "#E3F5F1", color: TEAL }}
+            >
               <Shield size={16} strokeWidth={2} />
             </span>
             <div>
-              <p className="text-[13px] font-bold leading-snug" style={{ color: NAVY }}>
+              <p
+                className="text-[13px] font-bold leading-snug"
+                style={{ color: NAVY }}
+              >
                 Standards we operate against
               </p>
               <p className="mt-1 text-[12px] text-[#8a93a3] leading-relaxed">
-                Our governance is built on globally recognized standards and best-practice
-                frameworks.
+                Our governance is built on globally recognized standards and
+                best-practice frameworks.
               </p>
             </div>
           </div>
@@ -241,9 +281,19 @@ export default function AboutGovernance() {
               const Icon = std.icon;
               return (
                 <div key={std.label} className="flex items-center gap-2">
-                  <Icon size={18} strokeWidth={1.8} style={{ color: NAVY }} className="flex-shrink-0" />
+                  <Icon
+                    size={18}
+                    strokeWidth={1.8}
+                    style={{ color: NAVY }}
+                    className="flex-shrink-0"
+                  />
                   <div className="leading-tight">
-                    <p className="text-[12px] font-bold" style={{ color: NAVY }}>{std.label}</p>
+                    <p
+                      className="text-[12px] font-bold"
+                      style={{ color: NAVY }}
+                    >
+                      {std.label}
+                    </p>
                     <p className="text-[10.5px] text-[#9aa3b0]">{std.sub}</p>
                   </div>
                 </div>
@@ -253,22 +303,31 @@ export default function AboutGovernance() {
         </div>
 
         {/* ── BOTTOM CTA BANNER ── */}
-        <div className="mt-8 rounded-2xl p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-8" style={{ backgroundColor: "#EAF1FE" }}>
+        <div
+          className="mt-8 rounded-2xl p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-8"
+          style={{ backgroundColor: "#EAF1FE" }}
+        >
           <span
             className="flex items-center justify-center w-16 h-16 rounded-2xl flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #6aa8ff 0%, #3B6FE0 100%)", color: "white" }}
+            style={{
+              background: "linear-gradient(135deg, #6aa8ff 0%, #3B6FE0 100%)",
+              color: "white",
+            }}
           >
             <Lock size={28} strokeWidth={2} />
           </span>
 
           <div className="flex-1">
-            <h3 className="text-xl sm:text-2xl font-extrabold" style={{ color: NAVY }}>
+            <h3
+              className="text-xl sm:text-2xl font-extrabold"
+              style={{ color: NAVY }}
+            >
               Governance in detail.
             </h3>
             <p className="mt-2 text-sm text-[#4a6070] leading-relaxed max-w-xl">
-              Enterprise, wholesale, and public-sector partners can review our full governance,
-              security, and privacy posture — or request a review through the existing
-              enterprise pathway.
+              Enterprise, wholesale, and public-sector partners can review our
+              full governance, security, and privacy posture — or request a
+              review through the existing enterprise pathway.
             </p>
           </div>
 
@@ -278,16 +337,21 @@ export default function AboutGovernance() {
               className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white whitespace-nowrap transition-opacity hover:opacity-90"
               style={{ backgroundColor: TEAL }}
             >
-              <BookOpen size={16} />
-              Visit the Trust Center
+              <BookOpen size={16} className="shrink-0" />
+              <span>Visit the Trust Center</span>
             </Link>
+
             <Link
               href="/security"
               className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold whitespace-nowrap border-2 bg-white transition-colors hover:bg-[#F0F4FF]"
               style={{ color: NAVY, borderColor: "#dfe6f5" }}
             >
-              <ShieldCheck size={16} />
-              Request Security &amp; Procurement Review
+              <ShieldCheck size={16} className="shrink-0" />
+              {/* Shortened on mobile, full text restored on desktop */}
+              <span className="sm:hidden">Request Security Review</span>
+              <span className="hidden sm:inline">
+                Request Security &amp; Procurement Review
+              </span>
             </Link>
           </div>
         </div>
@@ -296,8 +360,8 @@ export default function AboutGovernance() {
         <div className="mt-8 pt-6 border-t border-[#ECEEF3] flex items-center justify-center gap-2 text-center">
           <Shield size={14} style={{ color: TEAL }} className="flex-shrink-0" />
           <p className="text-[12.5px] text-[#8a93a3]">
-            Governed for patient safety, data trust, medicine availability integrity, and
-            responsible healthcare intelligence.
+            Governed for patient safety, data trust, medicine availability
+            integrity, and responsible healthcare intelligence.
           </p>
         </div>
       </div>

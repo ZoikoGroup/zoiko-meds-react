@@ -8,10 +8,18 @@ const OUTCOMES = [
   {
     id: "better-access-visibility",
     title: "Better access visibility",
-    description: "Know where access issues may be developing across the network.",
+    description:
+      "Know where access issues may be developing across the network.",
     retention: "Saved regional dashboards and location views.",
     icon: (
-      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <circle
+        cx="8"
+        cy="8"
+        r="6.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
     ),
   },
   {
@@ -55,7 +63,14 @@ const OUTCOMES = [
       "Avoid confusing search signals with clinical advice or dispensing claims.",
     retention: "Disclaimers, role controls, and responsible workflow design.",
     icon: (
-      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <circle
+        cx="8"
+        cy="8"
+        r="6.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
     ),
   },
   {
@@ -91,16 +106,18 @@ export default function ClinicNetworksOutcomesRetentionSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
+    <section
+      ref={ref}
+      className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20 lg:py-24 font-sans antialiased"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p
@@ -121,65 +138,73 @@ export default function ClinicNetworksOutcomesRetentionSection() {
           </h2>
         </Reveal>
 
-        {/* ── Outcomes table ── */}
+        {/* ── Outcomes Table with Horizontal Scroll Container ── */}
         <Reveal index={2} active={mounted}>
           <div
-            className="mt-10 overflow-hidden rounded-2xl border bg-white lg:mt-12"
+            className="mt-10 overflow-x-auto rounded-2xl border bg-white lg:mt-12"
             style={{
               borderColor: "#E7EAF1",
               boxShadow: "0 4px 24px -10px rgba(15,31,78,0.06)",
             }}
           >
-            {OUTCOMES.map((outcome, i) => (
-              <div
-                key={outcome.id}
-                className="flex items-center gap-4 border-b px-6 py-5 sm:gap-6 sm:px-7 sm:py-6"
-                style={{ borderColor: i === OUTCOMES.length - 1 ? "transparent" : "#E7EAF1" }}
-              >
-                {/* Icon */}
+            {/* Inner table wrapper ensuring fixed minimum width to prevent collapse on small screens */}
+            <div className="min-w-[800px] divide-y divide-[#E7EAF1]">
+              {OUTCOMES.map((outcome) => (
                 <div
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded"
-                  style={{ backgroundColor: "rgba(19,165,148,0.12)", color: ACCENT }}
+                  key={outcome.id}
+                  className="flex items-center gap-6 px-6 py-5 sm:px-7 sm:py-6"
                 >
-                  <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5">
-                    {outcome.icon}
-                  </svg>
-                </div>
-
-                {/* Title - on same line as icon */}
-                <p className="min-w-[140px] text-[13px] font-bold text-[#0F1F4E]">
-                  {outcome.title}
-                </p>
-
-                {/* Description */}
-                <p className="flex-1 text-[13px] leading-relaxed text-[#5B6478]">
-                  {outcome.description}
-                </p>
-
-                {/* Retention Label + Text */}
-                <div className="min-w-[320px] flex-shrink-0">
-                  <span
-                    className="text-[12px] font-medium"
-                    style={{ color: ACCENT }}
+                  {/* Icon */}
+                  <div
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded"
+                    style={{
+                      backgroundColor: "rgba(19,165,148,0.12)",
+                      color: ACCENT,
+                    }}
                   >
-                    Retention:{" "}
-                  </span>
-                  <span className="text-[13px] leading-relaxed text-[#5B6478]">
-                    {outcome.retention}
-                  </span>
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      className="h-3.5 w-3.5"
+                    >
+                      {outcome.icon}
+                    </svg>
+                  </div>
+
+                  {/* Title */}
+                  <p className="w-[180px] shrink-0 text-[13px] font-bold text-[#0F1F4E]">
+                    {outcome.title}
+                  </p>
+
+                  {/* Description */}
+                  <p className="flex-1 text-[13px] leading-relaxed text-[#5B6478]">
+                    {outcome.description}
+                  </p>
+
+                  {/* Retention Label + Text */}
+                  <div className="w-[320px] shrink-0">
+                    <span
+                      className="text-[12px] font-medium"
+                      style={{ color: ACCENT }}
+                    >
+                      Retention:{" "}
+                    </span>
+                    <span className="text-[13px] leading-relaxed text-[#5B6478]">
+                      {outcome.retention}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Reveal>
-
       </div>
     </section>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Reveal                                                             */
+/*  Reveal                                                            */
 /* ------------------------------------------------------------------ */
 function Reveal({
   children,
@@ -194,7 +219,9 @@ function Reveal({
     <div
       style={{
         opacity: active ? undefined : 0,
-        animation: active ? `clinicNetworksOutcomesRetentionFadeUp 0.6s ease-out ${index * 90}ms both` : "none",
+        animation: active
+          ? `clinicNetworksOutcomesRetentionFadeUp 0.6s ease-out ${index * 90}ms both`
+          : "none",
       }}
     >
       {children}

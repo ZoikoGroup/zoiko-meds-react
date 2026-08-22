@@ -167,37 +167,44 @@ export default function PrivacyCenterRightsSection() {
         </Reveal>
 
         <Reveal index={3} active={mounted}>
-          <div className="mt-7 overflow-hidden rounded-2xl border border-[#E7EAF1] bg-white shadow-[0_4px_24px_-10px_rgba(15,31,78,0.08)]">
-            <div className="divide-y divide-[#F0F2F7]">
-              {RIGHTS.map((right) => (
-                <div
-                  key={right.title}
-                  className="grid grid-cols-[auto_1fr_auto] items-start gap-4 px-6 py-4 transition-colors duration-150 hover:bg-[#F8FAFC] sm:px-7"
-                >
-                  <div
-                    className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                    style={{ backgroundColor: "rgba(15,170,135,0.1)", color: ACCENT }}
-                  >
-                    <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5">
-                      {right.icon}
-                    </svg>
-                  </div>
-
-                  <div>
-                    <h3 className="text-[13.5px] font-bold text-[#0F1F4E]">{right.title}</h3>
-                    <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#5B6478]">
-                      {right.description}
-                    </p>
-                  </div>
-
-                  <span className="mt-1 whitespace-nowrap text-right text-[11.5px] text-[#B3B9C9]">
-                    {right.note}
-                  </span>
-                </div>
-              ))}
-            </div>
+  <div className="mt-7 overflow-hidden rounded-2xl border border-[#E7EAF1] bg-white shadow-[0_4px_24px_-10px_rgba(15,31,78,0.08)]">
+    <div className="divide-y divide-[#F0F2F7]">
+      {RIGHTS.map((right) => (
+        <div
+          key={right.title}
+          className="flex flex-col gap-2.5 px-5 py-4 transition-colors duration-150 hover:bg-[#F8FAFC] sm:grid sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4 sm:px-7 sm:py-4"
+        >
+          {/* Column 1: Icon */}
+          <div
+            className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: "rgba(15,170,135,0.1)", color: ACCENT }}
+          >
+            <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5">
+              {right.icon}
+            </svg>
           </div>
-        </Reveal>
+
+          {/* Column 2: Title + Description */}
+          <div>
+            <h3 className="text-[13.5px] font-bold text-[#0F1F4E]">
+              {right.title}
+            </h3>
+            <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#5B6478]">
+              {right.description}
+            </p>
+          </div>
+
+          {/* Column 3: Note */}
+          <div className="mt-0.5 sm:mt-1">
+            <span className="inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-[#717A8C] sm:block sm:rounded-none sm:bg-transparent sm:p-0 sm:text-right sm:text-[11.5px] sm:font-normal sm:text-[#B3B9C9]">
+              {right.note}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</Reveal>
 
         {/* ── Submit a privacy request block ── */}
         <Reveal index={4} active={mounted}>

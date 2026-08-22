@@ -66,11 +66,11 @@ export default function CommercialBoundariesSection() {
           className="flex flex-col gap-10 md:gap-12"
         >
           {/* Header Section */}
-          <motion.div variants={itemVariants} className="space-y-3 text-left">
+          <motion.div variants={itemVariants} className="space-y-3 text-center">
             <span className="text-xs sm:text-sm font-semibold tracking-[1px] text-[#13A594] uppercase block">
               01 &nbsp;·&nbsp; COMMERCIAL BOUNDARIES
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-[2.5rem] font-bold text-[#101828] leading-[1.15] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-[40px] font-bold text-[#101828] leading-[1.15] tracking-tight">
               Pricing that protects trust, by design.
             </h2>
           </motion.div>

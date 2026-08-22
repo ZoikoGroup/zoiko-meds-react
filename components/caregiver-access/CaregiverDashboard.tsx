@@ -199,16 +199,16 @@ export default function CaregiverDashboard() {
 
   const router = useRouter();
   return (
-    <section className="bg-[#F9F8FC] px-4 py-16">
+    <section className="bg-[#F9F8FC] px-4 py-8 sm:py-16">
       <div className="mx-auto max-w-6xl">
         {/* Heading */}
-        <div className="flex flex-col gap-6 lg:flex-row md:items-end lg:justify-between">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 className="text-3xl font-semibold text-[#0D1B2E]">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-[#0D1B2E]">
               Organizational <span className="text-[#0FAA87]">Dashboard</span>
             </h2>
 
-            <p className="max-w-[523px] text-[16px] leading-6 text-[#44474D]">
+            <p className="mt-2 max-w-[523px] text-sm sm:text-[16px] leading-6 text-[#44474D]">
               A streamlined interface designed for clarity and rapid response.
               Keep everyone&apos;s needs in view without clinical clutter.
             </p>
@@ -218,7 +218,7 @@ export default function CaregiverDashboard() {
             onClick={() =>
               router.push("https://zoiko-meds-platform.vercel.app/dashboard")
             }
-            className="rounded-xl cursor-pointer hover:bg-[#e2e8f897] flex items-center gap-2 border border-[#CDD7E3] bg-[#E2E8F8] px-6 py-3"
+            className="w-full sm:w-auto self-start sm:self-auto rounded-xl cursor-pointer hover:bg-[#e2e8f897] flex items-center justify-center gap-2 border border-[#CDD7E3] bg-[#E2E8F8] px-6 py-3 transition-colors"
           >
             <img
               src="/caregiver-access/add.png"
@@ -226,15 +226,18 @@ export default function CaregiverDashboard() {
               width={20}
               height={20}
             />
-            <span className="text-[#081B33] text-base">New Label</span>
+            <span className="text-[#081B33] text-base font-medium">
+              New Label
+            </span>
           </button>
         </div>
 
-        <div className="max-w-6xl mt-12 mx-auto grid grid-cols-[280px_1fr] gap-5">
+        {/* Main Grid Wrapper */}
+        <div className="mt-8 lg:mt-12 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:gap-5">
           {/* ── Left column ── */}
           <div className="flex flex-col gap-4">
             {/* Caregiver Labels */}
-            <div className="bg-white border w-[360px] border-[#C4C6CE] rounded-2xl shadow-sm p-4">
+            <div className="bg-white border w-full lg:w-[360px] border-[#C4C6CE] rounded-2xl shadow-sm p-4">
               <h2 className="flex items-center gap-2 text-[16px] font-bold text-[#081B33] mb-3">
                 <img
                   src="/caregiver-access/label.png"
@@ -256,16 +259,12 @@ export default function CaregiverDashboard() {
                       }`}
                     >
                       <span>{label.name}</span>
-                      <span
-                        className={`text-xs ${
-                          label.searches === "Expired"
-                            ? "text-[#75777E]"
-                            : "text-[#75777E]"
-                        }`}
-                      >
+                      <span className="text-xs text-[#75777E]">
                         {label.searches === "Expired"
                           ? "Expired"
-                          : `${label.searches} Search${label.searches !== 1 ? "es" : ""}`}
+                          : `${label.searches} Search${
+                              label.searches !== 1 ? "es" : ""
+                            }`}
                       </span>
                     </button>
                   </li>
@@ -274,7 +273,7 @@ export default function CaregiverDashboard() {
             </div>
 
             {/* Preferred Locations */}
-            <div className="bg-white border w-[360px] border-[#C4C6CE] rounded-2xl shadow-sm p-4">
+            <div className="bg-white border w-full lg:w-[360px] border-[#C4C6CE] rounded-2xl shadow-sm p-4">
               <h2 className="text-sm font-semibold text-[#081B33] mb-3">
                 Preferred Locations
               </h2>
@@ -301,7 +300,7 @@ export default function CaregiverDashboard() {
             </div>
 
             {/* Privacy Controls */}
-            <div className="bg-[#E7EEFE] w-[360px] border border-[#00B7A833] rounded-2xl p-4">
+            <div className="bg-[#E7EEFE] w-full lg:w-[360px] border border-[#00B7A833] rounded-2xl p-4">
               <h2 className="flex items-center gap-2 text-sm font-bold text-[#081B33] mb-2">
                 <img
                   src="/caregiver-access/control.png"
@@ -331,23 +330,25 @@ export default function CaregiverDashboard() {
           </div>
 
           {/* ── Right column ── */}
-          <div className="flex flex-col ml-22 gap-4">
+          <div className="flex flex-col lg:ml-22 gap-4">
             {/* Active search cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeCards.map((card) => (
                 <div
                   key={card.id}
-                  className="bg-white min-h-[320px] rounded-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] p-5 flex flex-col gap-4 relative overflow-hidden"
+                  className="bg-white min-h-[320px] rounded-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] p-5 flex flex-col justify-between gap-4 relative overflow-hidden"
                 >
                   {/* Decorative circle */}
                   <div
-                    className={`absolute -top-6 -right-6 w-30 h-30 rounded-bl-full opacity-60 ${card.primary && "bg-[#00B7A80D]"}`}
+                    className={`absolute -top-6 -right-6 w-30 h-30 rounded-bl-full opacity-60 ${
+                      card.primary && "bg-[#00B7A80D]"
+                    }`}
                   />
 
                   <div className="flex items-start justify-between relative">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`h-11.5 w-10 ${card.iconBg} rounded-2xl p-3 pb-5`}
+                        className={`h-11.5 w-10 ${card.iconBg} rounded-2xl p-3 pb-5 flex items-center justify-center`}
                       >
                         <img
                           src={card.src}
@@ -367,7 +368,7 @@ export default function CaregiverDashboard() {
 
                   <div className="flex flex-col gap-3">
                     <div>
-                      <p className="text-[16px] font-bold tracking-[1.6px] text-[#75777E] uppercase mb-0.5">
+                      <p className="text-[14px] sm:text-[16px] font-bold tracking-[1.6px] text-[#75777E] uppercase mb-0.5">
                         Saved Medicine Search
                       </p>
                       <p className="text-base text-[#081B33]">
@@ -378,14 +379,14 @@ export default function CaregiverDashboard() {
                     {card.radius && (
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-bold tracking-widest text-[#75777E] uppercase mb-0.5">
+                          <p className="text-xs sm:text-sm font-bold tracking-widest text-[#75777E] uppercase mb-0.5">
                             Radius
                           </p>
                           <p className="text-sm text-[#44474D]">
                             {card.radius}
                           </p>
                         </div>
-                        <button className="w-8 h-8 rounded-full border border-[#C4C6CE] flex items-center justify-center text-slate-400 hover:text-teal-500 hover:border-teal-300 transition-colors">
+                        <button className="w-8 h-8 rounded-full border border-[#C4C6CE] flex items-center justify-center text-slate-400 hover:text-teal-500 hover:border-teal-300 transition-colors shrink-0">
                           <img
                             src="/caregiver-access/edit.png"
                             alt="edit"
@@ -399,17 +400,17 @@ export default function CaregiverDashboard() {
                     {card.primaryAction && (
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-bold tracking-widest text-[#75777E] uppercase mb-0.5">
+                          <p className="text-xs sm:text-sm font-bold tracking-widest text-[#75777E] uppercase mb-0.5">
                             Primary Action
                           </p>
-                          <button className="text-sm font-semibold text-[#00B7A8] hover:text-teal-600 transition-colors">
+                          <button className="text-sm font-semibold text-[#00B7A8] hover:text-teal-600 transition-colors text-left">
                             {card.primaryAction}
                           </button>
                         </div>
-                        <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
+                        <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors shrink-0">
                           <img
                             src="/caregiver-access/settings.png"
-                            alt="edit"
+                            alt="settings"
                             width={18}
                             height={18}
                           />
@@ -425,12 +426,12 @@ export default function CaregiverDashboard() {
             {expiredCards.map((card) => (
               <div
                 key={card.id}
-                className="bg-white rounded-2xl shadow-sm p-5 border border-dashed min-h-[220px] border-slate-300"
+                className="bg-white rounded-2xl shadow-sm p-5 border border-dashed min-h-[220px] border-slate-300 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`h-11.5 w-10 ${card.iconBg} rounded-2xl p-3 pb-5`}
+                      className={`h-11.5 w-10 ${card.iconBg} rounded-2xl p-3 pb-5 flex items-center justify-center shrink-0`}
                     >
                       <img src={card.src} alt="Image" height={18} width={18} />
                     </div>
@@ -445,8 +446,8 @@ export default function CaregiverDashboard() {
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[16px] font-extrabold tracking-widest text-[#BA1A1A] uppercase">
+                  <div className="sm:text-right">
+                    <p className="text-[14px] sm:text-[16px] font-extrabold tracking-widest text-[#BA1A1A] uppercase">
                       Expired Date
                     </p>
                     <p className="text-[15px] font-medium text-[#081B33]">
@@ -455,11 +456,11 @@ export default function CaregiverDashboard() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex justify-end items-center gap-4 border-t border-slate-100 pt-3">
-                  <button className="text-sm text-[#75777E] hover:text-slate-700 transition-colors">
+                <div className="mt-4 flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 sm:gap-4 border-t border-slate-100 pt-3">
+                  <button className="text-sm text-[#75777E] hover:text-slate-700 transition-colors text-center sm:text-right">
                     Delete Temporary Label
                   </button>
-                  <button className="text-sm font-bold text-[#00B7A8] hover:text-teal-600 transition-colors">
+                  <button className="text-sm font-bold text-[#00B7A8] hover:text-teal-600 transition-colors text-center sm:text-right">
                     Renew Search
                   </button>
                 </div>

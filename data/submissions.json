@@ -905,5 +905,74 @@
     },
     "submittedAt": "2026-08-18T12:13:55.822Z",
     "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1787230617195_58vcy",
+    "type": "ENTERPRISE",
+    "title": "SSO Requirements: Test Org",
+    "fullName": "Jane Doe",
+    "email": "jane@example.com",
+    "organization": "Test Org",
+    "payload": {
+      "orgName": "Test Org",
+      "orgType": "",
+      "countryRegion": "",
+      "relationship": "",
+      "evaluationStage": "",
+      "expectedUsers": "",
+      "deploymentScopes": "",
+      "ssoRequirements": "",
+      "contactName": "Jane Doe",
+      "workEmail": "jane@example.com",
+      "jobTitle": "",
+      "notes": ""
+    },
+    "submittedAt": "2026-08-20T12:56:57.197Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1787230640416_ejvad",
+    "type": "SALES",
+    "title": "Talk to Sales Inquiry: Acme Corp",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "organization": "Acme Corp",
+    "payload": {
+      "primaryReason": "Requesting commercial pricing",
+      "areasOfInterest": "",
+      "preferredOutcomes": "",
+      "additionalContext": "",
+      "fullName": "John Doe",
+      "workEmail": "john@example.com",
+      "orgName": "Acme Corp",
+      "phoneNumber": "",
+      "jobTitle": ""
+    },
+    "submittedAt": "2026-08-20T12:57:20.416Z",
+    "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1787231073408_2o474",
+    "type": "ENTERPRISE",
+    "title": "SSO Requirements: zoiko",
+    "fullName": "testing",
+    "email": "naveen@gmail.com",
+    "organization": "zoiko",
+    "payload": {
+      "orgName": "zoiko",
+      "orgType": "Enterprise",
+      "countryRegion": "Canada",
+      "relationship": "Existing Customer",
+      "evaluationStage": "Active Evaluation",
+      "expectedUsers": "101 - 500 users",
+      "deploymentScopes": "Multiple domains, Single organization",
+      "ssoRequirements": "Federation",
+      "contactName": "testing",
+      "workEmail": "naveen@gmail.com",
+      "jobTitle": "pharmacist",
+      "notes": "testing"
+    },
+    "submittedAt": "2026-08-20T13:04:33.409Z",
+    "status": "RECEIVED"
   }
 ]

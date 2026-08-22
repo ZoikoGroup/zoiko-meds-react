@@ -1,5 +1,6 @@
 import {
     ChevronDown,
+    Check,
 } from "lucide-react";
 
 const notificationOptions = [
@@ -63,7 +64,7 @@ export default function AvailabilityControl() {
                                     <input
                                         type="text"
                                         placeholder="Start typing medicine name..."
-                                        className="p-4 w-full rounded-xl border border-[#C4C6CE4D] placeholder:text-[#6B7280] outline-none focus:border-[#C4C6CE]"
+                                        className="h-12 p-4 w-full rounded-xl border border-[#CBD5E1] bg-white text-[#000615] font-medium placeholder:text-[#64748B] outline-none focus:border-[#0FAA87]"
                                     />
                                 </div>
 
@@ -77,7 +78,7 @@ export default function AvailabilityControl() {
                                         <input
                                             type="text"
                                             placeholder="ZIP code or City"
-                                            className="p-4 w-full rounded-xl border border-[#C4C6CE4D] placeholder:text-[#6B7280] outline-none focus:border-[#C4C6CE]"
+                                            className="h-12 p-4 w-full rounded-xl border border-[#CBD5E1] bg-white text-[#000615] font-medium placeholder:text-[#64748B] outline-none focus:border-[#0FAA87]"
                                         />
                                     </div>
                                 </div>
@@ -89,13 +90,13 @@ export default function AvailabilityControl() {
                                 </label>
 
                                 <div className="relative">
-                                    <select className="h-12 w-full appearance-none rounded-xl border text-[#151C27] border-[#E4E7EC] px-4 outline-none">
+                                    <select className="h-12 w-full appearance-none rounded-xl border text-[#000615] bg-white border-[#CBD5E1] font-medium px-4 outline-none focus:border-[#0FAA87]">
                                         <option>10 Miles</option>
                                         <option>25 Miles</option>
                                         <option>50 Miles</option>
                                     </select>
 
-                                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
                                 </div>
                             </div>
                         </div>
@@ -127,7 +128,7 @@ export default function AvailabilityControl() {
                                     <input
                                         type="text"
                                         placeholder="e.g. 50mg Tablets"
-                                        className="h-12 w-full rounded-xl border border-[#C4C6CE4D] px-4 py-8 text-[#000615] outline-none transition placeholder:text-[#6B7280]"
+                                        className="h-12 w-full rounded-xl border border-[#CBD5E1] bg-white px-4 text-[#000615] font-medium outline-none transition placeholder:text-[#64748B] focus:border-[#0FAA87]"
                                     />
                                 </div>
 
@@ -142,14 +143,14 @@ export default function AvailabilityControl() {
                                             type="text"
                                             value="10:00 PM"
                                             readOnly
-                                            className="h-12 rounded-xl border border-[#C4C6CE4D] p-2 placeholder:text-[#151C27] text-[#000615] outline-none"
+                                            className="h-12 rounded-xl border border-[#CBD5E1] bg-white p-3 text-[#000615] font-medium outline-none"
                                         />
 
                                         <input
                                             type="text"
                                             value="08:00 AM"
                                             readOnly
-                                            className="h-12 rounded-xl border border-[#C4C6CE4D] p-2 placeholder:text-[#151C27] text-[#000615] outline-none"
+                                            className="h-12 rounded-xl border border-[#CBD5E1] bg-white p-3 text-[#000615] font-medium outline-none"
                                         />
                                     </div>
                                 </div>
@@ -208,13 +209,13 @@ export default function AvailabilityControl() {
                                         </div>
 
                                         <div
-                                            className={`flex h-4 w-4 items-center justify-center rounded-md ${active
-                                                ? ""
-                                                : "border rounded-[4px] border-[#6B7280] bg-white"
+                                            className={`flex h-5 w-5 items-center justify-center rounded-[6px] transition-colors ${active
+                                                ? "bg-[#0FAA87] border border-[#0FAA87]"
+                                                : "border border-[#6B7280] bg-white"
                                                 }`}
                                         >
                                             {active && (
-                                                <img src="/availability-alert/input.png" alt="Check" height={16} width={16} />
+                                                <Check className="h-3.5 w-3.5 text-white stroke-[3]" />
                                             )}
                                         </div>
                                     </div>

@@ -3,7 +3,7 @@ import path from "path";
 
 export interface WebsiteSubmissionRecord {
   id: string;
-  type: "CONTACT" | "BRIEFING" | "VERIFIED_NETWORK" | "SUPPORT" | "OTHER";
+  type: "CONTACT" | "BRIEFING" | "VERIFIED_NETWORK" | "SUPPORT" | "ENTERPRISE" | "SALES" | "OTHER";
   title: string;
   fullName: string;
   email: string;

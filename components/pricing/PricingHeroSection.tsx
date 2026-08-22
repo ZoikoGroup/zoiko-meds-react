@@ -64,13 +64,13 @@ export default function PricingHeroSection() {
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <a
-                href="#"
+                href="#plans"
                 className="bg-[#13A594] hover:bg-[#0f8779] text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-colors duration-200 shadow-sm inline-flex items-center justify-center"
               >
                 Compare Plans
               </a>
               <a
-                href="#"
+                href="/talk-to-sales"
                 className="bg-white hover:bg-gray-50 text-[#101828] font-medium text-xs sm:text-sm px-6 py-3 rounded-xl border border-gray-200 transition-colors duration-200 shadow-sm inline-flex items-center justify-center"
               >
                 Talk to Sales
