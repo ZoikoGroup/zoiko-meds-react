@@ -46,7 +46,7 @@ export function readSmtpSettings(): SmtpSettings | null {
     port === 465 || process.env.SMTP_USE_SSL === "true" || process.env.SMTP_USE_TLS === "true";
 
   const fromAddress = (process.env.SMTP_FROM_ADDRESS || user).trim();
-  const fromName = (process.env.SMTP_FROM_NAME || "ZoikoMeds").trim();
+  const fromName = (process.env.SMTP_FROM_NAME || "Zoi | Zoiko AI Assistant").trim();
   const from = process.env.SMTP_FROM?.trim() || `"${fromName}" <${fromAddress}>`;
 
   return { host, port, secure, user, pass, from, fromAddress };

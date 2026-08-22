@@ -6,6 +6,11 @@ import { getTransport, readSmtpSettings } from "@/lib/email/transport";
 
 const SUPPORT_EMAIL = process.env.RECIPIENT_EMAIL || process.env.SUPPORT_EMAIL || "info@zoikomeds.com";
 
+function getFromAddress(): string {
+  const fromEmail = process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER || "info@zoikomeds.com";
+  return `"Zoi | Zoiko AI Assistant" <${fromEmail}>`;
+}
+
 interface ConversationMessage {
   id: string;
   role: string;
@@ -33,6 +38,7 @@ const CONTACT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$|^\+?[\d\s\-()]{7,15}$/;
  * escalation still succeeds.
  */
 async function sendViaSharedTransport(options: {
+  from?: string;
   to: string;
   replyTo?: string;
   subject: string;
@@ -43,7 +49,8 @@ async function sendViaSharedTransport(options: {
   if (!settings || !transport) {
     throw new Error("SMTP is not configured");
   }
-  await transport.sendMail({ from: settings.from, ...options });
+  const from = options.from || settings.from;
+  await transport.sendMail({ ...options, from });
 }
 
 function formatConversationHtml(messages: ConversationMessage[]): string {
@@ -178,6 +185,7 @@ export async function POST(req: NextRequest) {
     try {
       if (process.env.NODE_ENV !== "test") {
         await sendViaSharedTransport({
+          from: getFromAddress(),
           to: SUPPORT_EMAIL,
           replyTo: contact,
           subject: `[Zoi ${isStockAlert ? "Alert" : "Ticket"} #${ref}] ${personaLabel} ${isStockAlert ? "Stock Alert" : "Support Request"}`,
@@ -307,6 +315,7 @@ export async function POST(req: NextRequest) {
         `;
         if (process.env.NODE_ENV !== "test") {
           await sendViaSharedTransport({
+            from: getFromAddress(),
             to: contact,
             subject: `[ZoikoMeds] ${isStockAlert ? "Stock Alert Activated" : "Support Ticket Received"} — #${ref}`,
             html: userConfirmationHtml,
