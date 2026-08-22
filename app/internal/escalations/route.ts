@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { rateLimit, getRateLimitHeaders } from "@/lib/api/rate-limit";
 import { successResponse, errorResponse, validateRequired } from "@/lib/api/helpers";
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: process.env.SMTP_USE_SSL === "true" || process.env.SMTP_USE_TLS === "true" || Number(process.env.SMTP_PORT) === 465,
-  auth: {
-    user: process.env.SMTP_USER || process.env.SMTP_USERNAME,
-    pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS,
-  },
-});
+import { escapeHtml } from "@/lib/email/confirmationTemplate";
+import { getTransport, readSmtpSettings } from "@/lib/email/transport";
 
 const SUPPORT_EMAIL = process.env.RECIPIENT_EMAIL || process.env.SUPPORT_EMAIL || "info@zoikomeds.com";
-const FROM_ADDRESS = process.env.SMTP_FROM || process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER || "info@zoikomeds.com";
+
+function getFromAddress(): string {
+  const fromEmail = process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER || "info@zoikomeds.com";
+  return `"Zoi | Zoiko AI Assistant" <${fromEmail}>`;
+}
 
 interface ConversationMessage {
   id: string;
@@ -36,6 +31,28 @@ const escalationLog: EscalationRecord[] = [];
 
 const CONTACT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$|^\+?[\d\s\-()]{7,15}$/;
 
+/**
+ * Send through the one shared SMTP transport.
+ *
+ * Throws when SMTP is unconfigured, so the caller's try/catch logs it and the
+ * escalation still succeeds.
+ */
+async function sendViaSharedTransport(options: {
+  from?: string;
+  to: string;
+  replyTo?: string;
+  subject: string;
+  html: string;
+}): Promise<void> {
+  const settings = readSmtpSettings();
+  const transport = getTransport();
+  if (!settings || !transport) {
+    throw new Error("SMTP is not configured");
+  }
+  const from = options.from || settings.from;
+  await transport.sendMail({ ...options, from });
+}
+
 function formatConversationHtml(messages: ConversationMessage[]): string {
   if (messages.length === 0) return "<p><em>No conversation included.</em></p>";
   return messages
@@ -46,9 +63,9 @@ function formatConversationHtml(messages: ConversationMessage[]): string {
       return `
         <div style="margin-bottom:12px;padding:10px 14px;border-left:3px solid ${color};background:${m.role === "user" ? "#F0FDFA" : "#F9FAFB"};border-radius:4px;">
           <div style="font-size:11px;color:#6B7280;margin-bottom:4px;">
-            <strong>${sender}</strong> &middot; ${time}
+            <strong>${escapeHtml(sender)}</strong> &middot; ${escapeHtml(time)}
           </div>
-          <div style="font-size:13px;color:#111827;white-space:pre-wrap;">${m.content}</div>
+          <div style="font-size:13px;color:#111827;white-space:pre-wrap;">${escapeHtml(m.content)}</div>
         </div>`;
     })
     .join("\n");
@@ -123,12 +140,16 @@ export async function POST(req: NextRequest) {
       ? formatConversationHtml(conversationMessages)
       : "<p><em>Visitor declined to share conversation history.</em></p>";
 
+    // Free text from the visitor: escaped before it reaches the email body.
     const issueHtml = issueMessage
       ? `<div style="background:#F0FDFA;border-left:4px solid #008882;padding:12px 16px;margin-bottom:20px;border-radius:4px;">
            <strong style="color:#0f766e;font-size:13px;">User Reported Issue:</strong>
-           <div style="font-size:14px;color:#111827;margin-top:4px;white-space:pre-wrap;">${issueMessage}</div>
+           <div style="font-size:14px;color:#111827;margin-top:4px;white-space:pre-wrap;">${escapeHtml(issueMessage)}</div>
          </div>`
       : "";
+
+    /** The visitor's contact detail, safe to interpolate into HTML. */
+    const contactHtml = escapeHtml(contact);
 
     const html = `
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;">
@@ -139,7 +160,7 @@ export async function POST(req: NextRequest) {
         <div style="padding:24px;background:#FFFFFF;border:1px solid #E5E7EB;border-top:none;border-radius:0 0 8px 8px;">
           <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
             <tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">Ticket Ref</td><td style="padding:8px 12px;font-size:13px;color:#111827;font-weight:600;border-bottom:1px solid #F3F4F6;">#${ref}</td></tr>
-            <tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">Contact</td><td style="padding:8px 12px;font-size:13px;color:#111827;border-bottom:1px solid #F3F4F6;">${contact}</td></tr>
+            <tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">Contact</td><td style="padding:8px 12px;font-size:13px;color:#111827;border-bottom:1px solid #F3F4F6;">${contactHtml}</td></tr>
             <tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">Persona</td><td style="padding:8px 12px;font-size:13px;color:#111827;border-bottom:1px solid #F3F4F6;">${personaLabel}</td></tr>
             <tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">Chat Included</td><td style="padding:8px 12px;font-size:13px;color:#111827;border-bottom:1px solid #F3F4F6;">${includeConversation ? "Yes" : "No"}</td></tr>
           </table>
@@ -163,8 +184,8 @@ export async function POST(req: NextRequest) {
     // 1. Send notification to Support / Operations Team
     try {
       if (process.env.NODE_ENV !== "test") {
-        await transporter.sendMail({
-          from: FROM_ADDRESS,
+        await sendViaSharedTransport({
+          from: getFromAddress(),
           to: SUPPORT_EMAIL,
           replyTo: contact,
           subject: `[Zoi ${isStockAlert ? "Alert" : "Ticket"} #${ref}] ${personaLabel} ${isStockAlert ? "Stock Alert" : "Support Request"}`,
@@ -219,7 +240,7 @@ export async function POST(req: NextRequest) {
                     </tr>
                     <tr>
                       <td width="85" style="width:85px;padding:6px 0;color:#0F766E;font-weight:600;vertical-align:top;">Recipient:</td>
-                      <td style="padding:6px 0;color:#0F172A;font-weight:600;vertical-align:top;text-align:left;word-break:break-all;word-wrap:break-word;">${contact}</td>
+                      <td style="padding:6px 0;color:#0F172A;font-weight:600;vertical-align:top;text-align:left;word-break:break-all;word-wrap:break-word;">${contactHtml}</td>
                     </tr>
                     <tr>
                       <td width="85" style="width:85px;padding:6px 0;color:#0F766E;font-weight:600;vertical-align:top;">Details:</td>
@@ -280,7 +301,7 @@ export async function POST(req: NextRequest) {
                 <div style="background:#F0FDF4;border-left:4px solid #10B981;padding:12px 14px;border-radius:6px;margin-bottom:18px;">
                   <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:2px;">⏱ Target SLA</div>
                   <div style="font-size:12px;color:#047857;line-height:1.4;">
-                    Our support team reviews tickets continuously and will respond to ${contact} within one business day.
+                    Our support team reviews tickets continuously and will respond to ${contactHtml} within one business day.
                   </div>
                 </div>
 
@@ -293,8 +314,8 @@ export async function POST(req: NextRequest) {
           </div>
         `;
         if (process.env.NODE_ENV !== "test") {
-          await transporter.sendMail({
-            from: FROM_ADDRESS,
+          await sendViaSharedTransport({
+            from: getFromAddress(),
             to: contact,
             subject: `[ZoikoMeds] ${isStockAlert ? "Stock Alert Activated" : "Support Ticket Received"} — #${ref}`,
             html: userConfirmationHtml,

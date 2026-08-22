@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveSubmission } from "@/lib/db/submissionDb";
-import { sendBriefingRequestEmail } from "@/lib/email/emailService";
+import { dispatchFormEmails } from "@/lib/email/formMail";
+import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
 import { validateEmail, validatePhone } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -77,28 +78,24 @@ export async function POST(req: NextRequest) {
       payload: { briefingType, fullName, workEmail, organization, jobTitle, phone, note },
     });
 
-    // 2. Dispatch email to info@zoikomeds.com via GoDaddy SMTP
-    const emailResult = await sendBriefingRequestEmail({
-      briefingType,
-      fullName,
-      workEmail,
-      organization,
-      jobTitle,
-      phone,
+    // 2. Notify the team and confirm to the submitter. The record is already
+    //    saved, so neither delivery may fail the request.
+    const mail = await dispatchFormEmails({
+      formName: briefingType || "Request a Briefing",
+      submittedAt: submissionTimeForRequest(req, body),
+      userEmail: workEmail,
+      userName: fullName,
       note,
-      submittedAt: record.submittedAt,
+      subject: `Briefing Request (${briefingType}): ${organization}`,
+      submission: [
+        { label: "Briefing Type", value: briefingType },
+        { label: "Full Name", value: fullName },
+        { label: "Work Email", value: workEmail },
+        { label: "Organization", value: organization },
+        { label: "Job Title", value: jobTitle || "Not specified" },
+        { label: "Phone Number", value: phone || "Not specified" },
+      ],
     });
-
-    if (!emailResult.success) {
-      console.error("[POST /internal/briefing-request] Email delivery failed:", emailResult.error);
-      return NextResponse.json(
-        {
-          success: false,
-          message: emailResult.error || "Failed to deliver briefing request email. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json(
       {
@@ -107,7 +104,7 @@ export async function POST(req: NextRequest) {
         data: {
           id: record.id,
           submittedAt: record.submittedAt,
-          messageId: emailResult.messageId,
+          messageId: mail.internal.messageId,
         },
       },
       { status: 200 }

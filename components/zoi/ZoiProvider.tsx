@@ -60,7 +60,7 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem("zoi_chat_history", JSON.stringify(updated));
-        } catch {}
+        } catch { }
       }
       return { ...state, savedSessions: updated };
     }
@@ -115,7 +115,7 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
                 activeSessionId: currentSessionId,
               })
             );
-          } catch {}
+          } catch { }
         }
       }
 
@@ -142,7 +142,7 @@ function zoiReducer(state: ZoiState, action: ZoiAction): ZoiState {
       return { ...state, panelView: state.panelView === "open" ? "minimized" : "open" };
     case "RESET_SESSION": {
       if (typeof window !== "undefined") {
-        try { sessionStorage.removeItem("zoi_session"); } catch {}
+        try { sessionStorage.removeItem("zoi_session"); } catch { }
       }
       const newSessionId = typeof window !== "undefined" ? crypto.randomUUID() : "session-init";
       return {
@@ -430,15 +430,17 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
             if (historyMed) {
               sendMessage(historyMed);
             } else {
-              dispatch({ type: "ADD_MESSAGE", message: {
-                id: crypto.randomUUID(),
-                role: "assistant",
-                content: "I can help you check medicine availability. Tell me the name of the medicine and your location.",
-                timestamp: Date.now(),
-                chips: [
-                  { label: "Find a medicine", action: "patient" },
-                ],
-              } });
+              dispatch({
+                type: "ADD_MESSAGE", message: {
+                  id: crypto.randomUUID(),
+                  role: "assistant",
+                  content: "I can help you check medicine availability. Tell me the name of the medicine and your location.",
+                  timestamp: Date.now(),
+                  chips: [
+                    { label: "Find a medicine", action: "patient" },
+                  ],
+                }
+              });
             }
           });
           break;
@@ -448,46 +450,52 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
             const opened = window.open("https://zoikomeds.com/enterprise", "_blank");
             if (!opened) window.location.href = "https://zoikomeds.com/enterprise";
           }
-          dispatch({ type: "ADD_MESSAGE", message: {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Opening enterprise API documentation at [zoikomeds.com/enterprise](https://zoikomeds.com/enterprise)...",
-            timestamp: Date.now(),
-            chips: [
-              { label: "Talk to team", action: "escalate" },
-            ],
-          } });
+          dispatch({
+            type: "ADD_MESSAGE", message: {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: "Opening enterprise API documentation at [zoikomeds.com/enterprise](https://zoikomeds.com/enterprise)...",
+              timestamp: Date.now(),
+              chips: [
+                { label: "Talk to team", action: "escalate" },
+              ],
+            }
+          });
           break;
         case "wholesale_portal":
           if (typeof window !== "undefined") {
             const opened = window.open("https://zoikomeds.com/contact", "_blank");
             if (!opened) window.location.href = "https://zoikomeds.com/contact";
           }
-          dispatch({ type: "ADD_MESSAGE", message: {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Wholesale partners can access bulk pricing, track orders, and manage supply chain planning through our partner network. Connecting you with our team at [zoikomeds.com/contact](https://zoikomeds.com/contact)...",
-            timestamp: Date.now(),
-            chips: [
-              { label: "Talk to team", action: "escalate" },
-            ],
-          } });
+          dispatch({
+            type: "ADD_MESSAGE", message: {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: "Wholesale partners can access bulk pricing, track orders, and manage supply chain planning through our partner network. Connecting you with our team at [zoikomeds.com/contact](https://zoikomeds.com/contact)...",
+              timestamp: Date.now(),
+              chips: [
+                { label: "Talk to team", action: "escalate" },
+              ],
+            }
+          });
           break;
         case "open_search":
           if (typeof window !== "undefined") {
             const opened = window.open("https://zoikomeds.com/searchmed", "_blank");
             if (!opened) window.location.href = "https://zoikomeds.com/searchmed";
           }
-          dispatch({ type: "ADD_MESSAGE", message: {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Opening the ZoikoMeds medicine search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed)...",
-            timestamp: Date.now(),
-            chips: [
-              { label: "Check availability", action: "check_availability" },
-              { label: "Talk to team", action: "escalate" },
-            ],
-          } });
+          dispatch({
+            type: "ADD_MESSAGE", message: {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: "Opening the ZoikoMeds medicine search page at [zoikomeds.com/searchmed](https://zoikomeds.com/searchmed)...",
+              timestamp: Date.now(),
+              chips: [
+                { label: "Check availability", action: "check_availability" },
+                { label: "Talk to team", action: "escalate" },
+              ],
+            }
+          });
           break;
         case "show_pharmacies":
         case "view_pharmacies": {
@@ -547,15 +555,17 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
           break;
         }
         case "continue_availability":
-          dispatch({ type: "ADD_MESSAGE", message: {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Of course. Tell me the name of the medicine and your location, and I'll check availability through ZoikoAvail\u2122 for you.",
-            timestamp: Date.now(),
-            chips: [
-              { label: "Check availability", action: "check_availability" },
-            ],
-          } });
+          dispatch({
+            type: "ADD_MESSAGE", message: {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: "Of course. Tell me the name of the medicine and your location, and I'll check availability through ZoikoAvail\u2122 for you.",
+              timestamp: Date.now(),
+              chips: [
+                { label: "Check availability", action: "check_availability" },
+              ],
+            }
+          });
           break;
         case "set_alert": {
           const lastCardMsg = [...state.messages].reverse().find((m) => m.availabilityCard);
@@ -702,12 +712,14 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
       ? `Request received — reference #${localRef}. We'll reach out via ${masked}. The team responds within one business day.`
       : `Request received offline — reference #${localRef}. We'll reach out via ${masked}. The team responds within one business day.`;
 
-    dispatch({ type: "ADD_MESSAGE", message: {
-      id: crypto.randomUUID(),
-      role: "assistant",
-      content: message,
-      timestamp: Date.now(),
-    } });
+    dispatch({
+      type: "ADD_MESSAGE", message: {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: message,
+        timestamp: Date.now(),
+      }
+    });
   }, [state.consentGiven, state.persona, state.messages]);
 
   // Load saved history from localStorage on mount
@@ -721,7 +733,7 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
           dispatch({ type: "SET_SAVED_SESSIONS", sessions: parsed });
         }
       }
-    } catch {}
+    } catch { }
   }, []);
 
   const startNewConversation = useCallback(() => {
@@ -741,7 +753,7 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "SET_SAVED_SESSIONS", sessions: updated });
       try {
         localStorage.setItem("zoi_chat_history", JSON.stringify(updated));
-      } catch {}
+      } catch { }
     }
 
     const newId = crypto.randomUUID();
@@ -769,14 +781,14 @@ export function ZoiProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_SAVED_SESSIONS", sessions: updated });
     try {
       localStorage.setItem("zoi_chat_history", JSON.stringify(updated));
-    } catch {}
+    } catch { }
   }, [state.savedSessions]);
 
   const clearAllHistory = useCallback(() => {
     dispatch({ type: "SET_SAVED_SESSIONS", sessions: [] });
     try {
       localStorage.removeItem("zoi_chat_history");
-    } catch {}
+    } catch { }
   }, []);
 
   const toggleSaveSession = useCallback((sessionId: string) => {
