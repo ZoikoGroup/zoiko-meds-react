@@ -52,6 +52,11 @@ jobs:
                 echo "WARNING: ${required} is empty in .env — outbound email will be disabled."
               fi
             done
+            if [ -n "$GOOGLE_PLACES_API_KEY" ]; then
+              echo "GOOGLE_PLACES_API_KEY configured: yes"
+            else
+              echo "GOOGLE_PLACES_API_KEY configured: no"
+            fi
             npm install
             # Prescription OCR reads its language model from disk. The file is
             # normally committed under public/tessdata; fetch it once here so a
@@ -88,4 +93,3 @@ jobs:
           # Without this, lib/geocoding.ts silently falls back to Nominatim,
           # which rate-limits requests from cloud IPs. Add the repo secret.
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
-
