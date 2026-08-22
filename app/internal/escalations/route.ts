@@ -14,7 +14,11 @@ const transporter = nodemailer.createTransport({
 });
 
 const SUPPORT_EMAIL = process.env.RECIPIENT_EMAIL || process.env.SUPPORT_EMAIL || "info@zoikomeds.com";
-const FROM_ADDRESS = process.env.SMTP_FROM || process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER || "info@zoikomeds.com";
+
+function getFromAddress(): string {
+  const fromEmail = process.env.SMTP_FROM_ADDRESS || process.env.SMTP_USER || "info@zoikomeds.com";
+  return `"Zoi | Zoiko AI Assistant" <${fromEmail}>`;
+}
 
 interface ConversationMessage {
   id: string;
@@ -164,7 +168,7 @@ export async function POST(req: NextRequest) {
     try {
       if (process.env.NODE_ENV !== "test") {
         await transporter.sendMail({
-          from: FROM_ADDRESS,
+          from: getFromAddress(),
           to: SUPPORT_EMAIL,
           replyTo: contact,
           subject: `[Zoi ${isStockAlert ? "Alert" : "Ticket"} #${ref}] ${personaLabel} ${isStockAlert ? "Stock Alert" : "Support Request"}`,
@@ -294,7 +298,7 @@ export async function POST(req: NextRequest) {
         `;
         if (process.env.NODE_ENV !== "test") {
           await transporter.sendMail({
-            from: FROM_ADDRESS,
+            from: getFromAddress(),
             to: contact,
             subject: `[ZoikoMeds] ${isStockAlert ? "Stock Alert Activated" : "Support Ticket Received"} — #${ref}`,
             html: userConfirmationHtml,

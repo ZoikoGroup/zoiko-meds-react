@@ -174,8 +174,7 @@ export async function sendNotificationEmail(payload: GenericEmailPayload): Promi
   const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
   const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
   const smtpFromAddress = process.env.SMTP_FROM_ADDRESS || smtpUser || "info@zoikomeds.com";
-  const smtpFromName = process.env.SMTP_FROM_NAME || "ZoikoMeds";
-  const smtpFrom = process.env.SMTP_FROM || `"${smtpFromName}" <${smtpFromAddress}>`;
+  const smtpFrom = `"Zoi | Zoiko AI Assistant" <${smtpFromAddress}>`;
 
   const htmlContent = renderHtmlEmail(payload.title, payload.fields, payload.note);
   const textContent = renderTextEmail(payload.title, payload.fields, payload.note);
