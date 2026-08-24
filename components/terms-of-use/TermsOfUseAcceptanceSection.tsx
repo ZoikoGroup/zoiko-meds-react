@@ -56,7 +56,7 @@ const ACCEPTANCE_ROWS = [
       <span className="text-[13.5px] leading-relaxed text-[#5B6478]">
         Cookie preferences are managed in{" "}
         <a
-          href="#"
+          href="/cookie-settings"
           className="font-semibold underline underline-offset-2 transition-colors duration-200 hover:opacity-80"
           style={{ color: ACCENT }}
         >
@@ -72,7 +72,7 @@ const ACCEPTANCE_ROWS = [
       <span className="text-[13.5px] leading-relaxed text-[#5B6478]">
         General legal questions route to{" "}
         <a
-          href="#"
+          href="/contact"
           className="font-semibold underline underline-offset-2 transition-colors duration-200 hover:opacity-80"
           style={{ color: ACCENT }}
         >
@@ -80,7 +80,7 @@ const ACCEPTANCE_ROWS = [
         </a>
         ; privacy to{" "}
         <a
-          href="#"
+          href="/privacy-center"
           className="font-semibold underline underline-offset-2 transition-colors duration-200 hover:opacity-80"
           style={{ color: ACCENT }}
         >

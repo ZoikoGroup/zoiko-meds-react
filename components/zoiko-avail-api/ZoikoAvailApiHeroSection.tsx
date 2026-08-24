@@ -34,7 +34,7 @@ export default function ZoikoAvailApiHeroSection() {
         <div className="mb-8">
           {mounted ? (
             <Reveal index={0}>
-              <nav className="flex items-center gap-2 text-[13px] text-[#8A91A3]">
+              <nav className="flex items-center gap-2 text-xs text-[#8A91A3]">
                 <Link
                   href="/"
                   className="transition-colors duration-200 hover:text-[#0F1F4E]"
