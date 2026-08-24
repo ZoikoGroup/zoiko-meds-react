@@ -17,36 +17,6 @@ export default function ZoikoSignalIntelligenceHeroSection() {
   return (
     <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-10 sm:py-20">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* ---------------- Breadcrumb ---------------- */}
-        {mounted ? (
-          <Reveal index={0}>
-            <nav className="mb-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-1 text-[11px] sm:text-[12.5px] leading-relaxed text-[#8891A4]">
-              <a
-                href="/"
-                className="shrink-0 transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                Home
-              </a>
-
-              <span className="shrink-0">/</span>
-
-              <a
-                href="/enterprise"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                Enterprise &amp; Intelligence
-              </a>
-
-              <span className="shrink-0">/</span>
-
-              <span className="font-medium text-[#0F1F4E]">
-                ZoikoSignal™ intelligence
-              </span>
-            </nav>
-          </Reveal>
-        ) : (
-          <div className="mb-6 h-4 w-60 sm:w-72 mx-auto lg:mx-0 animate-pulse rounded bg-[#E4E8F0]" />
-        )}
 
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
           {/* ---------------- Left column ---------------- */}
@@ -54,6 +24,29 @@ export default function ZoikoSignalIntelligenceHeroSection() {
             {mounted ? (
               <div className="flex flex-col items-center lg:items-start gap-4 sm:gap-5">
                 <Reveal index={1}>
+                  <nav className="mb-6 flex flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-1 text-[10px] sm:text-[12.5px] leading-relaxed text-[#8891A4]">
+                    <a
+                      href="/"
+                      className="shrink-0 transition-colors duration-200 hover:text-[#0F1F4E]"
+                    >
+                      Home
+                    </a>
+
+                    <span className="shrink-0">/</span>
+
+                    <a
+                      href="/enterprise"
+                      className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                    >
+                      Enterprise &amp; Intelligence
+                    </a>
+
+                    <span className="shrink-0">/</span>
+
+                    <span className="font-medium text-[#0F1F4E]">
+                      ZoikoSignal™ intelligence
+                    </span>
+                  </nav>
                   <span
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: ACCENT }}

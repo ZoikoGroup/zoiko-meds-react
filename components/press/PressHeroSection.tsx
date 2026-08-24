@@ -17,37 +17,31 @@ export default function PressHeroSection() {
   return (
     <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        {/* ---------------- Breadcrumb ---------------- */}
-        {mounted ? (
-          <Reveal index={0}>
-            <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <a
-                href="/"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                Home
-              </a>
-              <span>/</span>
-              <a
-                href="/trust-center"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                Trust &amp; Legal
-              </a>
-              <span>/</span>
-              <span className="text-[#0F1F4E]">Press</span>
-            </nav>
-          </Reveal>
-        ) : (
-          <div className="mb-6 h-4 w-48 animate-pulse rounded bg-[#E4E8F0]" />
-        )}
-
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-16">
           {/* ---------------- Left column ---------------- */}
           <div>
             {mounted ? (
               <div className="flex flex-col gap-5">
                 <Reveal index={1}>
+                  <Reveal index={0}>
+                    <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
+                      <a
+                        href="/"
+                        className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                      >
+                        Home
+                      </a>
+                      <span>/</span>
+                      <a
+                        href="/trust-center"
+                        className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                      >
+                        Trust &amp; Legal
+                      </a>
+                      <span>/</span>
+                      <span className="text-[#0F1F4E]">Press</span>
+                    </nav>
+                  </Reveal>
                   <span
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: ACCENT }}

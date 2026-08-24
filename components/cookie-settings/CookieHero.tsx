@@ -10,11 +10,9 @@ export default function CookieHero() {
                 {/* Left Part */}
                 <div>
                     <div className="text-xs flex flex-wrap gap-2 md:gap-3 leading-4 tracking-[0.45px] text-[#566476]">
-                        <span>Home</span>
+                        <a href="/">Home</a>
                         <span className="text-[#CDD7E3]">/</span>
-                        <span>Legal</span>
-                        <span>&</span>
-                        <span>Trust</span>
+                        <a href="/trust-center">Legal & Trust</a>
                         <span className="text-[#CDD7E3]">/</span>
                         <span className="text-[#7C8A9B]">Cookie Settings</span>
                     </div>
