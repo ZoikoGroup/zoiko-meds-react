@@ -189,6 +189,7 @@ async function lookupMedibase(name: string, signal?: AbortSignal): Promise<Medic
 /** Pick the catalog entry that really is this name, or null. */
 function bestCatalogMatch(name: string, results: Medicine[]): { medicine: Medicine; similarity: number } | null {
   let best: { medicine: Medicine; similarity: number } | null = null;
+  const isQueryMultiIngredient = /\b(and|\+|\/)\b/i.test(name);
 
   for (const medicine of results) {
     const references = [medicine.canonicalName, medicine.genericName, ...(medicine.brandNames ?? [])].filter(
@@ -196,8 +197,12 @@ function bestCatalogMatch(name: string, results: Medicine[]): { medicine: Medici
     ) as string[];
     if (!references.length) continue;
 
-    // A whole-token containment is as good as certain ("Amoxicillin" inside
-    // "Amoxicillin Clavulanate").
+    const isMedMultiIngredient = medicine.genericName ? /\b(and|\+|\/)\b/i.test(medicine.genericName) : false;
+    if (!isQueryMultiIngredient && isMedMultiIngredient) {
+      const matchesBrandExactly = (medicine.brandNames ?? []).some((b) => normalize(b) === normalize(name));
+      if (!matchesBrandExactly) continue;
+    }
+
     const contained = references.some((reference) => containsName(name, reference));
     const { score } = bestSimilarity(name, references);
     const similarity = contained ? Math.max(score, 0.95) : score;
@@ -234,6 +239,7 @@ export async function resolveCandidate(
   const page = context.page ?? 1;
   const evidence = parsed.evidence as Record<string, boolean | undefined>;
   const quantity = extractQuantity(parsed.raw);
+  const extractedName = titleCase(parsed.displayName || written);
 
   const base = {
     strength: parsed.strength || undefined,
@@ -261,11 +267,13 @@ export async function resolveCandidate(
         evidence,
         ocrConfidence: context.ocrConfidence,
       });
+      const nameMatchesCanonicalPrefix = normalize(match.medicine.canonicalName).startsWith(normalize(extractedName));
+      const resolvedName = nameMatchesCanonicalPrefix ? match.medicine.canonicalName : extractedName;
       return {
         ...base,
-        name: match.medicine.canonicalName,
+        name: resolvedName,
         genericName: match.medicine.genericName ?? undefined,
-        strength: parsed.strength || match.medicine.strength || undefined,
+        strength: parsed.strength || undefined,
         dosageForm: base.dosageForm ?? match.medicine.dosageForm ?? undefined,
         confidence,
         requiresConfirmation: needsConfirmation(confidence, "medibase"),
@@ -285,11 +293,13 @@ export async function resolveCandidate(
       evidence,
       ocrConfidence: context.ocrConfidence,
     });
+    const nameMatchesOfflinePrefix = normalize(offline.drug.name).startsWith(normalize(extractedName));
+    const resolvedName = nameMatchesOfflinePrefix ? offline.drug.name : extractedName;
     return {
       ...base,
-      name: offline.drug.name,
+      name: resolvedName,
       genericName: offline.drug.generic || undefined,
-      strength: parsed.strength || offline.drug.defaultStrength || undefined,
+      strength: parsed.strength || undefined,
       confidence,
       requiresConfirmation: needsConfirmation(confidence, "offline-dictionary"),
       source: "offline-dictionary",
@@ -309,7 +319,7 @@ export async function resolveCandidate(
 
   return {
     ...base,
-    name: titleCase(parsed.displayName || written),
+    name: extractedName,
     confidence,
     requiresConfirmation: true,
     source: "prescription",

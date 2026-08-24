@@ -55,24 +55,64 @@ export interface ScanReport {
 
 /* ────────────────────────── AI / vision fallback ────────────────────────── */
 
-const VISION_INSTRUCTIONS = [
-  "Transcribe every medicine legibly written on this prescription.",
+const SYSTEM_PROMPT = [
+  "You transcribe medicine names from a photographed or scanned prescription for a medicine-availability search.",
   "",
-  "Report each name as written — do not correct spelling, expand abbreviations into a",
-  "different product, or substitute a generic for a brand. If a line is ambiguous, give",
-  "your best reading with a low confidence rather than guessing between two candidates.",
-  "Never invent a medicine; an empty list is a correct and useful answer.",
+  "Transcribe only what is legibly written. Report the name as written — do not correct spelling, expand",
+  "abbreviations into a different product, or substitute a generic for a brand. If a line is ambiguous, transcribe",
+  "your best reading and give it a low confidence rather than guessing between two candidates.",
   "",
-  "Ignore everything that is not a prescribed medicine: patient and prescriber details,",
-  "hospital or clinic names, addresses, dates, registration numbers, DEA/NPI identifiers,",
-  "Sig/Disp/Refill lines, vital signs, diagnoses and general advice.",
+  "Never invent a medicine. If nothing is legible, return an empty list — an empty result is correct and useful.",
   "",
-  'Return JSON only: {"medicines":[{"name","strength","form","quantity","frequency","duration","confidence"}]}',
-  "where confidence is 0..1. Use an empty string for anything not written.",
+  "Ignore everything that is not a prescribed medicine: patient and prescriber details, hospital or clinic names,",
+  "addresses, dates, registration numbers, vital signs, diagnoses and general advice.",
+  "",
+  "You are transcribing, not advising. Do not comment on dosage appropriateness, interactions, or whether the",
+  "prescription is valid.",
 ].join("\n");
+
+const EXTRACTION_SCHEMA = {
+  type: "object",
+  properties: {
+    medicines: {
+      type: "array",
+      description:
+        "Every medicine legibly written on the prescription, in the order they appear. Empty when none can be read.",
+      items: {
+        type: "object",
+        properties: {
+          name: {
+            type: "string",
+            description:
+              "The medicine name exactly as written (brand or generic). Do not correct, expand or substitute it.",
+          },
+          genericName: {
+            type: "string",
+            description:
+              "Generic/active ingredient, only if it is written on the prescription. Otherwise an empty string.",
+          },
+          strength: { type: "string", description: 'e.g. "500 mg", "250mg/5ml". Empty string if absent.' },
+          form: { type: "string", description: 'e.g. "tablet", "syrup", "injection". Empty string if absent.' },
+          frequency: { type: "string", description: 'e.g. "BD", "1-0-1", "twice daily". Empty string if absent.' },
+          duration: { type: "string", description: 'e.g. "5 days". Empty string if absent.' },
+          confidence: {
+            type: "number",
+            description:
+              "How legible this specific line was, from 0 to 1. Use a low value when the handwriting is ambiguous.",
+          },
+        },
+        required: ["name", "genericName", "strength", "form", "frequency", "duration", "confidence"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["medicines"],
+  additionalProperties: false,
+} as const;
 
 interface VisionReading {
   name: string;
+  genericName?: string;
   strength?: string;
   form?: string;
   quantity?: string;
@@ -104,6 +144,7 @@ function parseVisionReadings(raw: string): VisionReading[] {
       };
       return {
         name,
+        genericName: str("genericName"),
         strength: str("strength"),
         form: str("form") ?? str("dosageForm"),
         quantity: str("quantity"),
@@ -129,6 +170,7 @@ function fromVisionReading(reading: VisionReading): ScannedMedicine | null {
 
   return {
     name,
+    genericName: reading.genericName,
     strength: reading.strength,
     dosageForm: reading.form ? titleCase(reading.form) : undefined,
     quantity: reading.quantity ?? extractQuantity(reading.name),
@@ -182,11 +224,16 @@ async function extractWithGemini(buffer: Buffer, mimeType: string): Promise<Visi
         // error message that echoes the request URL.
         headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents: [
             {
               parts: [
                 { inline_data: { mime_type: mediaType, data: buffer.toString("base64") } },
-                { text: VISION_INSTRUCTIONS },
+                {
+                  text:
+                    "List every medicine legibly written on this prescription. " +
+                    "Return an empty list if none can be read.",
+                },
               ],
             },
           ],
@@ -237,11 +284,28 @@ async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<Visi
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-opus-5",
+        model: process.env.SCAN_VISION_MODEL || "claude-opus-5",
         // Thinking is on by default and shares this budget with the reply.
         max_tokens: 8000,
-        output_config: { effort: "low" },
-        messages: [{ role: "user", content: [source, { type: "text", text: VISION_INSTRUCTIONS }] }],
+        system: SYSTEM_PROMPT,
+        output_config: {
+          effort: "low",
+          format: { type: "json_schema", schema: EXTRACTION_SCHEMA },
+        },
+        messages: [
+          {
+            role: "user",
+            content: [
+              source,
+              {
+                type: "text",
+                text:
+                  "List every medicine legibly written on this prescription. " +
+                  "Return an empty list if none can be read.",
+              },
+            ],
+          },
+        ],
       }),
     });
     if (!response.ok) {

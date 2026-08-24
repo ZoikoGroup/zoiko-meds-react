@@ -54,6 +54,7 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
+  const [serverError, setServerError] = useState<string>("");
   const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -82,8 +83,17 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
 
   function handleChange(field: keyof FormState, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    if (serverError) setServerError("");
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+      if (field === "email") {
+        const check = validateEmail(value);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
     }
     if (status === "success" || status === "error") {
       setStatus("idle");
@@ -92,11 +102,12 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setServerError("");
 
     const nextErrors: FormErrors = {};
     const emailCheck = validateEmail(form.email);
     if (!emailCheck.isValid) {
-      nextErrors.email = emailCheck.error!;
+      nextErrors.email = emailCheck.error || "Please enter a valid email address.";
     }
     if (!form.fullName.trim()) {
       nextErrors.fullName = "Enter your full name.";
@@ -110,39 +121,50 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
-      const firstKey = nextErrors.email ? "email" : Object.keys(nextErrors)[0];
+      const firstKey = nextErrors.email ? "email" : (Object.keys(nextErrors)[0] as keyof FormState);
       scrollToFirstError(firstKey);
       return;
     }
 
     setStatus("submitting");
+    const startTime = Date.now();
     try {
-      const res = await fetch(internalApi("briefing-request"), {
+      const res = await fetch("/internal/briefing-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          briefingType: `ZoikoSignal Intelligence Briefing (${form.organizationType || "General"})`,
-          fullName: form.fullName,
-          workEmail: form.email,
-          organization: form.organizationName,
-          note: `Primary Interest: ${form.primaryInterest}\nNote: ${form.note}`,
+          briefingType: "ZoikoSignal Intelligence Briefing",
+          fullName: form.fullName.trim(),
+          workEmail: form.email.trim(),
+          organization: form.organizationName.trim(),
+          orgType: form.organizationType.trim(),
+          primaryInterest: form.primaryInterest.trim(),
+          note: form.note.trim(),
         }),
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || "Submission failed");
+      const elapsedMs = Date.now() - startTime;
+      console.log(`[ZoikoSignal Briefing Submission] Completed in ${elapsedMs}ms.`);
 
-      setStatus("success");
-      setForm({
-        email: "",
-        fullName: "",
-        organizationName: "",
-        organizationType: "",
-        primaryInterest: "",
-        note: "",
-      });
+      if (res.ok && data.success) {
+        setStatus("success");
+        setForm({
+          email: "",
+          fullName: "",
+          organizationName: "",
+          organizationType: "",
+          primaryInterest: "",
+          note: "",
+        });
+        setErrors({});
+      } else {
+        setStatus("error");
+        setServerError(data.message || "We couldn't submit your briefing request. Please try again.");
+      }
     } catch {
       setStatus("error");
+      setServerError("We couldn't submit your briefing request. Please try again.");
     }
   }
 
@@ -188,6 +210,7 @@ export default function ZoikoSignalIntelligenceRequestBriefingSection() {
               form={form}
               errors={errors}
               status={status}
+              serverError={serverError}
               successRef={successRef}
               onChange={handleChange}
               onSubmit={handleSubmit}
@@ -245,6 +268,7 @@ function BriefingForm({
   form,
   errors,
   status,
+  serverError,
   successRef,
   onChange,
   onSubmit,
@@ -252,6 +276,7 @@ function BriefingForm({
   form: FormState;
   errors: FormErrors;
   status: FormStatus;
+  serverError?: string;
   successRef: React.RefObject<HTMLDivElement | null>;
   onChange: (field: keyof FormState, value: string) => void;
   onSubmit: (e: FormEvent) => void;
@@ -422,7 +447,7 @@ function BriefingForm({
 
         {status === "error" && (
           <p className="text-[13px] font-medium text-[#C5453F]">
-            Something went wrong while submitting. Please try again.
+            {serverError || "Something went wrong while submitting. Please try again."}
           </p>
         )}
       </form>

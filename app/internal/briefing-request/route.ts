@@ -16,42 +16,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const briefingType = String(body.briefingType || body.type || body.pathway || "Executive Briefing").trim();
+    const briefingType = String(body.briefingType || body.type || body.pathway || "Intelligence Briefing").trim();
     const fullName = String(body.fullName || body.name || "").trim();
     const workEmail = String(body.workEmail || body.email || "").trim();
     const organization = String(body.organization || body.orgName || body.clinicName || body.hospitalName || "").trim();
-    const jobTitle = String(body.jobTitle || body.title || body.role || "").trim();
+    const jobTitle = String(body.jobTitle || body.roleTitle || body.title || body.role || "").trim();
     const phone = String(body.phone || body.phoneNumber || "").trim();
-    const orgType = String(body.orgType || body.organizationType || "").trim();
+    const orgType = String(body.orgType || body.organizationType || body.pharmacyType || "").trim();
+    const primaryInterest = String(body.primaryInterest || body.interest || body.workflowInterest || "").trim();
     const country = String(body.country || body.region || "").trim();
-    const note = String(body.note || body.comments || body.details || body.message || "").trim();
+    const note = String(body.note || body.comments || body.details || body.message || body.description || "").trim();
+    const intelligenceNeedsRaw = body.intelligenceNeeds || body.needs;
+    const intelligenceNeedsFormatted = Array.isArray(intelligenceNeedsRaw)
+      ? intelligenceNeedsRaw.filter(Boolean).join(", ")
+      : String(intelligenceNeedsRaw || "").trim();
 
     // Validation
     const errors: Record<string, string> = {};
 
     if (!fullName) {
+      errors.name = "Full name is required.";
       errors.fullName = "Full name is required.";
     }
 
     const emailCheck = validateEmail(workEmail);
     if (!emailCheck.isValid) {
+      errors.email = emailCheck.error!;
       errors.workEmail = emailCheck.error!;
     }
 
     if (!organization) {
       errors.organization = "Organization is required.";
-    }
-
-    if (!jobTitle) {
-      errors.jobTitle = "Job title is required.";
-    }
-
-    if (!orgType && briefingType.toLowerCase().includes("demo")) {
-      errors.orgType = "Please select an organization type.";
-    }
-
-    if (!country && briefingType.toLowerCase().includes("demo")) {
-      errors.country = "Country / region is required.";
+      errors.orgName = "Pharmacy or organization name is required.";
     }
 
     if (phone) {
@@ -75,13 +71,24 @@ export async function POST(req: NextRequest) {
       fullName,
       email: workEmail,
       organization,
-      payload: { briefingType, fullName, workEmail, organization, jobTitle, phone, note },
+      payload: {
+        briefingType,
+        fullName,
+        workEmail,
+        organization,
+        jobTitle,
+        phone,
+        orgType,
+        primaryInterest,
+        country,
+        intelligenceNeeds: intelligenceNeedsFormatted,
+        note,
+      },
     });
 
-    // 2. Notify the team and confirm to the submitter. The record is already
-    //    saved, so neither delivery may fail the request.
+    // 2. Notify the team and confirm to the submitter.
     const mail = await dispatchFormEmails({
-      formName: briefingType || "Request a Briefing",
+      formName: briefingType || "Intelligence Briefing",
       submittedAt: submissionTimeForRequest(req, body),
       userEmail: workEmail,
       userName: fullName,
@@ -92,15 +99,30 @@ export async function POST(req: NextRequest) {
         { label: "Full Name", value: fullName },
         { label: "Work Email", value: workEmail },
         { label: "Organization", value: organization },
-        { label: "Job Title", value: jobTitle || "Not specified" },
-        { label: "Phone Number", value: phone || "Not specified" },
+        ...(jobTitle ? [{ label: "Role / Title", value: jobTitle }] : []),
+        ...(orgType ? [{ label: "Organization Type", value: orgType }] : []),
+        ...(country ? [{ label: "Region of Interest", value: country }] : []),
+        ...(primaryInterest ? [{ label: "Primary Interest", value: primaryInterest }] : []),
+        ...(intelligenceNeedsFormatted ? [{ label: "Intelligence Need(s)", value: intelligenceNeedsFormatted }] : []),
+        ...(body.timeline ? [{ label: "Timeline", value: String(body.timeline).trim() }] : []),
+        ...(note ? [{ label: "Message / Project Description", value: note }] : []),
       ],
     });
+
+    if (!mail.internal.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "We couldn't submit your briefing request. Please try again.",
+        },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json(
       {
         success: true,
-        message: "Briefing request submitted successfully. A ZoikoMeds executive will follow up with you shortly.",
+        message: "Thank you! Our team will review your request and contact you soon.",
         data: {
           id: record.id,
           submittedAt: record.submittedAt,

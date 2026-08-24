@@ -1,4 +1,4 @@
-import { bestSimilarity, containsName } from "./text-normalize";
+import { bestSimilarity, containsName, normalize } from "./text-normalize";
 
 export interface KnownDrug {
   name: string;
@@ -58,12 +58,30 @@ export function matchOfflineDictionary(candidateName: string): { drug: KnownDrug
   const name = (candidateName ?? "").trim();
   if (name.length < 3) return null;
 
+  const isQueryMultiIngredient = /\b(and|\+|\/)\b/i.test(name);
+
   let best: { drug: KnownDrug; similarity: number } | null = null;
   for (const drug of KNOWN_DRUGS) {
+    const isDrugMultiIngredient = drug.generic ? /\b(and|\+|\/)\b/i.test(drug.generic) : false;
+    if (!isQueryMultiIngredient && isDrugMultiIngredient) {
+      const matchesBrandOrAliasExactly = [drug.name, ...drug.aliases].some(
+        (a) => normalize(a) === normalize(name)
+      );
+      if (!matchesBrandOrAliasExactly) continue;
+    }
+
     const references = [drug.name, drug.generic, ...drug.aliases];
 
-    if (references.some((reference) => containsName(name, reference))) {
+    if (references.some((reference) => normalize(reference) === normalize(name))) {
       return { drug, similarity: 1 };
+    }
+
+    if (references.some((reference) => containsName(name, reference))) {
+      const score = 0.95;
+      if (!best || score > best.similarity) {
+        best = { drug, similarity: score };
+      }
+      continue;
     }
 
     const { score } = bestSimilarity(name, references);

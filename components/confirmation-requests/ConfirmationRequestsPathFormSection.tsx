@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -261,13 +262,13 @@ function SetupForm() {
     note: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
 
   function validate(v: FormState): FormErrors {
     const e: FormErrors = {};
-    if (!v.email.trim()) e.email = "Work email is required.";
-    else if (!EMAIL_REGEX.test(v.email.trim()))
-      e.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(v.email);
+    if (!emailCheck.isValid) {
+      e.email = emailCheck.error || "Please enter a valid email address.";
+    }
     if (!v.fullName.trim()) e.fullName = "Full name is required.";
     if (!v.orgName.trim())
       e.orgName = "Pharmacy or organization name is required.";
@@ -277,9 +278,19 @@ function SetupForm() {
 
   function handleChange<K extends keyof FormState>(key: K, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
+    if (errorMessage) setErrorMessage("");
     if (errors[key]) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }));
+      if (key === "email") {
+        const check = validateEmail(val);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
     }
+    if (status === "error") setStatus("idle");
   }
 
   const [submitting, setSubmitting] = useState(false);
@@ -296,45 +307,53 @@ function SetupForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
+    setErrorMessage("");
     const nextErrors = validate(values);
     setErrors(nextErrors);
 
-    if (Object.keys(nextErrors).length === 0) {
-      setSubmitting(true);
-      setStatus("idle");
+    if (Object.keys(nextErrors).length > 0) return;
 
-      try {
-        const res = await fetch(internalApi("briefing-request"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            briefingType: `Confirmation Requests Setup (${values.pharmacyType || "Confirmation Setup"})`,
-            fullName: values.fullName,
-            workEmail: values.email,
-            organization: values.orgName,
-            note: `Workflow: ${values.workflowInterest}\nNote: ${values.note}`,
-          }),
-        });
+    setSubmitting(true);
+    setStatus("idle");
 
-        let data: any = {};
-        try {
-          data = await res.json();
-        } catch {}
+    try {
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Confirmation Requests Setup (${values.pharmacyType || "General"})`,
+          fullName: values.fullName.trim(),
+          workEmail: values.email.trim(),
+          organization: values.orgName.trim(),
+          orgType: values.pharmacyType.trim(),
+          primaryInterest: values.workflowInterest.trim(),
+          note: values.note.trim(),
+        }),
+      });
 
-        if (res.ok && (data.success || res.status === 200)) {
-          setStatus("success");
-          setValues({ email: "", fullName: "", orgName: "", pharmacyType: "", workflowInterest: "", note: "" });
-          setErrors({});
-        } else {
-          setStatus("error");
-          setErrorMessage(data.message || "Failed to submit request.");
-        }
-      } catch {
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setValues({ email: "", fullName: "", orgName: "", pharmacyType: "", workflowInterest: "", note: "" });
+        setErrors({});
+      } else {
         setStatus("error");
-        setErrorMessage("Network error occurred.");
-      } finally {
-        setSubmitting(false);
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: FormErrors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.organization || data.errors.orgName) mapped.orgName = data.errors.organization || data.errors.orgName;
+          if (data.errors.orgType || data.errors.pharmacyType) mapped.pharmacyType = data.errors.orgType || data.errors.pharmacyType;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setErrorMessage(data.message || "We couldn't submit your confirmation request. Please try again.");
       }
+    } catch {
+      setStatus("error");
+      setErrorMessage("We couldn't submit your confirmation request. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   }
 

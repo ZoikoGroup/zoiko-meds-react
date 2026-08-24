@@ -44,8 +44,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (Object.keys(errors).length > 0) {
+      const firstError = errors.workEmail || errors.fullName || errors.orgName || Object.values(errors)[0];
       return NextResponse.json(
-        { success: false, message: "Validation failed. Please fill in all required fields.", errors },
+        { success: false, message: firstError || "Please enter a valid email address.", errors },
         { status: 400 }
       );
     }
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Thank you! Your sales inquiry has been submitted to info@zoikomeds.com. Our commercial team will review your request and get in touch.",
+        message: "Thank you! Your sales inquiry has been submitted. Our commercial team will review your request and get in touch.",
         data: {
           id: record.id,
           submittedAt: record.submittedAt,
