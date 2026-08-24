@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { validateEmail } from "@/lib/validation";
 
 type FormState = {
   email: string;
@@ -22,20 +23,20 @@ const INITIAL_STATE: FormState = {
   description: "",
 };
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export default function EnterpriseContactSection() {
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+  const [submitError, setSubmitError] = useState<string>("");
 
   function validateField(name: keyof FormState, value: string): string {
     switch (name) {
-      case "email":
-        if (!value.trim()) return "Work email is required.";
-        if (!EMAIL_REGEX.test(value.trim())) return "Enter a valid email address.";
+      case "email": {
+        const check = validateEmail(value);
+        if (!check.isValid) return check.error || "Please enter a valid email address.";
         return "";
+      }
       case "name":
         if (!value.trim()) return "Name is required.";
         return "";
@@ -65,7 +66,8 @@ export default function EnterpriseContactSection() {
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    if (touched[name as keyof FormState]) {
+    if (submitError) setSubmitError("");
+    if (touched[name as keyof FormState] || errors[name as keyof FormState]) {
       setErrors((prev) => ({ ...prev, [name]: validateField(name as keyof FormState, value) }));
     }
   }
@@ -78,6 +80,7 @@ export default function EnterpriseContactSection() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitError("");
     const nextErrors = validateAll(form);
     setErrors(nextErrors);
     setTouched({
@@ -93,14 +96,49 @@ export default function EnterpriseContactSection() {
 
     setStatus("submitting");
     try {
-      // Replace with your real submit endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1400));
-      setStatus("success");
-      setForm(INITIAL_STATE);
-      setTouched({});
-      setErrors({});
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: "Enterprise Solutions Briefing",
+          fullName: form.name.trim(),
+          workEmail: form.email.trim(),
+          organization: form.organization.trim(),
+          orgType: form.orgType.trim(),
+          primaryInterest: form.interest.trim(),
+          note: form.description.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStatus("success");
+        setForm(INITIAL_STATE);
+        setTouched({});
+        setErrors({});
+      } else {
+        setStatus("idle");
+        if (data.errors && typeof data.errors === "object") {
+          const mappedErrors: FormErrors = {};
+          if (data.errors.workEmail || data.errors.email) {
+            mappedErrors.email = data.errors.workEmail || data.errors.email;
+          }
+          if (data.errors.fullName || data.errors.name) {
+            mappedErrors.name = data.errors.fullName || data.errors.name;
+          }
+          if (data.errors.organization) {
+            mappedErrors.organization = data.errors.organization;
+          }
+          if (data.errors.description || data.errors.note) {
+            mappedErrors.description = data.errors.description || data.errors.note;
+          }
+          setErrors((prev) => ({ ...prev, ...mappedErrors }));
+        }
+        setSubmitError("We couldn't submit your inquiry. Please try again.");
+      }
     } catch {
       setStatus("idle");
+      setSubmitError("We couldn't submit your inquiry. Please try again.");
     }
   }
 
@@ -193,8 +231,7 @@ export default function EnterpriseContactSection() {
               </div>
               <h3 className="text-lg font-bold text-[#0d2636]">Inquiry submitted</h3>
               <p className="mt-2 max-w-xs text-sm text-[#64748b]">
-                Thanks for reaching out — our institutional solutions team
-                will respond within 15 minutes during business hours.
+                Thank you. Your inquiry has been submitted successfully. A confirmation email has been sent to your email address.
               </p>
               <button
                 type="button"
@@ -324,6 +361,12 @@ export default function EnterpriseContactSection() {
                   <p className="mt-1.5 text-xs font-medium text-red-600">{errors.description}</p>
                 )}
               </div>
+
+              {submitError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-center text-xs font-medium text-red-600">
+                  {submitError}
+                </div>
+              )}
 
               <button
                 type="submit"

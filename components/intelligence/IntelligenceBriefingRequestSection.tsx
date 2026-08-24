@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
+import { validateEmail } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -44,6 +44,7 @@ export default function IntelligenceBriefingRequestSection() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<ErrorState>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [serverError, setServerError] = useState<string>("");
 
   useEffect(() => {
     const el = ref.current;
@@ -60,7 +61,18 @@ export default function IntelligenceBriefingRequestSection() {
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (serverError) setServerError("");
+    if (errors[key]) {
+      if (key === "workEmail") {
+        const check = validateEmail(String(value));
+        setErrors((prev) => ({
+          ...prev,
+          workEmail: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
+    }
   }
 
   function toggleNeed(need: string) {
@@ -78,11 +90,13 @@ export default function IntelligenceBriefingRequestSection() {
 
   function validate(): boolean {
     const nextErrors: ErrorState = {};
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!form.fullName.trim()) nextErrors.fullName = "Full name is required.";
-    if (!form.workEmail.trim()) nextErrors.workEmail = "Work email is required.";
-    else if (!emailPattern.test(form.workEmail.trim())) nextErrors.workEmail = "Enter a valid email address.";
+
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) {
+      nextErrors.workEmail = emailCheck.error || "Please enter a valid email address.";
+    }
 
     if (!form.organization.trim()) nextErrors.organization = "Organization is required.";
     if (!form.roleTitle.trim()) nextErrors.roleTitle = "Role / title is required.";
@@ -97,16 +111,52 @@ export default function IntelligenceBriefingRequestSection() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setServerError("");
     if (!validate()) return;
 
     setStatus("submitting");
+    const startTime = Date.now();
     try {
-      // Replace with your real endpoint.
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      setStatus("success");
-      setForm(INITIAL_FORM);
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: "Intelligence Briefing",
+          fullName: form.fullName.trim(),
+          workEmail: form.workEmail.trim(),
+          organization: form.organization.trim(),
+          roleTitle: form.roleTitle.trim(),
+          organizationType: form.organizationType,
+          region: form.region.trim(),
+          intelligenceNeeds: form.intelligenceNeeds,
+          timeline: form.timeline,
+          message: form.message.trim(),
+          consent: form.consent,
+        }),
+      });
+
+      const data = await res.json();
+      const elapsedMs = Date.now() - startTime;
+      console.log(`[Intelligence Briefing Submission] Completed in ${elapsedMs}ms.`);
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setForm(INITIAL_FORM);
+        setErrors({});
+      } else {
+        setStatus("error");
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: ErrorState = {};
+          if (data.errors.workEmail || data.errors.email) mapped.workEmail = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.organization) mapped.organization = data.errors.organization;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setServerError(data.message || "We couldn't submit your briefing request. Please try again.");
+      }
     } catch {
       setStatus("error");
+      setServerError("We couldn't submit your briefing request. Please try again.");
     }
   }
 
@@ -144,17 +194,24 @@ export default function IntelligenceBriefingRequestSection() {
           <div className="mt-7 rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.08)] sm:p-8">
 
             {status === "success" ? (
-              <div className="flex items-start gap-3 rounded-xl border border-[#0FAA87]/25 bg-[#0FAA87]/5 p-4">
-                <svg className="mt-0.5 h-5 w-5 flex-shrink-0" style={{ color: ACCENT }} viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <div>
-                  <p className="text-[13.5px] font-semibold text-[#0F1F4E]">Request received.</p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#5B6478]">
-                    A ZoikoMeds representative will review your request and follow up at the
-                    work email you provided.
-                  </p>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#0FAA87]/10">
+                  <svg className="h-7 w-7" style={{ color: ACCENT }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
+                <h3 className="text-lg font-bold text-[#0F1F4E]">Request Submitted Successfully</h3>
+                <p className="mt-2 max-w-sm text-sm text-[#5B6478]">
+                  Thank you! Our team will review your request and contact you soon.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStatus("idle")}
+                  className="mt-6 text-sm font-semibold hover:opacity-80"
+                  style={{ color: ACCENT }}
+                >
+                  Submit another request
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -293,6 +350,12 @@ export default function IntelligenceBriefingRequestSection() {
                   {errors.consent && <p className="mt-1.5 text-[12px] font-medium text-[#E5484D]">{errors.consent}</p>}
                 </div>
 
+                {serverError && (
+                  <div className="rounded-lg border border-[#E5484D]/20 bg-[#E5484D]/5 p-3 text-center text-[12.5px] font-medium text-[#E5484D]">
+                    {serverError}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={status === "submitting"}
@@ -305,14 +368,8 @@ export default function IntelligenceBriefingRequestSection() {
                       <path d="M14.5 8a6.5 6.5 0 00-6.5-6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                     </svg>
                   )}
-                  {status === "submitting" ? "Submitting…" : "Submit Briefing Request"}
+                  {status === "submitting" ? "Submitting..." : "Submit Briefing Request"}
                 </button>
-
-                {status === "error" && (
-                  <p className="text-[12.5px] font-medium text-[#E5484D]">
-                    Something went wrong. Please try again.
-                  </p>
-                )}
 
                 <p className="flex items-start gap-2 text-[11.5px] leading-relaxed text-[#9AA1B4]">
                   <svg className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" style={{ color: ACCENT }} viewBox="0 0 16 16" fill="none">

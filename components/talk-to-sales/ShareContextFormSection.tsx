@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { internalApi } from "@/lib/config";
-import { sanitizePhoneInput } from "@/lib/validation";
+import { validateEmail, sanitizePhoneInput } from "@/lib/validation";
 
 export default function ShareContextFormSection() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -103,8 +103,9 @@ export default function ShareContextFormSection() {
       return;
     }
 
-    if (!workEmail.trim() || !workEmail.includes("@")) {
-      setErrorMessage("Please enter a valid work email address.");
+    const emailCheck = validateEmail(workEmail);
+    if (!emailCheck.isValid) {
+      setErrorMessage(emailCheck.error || "Please enter a valid email address.");
       return;
     }
 
@@ -138,7 +139,8 @@ export default function ShareContextFormSection() {
       if (res.ok && data.success) {
         setIsSubmitted(true);
       } else {
-        setErrorMessage(data.message || "Failed to submit sales request. Please try again.");
+        const serverErr = data.errors?.workEmail || data.errors?.email || data.message;
+        setErrorMessage(serverErr || "Failed to submit sales request. Please try again.");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
@@ -233,8 +235,7 @@ export default function ShareContextFormSection() {
                   Sales Inquiry Received
                 </h3>
                 <p className="text-xs sm:text-sm text-[#344054] max-w-lg mx-auto leading-relaxed">
-                  Thank you! Your sales request has been submitted to{" "}
-                  <span className="font-semibold text-[#101828]">info@zoikomeds.com</span>. Our commercial account specialists will review your requirements and get in touch.
+                  Thank you! Your sales request has been submitted. Our commercial account specialists will review your requirements and get in touch.
                 </p>
                 <div className="pt-4">
                   <button
@@ -554,7 +555,7 @@ export default function ShareContextFormSection() {
                       disabled={submitting}
                       className="px-6 py-3 bg-[#13A594] hover:bg-[#0f8b7c] text-white font-semibold text-sm rounded-xl shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                     >
-                      {submitting ? "Submitting to info@zoikomeds.com..." : "Submit Sales Inquiry"}
+                      {submitting ? "Submitting..." : "Submit Sales Inquiry"}
                     </button>
                   )}
                 </div>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { internalApi } from "@/lib/config";
+import { validateEmail } from "@/lib/validation";
 
 export default function SSORequirementsFormSection() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -107,8 +108,9 @@ export default function SSORequirementsFormSection() {
       return;
     }
 
-    if (!workEmail.trim() || !workEmail.includes("@")) {
-      setErrorMessage("Please enter a valid work email address.");
+    const emailCheck = validateEmail(workEmail);
+    if (!emailCheck.isValid) {
+      setErrorMessage(emailCheck.error || "Please enter a valid email address.");
       return;
     }
 
@@ -141,7 +143,8 @@ export default function SSORequirementsFormSection() {
       if (res.ok && data.success) {
         setIsSubmitted(true);
       } else {
-        setErrorMessage(data.message || "Failed to submit SSO requirements. Please try again.");
+        const serverErr = data.errors?.workEmail || data.errors?.email || data.message;
+        setErrorMessage(serverErr || "Failed to submit SSO requirements. Please try again.");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
@@ -247,8 +250,7 @@ export default function SSORequirementsFormSection() {
                   SSO Requirements Submitted
                 </h3>
                 <p className="text-xs sm:text-sm text-[#344054] max-w-lg mx-auto leading-relaxed">
-                  Thank you! Your requirements review has been dispatched directly to{" "}
-                  <span className="font-semibold text-[#101828]">info@zoikomeds.com</span>. Our enterprise security and architecture team will review your specifications and reach out shortly.
+                  Thank you! Your requirements review has been dispatched. Our enterprise security and architecture team will review your specifications and reach out shortly.
                 </p>
                 <div className="pt-4">
                   <button
@@ -633,7 +635,7 @@ export default function SSORequirementsFormSection() {
                       disabled={submitting}
                       className="px-6 py-3 bg-[#13A594] hover:bg-[#108B7D] text-white font-semibold text-sm rounded-xl shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                     >
-                      {submitting ? "Submitting to info@zoikomeds.com..." : "Submit SSO requirements"}
+                      {submitting ? "Submitting..." : "Submit SSO requirements"}
                     </button>
                   )}
                 </div>

@@ -206,5 +206,17 @@ export function renderConfirmationText(content: ConfirmationContent): string {
 
 /** The subject line for a confirmation. */
 export function confirmationSubject(formName: string): string {
+  if (formName.toLowerCase().includes("confirmation")) {
+    return "We received your ZoikoMeds confirmation request";
+  }
+  if (formName.toLowerCase().includes("zoikosignal")) {
+    return "We received your ZoikoSignal intelligence briefing request";
+  }
+  if (formName.toLowerCase().includes("intelligence")) {
+    return "We received your ZoikoMeds intelligence briefing request";
+  }
+  if (formName.toLowerCase().includes("inquiry") || formName.toLowerCase().includes("enterprise")) {
+    return "We received your ZoikoMeds inquiry";
+  }
   return `We've received your ${formName} request — ZoikoMeds`;
 }
