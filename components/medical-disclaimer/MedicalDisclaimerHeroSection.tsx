@@ -29,7 +29,7 @@ export default function MedicalDisclaimerHeroSection() {
               <nav className="mb-5 flex items-center gap-1.5 text-[11.5px] text-[#8A96B0]">
                 <Link href="/" className="hover:text-[#0F1F4E] transition-colors">Home</Link>
                 <span>/</span>
-                <Link href="#" className="hover:text-[#0F1F4E] transition-colors">Legal &amp; Trust</Link>
+                <Link href="/trust-center" className="hover:text-[#0F1F4E] transition-colors">Legal &amp; Trust</Link>
                 <span>/</span>
                 <span className="text-[#0F1F4E] font-medium">Medical Disclaimer</span>
               </nav>

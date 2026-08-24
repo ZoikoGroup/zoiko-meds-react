@@ -20,7 +20,7 @@ export default function GovernmentPublicHealthHeroSection() {
           <div className="flex flex-col">
             {/* Breadcrumb */}
             <Reveal index={0} active={mounted}>
-              <nav className="mb-5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10.5px] sm:text-[11.5px] leading-relaxed text-[#8A96B0]">
+              <nav className="mb-5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10px] sm:text-[11.5px] leading-relaxed text-[#8A96B0]">
                 <Link
                   href="/"
                   className="shrink-0 transition-colors hover:text-[#0F1F4E]"
@@ -30,12 +30,21 @@ export default function GovernmentPublicHealthHeroSection() {
 
                 <span className="shrink-0">/</span>
 
-                <Link
-                  href="/enterprise"
-                  className="transition-colors hover:text-[#0F1F4E]"
-                >
-                  Enterprise &amp; Intelligence
-                </Link>
+                <span>
+                  <a
+                    className="transition-colors hover:text-[#0F1F4E]"
+                    href="/enterprise"
+                  >
+                    Enterprise &amp;{" "}
+                  </a>
+                  <a
+                    className="transition-colors hover:text-[#0F1F4E]"
+                    href="/intelligence"
+                  >
+                    {" "}
+                    Intelligence
+                  </a>
+                </span>
 
                 <span className="shrink-0">/</span>
 

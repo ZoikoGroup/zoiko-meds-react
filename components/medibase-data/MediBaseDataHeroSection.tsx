@@ -19,35 +19,7 @@ export default function MediBaseDataHeroSection() {
     <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* ---------------- Breadcrumb ---------------- */}
-        {mounted ? (
-          <Reveal index={0}>
-            <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <Link
-                href="/"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                Home
-              </Link>
-              <span>/</span>
-              <Link
-                href="/enterprise"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                Enterprise &amp;
-              </Link>
-              <Link
-                href="/intelligence"
-                className="transition-colors duration-200 hover:text-[#0F1F4E]"
-              >
-                intelligence
-              </Link>
-              <span>/</span>
-              <span className="text-[#0F1F4E]">MediBase™ data</span>
-            </nav>
-          </Reveal>
-        ) : (
-          <div className="mb-6 h-4 w-72 animate-pulse rounded bg-[#E4E8F0]" />
-        )}
+       
 
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-16">
           {/* ---------------- Left column ---------------- */}
@@ -55,6 +27,30 @@ export default function MediBaseDataHeroSection() {
             {mounted ? (
               <div className="flex flex-col gap-5">
                 <Reveal index={1}>
+                  
+                    <nav className="mb-6 flex items-center gap-2 text-[11.5px] text-[#8891A4]">
+                      <Link
+                        href="/"
+                        className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                      >
+                        Home
+                      </Link>
+                      <span>/</span>
+                      <Link
+                        href="/enterprise"
+                        className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                      >
+                        Enterprise &amp;
+                      </Link>
+                      <Link
+                        href="/intelligence"
+                        className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                      >
+                        intelligence
+                      </Link>
+                      <span>/</span>
+                      <span className="text-[#0F1F4E]">MediBase™ data</span>
+                    </nav>
                   <span
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: ACCENT }}

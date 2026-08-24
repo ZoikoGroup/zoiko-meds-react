@@ -18,31 +18,29 @@ export default function ZoikoHealthcareHeroSection() {
   return (
     <section className="relative w-full overflow-hidden bg-[#F4F6FA] py-16 sm:py-20">
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        {/* ---------------- Breadcrumb ---------------- */}
-        {mounted ? (
-          <Reveal index={0}>
-            <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
-              <Link href="/" className="transition-colors duration-200 hover:text-[#0F1F4E]">
-                Home
-              </Link>
-              <span>/</span>
-              <Link href="/trust-center" className="transition-colors duration-200 hover:text-[#0F1F4E]">
-                Trust &amp; Legal
-              </Link>
-              <span>/</span>
-              <span className="text-[#0F1F4E]">Zoiko Healthcare</span>
-            </nav>
-          </Reveal>
-        ) : (
-          <div className="mb-6 h-4 w-72 animate-pulse rounded bg-[#E4E8F0]" />
-        )}
-
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-16">
           {/* ---------------- Left column ---------------- */}
           <div>
             {mounted ? (
               <div className="flex flex-col gap-5">
                 <Reveal index={1}>
+                  <nav className="mb-6 flex items-center gap-2 text-[12.5px] text-[#8891A4]">
+                    <Link
+                      href="/"
+                      className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                    >
+                      Home
+                    </Link>
+                    <span>/</span>
+                    <Link
+                      href="/trust-center"
+                      className="transition-colors duration-200 hover:text-[#0F1F4E]"
+                    >
+                      Trust &amp; Legal
+                    </Link>
+                    <span>/</span>
+                    <span className="text-[#0F1F4E]">Zoiko Healthcare</span>
+                  </nav>
                   <span
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: ACCENT }}
@@ -62,18 +60,17 @@ export default function ZoikoHealthcareHeroSection() {
                 <Reveal index={3}>
                   <p className="max-w-lg text-[15px] leading-relaxed text-[#5B6478]">
                     Zoiko Healthcare Inc. operates ZoikoMeds, a governed
-                    medicine availability infrastructure platform built
-                    to help patients, pharmacies, providers, health
-                    systems, enterprises, and public-sector
-                    organizations understand medicine availability with
-                    confidence and clear boundaries.
+                    medicine availability infrastructure platform built to help
+                    patients, pharmacies, providers, health systems,
+                    enterprises, and public-sector organizations understand
+                    medicine availability with confidence and clear boundaries.
                   </p>
                 </Reveal>
 
                 <Reveal index={4}>
                   <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                     <button
-                    onClick={()=>router.push("/home")}
+                      onClick={() => router.push("/home")}
                       type="button"
                       className="group cursor-pointer relative overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                       style={{ backgroundColor: ACCENT }}
@@ -90,7 +87,7 @@ export default function ZoikoHealthcareHeroSection() {
                     </button>
 
                     <button
-                    onClick={()=>router.push("/contact")}
+                      onClick={() => router.push("/contact")}
                       type="button"
                       className="rounded-xl cursor-pointer border border-[#D7DCE6] bg-white px-6 py-3 text-sm font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
                     >
@@ -104,7 +101,9 @@ export default function ZoikoHealthcareHeroSection() {
                     href="/trust-center"
                     className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold transition-colors duration-200"
                     style={{ color: ACCENT }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#0C8A6E")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#0C8A6E")
+                    }
                     onMouseLeave={(e) => (e.currentTarget.style.color = ACCENT)}
                   >
                     Visit Trust Center
@@ -131,13 +130,18 @@ export default function ZoikoHealthcareHeroSection() {
                       viewBox="0 0 16 16"
                       fill="none"
                     >
-                      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.5"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
                     </svg>
                     Zoiko Healthcare does not prescribe, dispense, sell,
                     deliver, reserve, recommend, allocate, or guarantee
-                    medicines. ZoikoMeds provides confidence-based
-                    availability information and institutional
-                    intelligence.
+                    medicines. ZoikoMeds provides confidence-based availability
+                    information and institutional intelligence.
                   </p>
                 </Reveal>
               </div>

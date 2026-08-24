@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { internalApi } from "@/lib/config";
 import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
-
 const ACCENT = "#0FAA87";
 
 const CONTACT_REASONS = [
@@ -38,8 +37,6 @@ type FormState = {
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
 type FormStatus = "idle" | "submitting" | "success" | "error";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ContactFormSection() {
   const [mounted, setMounted] = useState(false);
@@ -152,8 +149,8 @@ export default function ContactFormSection() {
   }
 
   return (
-    <section id="contact" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
-      <div className="mx-auto max-w-5xl px-6 lg:px-8">
+    <section id="contact" ref={ref} className="relative w-full bg-[#F4F6FA] py-12 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* ---------------- Header (left-aligned) ---------------- */}
         <div>
           {mounted ? (
@@ -168,14 +165,14 @@ export default function ContactFormSection() {
               </Reveal>
 
               <Reveal index={1}>
-                <h2 className="font-[var(--font-plus-jakarta-sans)] mt-2 text-3xl font-bold leading-tight text-[#0F1F4E] sm:text-[2.1rem]">
+                <h2 className="font-[var(--font-plus-jakarta-sans)] mt-2 text-2xl sm:text-3xl lg:text-[2.1rem] font-bold leading-tight text-[#0F1F4E]">
                   Send the right message to the right{" "}
                   <span style={{ color: ACCENT }}>ZoikoMeds team.</span>
                 </h2>
               </Reveal>
 
               <Reveal index={2}>
-                <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-[#5B6478]">
+                <p className="mt-2.5 sm:mt-3 max-w-2xl text-[13.5px] sm:text-[14.5px] leading-relaxed text-[#5B6478]">
                   We collect only the minimum needed to route you — deeper
                   details come later through the correct workflow.
                 </p>
@@ -187,7 +184,7 @@ export default function ContactFormSection() {
         </div>
 
         {/* ---------------- Form card ---------------- */}
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           {mounted ? (
             <ContactForm
               form={form}
@@ -212,7 +209,7 @@ export default function ContactFormSection() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Reveal: bottom -> top staggered fade-up wrapper                   */
+/*  Reveal: bottom -> top staggered fade-up wrapper                  */
 /* ----------------------------------------------------------------- */
 function Reveal({
   children,
@@ -244,7 +241,7 @@ function Reveal({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Contact form                                                        */
+/*  Contact form                                                     */
 /* ----------------------------------------------------------------- */
 function ContactForm({
   form,
@@ -263,12 +260,12 @@ function ContactForm({
 }) {
   return (
     <div
-      className="rounded-2xl border border-[#E7EAF1] bg-white p-8 shadow-[0_20px_45px_-30px_rgba(15,31,78,0.25)] animate-[contactFormFadeUp_0.6s_ease-out_forwards]"
+      className="rounded-2xl border border-[#E7EAF1] bg-white p-5 sm:p-8 shadow-[0_20px_45px_-30px_rgba(15,31,78,0.25)] animate-[contactFormFadeUp_0.6s_ease-out_forwards]"
       style={{ opacity: 0, animationDelay: "280ms" }}
     >
-      <form className="space-y-6" onSubmit={onSubmit} noValidate>
+      <form className="space-y-4 sm:space-y-6" onSubmit={onSubmit} noValidate>
         {/* Row 1: email + name */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2">
           <Field id="contact-email" label="Email address" required error={errors.email}>
             <input
               id="contact-email"
@@ -295,7 +292,7 @@ function ContactForm({
         </div>
 
         {/* Row 2: contact reason + org name */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2">
           <Field
             id="contact-reason"
             label="Contact reason"
@@ -325,7 +322,7 @@ function ContactForm({
         </div>
 
         {/* Row 3: org type + country */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2">
           <Field id="contact-org-type" label="Organization type" optional>
             <SelectField
               id="contact-org-type"
@@ -368,10 +365,10 @@ function ContactForm({
         </Field>
 
         {/* Buttons row */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
           <a
-            href="/search-medicines"
-            className="inline-flex w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-3.5 text-[14px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
+            href="/searchmed"
+            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl border border-[#D7DCE6] bg-white px-5 py-3 text-[14px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F] active:translate-y-0 active:scale-[0.98]"
           >
             Search Medicines
           </a>
@@ -379,11 +376,11 @@ function ContactForm({
           <button
             type="submit"
             disabled={status === "submitting"}
-            className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-[14px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-[14px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
             style={{ backgroundColor: ACCENT }}
           >
             {status === "submitting" && (
-              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <svg className="h-4 w-4 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="none">
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -400,11 +397,11 @@ function ContactForm({
                 />
               </svg>
             )}
-            {status === "submitting" ? "Sending..." : "Send to Correct Team"}
+            <span>{status === "submitting" ? "Sending..." : "Send to Correct Team"}</span>
           </button>
         </div>
 
-        <p className="flex items-start gap-1.5 text-[11.5px] leading-relaxed text-[#A6ADBD]">
+        <p className="flex items-start gap-1.5 text-[11px] sm:text-[11.5px] leading-relaxed text-[#A6ADBD]">
           <svg
             className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
             viewBox="0 0 16 16"
@@ -414,9 +411,11 @@ function ContactForm({
             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.3" />
             <path d="M8 7v4M8 5.2v.1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
           </svg>
-          Don&apos;t include PHI, prescriptions, exact stock, passwords,
-          API secrets, or legal/commercial documents here — we&apos;ll
-          request anything sensitive through a secure workflow.
+          <span>
+            Don&apos;t include PHI, prescriptions, exact stock, passwords,
+            API secrets, or legal/commercial documents here — we&apos;ll
+            request anything sensitive through a secure workflow.
+          </span>
         </p>
 
         {status === "success" && (
@@ -481,7 +480,7 @@ function SelectField({
         ))}
       </select>
       <svg
-        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7C8499]"
+        className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7C8499]"
         viewBox="0 0 16 16"
         fill="none"
       >
@@ -498,7 +497,7 @@ function SelectField({
 }
 
 function inputClass(hasError: boolean) {
-  return `w-full rounded-xl border bg-white px-4 py-3 text-[14px] text-[#0F1F4E] placeholder:text-[#9AA1B5] outline-none transition-colors duration-200 ${
+  return `w-full min-h-[44px] rounded-xl border bg-white px-3.5 py-2.5 sm:px-4 sm:py-3 text-[14px] sm:text-[16px] md:text-[14px] text-[#0F1F4E] placeholder:text-[#9AA1B5] outline-none transition-colors duration-200 ${
     hasError
       ? "border-[#E0635C] focus:border-[#E0635C]"
       : "border-[#D7DCE6] focus:border-[#0FAA87]"
@@ -521,7 +520,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="w-full">
       <label
         htmlFor={id}
         className="mb-1.5 block text-[12.5px] font-semibold text-[#0F1F4E]"
@@ -539,12 +538,12 @@ function Field({
 }
 
 /* ----------------------------------------------------------------- */
-/*  Closing CTA banner                                                  */
+/*  Closing CTA banner                                               */
 /* ----------------------------------------------------------------- */
 function ClosingCta() {
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-[#1F2E55] px-6 py-14 text-center sm:px-12 sm:py-16 animate-[contactFormFadeUp_0.6s_ease-out_forwards]"
+      className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#1F2E55] px-5 py-10 sm:px-12 sm:py-16 text-center animate-[contactFormFadeUp_0.6s_ease-out_forwards]"
       style={{
         opacity: 0,
         animationDelay: "550ms",
@@ -552,28 +551,28 @@ function ClosingCta() {
           "radial-gradient(120% 140% at 50% -10%, #16234A 0%, #0B1226 60%, #0A0F1F 100%)",
       }}
     >
-      <h3 className="font-[var(--font-plus-jakarta-sans)] text-2xl font-bold leading-tight text-white sm:text-[1.85rem]">
+      <h3 className="font-[var(--font-plus-jakarta-sans)] text-xl sm:text-2xl lg:text-[1.85rem] font-bold leading-tight text-white">
         Need the right ZoikoMeds team?{" "}
         <span style={{ color: ACCENT }}>Start here.</span>
       </h3>
 
-      <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-[#A9B2C8]">
+      <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-[13.5px] sm:text-[14px] leading-relaxed text-[#A9B2C8]">
         Use one contact gateway to reach support, enterprise, pharmacy,
         provider, press, careers, privacy, security, legal, and
         corporate teams.
       </p>
 
-      <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <div className="mt-6 sm:mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <a
           href="#contact"
-          className="inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
+          className="inline-flex min-h-[44px] w-full items-center justify-center rounded-xl px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
           style={{ backgroundColor: ACCENT }}
         >
           Choose Your Contact Path
         </a>
         <a
           href="/searchmed"
-          className="inline-flex w-full items-center justify-center rounded-xl border border-[#3A4668] bg-transparent px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-white/5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
+          className="inline-flex min-h-[44px] w-full items-center justify-center rounded-xl border border-[#3A4668] bg-transparent px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#9FE3D3] hover:bg-white/5 active:translate-y-0 active:scale-[0.98] sm:w-auto"
         >
           Search Medicines
         </a>
@@ -583,7 +582,7 @@ function ClosingCta() {
 }
 
 /* ----------------------------------------------------------------- */
-/*  Skeletons                                                           */
+/*  Skeletons                                                        */
 /* ----------------------------------------------------------------- */
 function HeaderSkeleton() {
   return (
@@ -598,14 +597,14 @@ function HeaderSkeleton() {
 
 function FormSkeleton() {
   return (
-    <div className="rounded-2xl border border-[#E7EAF1] bg-white p-8">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div className="rounded-2xl border border-[#E7EAF1] bg-white p-5 sm:p-8">
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2">
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="h-12 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
         ))}
       </div>
-      <div className="mt-5 h-20 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-4 sm:mt-5 h-20 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
+      <div className="mt-4 sm:mt-5 flex flex-col gap-3 sm:grid sm:grid-cols-2">
         <div className="h-12 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
         <div className="h-12 w-full animate-pulse rounded-xl bg-[#E4E8F0]" />
       </div>
@@ -615,13 +614,13 @@ function FormSkeleton() {
 
 function ClosingCtaSkeleton() {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#1F2E55] bg-[#0B1226] px-6 py-14 sm:px-12 sm:py-16">
+    <div className="flex flex-col items-center gap-4 rounded-2xl sm:rounded-3xl border border-[#1F2E55] bg-[#0B1226] px-5 py-10 sm:px-12 sm:py-16">
       <div className="h-7 w-full max-w-md animate-pulse rounded-lg bg-white/10" />
       <div className="h-4 w-full max-w-lg animate-pulse rounded bg-white/10" />
       <div className="h-4 w-2/3 max-w-md animate-pulse rounded bg-white/10" />
-      <div className="mt-3 flex gap-3">
-        <div className="h-11 w-52 animate-pulse rounded-xl bg-white/10" />
-        <div className="h-11 w-44 animate-pulse rounded-xl bg-white/10" />
+      <div className="mt-3 flex w-full flex-col sm:w-auto sm:flex-row gap-3">
+        <div className="h-11 w-full sm:w-52 animate-pulse rounded-xl bg-white/10" />
+        <div className="h-11 w-full sm:w-44 animate-pulse rounded-xl bg-white/10" />
       </div>
     </div>
   );
