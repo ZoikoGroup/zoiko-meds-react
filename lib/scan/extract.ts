@@ -104,6 +104,16 @@ export async function detectMedicines(pages: PageText[]): Promise<ScannedMedicin
 
     // One round trip per distinct name, all in flight together — a prescription
     // with eight medicines should not take eight sequential catalog calls.
+    console.log(
+      `[medicine/scan] Raw extracted prescription candidates (page ${page.page}) before database matching:`,
+      parsed.map((p) => ({
+        raw: p.raw,
+        name: p.name,
+        displayName: p.displayName,
+        strength: p.strength,
+      })),
+    );
+
     const resolved = await Promise.all(
       parsed.map((candidate) =>
         resolveCandidate(candidate, {
@@ -115,6 +125,16 @@ export async function detectMedicines(pages: PageText[]): Promise<ScannedMedicin
           return null;
         }),
       ),
+    );
+
+    console.log(
+      `[medicine/scan] Resolved extracted medicines (page ${page.page}):`,
+      resolved.filter(Boolean).map((m) => ({
+        name: m!.name,
+        genericName: m!.genericName,
+        strength: m!.strength,
+        source: m!.source,
+      })),
     );
 
     for (const medicine of resolved) {

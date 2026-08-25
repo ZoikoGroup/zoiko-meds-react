@@ -232,6 +232,34 @@ describe("catalog matching", () => {
     expect(json.success).toBe(true);
     expect(json.data.medicines.length).toBeGreaterThan(0);
   });
+
+  it("preserves exact prescription wording and avoids inventing strengths or combination brands for Ibuprofen, Naproxen Sodium, Acetaminophen", async () => {
+    const { json } = await scan(
+      textPdf([
+        "Ibuprofen",
+        "Naproxen Sodium",
+        "Acetaminophen",
+      ]),
+      "prescription.pdf",
+      "application/pdf",
+    );
+
+    expect(json.success).toBe(true);
+    expect(json.data.medicines).toEqual([
+      "Ibuprofen",
+      "Naproxen Sodium",
+      "Acetaminophen",
+    ]);
+
+    expect(json.data.items[0].name).toBe("Ibuprofen");
+    expect(json.data.items[0].strength).toBeUndefined();
+
+    expect(json.data.items[1].name).toBe("Naproxen Sodium");
+    expect(json.data.items[1].strength).toBeUndefined();
+
+    expect(json.data.items[2].name).toBe("Acetaminophen");
+    expect(json.data.items[2].strength).toBeUndefined();
+  });
 });
 
 describe("scanned images and multi-page PDFs", () => {

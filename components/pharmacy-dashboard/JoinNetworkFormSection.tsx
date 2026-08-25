@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { LucideIcon, Shield, Check } from "lucide-react";
 import { internalApi } from "@/lib/config";
-import { sanitizePhoneInput } from "@/lib/validation";
+import { validateEmail, sanitizePhoneInput } from "@/lib/validation";
 
 interface Criterion {
   icon: LucideIcon;
@@ -63,8 +63,9 @@ export default function JoinNetworkFormSection() {
       return;
     }
 
-    if (!workEmail.trim() || !workEmail.includes("@")) {
-      setErrorMessage("Please enter a valid work email address.");
+    const emailCheck = validateEmail(workEmail);
+    if (!emailCheck.isValid) {
+      setErrorMessage(emailCheck.error || "Please enter a valid email address.");
       return;
     }
 
@@ -143,8 +144,7 @@ export default function JoinNetworkFormSection() {
                 Application Submitted Successfully
               </h3>
               <p className="max-w-md text-sm text-[#344054] leading-relaxed">
-                Thank you! Your pharmacy network registration has been dispatched to{" "}
-                <span className="font-semibold text-[#0D1526]">info@zoikomeds.com</span>. Our onboarding team will review your application and contact you via email shortly.
+                Thank you! Your pharmacy network registration has been submitted. Our onboarding team will review your application and contact you via email shortly.
               </p>
               <button
                 type="button"

@@ -303,7 +303,7 @@ export default function AppointmentsScheduleFormSection() {
                     <div>
                       <h3 className="text-xl font-bold text-[#0F1F4E]">Appointment Requested</h3>
                       <p className="text-xs text-[#5B6478]">
-                        Confirmation email sent to <span className="font-semibold text-[#0F1F4E]">info@zoikomeds.com</span>
+                        Confirmation email sent to <span className="font-semibold text-[#0F1F4E]">{submittedData.email}</span>
                       </p>
                     </div>
                   </div>
