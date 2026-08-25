@@ -97,7 +97,7 @@ export default function AvailabilitySignalsGetStartedSection() {
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      const firstKey = newErrors.email ? "email" : Object.keys(newErrors)[0];
+      const firstKey = newErrors.email ? "email" : (Object.keys(newErrors)[0] as string);
       scrollToFirstError(firstKey);
       return;
     }
@@ -108,7 +108,7 @@ export default function AvailabilitySignalsGetStartedSection() {
     setErrorMessage("");
 
     try {
-      const res = await fetch(internalApi("availability-signals"), {
+      const res = await fetch("/internal/briefing-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -116,13 +116,9 @@ export default function AvailabilitySignalsGetStartedSection() {
           fullName: form.name.trim(),
           workEmail: form.email.trim(),
           organization: form.org.trim(),
-          note: [
-            form.orgType ? `Organization Type: ${form.orgType}` : "",
-            form.interest ? `Primary Signal Workflow Interest: ${form.interest}` : "",
-            form.note ? `Note: ${form.note.trim()}` : "",
-          ]
-            .filter(Boolean)
-            .join("\n"),
+          orgType: form.orgType.trim(),
+          primaryInterest: form.interest.trim(),
+          note: form.note.trim(),
         }),
       });
 
@@ -148,6 +144,13 @@ export default function AvailabilitySignalsGetStartedSection() {
         }, 100);
       } else {
         setStatus("error");
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: typeof errors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.name = data.errors.fullName || data.errors.name;
+          if (data.errors.organization || data.errors.orgName || data.errors.org) mapped.org = data.errors.organization || data.errors.orgName || data.errors.org;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
         setErrorMessage(data.message || "Failed to submit briefing request. Please try again.");
       }
     } catch {
@@ -218,11 +221,18 @@ export default function AvailabilitySignalsGetStartedSection() {
                 <FormField label="Work email" error={errors.email}>
                   <input
                     type="email"
+                    name="email"
+                    id="email"
+                    aria-invalid={!!errors.email}
                     placeholder="you@yourorganization.org"
                     value={form.email}
                     onChange={(e) => {
-                      setForm({ ...form, email: e.target.value });
-                      if (errors.email) setErrors({ ...errors, email: undefined });
+                      const val = e.target.value;
+                      setForm((prev) => ({ ...prev, email: val }));
+                      if (errors.email) {
+                        const check = validateEmail(val);
+                        setErrors((prev) => ({ ...prev, email: check.isValid ? undefined : check.error! }));
+                      }
                     }}
                     className={`w-full rounded-xl border ${
                       errors.email ? "border-[#DC2626]" : "border-[#D8DCE8]"
@@ -234,11 +244,17 @@ export default function AvailabilitySignalsGetStartedSection() {
                 <FormField label="Full name" error={errors.name}>
                   <input
                     type="text"
+                    name="name"
+                    id="name"
+                    aria-invalid={!!errors.name}
                     placeholder="Your full name"
                     value={form.name}
                     onChange={(e) => {
-                      setForm({ ...form, name: e.target.value });
-                      if (errors.name) setErrors({ ...errors, name: undefined });
+                      const val = e.target.value;
+                      setForm((prev) => ({ ...prev, name: val }));
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: val.trim() ? undefined : "Full name is required." }));
+                      }
                     }}
                     className={`w-full rounded-xl border ${
                       errors.name ? "border-[#DC2626]" : "border-[#D8DCE8]"
@@ -250,11 +266,17 @@ export default function AvailabilitySignalsGetStartedSection() {
                 <FormField label="Organization name" error={errors.org}>
                   <input
                     type="text"
+                    name="org"
+                    id="org"
+                    aria-invalid={!!errors.org}
                     placeholder="e.g. Riverside Family Clinic"
                     value={form.org}
                     onChange={(e) => {
-                      setForm({ ...form, org: e.target.value });
-                      if (errors.org) setErrors({ ...errors, org: undefined });
+                      const val = e.target.value;
+                      setForm((prev) => ({ ...prev, org: val }));
+                      if (errors.org) {
+                        setErrors((prev) => ({ ...prev, org: val.trim() ? undefined : "Organization name is required." }));
+                      }
                     }}
                     className={`w-full rounded-xl border ${
                       errors.org ? "border-[#DC2626]" : "border-[#D8DCE8]"

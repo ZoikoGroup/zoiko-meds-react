@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
+import { appUrl, internalApi } from "@/lib/config";
+import { validateWorkEmail } from "@/lib/validation";
+
 /**
  * PharmacyPortalFindPathSection
  * "Find the right pharmacy path" section — header, a 2x3 grid of path
@@ -59,20 +62,9 @@ const PATHS = [
   },
 ] as const;
 
-type FormState = {
-  name: string;
-  location: string;
-};
-
-type FormStatus = "idle" | "submitting" | "success" | "error";
-
 export default function PharmacyPortalFindPathSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  const [form, setForm] = useState<FormState>({ name: "", location: "" });
-  const [errors, setErrors] = useState<Partial<FormState>>({});
-  const [status, setStatus] = useState<FormStatus>("idle");
 
   useEffect(() => {
     const el = ref.current;
@@ -91,46 +83,6 @@ export default function PharmacyPortalFindPathSection() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  function handleChange(field: keyof FormState, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-    if (status === "success" || status === "error") {
-      setStatus("idle");
-    }
-  }
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-
-    const nextErrors: Partial<FormState> = {};
-    if (!form.name.trim()) {
-      nextErrors.name = "Enter a pharmacy name.";
-    }
-    if (!form.location.trim()) {
-      nextErrors.location = "Enter a city, ZIP code, or postcode.";
-    }
-
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-
-    setStatus("submitting");
-    try {
-      // TODO: replace with the real lookup endpoint, e.g.
-      // const res = await fetch("/api/pharmacy/search", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(form),
-      // });
-      // if (!res.ok) throw new Error("Lookup failed");
-      await new Promise((resolve) => setTimeout(resolve, 900));
-      setStatus("success");
-    } catch {
-      setStatus("error");
-    }
-  }
 
   return (
     <section ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
@@ -166,17 +118,7 @@ export default function PharmacyPortalFindPathSection() {
 
         {/* ---------------- Claim / verify form ---------------- */}
         <div className="mx-auto mt-8 max-w-5xl">
-          {mounted ? (
-            <ClaimForm
-              form={form}
-              errors={errors}
-              status={status}
-              onChange={handleChange}
-              onSubmit={handleSubmit}
-            />
-          ) : (
-            <FormSkeleton />
-          )}
+          {mounted ? <ClaimForm /> : <FormSkeleton />}
         </div>
       </div>
     </section>
@@ -350,19 +292,191 @@ function PathIcon({ name }: { name: "lock" | "home" | "shield" | "code" | "help"
 /* ----------------------------------------------------------------- */
 /*  Claim / verify form                                                 */
 /* ----------------------------------------------------------------- */
-function ClaimForm({
-  form,
-  errors,
-  status,
-  onChange,
-  onSubmit,
-}: {
-  form: FormState;
-  errors: Partial<FormState>;
-  status: FormStatus;
-  onChange: (field: keyof FormState, value: string) => void;
-  onSubmit: (e: FormEvent) => void;
-}) {
+
+/** A real pharmacy record returned by /internal/pharmacy-claim/search. */
+type PharmacyMatch = {
+  id: string;
+  name: string;
+  address: string;
+  city: string | null;
+  region: string | null;
+  source: "verified-directory" | "google-places";
+  verified: boolean;
+  distanceKm?: number;
+};
+
+type ClaimStep = "search" | "select" | "verify" | "sent";
+
+const NO_MATCH_MESSAGE =
+  "We couldn't find a matching pharmacy. Please check the pharmacy name and location and try again.";
+
+/**
+ * Cheap client-side sanity check so obvious nonsense never reaches the lookup.
+ * The server re-validates and geocodes — it is the authority on what is real.
+ */
+function looksLikeLocation(value: string): boolean {
+  const cleaned = value.trim();
+  if (cleaned.length < 2) return false;
+  if (/[a-zA-Z]/.test(cleaned)) return true;
+  // Digits only: accept postal-code lengths, reject "1" / "12" / "123".
+  return /^\d{4,10}$/.test(cleaned.replace(/[\s-]/g, ""));
+}
+
+/**
+ * Search → select → verify → sent.
+ *
+ * Nothing is reported as found unless the lookup returned a real pharmacy
+ * record, and "check your inbox" appears only once an email has been sent.
+ */
+function ClaimForm() {
+  const [step, setStep] = useState<ClaimStep>("search");
+  const [form, setForm] = useState({ name: "", location: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  /** Form-level message: a no-match result, or a failed request. */
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const [searching, setSearching] = useState(false);
+  const [matches, setMatches] = useState<PharmacyMatch[]>([]);
+  const [searched, setSearched] = useState({ name: "", location: "" });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const [contact, setContact] = useState({ fullName: "", workEmail: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ emailSent: boolean; email: string } | null>(null);
+
+  /** Guards against a double submit landing two requests. */
+  const inFlight = useRef(false);
+
+  const selected = matches.find((m) => m.id === selectedId) ?? null;
+
+  function updateField(field: "name" | "location", value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
+    setNotice(null);
+  }
+
+  function restart() {
+    setStep("search");
+    setMatches([]);
+    setSelectedId(null);
+    setErrors({});
+    setNotice(null);
+    setResult(null);
+  }
+
+  async function handleSearch(e: FormEvent) {
+    e.preventDefault();
+    if (inFlight.current) return;
+
+    const name = form.name.trim();
+    const location = form.location.trim();
+
+    const nextErrors: Record<string, string> = {};
+    if (!name) nextErrors.name = "Enter a pharmacy name.";
+    else if (name.length < 3) nextErrors.name = "Enter at least 3 characters of the pharmacy name.";
+    else if (!/[a-zA-Z]/.test(name)) nextErrors.name = "Enter the pharmacy's name, not a number.";
+
+    if (!location) nextErrors.location = "Enter a city, ZIP code, or postcode.";
+    else if (!looksLikeLocation(location))
+      nextErrors.location = "Enter a valid city, ZIP code, or postcode.";
+
+    setErrors(nextErrors);
+    setNotice(null);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    inFlight.current = true;
+    setSearching(true);
+    setMatches([]);
+
+    try {
+      const res = await fetch(internalApi("pharmacy-claim/search"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, location }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data?.errors) setErrors(data.errors);
+        else setNotice(data?.message || "Something went wrong while searching. Please try again.");
+        return;
+      }
+
+      if (!data.matched || !Array.isArray(data.matches) || data.matches.length === 0) {
+        setNotice(data?.message || NO_MATCH_MESSAGE);
+        return;
+      }
+
+      const found = data.matches as PharmacyMatch[];
+      setMatches(found);
+      setSearched({ name, location });
+      setSelectedId(found.length === 1 ? found[0].id : null);
+      setStep("select");
+    } catch {
+      setNotice("Something went wrong while searching. Please try again.");
+    } finally {
+      setSearching(false);
+      inFlight.current = false;
+    }
+  }
+
+  function handleContinue() {
+    if (!selected) {
+      setErrors({ select: "Select the pharmacy you want to claim." });
+      return;
+    }
+    setErrors({});
+    setNotice(null);
+    setStep("verify");
+  }
+
+  async function handleClaim(e: FormEvent) {
+    e.preventDefault();
+    if (inFlight.current || !selected) return;
+
+    const workEmail = contact.workEmail.trim();
+    const emailCheck = validateWorkEmail(workEmail);
+    if (!emailCheck.isValid) {
+      setErrors({ workEmail: emailCheck.error ?? "Enter a valid work email address." });
+      return;
+    }
+
+    setErrors({});
+    setNotice(null);
+    inFlight.current = true;
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(internalApi("pharmacy-claim"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pharmacy: selected,
+          workEmail,
+          fullName: contact.fullName.trim(),
+          searchedName: searched.name,
+          searchedLocation: searched.location,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data?.success) {
+        if (data?.errors) setErrors(data.errors);
+        else setNotice(data?.message || "Something went wrong. Please try again.");
+        return;
+      }
+
+      setResult({ emailSent: Boolean(data.emailSent), email: workEmail });
+      setStep("sent");
+    } catch {
+      setNotice("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+      inFlight.current = false;
+    }
+  }
+
   return (
     <div
       className="rounded-2xl border border-[#E7EAF1] bg-white p-8 shadow-[0_20px_45px_-30px_rgba(15,31,78,0.25)] animate-[portalFindPathFadeUp_0.6s_ease-out_forwards]"
@@ -376,113 +490,354 @@ function ClaimForm({
         pharmacy profile and request authorized control.
       </p>
 
-      <form className="mt-6 space-y-5" onSubmit={onSubmit} noValidate>
-        <div>
-          <label
-            htmlFor="pharmacy-name"
-            className="mb-1.5 block text-[12.5px] font-semibold text-[#0F1F4E]"
-          >
-            Pharmacy name
-          </label>
-          <input
+      {/* ---------------- Step 1: search the real directory ---------------- */}
+      {step === "search" && (
+        <form className="mt-6 space-y-5" onSubmit={handleSearch} noValidate>
+          <Field
             id="pharmacy-name"
-            type="text"
+            label="Pharmacy name"
             value={form.name}
-            onChange={(e) => onChange("name", e.target.value)}
+            error={errors.name}
             placeholder="e.g. Riverside Community Pharmacy"
-            aria-invalid={Boolean(errors.name)}
-            className={`w-full rounded-xl border bg-white px-4 py-3 text-[14px] text-[#0F1F4E] placeholder:text-[#9AA1B5] outline-none transition-colors duration-200 ${
-              errors.name
-                ? "border-[#E0635C] focus:border-[#E0635C]"
-                : "border-[#D7DCE6] focus:border-[#0FAA87]"
-            }`}
+            onChange={(v) => updateField("name", v)}
           />
-          {errors.name && (
-            <p className="mt-1.5 text-[12px] text-[#C5453F]">{errors.name}</p>
-          )}
-        </div>
 
-        <div>
-          <label
-            htmlFor="pharmacy-location"
-            className="mb-1.5 block text-[12.5px] font-semibold text-[#0F1F4E]"
-          >
-            Location
-          </label>
-          <input
+          <Field
             id="pharmacy-location"
-            type="text"
+            label="Location"
             value={form.location}
-            onChange={(e) => onChange("location", e.target.value)}
+            error={errors.location}
             placeholder="City, ZIP code, or postcode"
-            aria-invalid={Boolean(errors.location)}
-            className={`w-full rounded-xl border bg-white px-4 py-3 text-[14px] text-[#0F1F4E] placeholder:text-[#9AA1B5] outline-none transition-colors duration-200 ${
-              errors.location
-                ? "border-[#E0635C] focus:border-[#E0635C]"
-                : "border-[#D7DCE6] focus:border-[#0FAA87]"
-            }`}
+            onChange={(v) => updateField("location", v)}
           />
-          {errors.location && (
-            <p className="mt-1.5 text-[12px] text-[#C5453F]">
-              {errors.location}
+
+          <SubmitButton loading={searching} loadingLabel="Searching...">
+            Find my pharmacy
+          </SubmitButton>
+
+          {notice && <FormNotice>{notice}</FormNotice>}
+        </form>
+      )}
+
+      {/* ---------------- Step 2: pick the matched pharmacy ---------------- */}
+      {step === "select" && (
+        <div className="mt-6">
+          <p className="text-[13px] font-medium text-[#0E8F70]">
+            {matches.length === 1
+              ? "We found 1 matching pharmacy"
+              : `We found ${matches.length} matching pharmacies`}{" "}
+            for &quot;{searched.name}&quot; near {searched.location}.
+          </p>
+          <p className="mt-1 text-[12.5px] text-[#5B6478]">
+            Select the pharmacy you want to claim.
+          </p>
+
+          <div className="mt-4 space-y-3" role="radiogroup" aria-label="Matching pharmacies">
+            {matches.map((match) => (
+              <MatchOption
+                key={match.id}
+                match={match}
+                checked={selectedId === match.id}
+                onSelect={() => {
+                  setSelectedId(match.id);
+                  setErrors({});
+                }}
+              />
+            ))}
+          </div>
+
+          {errors.select && (
+            <p className="mt-2 text-[12px] text-[#C5453F]" role="alert">
+              {errors.select}
             </p>
           )}
-        </div>
 
-        <button
-          type="submit"
-          disabled={status === "submitting"}
-          className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-[14px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
-          style={{ backgroundColor: ACCENT }}
-        >
-          {status === "submitting" && (
-            <svg
-              className="h-4 w-4 animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="flex flex-1 items-center justify-center rounded-xl px-5 py-3.5 text-[14px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+              style={{ backgroundColor: ACCENT }}
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="9"
-                stroke="currentColor"
-                strokeWidth="3"
-              />
-              <path
-                d="M21 12a9 9 0 0 0-9-9"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
+              Continue
+            </button>
+            <button
+              type="button"
+              onClick={restart}
+              className="rounded-xl border border-[#D7DCE6] bg-white px-5 py-3.5 text-[14px] font-semibold text-[#0F1F4E] transition-all duration-300 ease-out hover:border-[#9FE3D3] hover:bg-[#EAFAF4] hover:text-[#00786F]"
+            >
+              Search again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Step 3: collect a work email ---------------- */}
+      {step === "verify" && selected && (
+        <form className="mt-6 space-y-5" onSubmit={handleClaim} noValidate>
+          <div className="rounded-xl border border-[#D8EFE7] bg-[#F3FBF8] p-4">
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-[#0E8F70]">
+              Claiming
+            </p>
+            <p className="mt-1 text-[14px] font-bold text-[#0F1F4E]">{selected.name}</p>
+            {selected.address && (
+              <p className="text-[12.5px] text-[#5B6478]">{selected.address}</p>
+            )}
+            <button
+              type="button"
+              onClick={() => setStep("select")}
+              className="mt-2 text-[12.5px] font-semibold text-[#00786F] underline underline-offset-2"
+            >
+              Choose a different pharmacy
+            </button>
+          </div>
+
+          <Field
+            id="claim-full-name"
+            label="Your full name"
+            value={contact.fullName}
+            placeholder="e.g. Alex Morgan"
+            optional
+            onChange={(v) => setContact((prev) => ({ ...prev, fullName: v }))}
+          />
+
+          <Field
+            id="claim-work-email"
+            label="Work email"
+            type="email"
+            value={contact.workEmail}
+            error={errors.workEmail}
+            placeholder="you@yourpharmacy.com"
+            hint="Use an address at the pharmacy's own domain so we can verify authorized control."
+            onChange={(v) => {
+              setContact((prev) => ({ ...prev, workEmail: v }));
+              setErrors((prev) => (prev.workEmail ? { ...prev, workEmail: "" } : prev));
+            }}
+          />
+
+          <SubmitButton loading={submitting} loadingLabel="Sending...">
+            Send verification email
+          </SubmitButton>
+
+          {notice && <FormNotice>{notice}</FormNotice>}
+
+          {selected.verified && (
+            <p className="text-[12.5px] text-[#5B6478]">
+              Already have portal access for this pharmacy?{" "}
+              <a
+                href={appUrl("/login")}
+                className="font-semibold text-[#00786F] underline underline-offset-2"
+              >
+                Sign in instead
+              </a>
+              .
+            </p>
           )}
-          {status === "submitting" ? "Searching..." : "Find my pharmacy"}
-        </button>
+        </form>
+      )}
 
-        {status === "success" && (
-          <p className="flex items-center gap-2 text-[13px] font-medium text-[#0E8F70]">
-            <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M3.5 8.5l3 3 6-6.5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            We found matching results for &quot;{form.name}&quot; near{" "}
-            {form.location}. Check your inbox for next steps.
-          </p>
-        )}
+      {/* ---------------- Step 4: outcome ---------------- */}
+      {step === "sent" && result && (
+        <div className="mt-6">
+          {result.emailSent ? (
+            <p className="flex items-start gap-2 text-[13px] font-medium text-[#0E8F70]">
+              <svg
+                className="mt-0.5 h-4 w-4 flex-shrink-0"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3.5 8.5l3 3 6-6.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>
+                We&apos;ve emailed {result.email} about your claim on{" "}
+                {selected?.name ?? "your pharmacy"}. Check your inbox for next steps.
+              </span>
+            </p>
+          ) : (
+            <p className="text-[13px] font-medium text-[#0F1F4E]">
+              Your claim request for {selected?.name ?? "your pharmacy"} has been recorded. Our
+              verification team will contact you at {result.email}.
+            </p>
+          )}
 
-        {status === "error" && (
-          <p className="text-[13px] font-medium text-[#C5453F]">
-            Something went wrong while searching. Please try again.
-          </p>
-        )}
-      </form>
+          <button
+            type="button"
+            onClick={restart}
+            className="mt-4 text-[12.5px] font-semibold text-[#00786F] underline underline-offset-2"
+          >
+            Claim another pharmacy
+          </button>
+        </div>
+      )}
     </div>
+  );
+}
+
+/* ----------------------------------------------------------------- */
+/*  Form primitives                                                     */
+/* ----------------------------------------------------------------- */
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  placeholder,
+  error,
+  hint,
+  type = "text",
+  optional,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  error?: string;
+  hint?: string;
+  type?: string;
+  optional?: boolean;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="mb-1.5 block text-[12.5px] font-semibold text-[#0F1F4E]"
+      >
+        {label}
+        {optional && <span className="ml-1 font-normal text-[#9AA1B5]">(optional)</span>}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
+        className={`w-full rounded-xl border bg-white px-4 py-3 text-[14px] text-[#0F1F4E] placeholder:text-[#9AA1B5] outline-none transition-colors duration-200 ${
+          error
+            ? "border-[#E0635C] focus:border-[#E0635C]"
+            : "border-[#D7DCE6] focus:border-[#0FAA87]"
+        }`}
+      />
+      {error ? (
+        <p id={`${id}-error`} className="mt-1.5 text-[12px] text-[#C5453F]" role="alert">
+          {error}
+        </p>
+      ) : (
+        hint && (
+          <p id={`${id}-hint`} className="mt-1.5 text-[12px] text-[#5B6478]">
+            {hint}
+          </p>
+        )
+      )}
+    </div>
+  );
+}
+
+function SubmitButton({
+  loading,
+  loadingLabel,
+  children,
+}: {
+  loading: boolean;
+  loadingLabel: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="submit"
+      disabled={loading}
+      aria-busy={loading}
+      className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-[14px] font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+      style={{ backgroundColor: ACCENT }}
+    >
+      {loading && (
+        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="9"
+            stroke="currentColor"
+            strokeWidth="3"
+          />
+          <path
+            d="M21 12a9 9 0 0 0-9-9"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+        </svg>
+      )}
+      {loading ? loadingLabel : children}
+    </button>
+  );
+}
+
+function FormNotice({ children }: { children: React.ReactNode }) {
+  return (
+    <p role="alert" className="text-[13px] font-medium text-[#C5453F]">
+      {children}
+    </p>
+  );
+}
+
+function MatchOption({
+  match,
+  checked,
+  onSelect,
+}: {
+  match: PharmacyMatch;
+  checked: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <label
+      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors duration-200 ${
+        checked
+          ? "border-[#0FAA87] bg-[#F3FBF8]"
+          : "border-[#D7DCE6] bg-white hover:border-[#9FE3D3]"
+      }`}
+    >
+      <input
+        type="radio"
+        name="pharmacy-match"
+        value={match.id}
+        checked={checked}
+        onChange={onSelect}
+        className="mt-1 h-4 w-4 accent-[#0FAA87]"
+      />
+      <span className="flex-1">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="text-[14px] font-bold text-[#0F1F4E]">{match.name}</span>
+          {match.verified ? (
+            <span className="rounded-full bg-[#E6F7F1] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#00786F]">
+              Verified
+            </span>
+          ) : (
+            <span className="rounded-full bg-[#F1F3F8] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#5B6478]">
+              Unclaimed
+            </span>
+          )}
+        </span>
+        {match.address && (
+          <span className="mt-0.5 block text-[12.5px] text-[#5B6478]">{match.address}</span>
+        )}
+        {match.distanceKm != null && (
+          <span className="mt-0.5 block text-[12px] text-[#9AA1B5]">
+            {match.distanceKm} km away
+          </span>
+        )}
+      </span>
+    </label>
   );
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -39,28 +40,123 @@ const ROLE_FAMILIES = [
   "Business Operations",
 ] as const;
 
+type FormState = {
+  email: string;
+  fullName: string;
+  roleFamily: string;
+  location: string;
+};
+
+const INITIAL_FORM: FormState = {
+  email: "",
+  fullName: "",
+  roleFamily: "",
+  location: "",
+};
+
+type FormErrors = Partial<Record<keyof FormState, string>>;
+
 export default function CareersNextStepSection() {
   const [mounted, setMounted] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    fullName: "",
-    roleFamily: "",
-    location: "",
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState<FormState>(INITIAL_FORM);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 250);
     return () => clearTimeout(t);
   }, []);
 
-  const handleChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const validate = (v: FormState): FormErrors => {
+    const e: FormErrors = {};
+    const emailCheck = validateEmail(v.email);
+    if (!emailCheck.isValid) {
+      e.email = emailCheck.error || "Please enter a valid email address.";
+    }
+    if (!v.fullName.trim()) {
+      e.fullName = "Full name is required.";
+    }
+    if (!v.roleFamily) {
+      e.roleFamily = "Select a role family interest.";
+    }
+    return e;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (field: keyof FormState, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errorMessage) setErrorMessage("");
+    if (errors[field]) {
+      if (field === "email") {
+        const check = validateEmail(value);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (submitting) return;
+    setErrorMessage("");
+
+    const nextErrors = validate(formData);
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : (Object.keys(nextErrors)[0] as keyof FormState);
+      scrollToFirstError(firstKey);
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Careers - Talent Community (${formData.roleFamily || "General"})`,
+          fullName: formData.fullName.trim(),
+          workEmail: formData.email.trim(),
+          organization: formData.location.trim() ? `Location/Region: ${formData.location.trim()}` : "Not specified",
+          primaryInterest: formData.roleFamily.trim(),
+          note: formData.location.trim() ? `Location / Work Authorization Region: ${formData.location.trim()}` : "",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setSuccessMessage(true);
+        setFormData(INITIAL_FORM);
+        setErrors({});
+        setTimeout(() => {
+          if (successRef.current) {
+            successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 50);
+      } else {
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: FormErrors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.roleFamily) mapped.roleFamily = data.errors.roleFamily;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setErrorMessage(data.message || "We couldn't submit your request. Please try again.");
+      }
+    } catch {
+      setErrorMessage("We couldn't submit your request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -135,9 +231,13 @@ export default function CareersNextStepSection() {
             <Reveal index={7}>
               <FormCard
                 formData={formData}
+                errors={errors}
+                submitting={submitting}
+                successMessage={successMessage}
+                errorMessage={errorMessage}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
-                submitted={submitted}
+                successRef={successRef}
               />
             </Reveal>
           ) : (
@@ -230,110 +330,155 @@ function PathwayCardSkeleton() {
 /* ----------------------------------------------------------------- */
 /*  Form card                                                          */
 /* ----------------------------------------------------------------- */
-type FormState = {
-  email: string;
-  fullName: string;
-  roleFamily: string;
-  location: string;
-};
-
 function FormCard({
   formData,
+  errors,
+  submitting,
+  successMessage,
+  errorMessage,
   onChange,
   onSubmit,
-  submitted,
+  successRef,
 }: {
   formData: FormState;
+  errors: FormErrors;
+  submitting: boolean;
+  successMessage: boolean;
+  errorMessage: string;
   onChange: (field: keyof FormState, value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-  submitted: boolean;
+  successRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div className="w-full rounded-3xl border border-[#E7EAF1] bg-white p-8 shadow-[0_20px_48px_-20px_rgba(15,31,78,0.16)] sm:p-10">
-      {submitted ? (
-        <SuccessState />
-      ) : (
-        <form onSubmit={onSubmit} className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <Field label="Email" required>
-              <input
-                type="email"
-                required
-                placeholder="you@email.com"
-                value={formData.email}
-                onChange={(e) => onChange("email", e.target.value)}
-                className="w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-3 text-[13.5px] text-[#0F1F4E] outline-none transition-colors duration-200 placeholder:text-[#AEB5C4] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-              />
-            </Field>
-
-            <Field label="Full name" required>
-              <input
-                type="text"
-                required
-                placeholder="Full name"
-                value={formData.fullName}
-                onChange={(e) => onChange("fullName", e.target.value)}
-                className="w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-3 text-[13.5px] text-[#0F1F4E] outline-none transition-colors duration-200 placeholder:text-[#AEB5C4] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-              />
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <Field label="Role family interest" required>
-              <SelectInput
-                value={formData.roleFamily}
-                onChange={(v) => onChange("roleFamily", v)}
-                placeholder="Select role family"
-                options={ROLE_FAMILIES}
-              />
-            </Field>
-
-            <Field label="Location / work-authorization region" optional>
-              <input
-                type="text"
-                placeholder="e.g. US, UK, EU"
-                value={formData.location}
-                onChange={(e) => onChange("location", e.target.value)}
-                className="w-full rounded-xl border border-[#D7DCE6] bg-white px-4 py-3 text-[13.5px] text-[#0F1F4E] outline-none transition-colors duration-200 placeholder:text-[#AEB5C4] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
-              />
-            </Field>
-          </div>
-
-          <button
-            type="submit"
-            className="group relative mt-2 w-full overflow-hidden rounded-xl px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-            style={{ backgroundColor: ACCENT }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 8px 24px -4px rgba(15,170,135,0.45)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-          >
-            <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-            <span className="relative">Join Talent Community</span>
-          </button>
-
-          <p className="flex items-start gap-2 text-[12px] leading-relaxed text-[#9AA3B5]">
-            <svg
-              className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-              viewBox="0 0 16 16"
-              fill="none"
-              style={{ color: ACCENT }}
+      {successMessage && (
+        <div
+          ref={successRef}
+          className="mb-6 rounded-2xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center transition-all duration-300"
+        >
+          <div className="flex flex-col items-center justify-center text-center">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ backgroundColor: "#DCF5EE", color: "#0C8A6E" }}
             >
-              <circle
-                cx="8"
-                cy="8"
-                r="6.5"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-            </svg>
-            Don&apos;t include resumes, IDs, salary expectations, demographic,
-            health, or banking details here — those come later through our
-            secure recruiting system.
-          </p>
-        </form>
+              <svg className="h-5 w-5" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M3.5 8.5l3 3 6-6.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <h4 className="mt-2 text-[15px] font-bold text-[#00786F]">
+              You&apos;re on the list!
+            </h4>
+            <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
+              Thank you for joining our talent community. We&apos;ll reach out when a role matching your interests opens up.
+            </p>
+          </div>
+        </div>
       )}
+
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label="Email" error={errors.email} required>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@email.com"
+              value={formData.email}
+              onChange={(e) => onChange("email", e.target.value)}
+              aria-invalid={!!errors.email}
+              className={inputClasses(!!errors.email)}
+            />
+          </Field>
+
+          <Field label="Full name" error={errors.fullName} required>
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              placeholder="Full name"
+              value={formData.fullName}
+              onChange={(e) => onChange("fullName", e.target.value)}
+              aria-invalid={!!errors.fullName}
+              className={inputClasses(!!errors.fullName)}
+            />
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label="Role family interest" error={errors.roleFamily} required>
+            <SelectInput
+              id="roleFamily"
+              name="roleFamily"
+              value={formData.roleFamily}
+              onChange={(v) => onChange("roleFamily", v)}
+              placeholder="Select role family"
+              options={ROLE_FAMILIES}
+              hasError={!!errors.roleFamily}
+            />
+          </Field>
+
+          <Field label="Location / work-authorization region" optional>
+            <input
+              id="location"
+              name="location"
+              type="text"
+              placeholder="e.g. US, UK, EU"
+              value={formData.location}
+              onChange={(e) => onChange("location", e.target.value)}
+              className={inputClasses(false)}
+            />
+          </Field>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="group relative mt-2 w-full overflow-hidden rounded-xl px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ backgroundColor: ACCENT }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.boxShadow =
+              "0 8px 24px -4px rgba(15,170,135,0.45)")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+        >
+          <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
+          <span className="relative font-semibold">
+            {submitting ? "Submitting..." : "Join Talent Community"}
+          </span>
+        </button>
+
+        <p className="flex items-start gap-2 text-[12px] leading-relaxed text-[#9AA3B5]">
+          <svg
+            className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+            viewBox="0 0 16 16"
+            fill="none"
+            style={{ color: ACCENT }}
+          >
+            <circle
+              cx="8"
+              cy="8"
+              r="6.5"
+              stroke="currentColor"
+              strokeWidth="1.3"
+            />
+          </svg>
+          Don&apos;t include resumes, IDs, salary expectations, demographic,
+          health, or banking details here — those come later through our
+          secure recruiting system.
+        </p>
+
+        {errorMessage && (
+          <div className="mt-2 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+            <p className="font-medium">{errorMessage}</p>
+          </div>
+        )}
+      </form>
     </div>
   );
 }
@@ -345,11 +490,13 @@ function Field({
   label,
   required,
   optional,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   optional?: boolean;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -362,6 +509,15 @@ function Field({
         )}
       </label>
       {children}
+      {error && (
+        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-[#DC2626]">
+          <svg className="h-3 w-3 flex-shrink-0" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
+            <path d="M8 5.5v3.2M8 11v.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -370,23 +526,31 @@ function Field({
 /*  Select input                                                       */
 /* ----------------------------------------------------------------- */
 function SelectInput({
+  id,
+  name,
   value,
   onChange,
   placeholder,
   options,
+  hasError,
 }: {
+  id?: string;
+  name?: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
   options: readonly string[];
+  hasError?: boolean;
 }) {
   return (
     <div className="relative">
       <select
-        required
+        id={id}
+        name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none rounded-xl border border-[#D7DCE6] bg-white px-4 py-3 pr-10 text-[13.5px] outline-none transition-colors duration-200 focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+        aria-invalid={hasError}
+        className={`${inputClasses(Boolean(hasError))} appearance-none pr-10`}
         style={{ color: value ? "#0F1F4E" : "#AEB5C4" }}
       >
         <option value="" disabled hidden>
@@ -415,35 +579,14 @@ function SelectInput({
   );
 }
 
-/* ----------------------------------------------------------------- */
-/*  Success state                                                       */
-/* ----------------------------------------------------------------- */
-function SuccessState() {
-  return (
-    <div className="flex flex-col items-center py-10 text-center">
-      <div
-        className="flex h-12 w-12 items-center justify-center rounded-full"
-        style={{ backgroundColor: "#DCF5EE", color: "#0C8A6E" }}
-      >
-        <svg className="h-6 w-6" viewBox="0 0 16 16" fill="none">
-          <path
-            d="M3.5 8.5l3 3 6-6.5"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <h4 className="mt-4 text-[16px] font-bold text-[#0F1F4E]">
-        You&apos;re on the list.
-      </h4>
-      <p className="mt-2 max-w-sm text-[13.5px] leading-relaxed text-[#8891A4]">
-        We&apos;ll reach out when a role matching your interests opens up.
-      </p>
-    </div>
-  );
+function inputClasses(hasError: boolean) {
+  return `w-full rounded-xl border bg-white px-4 py-3 text-[13.5px] text-[#0F1F4E] outline-none transition-colors duration-200 placeholder:text-[#AEB5C4] ${
+    hasError
+      ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/15"
+      : "border-[#D7DCE6] focus:border-[#0FAA87] focus:ring-2 focus:ring-[#0FAA87]/15"
+  }`;
 }
+
 /* ----------------------------------------------------------------- */
 /*  Icons                                                              */
 /* ----------------------------------------------------------------- */

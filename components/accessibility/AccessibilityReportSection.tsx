@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -114,6 +115,8 @@ export default function AccessibilityReportSection() {
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -133,16 +136,28 @@ export default function AccessibilityReportSection() {
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (status === "success" || status === "error") setStatus("idle");
+    if (errorMessage) setErrorMessage("");
+    if (errors[key]) {
+      if (key === "email") {
+        const check = validateEmail(value);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
+    }
   }
 
   function validate(): boolean {
     const nextErrors: Partial<Record<keyof FormState, string>> = {};
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!form.email.trim()) nextErrors.email = "Email address is required.";
-    else if (!emailPattern.test(form.email.trim()))
-      nextErrors.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      nextErrors.email = emailCheck.error || "Enter a valid email address.";
+    }
 
     if (!form.issueCategory)
       nextErrors.issueCategory = "Select an issue category.";
@@ -150,21 +165,71 @@ export default function AccessibilityReportSection() {
       nextErrors.pageOrFeature = "Page or feature affected is required.";
 
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : (Object.keys(nextErrors)[0] as keyof FormState);
+      scrollToFirstError(firstKey);
+      return false;
+    }
+    return true;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === "submitting") return;
+    setErrorMessage("");
+
     if (!validate()) return;
 
     setStatus("submitting");
     try {
-      // Replace with your real endpoint.
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      setStatus("success");
-      setForm(INITIAL_FORM);
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Accessibility Report (${form.issueCategory || "General"})`,
+          fullName: form.email.split("@")[0] || "User",
+          workEmail: form.email.trim(),
+          organization: form.pageOrFeature.trim(),
+          primaryInterest: form.issueCategory,
+          note: [
+            `Page/Feature Affected: ${form.pageOrFeature.trim()}`,
+            form.description ? `Description: ${form.description.trim()}` : "",
+            form.assistiveTech ? `Assistive Tech/Device: ${form.assistiveTech.trim()}` : "",
+            form.screenshot ? `Screenshot/File: ${form.screenshot.trim()}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setForm(INITIAL_FORM);
+        setErrors({});
+        setTimeout(() => {
+          if (successRef.current) {
+            successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
+      } else {
+        setStatus("error");
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: Partial<Record<keyof FormState, string>> = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.issueCategory) mapped.issueCategory = data.errors.issueCategory;
+          if (data.errors.pageOrFeature || data.errors.organization) mapped.pageOrFeature = data.errors.pageOrFeature || data.errors.organization;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setErrorMessage(data.message || "Failed to submit accessibility report. Please try again.");
+      }
     } catch {
       setStatus("error");
+      setErrorMessage("Network error occurred. Please check your connection and try again.");
     }
   }
 
@@ -246,185 +311,202 @@ export default function AccessibilityReportSection() {
             id="report-issue"
             className="mt-7 rounded-2xl border border-[#E7EAF1] bg-white p-6 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.06)] sm:p-8"
           >
-            {status === "success" ? (
-              <div className="flex items-start gap-3 rounded-xl border border-[#0FAA87]/25 bg-[#0FAA87]/5 p-4">
-                <svg
-                  className="mt-0.5 h-5 w-5 flex-shrink-0"
-                  style={{ color: ACCENT }}
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M3 8.5l3.5 3.5 6.5-7"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Field label="Email address" required error={errors.email}>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => updateField("email", e.target.value)}
+                    placeholder="you@email.com"
+                    aria-invalid={!!errors.email}
+                    className={inputClass(!!errors.email)}
                   />
-                </svg>
-                <div>
-                  <p className="text-[13.5px] font-semibold text-[#0F1F4E]">
-                    Report received.
-                  </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#5B6478]">
-                    Thank you for letting us know. Our accessibility team will
-                    follow up at the email you provided.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <Field label="Email address" required error={errors.email}>
-                    <input
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => updateField("email", e.target.value)}
-                      placeholder="you@email.com"
-                      className={inputClass(!!errors.email)}
-                    />
-                  </Field>
-
-                  <Field
-                    label="Issue category"
-                    required
-                    error={errors.issueCategory}
-                  >
-                    <select
-                      value={form.issueCategory}
-                      onChange={(e) =>
-                        updateField("issueCategory", e.target.value)
-                      }
-                      className={inputClass(!!errors.issueCategory)}
-                    >
-                      <option value="">Select category</option>
-                      {ISSUE_CATEGORIES.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
+                </Field>
 
                 <Field
-                  label="Page or feature affected"
+                  label="Issue category"
                   required
-                  error={errors.pageOrFeature}
+                  error={errors.issueCategory}
                 >
-                  <input
-                    type="text"
-                    value={form.pageOrFeature}
+                  <select
+                    id="issueCategory"
+                    name="issueCategory"
+                    value={form.issueCategory}
                     onChange={(e) =>
-                      updateField("pageOrFeature", e.target.value)
+                      updateField("issueCategory", e.target.value)
                     }
-                    placeholder="e.g. Search Medicines, account settings, cookie settings"
-                    className={inputClass(!!errors.pageOrFeature)}
+                    aria-invalid={!!errors.issueCategory}
+                    className={inputClass(!!errors.issueCategory)}
+                  >
+                    <option value="">Select category</option>
+                    {ISSUE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+
+              <Field
+                label="Page or feature affected"
+                required
+                error={errors.pageOrFeature}
+              >
+                <input
+                  id="pageOrFeature"
+                  name="pageOrFeature"
+                  type="text"
+                  value={form.pageOrFeature}
+                  onChange={(e) =>
+                    updateField("pageOrFeature", e.target.value)
+                  }
+                  placeholder="e.g. Search Medicines, account settings, cookie settings"
+                  aria-invalid={!!errors.pageOrFeature}
+                  className={inputClass(!!errors.pageOrFeature)}
+                />
+              </Field>
+
+              <Field label="Brief description of the barrier" optional>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={form.description}
+                  onChange={(e) => updateField("description", e.target.value)}
+                  placeholder="What happened, and what you expected (no medical, prescription, or personal health details)."
+                  rows={4}
+                  className={inputClass(false) + " resize-none"}
+                />
+              </Field>
+
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Field label="Assistive technology or device" optional>
+                  <input
+                    id="assistiveTech"
+                    name="assistiveTech"
+                    type="text"
+                    value={form.assistiveTech}
+                    onChange={(e) =>
+                      updateField("assistiveTech", e.target.value)
+                    }
+                    placeholder="e.g. VoiceOver on iPhone, NVDA on Windows"
+                    className={inputClass(false)}
                   />
                 </Field>
 
-                <Field label="Brief description of the barrier" optional>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => updateField("description", e.target.value)}
-                    placeholder="What happened, and what you expected (no medical, prescription, or personal health details)."
-                    rows={4}
-                    className={inputClass(false) + " resize-none"}
+                <Field label="Screenshot or file" optional>
+                  <input
+                    id="screenshot"
+                    name="screenshot"
+                    type="text"
+                    value={form.screenshot}
+                    onChange={(e) =>
+                      updateField("screenshot", e.target.value)
+                    }
+                    placeholder="Optional — not required to report"
+                    className={inputClass(false)}
                   />
                 </Field>
+              </div>
 
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <Field label="Assistive technology or device" optional>
-                    <input
-                      type="text"
-                      value={form.assistiveTech}
-                      onChange={(e) =>
-                        updateField("assistiveTech", e.target.value)
-                      }
-                      placeholder="e.g. VoiceOver on iPhone, NVDA on Windows"
-                      className={inputClass(false)}
-                    />
-                  </Field>
-
-                  <Field label="Screenshot or file" optional>
-                    <input
-                      type="text"
-                      value={form.screenshot}
-                      onChange={(e) =>
-                        updateField("screenshot", e.target.value)
-                      }
-                      placeholder="Optional — not required to report"
-                      className={inputClass(false)}
-                    />
-                  </Field>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={status === "submitting"}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-70"
-                  style={{ backgroundColor: ACCENT }}
-                >
-                  {status === "submitting" && (
-                    <svg
-                      className="h-4 w-4 animate-spin"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="6.5"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeOpacity="0.3"
-                      />
-                      <path
-                        d="M14.5 8a6.5 6.5 0 00-6.5-6.5"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  )}
-                  {status === "submitting"
-                    ? "Submitting…"
-                    : "Report Accessibility Issue"}
-                </button>
-
-                {status === "error" && (
-                  <p className="text-[12.5px] font-medium text-[#E5484D]">
-                    Something went wrong. Please try again.
-                  </p>
-                )}
-
-                <p className="flex items-start gap-2 text-[11.5px] leading-relaxed text-[#9AA1B4]">
+              <button
+                type="submit"
+                disabled={status === "submitting"}
+                className="flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-70"
+                style={{ backgroundColor: ACCENT }}
+              >
+                {status === "submitting" && (
                   <svg
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                    style={{ color: ACCENT }}
+                    className="h-4 w-4 animate-spin"
                     viewBox="0 0 16 16"
                     fill="none"
                   >
                     <circle
                       cx="8"
                       cy="8"
-                      r="6.25"
+                      r="6.5"
                       stroke="currentColor"
-                      strokeWidth="1.4"
+                      strokeWidth="1.6"
+                      strokeOpacity="0.3"
                     />
                     <path
-                      d="M8 7.25v4M8 5.1v.05"
+                      d="M14.5 8a6.5 6.5 0 00-6.5-6.5"
                       stroke="currentColor"
-                      strokeWidth="1.4"
+                      strokeWidth="1.6"
                       strokeLinecap="round"
                     />
                   </svg>
-                  Please don&apos;t include medicine names, diagnosis, symptoms,
-                  prescription images, insurance IDs, exact location, PHI,
-                  passwords, or account secrets. Attachments are optional.
+                )}
+                {status === "submitting"
+                  ? "Submitting…"
+                  : "Report Accessibility Issue"}
+              </button>
+
+              <p className="flex items-start gap-2 text-[11.5px] leading-relaxed text-[#9AA1B4]">
+                <svg
+                  className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                  style={{ color: ACCENT }}
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.25"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                  />
+                  <path
+                    d="M8 7.25v4M8 5.1v.05"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                Please don&apos;t include medicine names, diagnosis, symptoms,
+                prescription images, insurance IDs, exact location, PHI,
+                passwords, or account secrets. Attachments are optional.
+              </p>
+
+              {status === "error" && (
+                <p className="text-[12.5px] font-medium text-[#E5484D]">
+                  {errorMessage || "Something went wrong. Please try again."}
                 </p>
-              </form>
-            )}
+              )}
+
+              {status === "success" && (
+                <div
+                  ref={successRef}
+                  className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center transition-all duration-300"
+                >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-full"
+                      style={{ backgroundColor: "#DCF5EE", color: "#0C8A6E" }}
+                    >
+                      <svg className="h-5 w-5" viewBox="0 0 16 16" fill="none">
+                        <path
+                          d="M3.5 8.5l3 3 6-6.5"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="mt-2 text-[15px] font-bold text-[#00786F]">
+                      Issue Submitted Successfully
+                    </h4>
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
+                      Thank you! We received your accessibility report and will contact you soon.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
         </Reveal>
       </div>

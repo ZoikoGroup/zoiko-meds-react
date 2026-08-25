@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 const NAVY = "#0F1F4E";
@@ -136,6 +137,8 @@ export default function TrustCenterAccessSection() {
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -155,17 +158,28 @@ export default function TrustCenterAccessSection() {
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (status === "success" || status === "error") setStatus("idle");
+    if (errorMessage) setErrorMessage("");
+    if (errors[key]) {
+      if (key === "workEmail") {
+        const check = validateEmail(value);
+        setErrors((prev) => ({
+          ...prev,
+          workEmail: check.isValid ? undefined : check.error || "Enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
+    }
   }
 
   function validate(): boolean {
     const nextErrors: Partial<Record<keyof FormState, string>> = {};
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!form.workEmail.trim())
-      nextErrors.workEmail = "Work email is required.";
-    else if (!emailPattern.test(form.workEmail.trim()))
-      nextErrors.workEmail = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.workEmail);
+    if (!emailCheck.isValid) {
+      nextErrors.workEmail = emailCheck.error || "Enter a valid email address.";
+    }
 
     if (!form.fullName.trim()) nextErrors.fullName = "Full name is required.";
     if (!form.organizationName.trim())
@@ -176,21 +190,67 @@ export default function TrustCenterAccessSection() {
       nextErrors.trustRequestType = "Select a trust request type.";
 
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.workEmail ? "workEmail" : (Object.keys(nextErrors)[0] as keyof FormState);
+      scrollToFirstError(firstKey);
+      return false;
+    }
+    return true;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === "submitting") return;
+    setErrorMessage("");
+
     if (!validate()) return;
 
     setStatus("submitting");
     try {
-      // Replace with your real endpoint.
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      setStatus("success");
-      setForm(INITIAL_FORM);
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Trust Pack Request (${form.trustRequestType || "General"})`,
+          fullName: form.fullName.trim(),
+          workEmail: form.workEmail.trim(),
+          organization: form.organizationName.trim(),
+          orgType: form.organizationType,
+          primaryInterest: form.trustRequestType,
+          note: form.note.trim(),
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setForm(INITIAL_FORM);
+        setErrors({});
+        setTimeout(() => {
+          if (successRef.current) {
+            successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
+      } else {
+        setStatus("error");
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: Partial<Record<keyof FormState, string>> = {};
+          if (data.errors.workEmail || data.errors.email) mapped.workEmail = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.organizationName || data.errors.organization) mapped.organizationName = data.errors.organizationName || data.errors.organization;
+          if (data.errors.organizationType) mapped.organizationType = data.errors.organizationType;
+          if (data.errors.trustRequestType) mapped.trustRequestType = data.errors.trustRequestType;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setErrorMessage(data.message || "Failed to submit request. Please try again.");
+      }
     } catch {
       setStatus("error");
+      setErrorMessage("Network error occurred. Please check your connection and try again.");
     }
   }
 
@@ -274,170 +334,190 @@ export default function TrustCenterAccessSection() {
               legal, enterprise, or public-sector review team.
             </p>
 
-            {status === "success" ? (
-              <div className="mt-6 flex items-start gap-3 rounded-xl border border-[#0FAA87]/25 bg-[#0FAA87]/5 p-4">
-                <svg
-                  className="mt-0.5 h-5 w-5 flex-shrink-0"
-                  style={{ color: ACCENT }}
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M3 8.5l3.5 3.5 6.5-7"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Field label="Work email" required error={errors.workEmail}>
+                  <input
+                    id="workEmail"
+                    name="workEmail"
+                    type="email"
+                    value={form.workEmail}
+                    onChange={(e) => updateField("workEmail", e.target.value)}
+                    placeholder="name@organization.org"
+                    aria-invalid={!!errors.workEmail}
+                    className={inputClass(!!errors.workEmail)}
                   />
-                </svg>
-                <div>
-                  <p className="text-[13.5px] font-semibold text-[#0F1F4E]">
-                    Request received.
-                  </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#5B6478]">
-                    Our trust review team will route this to the right workflow
-                    and follow up at the work email you provided.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <Field label="Work email" required error={errors.workEmail}>
-                    <input
-                      type="email"
-                      value={form.workEmail}
-                      onChange={(e) => updateField("workEmail", e.target.value)}
-                      placeholder="name@organization.org"
-                      className={inputClass(!!errors.workEmail)}
-                    />
-                  </Field>
+                </Field>
 
-                  <Field label="Full name" required error={errors.fullName}>
-                    <input
-                      type="text"
-                      value={form.fullName}
-                      onChange={(e) => updateField("fullName", e.target.value)}
-                      placeholder="Full name"
-                      className={inputClass(!!errors.fullName)}
-                    />
-                  </Field>
-
-                  <Field
-                    label="Organization name"
-                    required
-                    error={errors.organizationName}
-                  >
-                    <input
-                      type="text"
-                      value={form.organizationName}
-                      onChange={(e) =>
-                        updateField("organizationName", e.target.value)
-                      }
-                      placeholder="Organization"
-                      className={inputClass(!!errors.organizationName)}
-                    />
-                  </Field>
-
-                  <Field
-                    label="Organization type"
-                    required
-                    error={errors.organizationType}
-                  >
-                    <select
-                      value={form.organizationType}
-                      onChange={(e) =>
-                        updateField("organizationType", e.target.value)
-                      }
-                      className={inputClass(!!errors.organizationType)}
-                    >
-                      <option value="">Select type</option>
-                      {ORG_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
+                <Field label="Full name" required error={errors.fullName}>
+                  <input
+                    id="fullName"
+                    name="fullName"
+                    type="text"
+                    value={form.fullName}
+                    onChange={(e) => updateField("fullName", e.target.value)}
+                    placeholder="Full name"
+                    aria-invalid={!!errors.fullName}
+                    className={inputClass(!!errors.fullName)}
+                  />
+                </Field>
 
                 <Field
-                  label="Trust request type"
+                  label="Organization name"
                   required
-                  error={errors.trustRequestType}
+                  error={errors.organizationName}
+                >
+                  <input
+                    id="organizationName"
+                    name="organizationName"
+                    type="text"
+                    value={form.organizationName}
+                    onChange={(e) =>
+                      updateField("organizationName", e.target.value)
+                    }
+                    placeholder="Organization"
+                    aria-invalid={!!errors.organizationName}
+                    className={inputClass(!!errors.organizationName)}
+                  />
+                </Field>
+
+                <Field
+                  label="Organization type"
+                  required
+                  error={errors.organizationType}
                 >
                   <select
-                    value={form.trustRequestType}
+                    id="organizationType"
+                    name="organizationType"
+                    value={form.organizationType}
                     onChange={(e) =>
-                      updateField("trustRequestType", e.target.value)
+                      updateField("organizationType", e.target.value)
                     }
-                    className={inputClass(!!errors.trustRequestType)}
+                    aria-invalid={!!errors.organizationType}
+                    className={inputClass(!!errors.organizationType)}
                   >
-                    <option value="">Select request</option>
-                    {REQUEST_TYPES.map((type) => (
+                    <option value="">Select type</option>
+                    {ORG_TYPES.map((type) => (
                       <option key={type} value={type}>
                         {type}
                       </option>
                     ))}
                   </select>
                 </Field>
+              </div>
 
-                <Field label="Brief note" optional>
-                  <textarea
-                    value={form.note}
-                    onChange={(e) => updateField("note", e.target.value)}
-                    placeholder="Your review, procurement, security, privacy, or public-sector need."
-                    rows={4}
-                    className={inputClass(false) + " resize-none"}
-                  />
-                </Field>
-
-                <button
-                  type="submit"
-                  disabled={status === "submitting"}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-70"
-                  style={{ backgroundColor: ACCENT }}
+              <Field
+                label="Trust request type"
+                required
+                error={errors.trustRequestType}
+              >
+                <select
+                  id="trustRequestType"
+                  name="trustRequestType"
+                  value={form.trustRequestType}
+                  onChange={(e) =>
+                    updateField("trustRequestType", e.target.value)
+                  }
+                  aria-invalid={!!errors.trustRequestType}
+                  className={inputClass(!!errors.trustRequestType)}
                 >
-                  {status === "submitting" && (
-                    <svg
-                      className="h-4 w-4 animate-spin"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="6.5"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeOpacity="0.3"
-                      />
-                      <path
-                        d="M14.5 8a6.5 6.5 0 00-6.5-6.5"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  )}
-                  {status === "submitting"
-                    ? "Submitting…"
-                    : "Request Trust Pack"}
-                </button>
+                  <option value="">Select request</option>
+                  {REQUEST_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </Field>
 
-                {status === "error" && (
-                  <p className="text-[12.5px] font-medium text-[#E5484D]">
-                    Something went wrong. Please try again.
-                  </p>
+              <Field label="Brief note" optional>
+                <textarea
+                  id="note"
+                  name="note"
+                  value={form.note}
+                  onChange={(e) => updateField("note", e.target.value)}
+                  placeholder="Your review, procurement, security, privacy, or public-sector need."
+                  rows={4}
+                  className={inputClass(false) + " resize-none"}
+                />
+              </Field>
+
+              <button
+                type="submit"
+                disabled={status === "submitting"}
+                className="flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-70"
+                style={{ backgroundColor: ACCENT }}
+              >
+                {status === "submitting" && (
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6.5"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeOpacity="0.3"
+                    />
+                    <path
+                      d="M14.5 8a6.5 6.5 0 00-6.5-6.5"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 )}
+                {status === "submitting"
+                  ? "Submitting…"
+                  : "Request Trust Pack"}
+              </button>
 
-                <p className="text-[11.5px] leading-relaxed text-[#9AA1B4]">
-                  Don&apos;t include PHI, patient identifiers, exact stock, API
-                  secrets, passwords, license documents, commercial terms, or
-                  audit records in this form.
+              {status === "error" && (
+                <p className="text-[12.5px] font-medium text-[#E5484D]">
+                  {errorMessage || "Something went wrong. Please try again."}
                 </p>
-              </form>
-            )}
+              )}
+
+              <p className="text-[11.5px] leading-relaxed text-[#9AA1B4]">
+                Don&apos;t include PHI, patient identifiers, exact stock, API
+                secrets, passwords, license documents, commercial terms, or
+                audit records in this form.
+              </p>
+
+              {status === "success" && (
+                <div
+                  ref={successRef}
+                  className="mt-4 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center transition-all duration-300"
+                >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-full"
+                      style={{ backgroundColor: "#DCF5EE", color: "#0C8A6E" }}
+                    >
+                      <svg className="h-5 w-5" viewBox="0 0 16 16" fill="none">
+                        <path
+                          d="M3.5 8.5l3 3 6-6.5"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="mt-2 text-[15px] font-bold text-[#00786F]">
+                      Request received.
+                    </h4>
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
+                      Our trust review team will route this to the right workflow
+                      and follow up at the work email you provided.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
         </Reveal>
 
