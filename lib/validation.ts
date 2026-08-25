@@ -179,3 +179,51 @@ export function scrollToFirstError(fieldName?: string) {
   }, 50);
 }
 
+/**
+ * Consumer mailbox providers. Claiming authorized control of a pharmacy record
+ * has to be tied to an address at the pharmacy's own domain, so these are
+ * refused for that flow only — {@link validateEmail} still accepts them.
+ */
+const CONSUMER_EMAIL_DOMAINS = new Set([
+  "gmail.com",
+  "googlemail.com",
+  "yahoo.com",
+  "yahoo.co.uk",
+  "yahoo.co.in",
+  "ymail.com",
+  "hotmail.com",
+  "hotmail.co.uk",
+  "outlook.com",
+  "live.com",
+  "msn.com",
+  "aol.com",
+  "icloud.com",
+  "me.com",
+  "mac.com",
+  "protonmail.com",
+  "proton.me",
+  "gmx.com",
+  "mail.com",
+  "zoho.com",
+  "yandex.com",
+  "rediffmail.com",
+]);
+
+/**
+ * Validates a work/business email address: valid syntax, and not a personal
+ * mailbox at a consumer provider.
+ */
+export function validateWorkEmail(email: string): { isValid: boolean; error?: string } {
+  const base = validateEmail(email);
+  if (!base.isValid) return base;
+
+  const domain = email.trim().split("@")[1].toLowerCase();
+  if (CONSUMER_EMAIL_DOMAINS.has(domain)) {
+    return {
+      isValid: false,
+      error: "Use your work email at the pharmacy's own domain, not a personal address.",
+    };
+  }
+
+  return { isValid: true };
+}
