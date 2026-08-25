@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -102,7 +103,15 @@ export default function CareTeamAccessPathwaySection() {
   function handleChange(field: keyof FormState, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+      if (field === "email") {
+        const check = validateEmail(value);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
     }
     if (status === "success" || status === "error") {
       setStatus("idle");
@@ -113,10 +122,9 @@ export default function CareTeamAccessPathwaySection() {
     e.preventDefault();
 
     const nextErrors: FormErrors = {};
-    if (!form.email.trim()) {
-      nextErrors.email = "Enter your work email.";
-    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(form.email);
+    if (!emailCheck.isValid) {
+      nextErrors.email = emailCheck.error || "Please enter a valid email address.";
     }
     if (!form.fullName.trim()) {
       nextErrors.fullName = "Enter your full name.";
@@ -129,34 +137,52 @@ export default function CareTeamAccessPathwaySection() {
     }
 
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : (Object.keys(nextErrors)[0] as keyof FormState);
+      scrollToFirstError(firstKey);
+      return;
+    }
 
     setStatus("submitting");
     try {
-      const res = await fetch(internalApi("briefing-request"), {
+      const res = await fetch("/internal/briefing-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          briefingType: `Care Team Access (${form.organizationType})`,
-          fullName: form.fullName,
-          workEmail: form.email,
-          organization: form.organizationName,
-          note: [
-            `Access Interest: ${form.accessInterest || "General"}`,
-            form.note ? `Note: ${form.note}` : "",
-          ].filter(Boolean).join("\n"),
+          briefingType: `Care Team Access (${form.organizationType || "Care Team"})`,
+          fullName: form.fullName.trim(),
+          workEmail: form.email.trim(),
+          organization: form.organizationName.trim(),
+          orgType: form.organizationType.trim(),
+          primaryInterest: form.accessInterest.trim(),
+          note: form.note.trim(),
         }),
       });
-      if (!res.ok) throw new Error("Submission failed");
-      setStatus("success");
-      setForm({
-        email: "",
-        fullName: "",
-        organizationName: "",
-        organizationType: "",
-        accessInterest: "",
-        note: "",
-      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setForm({
+          email: "",
+          fullName: "",
+          organizationName: "",
+          organizationType: "",
+          accessInterest: "",
+          note: "",
+        });
+        setErrors({});
+      } else {
+        setStatus("error");
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: FormErrors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.organization || data.errors.orgName) mapped.organizationName = data.errors.organization || data.errors.orgName;
+          if (data.errors.orgType) mapped.organizationType = data.errors.orgType;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+      }
     } catch {
       setStatus("error");
     }
@@ -396,6 +422,7 @@ function BriefingForm({
         <Field id="care-team-email" label="Work email" error={errors.email}>
           <input
             id="care-team-email"
+            name="email"
             type="email"
             value={form.email}
             onChange={(e) => onChange("email", e.target.value)}
@@ -408,6 +435,7 @@ function BriefingForm({
         <Field id="care-team-name" label="Full name" error={errors.fullName}>
           <input
             id="care-team-name"
+            name="fullName"
             type="text"
             value={form.fullName}
             onChange={(e) => onChange("fullName", e.target.value)}
@@ -424,6 +452,7 @@ function BriefingForm({
         >
           <input
             id="care-team-org"
+            name="organizationName"
             type="text"
             value={form.organizationName}
             onChange={(e) => onChange("organizationName", e.target.value)}
@@ -440,6 +469,7 @@ function BriefingForm({
         >
           <SelectField
             id="care-team-org-type"
+            name="organizationType"
             value={form.organizationType}
             onChange={(value) => onChange("organizationType", value)}
             placeholder="Select organization type"
@@ -455,6 +485,7 @@ function BriefingForm({
         >
           <SelectField
             id="care-team-access-interest"
+            name="accessInterest"
             value={form.accessInterest}
             onChange={(value) => onChange("accessInterest", value)}
             placeholder="Select access interest"
@@ -466,6 +497,7 @@ function BriefingForm({
         <Field id="care-team-note" label="Brief note" optional>
           <textarea
             id="care-team-note"
+            name="note"
             value={form.note}
             onChange={(e) => onChange("note", e.target.value)}
             placeholder="Your care-team workflow, patient-support need, or access model"
@@ -538,6 +570,7 @@ function BriefingForm({
 
 function SelectField({
   id,
+  name,
   value,
   onChange,
   placeholder,
@@ -545,6 +578,7 @@ function SelectField({
   hasError,
 }: {
   id: string;
+  name?: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
@@ -555,6 +589,7 @@ function SelectField({
     <div className="relative">
       <select
         id={id}
+        name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={hasError}
