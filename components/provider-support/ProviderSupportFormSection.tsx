@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 
 const ACCENT = "#0FAA87";
@@ -145,13 +146,13 @@ function Reveal({
 function SupportForm() {
   const [values, setValues] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
 
   function validate(v: FormState): FormErrors {
     const e: FormErrors = {};
-    if (!v.email.trim()) e.email = "Work email is required.";
-    else if (!EMAIL_REGEX.test(v.email.trim()))
-      e.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(v.email);
+    if (!emailCheck.isValid) {
+      e.email = emailCheck.error || "Please enter a valid email address.";
+    }
     if (!v.fullName.trim()) e.fullName = "Full name is required.";
     if (!v.orgName.trim()) e.orgName = "Organization name is required.";
     if (!v.supportCategory) e.supportCategory = "Select a support category.";
@@ -160,9 +161,19 @@ function SupportForm() {
 
   function handleChange<K extends keyof FormState>(key: K, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
+    if (errorMessage) setErrorMessage("");
     if (errors[key]) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }));
+      if (key === "email") {
+        const check = validateEmail(val);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
     }
+    if (status === "error") setStatus("idle");
   }
 
   const [submitting, setSubmitting] = useState(false);
@@ -179,46 +190,57 @@ function SupportForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
+    setErrorMessage("");
     const nextErrors = validate(values);
     setErrors(nextErrors);
 
-    if (Object.keys(nextErrors).length === 0) {
-      setSubmitting(true);
-      setStatus("idle");
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : (Object.keys(nextErrors)[0] as keyof FormState);
+      scrollToFirstError(firstKey);
+      return;
+    }
 
-      try {
-        const res = await fetch(internalApi("briefing-request"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            briefingType: `Provider Support (${values.supportCategory || "Support"})`,
-            fullName: values.fullName,
-            workEmail: values.email,
-            organization: values.orgName,
-            phone: values.phone,
-            note: `Category: ${values.supportCategory}\nDescription: ${values.description}`,
-          }),
-        });
+    setSubmitting(true);
+    setStatus("idle");
 
-        let data: any = {};
-        try {
-          data = await res.json();
-        } catch {}
+    try {
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Provider Support (${values.supportCategory || "Support"})`,
+          fullName: values.fullName.trim(),
+          workEmail: values.email.trim(),
+          organization: values.orgName.trim(),
+          phone: values.phone.trim(),
+          orgType: values.orgType.trim(),
+          primaryInterest: values.supportCategory.trim(),
+          note: values.description.trim(),
+        }),
+      });
 
-        if (res.ok && (data.success || res.status === 200)) {
-          setStatus("success");
-          setValues(INITIAL_FORM);
-          setErrors({});
-        } else {
-          setStatus("error");
-          setErrorMessage(data.message || "Failed to submit request.");
-        }
-      } catch {
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setValues(INITIAL_FORM);
+        setErrors({});
+      } else {
         setStatus("error");
-        setErrorMessage("Network error occurred.");
-      } finally {
-        setSubmitting(false);
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: FormErrors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.organization || data.errors.orgName) mapped.orgName = data.errors.organization || data.errors.orgName;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setErrorMessage(data.message || "We couldn't submit your support request. Please try again.");
       }
+    } catch {
+      setStatus("error");
+      setErrorMessage("We couldn't submit your support request. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -241,6 +263,9 @@ function SupportForm() {
           <Field label="Work email" error={errors.email}>
             <input
               type="email"
+              name="email"
+              id="email"
+              aria-invalid={!!errors.email}
               value={values.email}
               onChange={(e) => handleChange("email", e.target.value)}
               placeholder="you@yourorganization.org"
@@ -251,6 +276,9 @@ function SupportForm() {
           <Field label="Full name" error={errors.fullName}>
             <input
               type="text"
+              name="fullName"
+              id="fullName"
+              aria-invalid={!!errors.fullName}
               value={values.fullName}
               onChange={(e) => handleChange("fullName", e.target.value)}
               placeholder="Your full name"
@@ -261,6 +289,9 @@ function SupportForm() {
           <Field label="Organization name" error={errors.orgName}>
             <input
               type="text"
+              name="orgName"
+              id="orgName"
+              aria-invalid={!!errors.orgName}
               value={values.orgName}
               onChange={(e) => handleChange("orgName", e.target.value)}
               placeholder="e.g. Riverside Health"
@@ -270,6 +301,9 @@ function SupportForm() {
 
           <Field label="Support category" error={errors.supportCategory}>
             <Select
+              name="supportCategory"
+              id="supportCategory"
+              aria-invalid={!!errors.supportCategory}
               value={values.supportCategory}
               onChange={(v) => handleChange("supportCategory", v)}
               placeholder="Select a support category"
@@ -403,12 +437,18 @@ function Field({
 }
 
 function Select({
+  name,
+  id,
+  "aria-invalid": ariaInvalid,
   value,
   onChange,
   placeholder,
   options,
   hasError,
 }: {
+  name?: string;
+  id?: string;
+  "aria-invalid"?: boolean;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
@@ -418,6 +458,9 @@ function Select({
   return (
     <div className="relative">
       <select
+        name={name}
+        id={id}
+        aria-invalid={ariaInvalid}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={`${inputClasses(hasError)} appearance-none pr-9 ${

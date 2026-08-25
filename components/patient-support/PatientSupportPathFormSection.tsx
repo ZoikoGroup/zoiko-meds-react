@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
+import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 /**
  * PatientSupportPathFormSection
@@ -327,26 +328,36 @@ function PathIcon({ name }: { name: "team" | "building" | "search" }) {
 function BriefingForm() {
   const [values, setValues] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
 
   function validate(v: FormState): FormErrors {
     const e: FormErrors = {};
-    if (!v.email.trim()) e.email = "Work email is required.";
-    else if (!EMAIL_REGEX.test(v.email.trim()))
-      e.email = "Enter a valid email address.";
+    const emailCheck = validateEmail(v.email);
+    if (!emailCheck.isValid) {
+      e.email = emailCheck.error || "Please enter a valid email address.";
+    }
     if (!v.fullName.trim()) e.fullName = "Full name is required.";
     if (!v.orgName.trim()) e.orgName = "Organization name is required.";
     if (!v.orgType) e.orgType = "Select an organization type.";
     return e;
   }
 
-  
   function handleChange<K extends keyof FormState>(key: K, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
+    if (errorMessage) setErrorMessage("");
     if (errors[key]) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }));
+      if (key === "email") {
+        const check = validateEmail(val);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
     }
-  }  
+    if (status === "error") setStatus("idle");
+  }
+
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -361,47 +372,64 @@ function BriefingForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
+    setErrorMessage("");
     const nextErrors = validate(values);
     setErrors(nextErrors);
 
-    if (Object.keys(nextErrors).length === 0) {
-      setSubmitting(true);
-      setStatus("idle");
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = nextErrors.email ? "email" : (Object.keys(nextErrors)[0] as keyof FormState);
+      scrollToFirstError(firstKey);
+      return;
+    }
 
-      try {
-        const res = await fetch(internalApi("briefing-request"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            briefingType: `Patient Support Workflow Briefing (${values.orgType || "Patient Support"})`,
-            fullName: values.fullName,
-            workEmail: values.email,
-            organization: values.orgName,
-            jobTitle: values.jobTitle,
-            phone: values.phone,
-            note: `Role: ${values.role}\nCountry: ${values.country}\nPatient Access Interest: ${values.patientAccessInterest}\nShortage Workflow: ${values.shortageWorkflow}\nMessage: ${values.message}`,
-          }),
-        });
+    setSubmitting(true);
+    setStatus("idle");
 
-        let data: any = {};
-        try {
-          data = await res.json();
-        } catch {}
+    try {
+      const res = await fetch("/internal/briefing-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          briefingType: `Patient Support Workflow Briefing (${values.orgType || "Patient Support"})`,
+          fullName: values.fullName.trim(),
+          workEmail: values.email.trim(),
+          organization: values.orgName.trim(),
+          jobTitle: values.jobTitle.trim(),
+          phone: values.phone.trim(),
+          orgType: values.orgType.trim(),
+          country: values.country.trim(),
+          primaryInterest: values.patientAccessInterest.trim(),
+          note: [
+            values.role ? `Role: ${values.role}` : "",
+            values.shortageWorkflow ? `Shortage Workflow: ${values.shortageWorkflow}` : "",
+            values.message ? `Message: ${values.message}` : "",
+          ].filter(Boolean).join("\n"),
+        }),
+      });
 
-        if (res.ok && (data.success || res.status === 200)) {
-          setStatus("success");
-          setValues(INITIAL_FORM);
-          setErrors({});
-        } else {
-          setStatus("error");
-          setErrorMessage(data.message || "Failed to submit request.");
-        }
-      } catch {
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setValues(INITIAL_FORM);
+        setErrors({});
+      } else {
         setStatus("error");
-        setErrorMessage("Network error occurred.");
-      } finally {
-        setSubmitting(false);
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: FormErrors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.fullName = data.errors.fullName || data.errors.name;
+          if (data.errors.organization || data.errors.orgName) mapped.orgName = data.errors.organization || data.errors.orgName;
+          if (data.errors.orgType) mapped.orgType = data.errors.orgType;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        setErrorMessage(data.message || "We couldn't submit your briefing request. Please try again.");
       }
+    } catch {
+      setStatus("error");
+      setErrorMessage("We couldn't submit your briefing request. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -424,6 +452,9 @@ function BriefingForm() {
           <Field label="Work email" error={errors.email} full>
             <input
               type="email"
+              name="email"
+              id="email"
+              aria-invalid={!!errors.email}
               value={values.email}
               onChange={(e) => handleChange("email", e.target.value)}
               placeholder="you@yourorganization.org"
@@ -434,6 +465,9 @@ function BriefingForm() {
           <Field label="Full name" error={errors.fullName} full>
             <input
               type="text"
+              name="fullName"
+              id="fullName"
+              aria-invalid={!!errors.fullName}
               value={values.fullName}
               onChange={(e) => handleChange("fullName", e.target.value)}
               placeholder="Your full name"
@@ -444,6 +478,9 @@ function BriefingForm() {
           <Field label="Organization name" error={errors.orgName}>
             <input
               type="text"
+              name="orgName"
+              id="orgName"
+              aria-invalid={!!errors.orgName}
               value={values.orgName}
               onChange={(e) => handleChange("orgName", e.target.value)}
               placeholder="Organization name"
@@ -454,6 +491,9 @@ function BriefingForm() {
           <Field label="Job title" error={errors.jobTitle}>
             <input
               type="text"
+              name="jobTitle"
+              id="jobTitle"
+              aria-invalid={!!errors.jobTitle}
               value={values.jobTitle}
               onChange={(e) => handleChange("jobTitle", e.target.value)}
               placeholder="Job title"
@@ -463,6 +503,9 @@ function BriefingForm() {
 
           <Field label="Role" error={errors.role}>
             <Select
+              name="role"
+              id="role"
+              aria-invalid={!!errors.role}
               value={values.role}
               onChange={(v) => handleChange("role", v)}
               placeholder="Select your role"
@@ -473,6 +516,9 @@ function BriefingForm() {
 
           <Field label="Organization type" error={errors.orgType}>
             <Select
+              name="orgType"
+              id="orgType"
+              aria-invalid={!!errors.orgType}
               value={values.orgType}
               onChange={(v) => handleChange("orgType", v)}
               placeholder="Select organization type"
@@ -484,6 +530,9 @@ function BriefingForm() {
           <Field label="Country / region" error={errors.country} full>
             <input
               type="text"
+              name="country"
+              id="country"
+              aria-invalid={!!errors.country}
               value={values.country}
               onChange={(e) => handleChange("country", e.target.value)}
               placeholder="e.g. United States, United Kingdom"
@@ -497,6 +546,9 @@ function BriefingForm() {
             full
           >
             <Select
+              name="patientAccessInterest"
+              id="patientAccessInterest"
+              aria-invalid={!!errors.patientAccessInterest}
               value={values.patientAccessInterest}
               onChange={(v) => handleChange("patientAccessInterest", v)}
               placeholder="Select primary interest"
@@ -511,6 +563,9 @@ function BriefingForm() {
             full
           >
             <Select
+              name="shortageWorkflow"
+              id="shortageWorkflow"
+              aria-invalid={!!errors.shortageWorkflow}
               value={values.shortageWorkflow}
               onChange={(v) => handleChange("shortageWorkflow", v)}
               placeholder="Select workflow context"
@@ -521,6 +576,8 @@ function BriefingForm() {
 
           <Field label="Message" optional full>
             <textarea
+              name="message"
+              id="message"
               rows={3}
               value={values.message}
               onChange={(e) => handleChange("message", e.target.value)}
@@ -619,12 +676,18 @@ function Field({
 }
 
 function Select({
+  name,
+  id,
+  "aria-invalid": ariaInvalid,
   value,
   onChange,
   placeholder,
   options,
   hasError,
 }: {
+  name?: string;
+  id?: string;
+  "aria-invalid"?: boolean;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
@@ -634,6 +697,9 @@ function Select({
   return (
     <div className="relative">
       <select
+        name={name}
+        id={id}
+        aria-invalid={ariaInvalid}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={`${inputClasses(hasError)} appearance-none pr-9 ${

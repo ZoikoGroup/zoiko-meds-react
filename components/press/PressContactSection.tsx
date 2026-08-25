@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { internalApi } from "@/lib/config";
-import Link from "next/link";
 import { validateEmail, scrollToFirstError } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
@@ -17,27 +16,58 @@ const INQUIRY_TYPES = [
   "Other",
 ];
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export default function PressContactSection() {
   const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
-    email: "", name: "", outlet: "", inquiryType: "", deadline: "", message: "",
+    email: "",
+    name: "",
+    outlet: "",
+    inquiryType: "",
+    deadline: "",
+    message: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; name?: string; outlet?: string; inquiryType?: string; deadline?: string }>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    name?: string;
+    outlet?: string;
+    inquiryType?: string;
+    deadline?: string;
+  }>({});
   const successRef = useRef<HTMLDivElement>(null);
 
+  const handleChange = (key: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (status === "success" || status === "error") setStatus("idle");
+    if (errors[key as keyof typeof errors]) {
+      if (key === "email") {
+        const check = validateEmail(value);
+        setErrors((prev) => ({
+          ...prev,
+          email: check.isValid ? undefined : check.error || "Please enter a valid email address.",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
+    }
+  };
+
   const validate = () => {
-    const newErrors: { email?: string; name?: string; outlet?: string; inquiryType?: string; deadline?: string } = {};
+    const newErrors: {
+      email?: string;
+      name?: string;
+      outlet?: string;
+      inquiryType?: string;
+      deadline?: string;
+    } = {};
     const emailCheck = validateEmail(form.email);
     if (!emailCheck.isValid) {
-      newErrors.email = emailCheck.error!;
+      newErrors.email = emailCheck.error || "Please enter a valid email address.";
     }
     if (!form.name.trim()) {
       newErrors.name = "Full name is required.";
@@ -111,6 +141,14 @@ export default function PressContactSection() {
         }, 100);
       } else {
         setStatus("error");
+        if (data.errors && typeof data.errors === "object") {
+          const mapped: typeof errors = {};
+          if (data.errors.workEmail || data.errors.email) mapped.email = data.errors.workEmail || data.errors.email;
+          if (data.errors.fullName || data.errors.name) mapped.name = data.errors.fullName || data.errors.name;
+          if (data.errors.organization || data.errors.outlet) mapped.outlet = data.errors.organization || data.errors.outlet;
+          if (data.errors.inquiryType) mapped.inquiryType = data.errors.inquiryType;
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
         setErrorMessage(data.message || "Failed to submit media inquiry. Please try again.");
       }
     } catch {
@@ -126,7 +164,10 @@ export default function PressContactSection() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { setMounted(true); observer.disconnect(); }
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
       },
       { threshold: 0.05 }
     );
@@ -142,7 +183,6 @@ export default function PressContactSection() {
   return (
     <section id="contact" ref={ref} className="relative w-full bg-[#F4F6FA] py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
-
         {/* ── Eyebrow ── */}
         <Reveal index={0} active={mounted}>
           <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: ACCENT }}>
@@ -171,32 +211,30 @@ export default function PressContactSection() {
         {/* ── Form card ── */}
         <Reveal index={3} active={mounted}>
           <div className="mt-8 rounded-2xl border border-[#E7EAF1] bg-white p-7 shadow-[0_4px_24px_-10px_rgba(15,31,78,0.08)] sm:p-8">
-
             <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-
               {/* Row 1: Work/media email + Full name */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField label="Work / media email" required error={errors.email}>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     placeholder="name@outlet.com"
                     value={form.email}
-                    onChange={(e) => {
-                      setForm({ ...form, email: e.target.value });
-                      if (errors.email) setErrors({ ...errors, email: undefined });
-                    }}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    aria-invalid={!!errors.email}
                     className={inputCls(!!errors.email)}
                   />
                 </FormField>
                 <FormField label="Full name" required error={errors.name}>
                   <input
+                    id="name"
+                    name="name"
                     type="text"
                     placeholder="Full name"
                     value={form.name}
-                    onChange={(e) => {
-                      setForm({ ...form, name: e.target.value });
-                      if (errors.name) setErrors({ ...errors, name: undefined });
-                    }}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    aria-invalid={!!errors.name}
                     className={inputCls(!!errors.name)}
                   />
                 </FormField>
@@ -206,24 +244,24 @@ export default function PressContactSection() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField label="Outlet or organization" required error={errors.outlet}>
                   <input
+                    id="outlet"
+                    name="outlet"
                     type="text"
                     placeholder="Publication or organization"
                     value={form.outlet}
-                    onChange={(e) => {
-                      setForm({ ...form, outlet: e.target.value });
-                      if (errors.outlet) setErrors({ ...errors, outlet: undefined });
-                    }}
+                    onChange={(e) => handleChange("outlet", e.target.value)}
+                    aria-invalid={!!errors.outlet}
                     className={inputCls(!!errors.outlet)}
                   />
                 </FormField>
                 <FormField label="Inquiry type" required error={errors.inquiryType}>
                   <div className="relative">
                     <select
+                      id="inquiryType"
+                      name="inquiryType"
                       value={form.inquiryType}
-                      onChange={(e) => {
-                        setForm({ ...form, inquiryType: e.target.value });
-                        if (errors.inquiryType) setErrors({ ...errors, inquiryType: undefined });
-                      }}
+                      onChange={(e) => handleChange("inquiryType", e.target.value)}
+                      aria-invalid={!!errors.inquiryType}
                       className={inputCls(!!errors.inquiryType) + " appearance-none cursor-pointer text-[#0F1F4E]"}
                     >
                       <option value="" disabled style={{ color: "#0F1F4E", backgroundColor: "#ffffff" }}>Select type</option>
@@ -240,22 +278,24 @@ export default function PressContactSection() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField label="Deadline" required error={errors.deadline}>
                   <input
+                    id="deadline"
+                    name="deadline"
                     type="text"
                     placeholder="e.g. Today 5pm ET, or a date"
                     value={form.deadline}
-                    onChange={(e) => {
-                      setForm({ ...form, deadline: e.target.value });
-                      if (errors.deadline) setErrors({ ...errors, deadline: undefined });
-                    }}
+                    onChange={(e) => handleChange("deadline", e.target.value)}
+                    aria-invalid={!!errors.deadline}
                     className={inputCls(!!errors.deadline)}
                   />
                 </FormField>
                 <FormField label="Brief message or topic" optional>
                   <input
+                    id="message"
+                    name="message"
                     type="text"
                     placeholder="What you're working on"
                     value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    onChange={(e) => handleChange("message", e.target.value)}
                     className={inputCls()}
                   />
                 </FormField>
@@ -291,40 +331,37 @@ export default function PressContactSection() {
                 </span>
               </p>
 
-            </form>
-
-            {/* Success Confirmation Message */}
-            {status === "success" && (
-              <div
-                ref={successRef}
-                className="mt-5 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center transition-all duration-300"
-              >
-                <div className="flex flex-col items-center justify-center text-center">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#13A594]/15 text-[#13A594]">
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
+              {/* Success Confirmation Message */}
+              {status === "success" && (
+                <div
+                  ref={successRef}
+                  className="mt-2 rounded-xl border border-[#9FE3D3] bg-[#EAFAF4] p-5 text-center transition-all duration-300"
+                >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#13A594]/15 text-[#13A594]">
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h4 className="mt-2 text-[15px] font-bold text-[#00786F]">
+                      Media Inquiry Submitted
+                    </h4>
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
+                      Thank you! Your media inquiry has been submitted. Our communications team will contact you soon.
+                    </p>
                   </div>
-                  <h4 className="mt-2 text-[15px] font-bold text-[#00786F]">
-                    Media Inquiry Submitted
-                  </h4>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#056059]">
-                    Thank you! Your media inquiry has been submitted. Our communications team will contact you soon.
-                  </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Error Message */}
-            {status === "error" && (
-              <div className="mt-5 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
-                <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
-              </div>
-            )}
-
+              {/* Error Message */}
+              {status === "error" && (
+                <div className="mt-2 rounded-xl border border-[#F87171]/40 bg-[#FEF2F2] p-4 text-center text-[13px] text-[#C5453F]">
+                  <p className="font-medium">{errorMessage || "Something went wrong. Please try again."}</p>
+                </div>
+              )}
+            </form>
           </div>
         </Reveal>
-
       </div>
     </section>
   );
