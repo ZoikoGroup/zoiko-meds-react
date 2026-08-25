@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { internalApi } from "@/lib/config";
 import { validateEmail } from "@/lib/validation";
@@ -31,6 +31,8 @@ export default function SSORequirementsFormSection() {
 
   // Status state
   const [submitting, setSubmitting] = useState(false);
+  /** In-flight latch: blocks a duplicate submit before `submitting` commits. */
+  const submitLatch = useRef(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -95,6 +97,14 @@ export default function SSORequirementsFormSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only the final button on step 5 may post. Step navigation, an Enter
+    // press on an earlier step, or any stray submit event is a no-op.
+    if (currentStep !== 5) return;
+    // A latch rather than `submitting`: that state has not committed yet
+    // within this tick, so it cannot block a double activation on its own.
+    if (submitLatch.current) return;
+
     setErrorMessage(null);
 
     if (!organizationName.trim()) {
@@ -114,6 +124,7 @@ export default function SSORequirementsFormSection() {
       return;
     }
 
+    submitLatch.current = true;
     setSubmitting(true);
     try {
       const res = await fetch(internalApi("sso-requirement"), {
@@ -150,6 +161,7 @@ export default function SSORequirementsFormSection() {
       const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
       setErrorMessage(msg);
     } finally {
+      submitLatch.current = false;
       setSubmitting(false);
     }
   };
@@ -623,6 +635,7 @@ export default function SSORequirementsFormSection() {
 
                   {currentStep < 5 ? (
                     <button
+                      key="step-continue"
                       type="button"
                       onClick={handleNextStep}
                       className="px-6 py-2.5 bg-[#13A594] hover:bg-[#108B7D] text-white font-semibold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
@@ -631,6 +644,7 @@ export default function SSORequirementsFormSection() {
                     </button>
                   ) : (
                     <button
+                      key="step-submit"
                       type="submit"
                       disabled={submitting}
                       className="px-6 py-3 bg-[#13A594] hover:bg-[#108B7D] text-white font-semibold text-sm rounded-xl shadow-sm transition-colors cursor-pointer disabled:opacity-50"
