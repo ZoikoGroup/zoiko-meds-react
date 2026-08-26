@@ -4,9 +4,16 @@ import { searchPharmaciesForClaim } from "@/lib/pharmacyDirectory";
 
 export const dynamic = "force-dynamic";
 
-/** Shown whenever the sources answered and nothing matched. */
-const NO_MATCH_MESSAGE =
-  "We couldn't find a matching pharmacy. Please check the pharmacy name and location and try again.";
+/**
+ * Shown whenever the sources answered and nothing matched. Only mentions the
+ * location when the caller actually searched on one — the pharmacy page's
+ * single-field search has no location to correct.
+ */
+function noMatchMessage(searchedLocation: boolean): string {
+  return searchedLocation
+    ? "We couldn't find a matching pharmacy. Please check the pharmacy name and location and try again."
+    : "We couldn't find a matching pharmacy. Please check the pharmacy name and try again.";
+}
 
 /** Longest input worth searching on — also caps what we forward to Places. */
 const MAX_FIELD_LENGTH = 120;
@@ -42,12 +49,22 @@ export async function POST(req: NextRequest) {
 
     const name = field(body.name);
     const location = field(body.location);
+    /** Present-but-empty means the caller searches by location and left it blank. */
+    const requireLocation = "location" in body;
 
     const errors: Record<string, string> = {};
     if (!name) errors.name = "Enter a pharmacy name.";
     else if (name.length < 3) errors.name = "Enter at least 3 characters of the pharmacy name.";
     else if (!/[a-zA-Z]/.test(name)) errors.name = "Enter the pharmacy's name, not a number.";
-    if (!location) errors.location = "Enter a city, ZIP code, or postcode.";
+
+    /*
+     * Location is optional: the pharmacy page searches on name alone from a
+     * single input, while the portal's claim form always sends both and
+     * enforces its own location rule client-side.
+     */
+    if (requireLocation && !location) {
+      errors.location = "Enter a city, ZIP code, or postcode.";
+    }
 
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({ success: false, errors }, { status: 400 });
@@ -103,7 +120,7 @@ export async function POST(req: NextRequest) {
           success: true,
           matched: false,
           matches: [],
-          message: NO_MATCH_MESSAGE,
+          message: noMatchMessage(requireLocation),
         });
 
       case "matched":
@@ -111,7 +128,7 @@ export async function POST(req: NextRequest) {
           success: true,
           matched: true,
           matches: outcome.matches,
-          locationLabel: outcome.locationLabel,
+          ...(outcome.locationLabel ? { locationLabel: outcome.locationLabel } : {}),
         });
     }
   } catch (err) {

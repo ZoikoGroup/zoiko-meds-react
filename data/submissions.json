@@ -1510,5 +1510,28 @@
     },
     "submittedAt": "2026-08-25T08:47:34.682Z",
     "status": "RECEIVED"
+  },
+  {
+    "id": "sub_1787728869850_0e2a1",
+    "type": "BRIEFING",
+    "title": "Briefing Request: Claim Pharmacy (Zoiko Group Pharmacy)",
+    "fullName": "Naveen",
+    "email": "gdbdata3@gmail.com",
+    "organization": "Zoiko Group Pharmacy",
+    "payload": {
+      "briefingType": "Claim Pharmacy (Zoiko Group Pharmacy)",
+      "fullName": "Naveen",
+      "workEmail": "gdbdata3@gmail.com",
+      "organization": "Zoiko Group Pharmacy",
+      "jobTitle": "",
+      "phone": "",
+      "orgType": "",
+      "primaryInterest": "",
+      "country": "",
+      "intelligenceNeeds": "",
+      "note": "Search/License: Zoiko Group Pharmacy"
+    },
+    "submittedAt": "2026-08-26T07:21:09.850Z",
+    "status": "RECEIVED"
   }
 ]

@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+
+import { internalApi } from "@/lib/config";
 
 /**
  * PharmacyHeroSection
@@ -17,10 +19,28 @@ import { useEffect, useRef, useState } from "react";
 // Swap this with your actual network graphic image URL/path.
 const NETWORK_IMAGE_SRC = "/images/pharmacy-network-graphic.png";
 
+/** A real pharmacy record from /internal/pharmacy-claim/search. */
+type PharmacyMatch = {
+  id: string;
+  name: string;
+  address: string;
+  verified: boolean;
+};
+
+const NO_MATCH_MESSAGE =
+  "We couldn't find a matching pharmacy. Please check the pharmacy name and try again.";
+
 export default function PharmacyHeroSection() {
   const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  const [searching, setSearching] = useState(false);
+  const [matches, setMatches] = useState<PharmacyMatch[] | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [searchedName, setSearchedName] = useState("");
+  /** Guards against a second request while one is already in flight. */
+  const inFlight = useRef(false);
 
   useEffect(() => {
     // Simulate a brief load tick so the bottom->top entrance is visible
@@ -28,6 +48,54 @@ export default function PharmacyHeroSection() {
     const t = setTimeout(() => setMounted(true), 250);
     return () => clearTimeout(t);
   }, []);
+
+  async function handleSearch(e?: FormEvent) {
+    e?.preventDefault();
+    if (inFlight.current) return;
+
+    const name = query.trim();
+    setMatches(null);
+    setNotice(null);
+
+    if (name.length < 3) {
+      setNotice("Enter at least 3 characters of the pharmacy name.");
+      return;
+    }
+
+    inFlight.current = true;
+    setSearching(true);
+    try {
+      // Name only — the portal's claim form is the one that also sends a
+      // location. Omitting the key entirely is what makes it optional.
+      const res = await fetch(internalApi("pharmacy-claim/search"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setNotice(
+          data?.errors?.name ||
+            data?.message ||
+            "Something went wrong while searching. Please try again.",
+        );
+        return;
+      }
+
+      setSearchedName(name);
+      if (!data.matched || !Array.isArray(data.matches) || data.matches.length === 0) {
+        setNotice(data?.message || NO_MATCH_MESSAGE);
+        return;
+      }
+      setMatches(data.matches as PharmacyMatch[]);
+    } catch {
+      setNotice("Something went wrong while searching. Please try again.");
+    } finally {
+      setSearching(false);
+      inFlight.current = false;
+    }
+  }
 
   return (
     <section
@@ -99,7 +167,14 @@ export default function PharmacyHeroSection() {
                     <input
                       type="text"
                       value={query}
-                      onChange={(e) => setQuery(e.target.value)}
+                      onChange={(e) => {
+                        setQuery(e.target.value);
+                        setNotice(null);
+                        setMatches(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSearch();
+                      }}
                       placeholder="Enter pharmacy name, ZIP, city, license number, or NPI"
                       className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none"
                     />
@@ -107,26 +182,100 @@ export default function PharmacyHeroSection() {
 
                   <button
                     type="button"
-                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#00A99D] px-5 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98]"
+                    onClick={handleSearch}
+                    disabled={searching}
+                    aria-busy={searching}
+                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#00A99D] px-5 py-3 text-sm font-semibold text-[#06241F] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,169,157,0.45)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     <span className="absolute inset-0 -translate-x-full bg-white/25 transition-transform duration-500 ease-out group-hover:translate-x-full" />
-                    <svg
-                      className="relative h-4 w-4"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                    >
-                      <path
-                        d="M4 10.5L8 14.5L16 5.5"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    {searching ? (
+                      <svg
+                        className="relative h-4 w-4 animate-spin"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="9"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        />
+                        <path
+                          d="M21 12a9 9 0 0 0-9-9"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="relative h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                      >
+                        <path
+                          d="M4 10.5L8 14.5L16 5.5"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
                     <span className="relative">
-                      Claim &amp; Verify Pharmacy
+                      {searching ? "Searching..." : "Claim & Verify Pharmacy"}
                     </span>
                   </button>
+
+                  {/* Lookup outcome — real records only, never a fake success. */}
+                  {notice && (
+                    <p
+                      role="alert"
+                      className="mt-3 text-[12px] leading-relaxed text-[#FFB4AD]"
+                    >
+                      {notice}
+                    </p>
+                  )}
+
+                  {matches && matches.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-[12px] text-white/60">
+                        {matches.length === 1
+                          ? "1 pharmacy matches"
+                          : `${matches.length} pharmacies match`}{" "}
+                        &ldquo;{searchedName}&rdquo;. Select yours to continue.
+                      </p>
+                      <ul className="mt-2 space-y-2">
+                        {matches.map((match) => (
+                          <li key={match.id}>
+                            <a
+                              href={`/pharmacy-portal?pharmacy=${encodeURIComponent(
+                                match.name,
+                              )}#claim-your-pharmacy`}
+                              className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-[#0B1538] px-4 py-3 transition-colors duration-200 hover:border-[#00A99D]/60"
+                            >
+                              <span className="min-w-0">
+                                <span className="block truncate text-sm font-medium text-white">
+                                  {match.name}
+                                </span>
+                                {match.address && (
+                                  <span className="block truncate text-[12px] text-white/45">
+                                    {match.address}
+                                  </span>
+                                )}
+                              </span>
+                              <span className="flex-shrink-0 self-center rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/60">
+                                {match.verified ? "Verified" : "Unclaimed"}
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                   <p className="mt-3 text-[12px] leading-relaxed text-white/40">
                     Exact quantities are never shown publicly. Controlled
