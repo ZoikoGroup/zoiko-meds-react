@@ -135,6 +135,55 @@ function locationVocabulary(location: string, geo: Coords | null): Set<string> {
   return vocabulary;
 }
 
+/**
+ * Restricted Damerau-Levenshtein distance, abandoned once it exceeds `max`.
+ * Only ever called on single words, so the quadratic table is tiny.
+ */
+function editDistanceWithin(a: string, b: string, max: number): boolean {
+  if (Math.abs(a.length - b.length) > max) return false;
+
+  let prev2: number[] = [];
+  let prev: number[] = Array.from({ length: b.length + 1 }, (_, j) => j);
+
+  for (let i = 1; i <= a.length; i++) {
+    const row = new Array<number>(b.length + 1);
+    row[0] = i;
+    let best = row[0];
+
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let value = Math.min(row[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      // Adjacent transposition ("ghaziabad" vs "ghaizabad") counts as one edit.
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        value = Math.min(value, prev2[j - 2] + 1);
+      }
+      row[j] = value;
+      if (value < best) best = value;
+    }
+
+    if (best > max) return false;
+    prev2 = prev;
+    prev = row;
+  }
+
+  return prev[b.length] <= max;
+}
+
+/**
+ * Place names get misspelled constantly ("Ghaizabad" for "Ghaziabad"), and the
+ * geocoder only corrects them when it is configured and reachable. One edit is
+ * forgiven on words long enough for it to be unambiguous; the name gate remains
+ * the real protection against a false match.
+ */
+function locationTokenKnown(placeToken: string, vocabulary: Set<string>): boolean {
+  if (vocabulary.has(placeToken)) return true;
+  if (placeToken.length < 5) return false;
+  for (const candidate of vocabulary) {
+    if (candidate.length >= 5 && editDistanceWithin(placeToken, candidate, 1)) return true;
+  }
+  return false;
+}
+
 function inSubmittedLocation(
   record: { city: string | null; region: string | null },
   vocabulary: Set<string>,
@@ -143,7 +192,7 @@ function inSubmittedLocation(
     (t) => t.length >= 3,
   );
   if (placeTokens.length === 0) return false;
-  return placeTokens.some((t) => vocabulary.has(t));
+  return placeTokens.some((t) => locationTokenKnown(t, vocabulary));
 }
 
 /**
@@ -234,9 +283,10 @@ async function fetchPlacesCandidates(
 
   try {
     const bias = geo ? `&location=${geo.lat},${geo.lng}&radius=${PLACES_RADIUS_M}` : "";
+    const query = [name, "pharmacy", location].filter(Boolean).join(" ").trim();
     const url =
       `https://maps.googleapis.com/maps/api/place/textsearch/json` +
-      `?query=${encodeURIComponent(`${name} pharmacy ${location}`)}` +
+      `?query=${encodeURIComponent(query)}` +
       `${bias}&type=pharmacy&key=${apiKey}`;
 
     const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS) });
@@ -277,21 +327,27 @@ async function fetchPlacesCandidates(
 /* ─────────────────────────────── The lookup ─────────────────────────────── */
 
 /**
- * Find the real pharmacy records matching a submitted name and location.
+ * Find the real pharmacy records matching a submitted name, optionally narrowed
+ * to a location.
  *
  * Never invents a match: an outcome of `matched` means a source returned a
  * record whose own name matched the query.
+ *
+ * `location` is omitted by the single-field search on the pharmacy page. Without
+ * it there is nothing to geocode and no place to gate records on, so the query
+ * matches on name alone across every source.
  */
 export async function searchPharmaciesForClaim(input: {
   name: string;
-  location: string;
+  location?: string;
 }): Promise<PharmacySearchOutcome> {
   const name = input.name.trim();
-  const location = input.location.trim();
+  const location = (input.location ?? "").trim();
+  const hasLocation = location.length > 0;
 
   const queryTokens = distinctiveTokens(name);
   if (queryTokens.length === 0) return { status: "name-too-vague" };
-  if (!isPlausibleLocation(location)) return { status: "invalid-location" };
+  if (hasLocation && !isPlausibleLocation(location)) return { status: "invalid-location" };
 
   /*
    * Best-effort: geocoding widens the location vocabulary (a postcode becomes
@@ -299,7 +355,7 @@ export async function searchPharmaciesForClaim(input: {
    * times out must not be reported to the visitor as a bad location, so a null
    * here just means we match on the text they typed.
    */
-  const geo = await geocodeAddress(location);
+  const geo = hasLocation ? await geocodeAddress(location) : null;
   const locationLabel = geo?.display?.trim() || location;
   const vocabulary = locationVocabulary(location, geo);
 
@@ -326,7 +382,8 @@ export async function searchPharmaciesForClaim(input: {
 
     const record = { city: text(item.city) || null, region: text(item.region) || null };
     if (nameCoverage(queryTokens, name) < NAME_MATCH_THRESHOLD) continue;
-    if (!inSubmittedLocation(record, vocabulary)) continue;
+    // No location submitted means nothing to narrow by — name alone decides.
+    if (hasLocation && !inSubmittedLocation(record, vocabulary)) continue;
 
     matches.push({
       id,

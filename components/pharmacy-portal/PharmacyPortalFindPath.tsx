@@ -311,6 +311,16 @@ const NO_MATCH_MESSAGE =
   "We couldn't find a matching pharmacy. Please check the pharmacy name and location and try again.";
 
 /**
+ * Name handed over from the pharmacy page's "Search & Claim" box, which
+ * searches on name alone — the visitor then only has to add a location here.
+ */
+function presetPharmacyName(): string {
+  if (typeof window === "undefined") return "";
+  const preset = new URLSearchParams(window.location.search).get("pharmacy");
+  return (preset ?? "").trim().slice(0, 120);
+}
+
+/**
  * Cheap client-side sanity check so obvious nonsense never reaches the lookup.
  * The server re-validates and geocodes — it is the authority on what is real.
  */
@@ -330,7 +340,7 @@ function looksLikeLocation(value: string): boolean {
  */
 function ClaimForm() {
   const [step, setStep] = useState<ClaimStep>("search");
-  const [form, setForm] = useState({ name: "", location: "" });
+  const [form, setForm] = useState(() => ({ name: presetPharmacyName(), location: "" }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   /** Form-level message: a no-match result, or a failed request. */
   const [notice, setNotice] = useState<string | null>(null);
