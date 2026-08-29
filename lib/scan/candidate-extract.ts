@@ -1,3 +1,4 @@
+import { matchOfflineDictionary } from "./known-drugs";
 import { normalize, toAscii } from "./text-normalize";
 
 const FORM_WORDS = [
@@ -51,11 +52,37 @@ const DATE_RE =
 const LONG_DIGITS_RE = /\d[\d\s\-()]{7,}/;
 const CLOCK_RE = /\b\d{1,2}\s*[:.]\s*\d{2}\s*(?:am|pm|hrs)?\b/i;
 
+/**
+ * Headings that introduce clinical narrative rather than drugs.
+ *
+ * "Advice"/"Advise" belongs here, not in MEDICINE_SECTION_RE: on the standard
+ * Indian layout it introduces guidance ("plenty of fluids, review after 1 week")
+ * which was otherwise parsed into a medicine called "Plenty Of Fluids Review
+ * After". A genuine drug written under Advice still scores high enough to be
+ * accepted on its own evidence — only the weak, name-only path is blocked here.
+ */
 const CLINICAL_SECTION_RE =
-  /^\s*(diagnosis|dx|complaints?|c\/o|chief\s+complaints?|history|h\/o|examination|o\/e|findings?|investigations?|labs?|vitals?|allergies|impression|plan|follow[\s-]?up|review|remarks?|notes?|instructions?)\b\s*[:.\-—]?/i;
+  /^\s*(diagnosis|dx|complaints?|c\/o|chief\s+complaints?|history|h\/o|examination|o\/e|findings?|investigations?|labs?|vitals?|allergies|impression|plan|advice|advise|follow[\s-]?up|review|remarks?|notes?|instructions?)\b\s*[:.\-—]?/i;
 
 const MEDICINE_SECTION_RE =
-  /^\s*(rx|r\/|℞|advice|advise|treatment|medication[s]?|medicine[s]?|drugs?|prescription|to\s+take|take\s+home|discharge\s+medication)\b\s*[:.\-—]?\s*$/i;
+  /^\s*(rx|r\/|℞|r|treatment|medication[s]?|medicine[s]?|drugs?|prescription|to\s+take|take\s+home|discharge\s+medication)\b\s*[:.\-—]?\s*$/i;
+
+/**
+ * The column header of a tabular prescription, e.g.
+ * "Medicine Name | Dosage | Duration".
+ *
+ * It has to be recognised explicitly: MEDICINE_SECTION_RE only matches a
+ * heading that is alone on its line, so the header row went unrecognised and
+ * every drug row below it lost the medicine-section signal.
+ */
+const MEDICINE_TABLE_HEADER_RE =
+  /^\s*(?:s\.?\s*no\.?|sr\.?\s*no\.?|#)?\s*medicine\s*(?:name)?\b.*\b(dosage|dose|duration|frequency|qty|quantity)\b/i;
+
+/** Inline heading that genuinely precedes a medicine on the same line. */
+const INLINE_MEDICINE_RE = /^\s*(rx|r\/|℞|treatment|medications?)\s*[:.\-—]\s*(?=\S)/i;
+
+/** Inline heading that precedes clinical guidance on the same line. */
+const INLINE_CLINICAL_RE = /^\s*(advice|advise|instructions?|notes?|remarks?)\s*[:.\-—]\s*(?=\S)/i;
 
 const TIMING_RE =
   /\b(morning|afternoon|evening|night|bedtime|breakfast|lunch|dinner|before\s+food|after\s+food|with\s+food|empty\s+stomach|daily|alternate\s+days?)\b/gi;
@@ -144,6 +171,66 @@ function isPlausibleMedicineName(text: string): boolean {
 const ACCEPT_THRESHOLD = 2;
 const WEAK_ACCEPT_FLOOR = 0;
 
+/**
+ * Symptoms, findings, schedules and advice that read like names.
+ *
+ * A symptom line carries the same weak signals a medicine line does — a list
+ * bullet and a duration ("* FEVER WITH CHILLS (4 DAYS)") — so scoring alone
+ * cannot separate them. These are rejected unless the line also carries
+ * drug-specific evidence, which lets a real drug that happens to contain one of
+ * these words through.
+ */
+const NON_MEDICINE_TERM_RE = new RegExp(
+  "\\b(" +
+    // Symptoms and complaints
+    "fever|chills|headache|migraine|nausea|vomiting|diarrh(?:o)?ea|constipation|cough|cold|" +
+    "sore\\s+throat|body\\s+ache|pain|swelling|rash|itching|giddiness|dizziness|weakness|" +
+    "fatigue|breathlessness|palpitation|burning|bleeding|discharge|" +
+    // Diagnoses
+    "malaria|dengue|typhoid|anaemia|anemia|diabetes|hypertension|asthma|infection|" +
+    "viral|bacterial|fungal|allergy|allergic|" +
+    // Findings / narrative
+    "findings?|complaints?|diagnosis|impression|observation|" +
+    // Schedule / clinic operations
+    "closed|holiday|sunday|monday|tuesday|wednesday|thursday|friday|saturday|" +
+    "timing|open|opening|hours|appointment|" +
+    // Advice
+    "bed\\s+rest|rest|fluids?|diet|outside\\s+food|boiled|digest|avoid|follow\\s*up|" +
+    "review|substitute|generics?" +
+  ")\\b",
+  "i",
+);
+
+/**
+ * Evidence that the line describes a drug rather than clinical narrative.
+ *
+ * A dosage form ("TAB.", "capsule") or a strength ("500 mg") is written about
+ * medicines and essentially never about a symptom. Duration and list bullets are
+ * deliberately excluded — complaints carry those too.
+ */
+function hasDrugEvidence(evidence: ScoredEvidence): boolean {
+  return Boolean(evidence.formPrefix || evidence.form || evidence.strength);
+}
+
+/** Similarity at which a dictionary hit is itself evidence of a medicine. */
+const DICTIONARY_EVIDENCE_FLOOR = 0.9;
+
+/**
+ * Is the line a name the offline drug dictionary recognises?
+ *
+ * A bare list of brand names ("Becosules", "Ibuprofen") is a perfectly ordinary
+ * upload and carries no form or strength, so it needs some other way through.
+ * Being a known drug is genuine evidence — and it is deliberately consulted
+ * *after* the clinical-section and symptom gates, so a catalog hit can never
+ * rescue a line that came out of Chief Complaints, Diagnosis or Advice.
+ */
+function looksLikeKnownDrug(text: string): boolean {
+  const name = stripDosageNoise(text);
+  if (name.length < 3) return false;
+  const hit = matchOfflineDictionary(name);
+  return Boolean(hit && hit.similarity >= DICTIONARY_EVIDENCE_FLOOR);
+}
+
 export function extractCandidateLines(rawText: string): Array<{ text: string; score: number; evidence: ScoredEvidence; weak: boolean }> {
   const lines = (rawText ?? "").split(/[\r\n]+/);
   const candidates: Array<{ text: string; score: number; evidence: ScoredEvidence; weak: boolean }> = [];
@@ -154,7 +241,8 @@ export function extractCandidateLines(rawText: string): Array<{ text: string; sc
     const line = toAscii(original).trim();
     if (!line) continue;
 
-    if (MEDICINE_SECTION_RE.test(line)) {
+    // The table header opens the medicine section and is not itself a candidate.
+    if (MEDICINE_SECTION_RE.test(line) || MEDICINE_TABLE_HEADER_RE.test(line)) {
       inMedicineSection = true;
       inClinicalSection = false;
       continue;
@@ -165,12 +253,22 @@ export function extractCandidateLines(rawText: string): Array<{ text: string; sc
     }
 
     let text = line;
-    const inlineRx = text.match(/^\s*(rx|r\/|℞|advice|advise|treatment|medications?)\s*[:.\-—]\s*(?=\S)/i);
+    const inlineRx = text.match(INLINE_MEDICINE_RE);
     if (inlineRx) {
       inMedicineSection = true;
       inClinicalSection = false;
       text = text.slice(inlineRx[0].length).trim();
       if (!text) continue;
+    } else {
+      // "Advice: plenty of fluids…" — the remainder is guidance, so keep reading
+      // it but under clinical rules, where a name alone is not enough.
+      const inlineClinical = text.match(INLINE_CLINICAL_RE);
+      if (inlineClinical) {
+        inMedicineSection = false;
+        inClinicalSection = true;
+        text = text.slice(inlineClinical[0].length).trim();
+        if (!text) continue;
+      }
     }
 
     const segments = splitListItems(text);
@@ -179,9 +277,47 @@ export function extractCandidateLines(rawText: string): Array<{ text: string; sc
       if (!segment.trim()) continue;
       const { score, evidence } = scoreLine(segment, { inMedicineSection });
       const withName = { ...evidence, nameLike: isPlausibleMedicineName(segment) };
+      const drugEvidence = hasDrugEvidence(withName);
+
+      /*
+       * Three gates, all of which a clinical line fails and a medicine line
+       * passes. They are applied before any catalog lookup on purpose: a
+       * MediBase or dictionary hit must never be able to rescue a line that came
+       * out of Chief Complaints, Diagnosis or Advice.
+       */
+
+      // 1. Named symptoms, diagnoses, schedules and advice need drug evidence.
+      if (NON_MEDICINE_TERM_RE.test(segment) && !drugEvidence) continue;
+
+      // 2. Inside clinical narrative, only a line describing a drug escapes —
+      //    a genuine "TAB. X 500mg" written under Advice still counts.
+      if (inClinicalSection && !drugEvidence) continue;
+
+      /*
+       * 3. Anywhere else, a name needs *something* behind it. Drug evidence, the
+       *    medicine section, or a dictionary hit all qualify; so does a clean
+       *    standalone name carrying none of the negative signals that mark
+       *    document furniture (field labels, credentials, org names, addresses,
+       *    dates, long digit runs, clock times) — that is what lets a bare list
+       *    of uncatalogued brands still be read.
+       */
+      const negativeSignal =
+        withName.fieldLabel ||
+        withName.credential ||
+        withName.org ||
+        withName.address ||
+        withName.date ||
+        withName.longDigits ||
+        withName.clock;
+      const admissible =
+        drugEvidence ||
+        inMedicineSection ||
+        looksLikeKnownDrug(segment) ||
+        (withName.nameLike && !negativeSignal);
+      if (!admissible) continue;
 
       const strong = score >= ACCEPT_THRESHOLD;
-      const weak = score >= WEAK_ACCEPT_FLOOR && withName.nameLike && !inClinicalSection;
+      const weak = score >= WEAK_ACCEPT_FLOOR && withName.nameLike;
 
       if (strong || weak) {
         candidates.push({ text: segment.trim(), score, evidence: withName, weak: !strong });
@@ -257,7 +393,9 @@ export function parseCandidate(candidate: { text: string; evidence?: ScoredEvide
     form: formMatch ? normalize(formMatch[0]).replace(/\.$/, "") : "",
     strength: strengthMatch ? strengthMatch[0].trim() : "",
     frequency: frequencyMatch ? frequencyMatch[0].trim() : "",
-    duration: durationMatch ? durationMatch[0].trim() : "",
+    // "x 5 days" is shorthand for a 5-day course — the multiplier is notation,
+    // not part of the duration, so it is dropped from the reported value.
+    duration: durationMatch ? durationMatch[0].trim().replace(/^x\s*/i, "").trim() : "",
     evidence,
   };
 }

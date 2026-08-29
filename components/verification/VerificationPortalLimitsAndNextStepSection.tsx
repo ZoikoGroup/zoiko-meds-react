@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { appUrl, internalApi } from "@/lib/config";
-import { validateWorkEmail } from "@/lib/validation";
+import { scrollToFirstError, validateEmail } from "@/lib/validation";
 
 const ACCENT = "#0FAA87";
 
@@ -575,9 +575,15 @@ function ClaimForm() {
     if (inFlight.current || !selected) return;
 
     const workEmail = contact.workEmail.trim();
-    const emailCheck = validateWorkEmail(workEmail);
+    /*
+     * Format only. The domain is not a gate: an independent pharmacist often
+     * has no company address, and plenty of existing ZoikoMeds users are on
+     * Gmail or Outlook. The server decides what corroboration the claim needs.
+     */
+    const emailCheck = validateEmail(workEmail);
     if (!emailCheck.isValid) {
-      setErrors({ workEmail: emailCheck.error ?? "Enter a valid work email address." });
+      setErrors({ workEmail: emailCheck.error ?? "Enter a valid email address." });
+      scrollToFirstError("workEmail");
       return;
     }
 
@@ -602,8 +608,13 @@ function ClaimForm() {
       const data = await res.json();
 
       if (!res.ok || !data?.success) {
-        if (data?.errors) setErrors(data.errors);
-        else setNotice(data?.message || "Something went wrong. Please try again.");
+        if (data?.errors) {
+          setErrors(data.errors);
+          // A refused claim is almost always about the address: focus it back.
+          if (data.errors.workEmail) scrollToFirstError("workEmail");
+        } else {
+          setNotice(data?.message || "Something went wrong. Please try again.");
+        }
         return;
       }
 
@@ -744,12 +755,13 @@ function ClaimForm() {
 
           <Field
             id="claim-work-email"
+            name="workEmail"
             label="Work email"
             type="email"
             value={contact.workEmail}
             error={errors.workEmail}
             placeholder="you@yourpharmacy.com"
-            hint="Use an address at the pharmacy's own domain so we can verify authorized control."
+            hint="We'll send verification steps here. Use the address you already use with ZoikoMeds if you have one."
             onChange={(v) => {
               setContact((prev) => ({ ...prev, workEmail: v }));
               setErrors((prev) => (prev.workEmail ? { ...prev, workEmail: "" } : prev));
@@ -834,6 +846,7 @@ function Field({
   hint,
   type = "text",
   optional,
+  name,
 }: {
   id: string;
   label: string;
@@ -844,6 +857,8 @@ function Field({
   hint?: string;
   type?: string;
   optional?: boolean;
+  /** Lets scrollToFirstError() focus this input by name. */
+  name?: string;
 }) {
   return (
     <div>
@@ -856,6 +871,7 @@ function Field({
       </label>
       <input
         id={id}
+        name={name}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
