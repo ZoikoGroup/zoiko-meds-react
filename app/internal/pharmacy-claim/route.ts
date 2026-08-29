@@ -3,7 +3,9 @@ import { getRateLimitHeaders, rateLimit } from "@/lib/api/rate-limit";
 import { saveSubmission } from "@/lib/db/submissionDb";
 import { dispatchFormEmails } from "@/lib/email/formMail";
 import { submissionTimeForRequest } from "@/lib/email/requestTimezone";
-import { validateWorkEmail } from "@/lib/validation";
+import { isRegisteredPharmacy } from "@/lib/pharmacyDirectory";
+import { lookupPharmacyMembership } from "@/lib/pharmacyMembership";
+import { isConsumerEmailDomain, validateEmail } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,12 @@ function field(value: unknown): string {
  * Rate limited: this route sends mail to a caller-supplied address.
  */
 export async function POST(req: NextRequest) {
+  const pathname = (req as NextRequest).nextUrl?.pathname ?? (req.url ? new URL(req.url).pathname : "");
+  if (pathname === "/internal/pharmacy-claim/search" || pathname.endsWith("/pharmacy-claim/search")) {
+    const { POST: searchPOST } = await import("./search/route");
+    return searchPOST(req);
+  }
+
   try {
     let body: Record<string, unknown>;
     try {
@@ -55,7 +63,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emailCheck = validateWorkEmail(workEmail);
+    /*
+     * Format only. The address's domain is deliberately NOT a gate: a
+     * pharmacist at an independent pharmacy routinely has no company domain,
+     * and many existing ZoikoMeds users are registered on Gmail or Outlook.
+     * How much corroboration the claim needs is decided below instead.
+     */
+    const emailCheck = validateEmail(workEmail);
     if (!emailCheck.isValid) {
       return NextResponse.json(
         { success: false, errors: { workEmail: emailCheck.error } },
@@ -77,7 +91,80 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isVerified = pharmacy.verified === true;
+    /*
+     * Is this an existing registered pharmacy? Asked of the directory rather
+     * than read off the submitted `verified` flag, which comes from the browser
+     * — otherwise a caller could label a registered pharmacy "unclaimed" and
+     * walk straight past the membership requirement below.
+     */
+    const registered = await isRegisteredPharmacy(pharmacyId);
+    if (registered === null) {
+      return NextResponse.json(
+        {
+          success: false,
+          errors: {
+            workEmail:
+              "We couldn't verify that this email is associated with the selected pharmacy. Please try again or contact support.",
+          },
+        },
+        { status: 503 },
+      );
+    }
+
+    const membership = await lookupPharmacyMembership({ email: workEmail, pharmacyId });
+    const consumerDomain = isConsumerEmailDomain(workEmail);
+
+    // Ids and verdict only — never the address, never a credential.
+    console.log(
+      `[pharmacy-claim] selectedPharmacyId=${pharmacyId} registered=${registered} ` +
+        `resolvedPharmacyId=${membership.resolvedPharmacyId ?? "none"} ` +
+        `membership=${membership.status} via=${membership.source}`,
+    );
+
+    /*
+     * An already-registered pharmacy has account holders, so the claim must come
+     * from one of them. Both refusals happen here — before any record is saved
+     * and before any mail is dispatched — so a rejected claim leaves no trace
+     * and sends nothing.
+     *
+     * `unknown` is refused too: treating an unverifiable link as permission
+     * would make an unreachable lookup a way past the check.
+     */
+    if (registered) {
+      if (membership.status === "not-linked") {
+        return NextResponse.json(
+          {
+            success: false,
+            errors: {
+              workEmail:
+                "This email is not associated with the selected pharmacy. Please use the email linked to your pharmacy account or contact support.",
+            },
+          },
+          { status: 403 },
+        );
+      }
+      if (membership.status === "unknown") {
+        return NextResponse.json(
+          {
+            success: false,
+            errors: {
+              workEmail:
+                "We couldn't verify that this email is associated with the selected pharmacy. Please try again or contact support.",
+            },
+          },
+          { status: 503 },
+        );
+      }
+    }
+
+    /*
+     * Only an unclaimed pharmacy may be claimed from an address with no
+     * established link, and that request still carries the flag telling the
+     * reviewing team to confirm authority before granting anything.
+     */
+    const requiresAdditionalVerification = membership.status !== "linked";
+
+    const isVerified = registered;
     const address = field(pharmacy.address);
     const searchedName = field(body.searchedName);
     const searchedLocation = field(body.searchedLocation);
@@ -93,9 +180,15 @@ export async function POST(req: NextRequest) {
         pharmacyName,
         pharmacyAddress: address,
         pharmacySource: field(pharmacy.source) || "unknown",
-        alreadyVerified: isVerified,
+        registeredPharmacy: registered,
         searchedName,
         searchedLocation,
+        membershipStatus: membership.status,
+        membershipDetail: membership.detail,
+        membershipSource: membership.source,
+        membershipResolvedPharmacyId: membership.resolvedPharmacyId ?? null,
+        consumerDomain,
+        requiresAdditionalVerification,
       },
     });
 
@@ -111,12 +204,30 @@ export async function POST(req: NextRequest) {
         { label: "Record Id", value: pharmacyId },
         {
           label: "Record Source",
-          value: isVerified ? "ZoikoMeds verified directory" : "Google Places (unclaimed)",
+          value: isVerified
+            ? "ZoikoMeds directory (registered)"
+            : "Off-platform / unclaimed",
         },
         { label: "Requester", value: fullName || "Not provided" },
         { label: "Work Email", value: workEmail },
         { label: "Searched Name", value: searchedName || "Not provided" },
         { label: "Searched Location", value: searchedLocation || "Not provided" },
+        {
+          label: "Existing User On Pharmacy",
+          value:
+            membership.status === "linked"
+              ? "Yes — confirmed existing user"
+              : membership.status === "not-linked"
+                ? `No — not an existing user (${membership.detail})`
+                : `Unconfirmed (${membership.detail})`,
+        },
+        { label: "Address Type", value: consumerDomain ? "Consumer mailbox" : "Organisation domain" },
+        {
+          label: "Verification Required",
+          value: requiresAdditionalVerification
+            ? "YES — confirm authority before granting any control"
+            : "Existing linked user",
+        },
       ],
     });
 
@@ -126,6 +237,8 @@ export async function POST(req: NextRequest) {
       submittedAt: record.submittedAt,
       // Only true when the message to this address was actually accepted.
       emailSent: Boolean(mail.confirmation?.success),
+      // Informational: the claim is a request either way, never a grant.
+      requiresAdditionalVerification,
     });
   } catch (err) {
     console.error("[pharmacy-claim] POST error:", err);

@@ -436,3 +436,42 @@ export async function searchPharmaciesForClaim(input: {
   if (ranked.length === 0) return { status: "no-match", locationLabel };
   return { status: "matched", matches: ranked, locationLabel };
 }
+
+/**
+ * Is this id a real record in the ZoikoMeds pharmacy directory?
+ *
+ * Asked server-side rather than trusting the `verified` flag on the submitted
+ * pharmacy: that value comes from the browser, so a caller could otherwise
+ * claim a registered pharmacy is "unclaimed" and skip the membership check.
+ *
+ * `null` means the directory could not be reached — the caller must treat that
+ * as unknown and fail safe, not as "not registered".
+ */
+export async function isRegisteredPharmacy(pharmacyId: string): Promise<boolean | null> {
+  // Places ids are minted by us for records that are, by definition, off-platform.
+  if (!pharmacyId || pharmacyId.startsWith("places:")) return false;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/pharmacies/${encodeURIComponent(pharmacyId)}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
+    });
+
+    if (res.status === 404) return false;
+    if (!res.ok) {
+      console.warn(`[pharmacy-claim] directory record lookup returned HTTP ${res.status}`);
+      return null;
+    }
+
+    const data: unknown = await res.json();
+    return Boolean(data && typeof data === "object" && text((data as Record<string, unknown>).id));
+  } catch (err) {
+    console.warn(
+      `[pharmacy-claim] directory record lookup failed: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+    return null;
+  }
+}
