@@ -18,15 +18,24 @@ import { apiFetch, type Medicine } from "@/lib/api";
 import type { ParsedCandidate } from "./candidate-extract";
 import { titleCase } from "./candidate-extract";
 import { matchOfflineDictionary } from "./known-drugs";
-import { bestSimilarity, containsName, normalize } from "./text-normalize";
+import { bestSimilarity, containsName, normalize, similarity } from "./text-normalize";
 
 /** Where an identification came from. */
-export type MedicineSource = "medibase" | "offline-dictionary" | "prescription" | "vision";
+export type MedicineSource =
+  /** Exact hit on a governed catalog identity. */
+  | "medibase"
+  /** Close but inexact catalog hit — trusted less, per the platform model. */
+  | "medibase-fuzzy"
+  | "offline-dictionary"
+  | "prescription"
+  | "vision";
 
 /** One medicine detected on a prescription. */
 export interface ScannedMedicine {
   /** Display name: the catalog's canonical name when matched, else as written. */
   name: string;
+  /** Catalog id when MediBase resolved this, so search need not re-match by name. */
+  medicineId?: string | null;
   /** Active ingredient, when the catalog knows it. */
   genericName?: string;
   /** e.g. "500 mg". */
@@ -54,6 +63,9 @@ export interface ScannedMedicine {
 
 const SOURCE_WEIGHT: Record<MedicineSource, number> = {
   medibase: 1.0,
+  // An inexact catalog hit is still a governed identity, but the name was not
+  // read cleanly enough to claim it outright.
+  "medibase-fuzzy": 0.94,
   // A small local list; it can confirm a spelling but is not a governed identity.
   "offline-dictionary": 0.78,
   // Read off the page but absent from the catalog — always user-confirmed.
@@ -124,6 +136,10 @@ export function needsConfirmation(confidence: number, source: MedicineSource): b
 function explain(source: MedicineSource, confidence: number): string {
   switch (source) {
     case "medibase":
+      return confidence >= HIGH_CONFIDENCE
+        ? "Matched to the ZoikoMeds catalog"
+        : "Close match in the ZoikoMeds catalog — please confirm";
+    case "medibase-fuzzy":
       return confidence >= HIGH_CONFIDENCE
         ? "Matched to the ZoikoMeds catalog"
         : "Close match in the ZoikoMeds catalog — please confirm";
@@ -261,9 +277,13 @@ export async function resolveCandidate(
   if (results) {
     const match = bestCatalogMatch(written, results);
     if (match) {
+      // Exact only when the written name really is the catalog name; anything
+      // reached by containment or fuzzy similarity is scored lower.
+      const catalogSource: MedicineSource =
+        similarity(written, match.medicine.canonicalName) >= 0.995 ? "medibase" : "medibase-fuzzy";
       const confidence = computeConfidence({
         nameSimilarity: match.similarity,
-        source: "medibase",
+        source: catalogSource,
         evidence,
         ocrConfidence: context.ocrConfidence,
       });
@@ -272,20 +292,25 @@ export async function resolveCandidate(
       return {
         ...base,
         name: resolvedName,
+        medicineId: match.medicine.id ?? null,
         genericName: match.medicine.genericName ?? undefined,
         strength: parsed.strength || undefined,
         dosageForm: base.dosageForm ?? match.medicine.dosageForm ?? undefined,
         confidence,
-        requiresConfirmation: needsConfirmation(confidence, "medibase"),
-        source: "medibase",
-        note: explain("medibase", confidence),
+        requiresConfirmation: needsConfirmation(confidence, catalogSource),
+        source: catalogSource,
+        note: explain(catalogSource, confidence),
       };
     }
   }
 
-  // 2. Offline dictionary — only meaningful when the catalog was unreachable,
-  //    and scored below it either way.
-  const offline = matchOfflineDictionary(written);
+  /*
+   * 2. Offline dictionary. `results === null` means the lookup failed, which is
+   *    the only case this list is for — when the catalog answered and simply
+   *    has no such medicine, the honest outcome is an unmatched reading the
+   *    user confirms, not a local-list identity scored as if it were governed.
+   */
+  const offline = results === null ? matchOfflineDictionary(written) : null;
   if (offline) {
     const confidence = computeConfidence({
       nameSimilarity: offline.similarity,

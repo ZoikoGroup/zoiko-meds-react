@@ -196,12 +196,16 @@ describe("catalog matching", () => {
 
     const { json } = await scan(textPdf(["Rx", "Tab Glycomet 500mg OD"]), "rx.pdf", "application/pdf");
 
+    // Reached by containment ("Glycomet" -> "Glycomet 500"), so it is a fuzzy
+    // catalog hit rather than an exact one — trusted, but not at full weight.
     expect(json.data.items[0]).toMatchObject({
       name: "Glycomet 500",
       genericName: "Metformin",
-      source: "medibase",
+      source: "medibase-fuzzy",
       requiresConfirmation: false,
     });
+    // The catalog identity is carried, not just the display string.
+    expect(json.data.items[0].medicineId).toBeTruthy();
   });
 
   it("keeps an unknown medicine as written and asks the user to confirm it", async () => {

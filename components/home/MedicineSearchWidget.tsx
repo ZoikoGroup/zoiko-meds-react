@@ -25,6 +25,16 @@ interface SearchOutcome { medicines: MedicineMatch[]; pharmacies: Pharmacy[]; }
  */
 interface ScannedItem {
   name: string;
+  /**
+   * Catalog id when MediBase resolved this medicine.
+   *
+   * Carried end-to-end so the selection keeps the resolved identity rather than
+   * only a display string. The availability search endpoint takes `q` (text)
+   * and has no id parameter, so the query itself stays a string — but for a
+   * resolved medicine that string is the catalog's canonical name, not the raw
+   * OCR reading.
+   */
+  medicineId?: string | null;
   genericName?: string;
   strength?: string;
   dosageForm?: string;
@@ -418,10 +428,12 @@ export default function MedicineSearchWidget() {
 
   /* ─── Core search — live ZoikoMeds backend (/search) ─── */
   const doSearch = useCallback(async (
-    med: string, lat: number, lng: number, rad: number
+    med: string, lat: number, lng: number, rad: number, medicineId?: string | null
   ): Promise<SearchOutcome> => {
     try {
-      const res = await searchMedicines({ q: med, lat, lng, maxDistance: rad });
+      // `medicineId` is only ever supplied for a scanned medicine the catalog
+      // already resolved. Typed search passes nothing and is unaffected.
+      const res = await searchMedicines({ q: med, lat, lng, maxDistance: rad, medicineId });
 
       // 1) Matched medicines (with their best verified-availability signal).
       const medicines: MedicineMatch[] = (res.results ?? []).map((r) => {
@@ -652,11 +664,19 @@ export default function MedicineSearchWidget() {
     }
     setScanSearching(true);
     const entries = await Promise.all(
-      Array.from(selectedMeds).map(async (med) => [med, await doSearch(med, lat!, lng!, rad)] as [string, SearchOutcome])
+      Array.from(selectedMeds).map(
+        async (med) =>
+          [
+            med,
+            // The scan resolved this to a catalog identity — carry it, rather
+            // than making the backend match the display label all over again.
+            await doSearch(med, lat!, lng!, rad, scanItems[med]?.medicineId ?? null),
+          ] as [string, SearchOutcome],
+      )
     );
     setScanResults(Object.fromEntries(entries));
     setScanSearching(false);
-  }, [selectedMeds, scanLat, scanLng, scanLocText, scanRadius, doSearch, geocodeAddress]);
+  }, [selectedMeds, scanItems, scanLat, scanLng, scanLocText, scanRadius, doSearch, geocodeAddress]);
 
   const handleScanRadiusChange = (val: number) => {
     setScanRadius(val);
