@@ -25,6 +25,52 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/** The governed identity for a medicine id, or null when no such medicine. */
+interface ResolvedMedicine {
+  id: string;
+  canonicalName: string;
+  genericName: string | null;
+  strength: string | null;
+  dosageForm: string | null;
+}
+
+/**
+ * Look one medicine up by id on the platform catalog.
+ *
+ * `null` means the catalog answered and has no such medicine (404) — the caller
+ * must refuse the request rather than quietly searching for something else.
+ * `undefined` means the catalog could not be reached at all.
+ */
+async function fetchMedicineById(id: string): Promise<ResolvedMedicine | null | undefined> {
+  try {
+    const resp = await fetch(`${API_BASE_URL}/medibase/${encodeURIComponent(id)}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (resp.status === 404) return null;
+    if (!resp.ok) {
+      console.warn(`[zoiko-search] medicine lookup returned HTTP ${resp.status}`);
+      return undefined;
+    }
+    const data = await resp.json();
+    const canonicalName = typeof data?.canonicalName === "string" ? data.canonicalName.trim() : "";
+    if (!data?.id || !canonicalName) return null;
+    return {
+      id: String(data.id),
+      canonicalName,
+      genericName: data.genericName ?? null,
+      strength: data.strength ?? null,
+      dosageForm: data.dosageForm ?? null,
+    };
+  } catch (err) {
+    console.warn(
+      `[zoiko-search] medicine lookup failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return undefined;
+  }
+}
+
 async function fetchGooglePlacesDirect(lat: number, lng: number, radiusKm: number) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) return null;
@@ -125,7 +171,49 @@ export async function GET(req: NextRequest) {
     "5";
   const radius = parseFloat(rawRadius) || 5;
 
-  console.log(`[zoiko-search] request started: q="${q}", lat=${latStr}, lng=${lngStr}, radius=${radius}km`);
+  /*
+   * Optional resolved identity. Only callers that already matched a medicine
+   * against MediBase send this — today, the prescription scanner. It is
+   * validated against the catalog and then *replaces* the search term, so a
+   * scan never re-resolves a medicine from raw OCR text. Absent, everything
+   * below behaves exactly as it always has.
+   */
+  const medicineIdParam = (searchParams.get("medicineId") ?? "").trim();
+  let resolvedMedicine: ResolvedMedicine | null = null;
+  let term = q;
+
+  if (medicineIdParam) {
+    const found = await fetchMedicineById(medicineIdParam);
+    if (found === null) {
+      // Known-bad id. Refused rather than falling back to `q`: silently
+      // searching for a different medicine than the one asked for is worse
+      // than an error the caller can act on.
+      console.log(`[zoiko-search] response completed: ${Date.now() - startTime}ms (status 404 - unknown medicineId)`);
+      return NextResponse.json(
+        { success: false, error: "UNKNOWN_MEDICINE", message: "No medicine exists with that id." },
+        { status: 404 },
+      );
+    }
+    if (found === undefined) {
+      console.log(`[zoiko-search] response completed: ${Date.now() - startTime}ms (status 503 - catalog unreachable)`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "MEDICINE_LOOKUP_UNAVAILABLE",
+          message: "The medicine catalog is temporarily unavailable. Please try again shortly.",
+        },
+        { status: 503 },
+      );
+    }
+    resolvedMedicine = found;
+    // The identity wins. `q` is kept only for logging/display compatibility.
+    term = found.canonicalName;
+  }
+
+  console.log(
+    `[zoiko-search] request started: medicineId=${medicineIdParam || "none"}, ` +
+      `lat=${latStr}, lng=${lngStr}, radius=${radius}km`,
+  );
 
   if (!latStr || !lngStr) {
     console.log(`[zoiko-search] response completed: ${Date.now() - startTime}ms (status 400 - missing params)`);
@@ -147,7 +235,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Check 5-minute in-memory response cache
-  const cacheKey = `${q.trim().toLowerCase()}:${lat.toFixed(3)}:${lng.toFixed(3)}:${radius}`;
+  const cacheKey = `${medicineIdParam || term.trim().toLowerCase()}:${lat.toFixed(3)}:${lng.toFixed(3)}:${radius}`;
   const cached = searchCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     console.log(`[zoiko-search] CACHE HIT for ${cacheKey} in ${Date.now() - startTime}ms`);
@@ -158,9 +246,9 @@ export async function GET(req: NextRequest) {
   // Construct target URLs to query downstream search backend / Google Places
   const targets: string[] = [];
   if (process.env.NODE_ENV !== "production") {
-    targets.push(`http://localhost:8000/api/search?q=${encodeURIComponent(q)}&lat=${lat}&lng=${lng}&maxDistance=${radius}`);
+    targets.push(`http://localhost:8000/api/search?q=${encodeURIComponent(term)}&lat=${lat}&lng=${lng}&maxDistance=${radius}`);
   }
-  targets.push(`${API_BASE_URL}/search?q=${encodeURIComponent(q)}&lat=${lat}&lng=${lng}&maxDistance=${radius}`);
+  targets.push(`${API_BASE_URL}/search?q=${encodeURIComponent(term)}&lat=${lat}&lng=${lng}&maxDistance=${radius}`);
 
   let lastError: { status: number; message: string; details?: unknown } | null = null;
 
@@ -195,7 +283,8 @@ export async function GET(req: NextRequest) {
         }
 
         const responsePayload = {
-          query: data.query || q,
+          query: data.query || term,
+          medicine: resolvedMedicine,
           results: [], // No ZoikoMeds pharmacy database / verified pharmacy results
           zeroResult: false,
           nearbyPharmacies: nearbyPharmacies || {
@@ -245,7 +334,8 @@ export async function GET(req: NextRequest) {
     const directPlaces = await fetchGooglePlacesDirect(lat, lng, radius);
     if (directPlaces) {
       const responsePayload = {
-        query: q,
+        query: term,
+        medicine: resolvedMedicine,
         results: [],
         zeroResult: false,
         nearbyPharmacies: directPlaces,

@@ -180,9 +180,13 @@ export function scrollToFirstError(fieldName?: string) {
 }
 
 /**
- * Consumer mailbox providers. Claiming authorized control of a pharmacy record
- * has to be tied to an address at the pharmacy's own domain, so these are
- * refused for that flow only — {@link validateEmail} still accepts them.
+ * Consumer mailbox providers.
+ *
+ * A pharmacist at an independent pharmacy very often has no address at a
+ * company domain, and many existing ZoikoMeds users are registered with one of
+ * these. So this list must never be used to REJECT an address — it only tells
+ * the claim workflow that the address on its own is not evidence of authority,
+ * so the request needs corroboration before any control is granted.
  */
 const CONSUMER_EMAIL_DOMAINS = new Set([
   "gmail.com",
@@ -210,20 +214,14 @@ const CONSUMER_EMAIL_DOMAINS = new Set([
 ]);
 
 /**
- * Validates a work/business email address: valid syntax, and not a personal
- * mailbox at a consumer provider.
+ * True when the address is at a consumer mailbox provider.
+ *
+ * Advisory only: it decides how much corroboration a pharmacy claim needs, and
+ * must not be used to reject an address. Callers that need a yes/no on the
+ * address itself want {@link validateEmail}.
  */
-export function validateWorkEmail(email: string): { isValid: boolean; error?: string } {
-  const base = validateEmail(email);
-  if (!base.isValid) return base;
-
-  const domain = email.trim().split("@")[1].toLowerCase();
-  if (CONSUMER_EMAIL_DOMAINS.has(domain)) {
-    return {
-      isValid: false,
-      error: "Use your work email at the pharmacy's own domain, not a personal address.",
-    };
-  }
-
-  return { isValid: true };
+export function isConsumerEmailDomain(email: string): boolean {
+  const parts = email.trim().toLowerCase().split("@");
+  if (parts.length !== 2) return false;
+  return CONSUMER_EMAIL_DOMAINS.has(parts[1]);
 }

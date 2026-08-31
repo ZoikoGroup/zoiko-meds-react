@@ -327,6 +327,13 @@ async function extractWithClaude(buffer: Buffer, mimeType: string): Promise<Visi
   }
 }
 
+/** True when at least one vision provider has a key, so the stage can run. */
+function visionConfigured(): boolean {
+  return Boolean(
+    process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.ANTHROPIC_API_KEY,
+  );
+}
+
 async function runVisionFallback(buffer: Buffer, mimeType: string): Promise<ScannedMedicine[]> {
   let readings = await extractWithGemini(buffer, mimeType);
   if (readings.length === 0) readings = await extractWithClaude(buffer, mimeType);
@@ -433,6 +440,17 @@ export async function scanPrescription(buffer: Buffer, mimeType: string): Promis
     const viaVision = await runVisionFallback(activeBuffer, isPdf ? "application/pdf" : activeMime || "image/jpeg");
     if (viaVision.length > 0) {
       return { medicines: viaVision, stage: "vision", pages: Math.max(pagesRead, 1), warnings };
+    }
+    /*
+     * The page needed assisted reading and could not get it. Say so, rather
+     * than letting a missing capability look like an unreadable prescription:
+     * handwriting is exactly the case that depends on this stage.
+     */
+    if (!visionConfigured() && ocrMedicines.length === 0) {
+      warnings.push(
+        "This page could not be read by on-server OCR, and assisted reading is not enabled here. " +
+          "Handwritten prescriptions usually need it — please type the medicine names instead.",
+      );
     }
   }
 

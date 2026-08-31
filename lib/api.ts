@@ -143,6 +143,14 @@ export interface SearchResult {
 
 export interface SearchResponse {
   query: string;
+  /** Present when the search ran against a supplied `medicineId`. */
+  medicine?: {
+    id: string;
+    canonicalName: string;
+    genericName: string | null;
+    strength: string | null;
+    dosageForm: string | null;
+  } | null;
   results: SearchResult[];
   zeroResult: boolean;
   nearbyPharmacies: {
@@ -164,14 +172,35 @@ export interface PharmacyListItem {
 
 /* ───────────────────── Public discovery endpoints ───────────────────── */
 
-/** GET /search — public medicine + availability discovery. */
+/**
+ * GET /search — public medicine + availability discovery.
+ *
+ * `medicineId` is optional and only set by callers that already hold a resolved
+ * MediBase identity (the prescription scanner). When present the search route
+ * treats it as authoritative and does not re-resolve the medicine from `q`,
+ * which for a scan is raw OCR text. Omitting it preserves the ordinary
+ * text-search behaviour exactly.
+ */
 export function searchMedicines(params: {
   q: string;
   lat?: number;
   lng?: number;
   maxDistance?: number;
+  medicineId?: string | null;
 }): Promise<SearchResponse> {
-  return apiFetch<SearchResponse>("search", { query: { ...params } });
+  const { medicineId, ...rest } = params;
+  return apiFetch<SearchResponse>("search", {
+    query: { ...rest, ...(medicineId ? { medicineId } : {}) },
+  });
+}
+
+/** GET /medibase/:id — the governed identity for one medicine, or null. */
+export async function getMedicineById(id: string): Promise<Medicine | null> {
+  try {
+    return await apiFetch<Medicine>(`medibase/${encodeURIComponent(id)}`);
+  } catch {
+    return null;
+  }
 }
 
 /** GET /medibase/match — fuzzy medicine-name matching (autocomplete). */

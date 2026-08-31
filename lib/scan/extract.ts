@@ -102,18 +102,14 @@ export async function detectMedicines(pages: PageText[]): Promise<ScannedMedicin
       .map((candidate) => parseCandidate(candidate))
       .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null);
 
-    // One round trip per distinct name, all in flight together — a prescription
-    // with eight medicines should not take eight sequential catalog calls.
-    console.log(
-      `[medicine/scan] Raw extracted prescription candidates (page ${page.page}) before database matching:`,
-      parsed.map((p) => ({
-        raw: p.raw,
-        name: p.name,
-        displayName: p.displayName,
-        strength: p.strength,
-      })),
-    );
-
+    /*
+     * One round trip per distinct name, all in flight together — a prescription
+     * with eight medicines should not take eight sequential catalog calls.
+     *
+     * Deliberately not logged: candidate lines and resolved names are
+     * prescription contents, and the privacy notice on the scan UI promises
+     * they are not stored or used for anything but this search. Counts only.
+     */
     const resolved = await Promise.all(
       parsed.map((candidate) =>
         resolveCandidate(candidate, {
@@ -128,13 +124,8 @@ export async function detectMedicines(pages: PageText[]): Promise<ScannedMedicin
     );
 
     console.log(
-      `[medicine/scan] Resolved extracted medicines (page ${page.page}):`,
-      resolved.filter(Boolean).map((m) => ({
-        name: m!.name,
-        genericName: m!.genericName,
-        strength: m!.strength,
-        source: m!.source,
-      })),
+      `[medicine/scan] page ${page.page}: ${parsed.length} candidate line(s), ` +
+        `${resolved.filter(Boolean).length} resolved`,
     );
 
     for (const medicine of resolved) {
