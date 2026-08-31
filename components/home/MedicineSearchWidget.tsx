@@ -686,10 +686,10 @@ export default function MedicineSearchWidget() {
   const RADII = [5, 10, 15, 20, 25, 30, 35, 40, 50];
 
   return (
-    <div className="bg-white rounded-3xl shadow-[0_8px_48px_rgba(0,0,0,0.12)] border border-[#e5e7eb] p-6 sm:p-8 w-full">
+    <div className="bg-white md:min-w-[980px] rounded-3xl shadow-[0_8px_48px_rgba(0,0,0,0.12)] border border-[#e5e7eb] p-6 sm:p-8 w-full">
 
       {/* ── TABS ── */}
-      <div className="flex bg-[#F0F3F9] rounded-xl p-1 gap-1 mb-6 max-w-md mx-auto">
+      {/* <div className="flex bg-[#F0F3F9] rounded-xl p-1 gap-1 mb-6 max-w-md mx-auto">
         {(["name", "scan"] as const).map((t) => (
           <button
             key={t}
@@ -705,7 +705,7 @@ export default function MedicineSearchWidget() {
             )}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* ══ TAB 1: SEARCH BY NAME ══ */}
       {tab === "name" && (
@@ -713,19 +713,20 @@ export default function MedicineSearchWidget() {
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-start">
             {/* Medicine Name — with autocomplete */}
             <div ref={medicineFieldRef} className="relative">
-              <label className="block text-[11px] font-semibold tracking-wider uppercase text-[#64748B] mb-1.5">Medicine Name</label>
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-[#64748B] mb-1.5">Medicine</label>
               <div className="relative">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                {/* <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                   <path d="M10.5 20.5L3.5 13.5a4.95 4.95 0 017-7l7 7a4.95 4.95 0 01-7 7z"/><line x1="9" y1="9" x2="15" y2="15"/>
-                </svg>
+                </svg> */}
                 <input
                   value={medicine}
                   onChange={(e) => handleMedicineChange(e.target.value)}
                   onFocus={() => { if (medSuggestions.length > 0) setShowMedSuggestions(true); }}
                   onKeyDown={handleMedicineKeyDown}
-                  placeholder="Enter a medicine name, brand, or generic"
+                  // placeholder="Enter a medicine name, brand, or generic"
+                  placeholder="Search by brand, generic, INN, or strength"
                   autoComplete="off"
-                  className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#CBD5E1] rounded-[10px] text-sm text-[#0F1F4E] font-semibold
+                  className="w-full h-11 pl-5 pr-3 border-[1.5px] border-[#CBD5E1] rounded-[10px] text-sm text-[#0F1F4E] font-semibold
                     placeholder:text-[#64748B] placeholder:font-normal bg-white focus:outline-none focus:border-[#0FAA87] focus:ring-[3px] focus:ring-[#0FAA87]/15 transition"
                 />
               </div>
@@ -755,28 +756,28 @@ export default function MedicineSearchWidget() {
                 </div>
               )}
 
-              <p className="text-[11.5px] text-[#5B6478] mt-1.5 leading-snug font-medium">
+              {/* <p className="text-[11.5px] text-[#5B6478] mt-1.5 leading-snug font-medium">
                 Enter a medicine name only. Do not enter symptoms, diagnoses, insurance details, or prescription images.
-              </p>
+              </p> */}
             </div>
 
             {/* Search Area */}
             <div>
-              <label className="block text-[11px] font-bold tracking-wider uppercase text-[#334155] mb-1.5">Search Area</label>
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-[#64748B] mb-1.5">Location</label>
               <div className="relative">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                {/* <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
                   <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                </svg>
+                </svg> */}
                 <input
                   value={locationText}
                   onChange={(e) => { setLocationText(e.target.value); setUserLat(undefined); setUserLng(undefined); }}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="City, ZIP code, postcode, or current location"
-                  className="w-full h-11 pl-9 pr-3 border-[1.5px] border-[#CBD5E1] rounded-[10px] text-sm text-[#0F1F4E] font-semibold
+                  className="w-full h-11 pl-5 pr-3 border-[1.5px] border-[#CBD5E1] rounded-[10px] text-sm text-[#0F1F4E] font-semibold
                     placeholder:text-[#64748B] placeholder:font-normal bg-white focus:outline-none focus:border-[#0FAA87] focus:ring-[3px] focus:ring-[#0FAA87]/15 transition"
                 />
               </div>
-              <div className="flex items-center gap-2 mt-1.5">
+              {/* <div className="flex items-center gap-2 mt-1.5">
                 <button
                   type="button"
                   onClick={() => handleGetMyLocation(setUserLat, setUserLng, setLocationText, setLocBtnLabel)}
@@ -806,7 +807,7 @@ export default function MedicineSearchWidget() {
                     Undo
                   </button>
                 )}
-              </div>
+              </div> */}
             </div>
 
             {/* Search button */}
@@ -817,11 +818,11 @@ export default function MedicineSearchWidget() {
                 className="h-11 px-5 bg-[#0D9A72] hover:bg-[#25a874] active:scale-95 text-white font-semibold text-sm
                   rounded-[10px] flex items-center gap-2 whitespace-nowrap transition-all duration-150 disabled:opacity-60 w-full sm:w-auto justify-center"
               >
-                {searching ? <Spinner /> : (
+                {/* {searching ? <Spinner /> : (
                   <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} className="w-4 h-4">
                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   </svg>
-                )}
+                )} */}
                 Search Availability
               </button>
             </div>
@@ -829,7 +830,7 @@ export default function MedicineSearchWidget() {
 
           {/* Radius + badges */}
           <div className="flex flex-wrap items-center gap-3 mt-4">
-            <span className="text-sm font-bold text-[#0F1F4E] whitespace-nowrap">Search radius:</span>
+            <span className="text-sm text-[#0F1F4E] whitespace-nowrap">Radius:</span>
             <div className="relative">
               <select
                 value={radius}
