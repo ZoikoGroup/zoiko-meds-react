@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 /**
  * PharmacyPortalWorkspacesSection
@@ -21,7 +22,7 @@ const WORKSPACES = [
       "Name, address, hours, contact details, service area, and public-facing profile information.",
     highlight: "Keep patient-facing info accurate.",
     cta: "Sign In to Update Profile",
-    href: "https://zoiko-meds-platform.vercel.app/login",
+    href: appUrl("/login"),
   },
   {
     icon: "lock",

@@ -1,6 +1,7 @@
 "use client"
 import Image from 'next/image'
 import { useRouter } from 'next/navigation';
+import { appUrl } from "@/lib/config";
 const followUpCards = [
     {
         image: {
@@ -10,7 +11,7 @@ const followUpCards = [
         title: "Save this search",
         desc: "Save a medicine and location so you can return without starting over — while respecting your privacy settings.",
         cta: "Create free account",
-        link: "https://zoiko-meds-platform.vercel.app/register",
+        link: appUrl("/register"),
         primary: true,
     },
     {

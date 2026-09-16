@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { appUrl } from "@/lib/config";
 
 /**
  * InventoryUploadMethodsSection
@@ -41,7 +42,7 @@ const METHODS = [
     badge: false,
     cta: "View Upload Requirements",
     ctaFilled: false,
-    href: "https://zoiko-meds-platform.vercel.app/login",
+    href: appUrl("/login"),
   },
   {
     icon: "branch",
@@ -54,7 +55,7 @@ const METHODS = [
     badge: true,
     cta: "Request PMS/POS Integration",
     ctaFilled: true,
-    href: "https://zoiko-meds-platform.vercel.app/login",
+    href: appUrl("/login"),
   },
   {
     icon: "code",

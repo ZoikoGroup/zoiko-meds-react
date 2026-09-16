@@ -1,12 +1,13 @@
 "use client"
 
 import { useRouter } from "next/navigation";
+import { appUrl } from "@/lib/config";
 
 const buttons = [
     {
         label: "Create Availability Alert",
         primary: true,
-        link:"https://zoiko-meds-platform.vercel.app/dashboard"
+        link: appUrl("/dashboard")
     },
     {
         label: "Search Medicines",

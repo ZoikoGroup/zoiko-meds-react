@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 const ACCENT = "#0FAA87";
 
@@ -94,7 +95,7 @@ export default function PrivacyCenterHeroSection() {
             <Reveal index={4} active={mounted}>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 <a
-                  href="https://zoiko-meds-platform.vercel.app/login"
+                  href={appUrl("/login")}
                   className="inline-flex items-center justify-center rounded-lg px-5 py-3 text-[13.5px] font-semibold text-white transition-opacity duration-150 hover:opacity-90"
                   style={{ backgroundColor: ACCENT }}
                 >
