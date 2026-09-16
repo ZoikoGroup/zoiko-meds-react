@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 /**
  * PharmacyPortalHeroSection
@@ -66,7 +67,7 @@ export default function PharmacyPortalHeroSection() {
                   <button
                     onClick={() =>
                       router.push(
-                        "https://zoiko-meds-platform.vercel.app/login",
+                        appUrl("/login"),
                       )
                     }
                     type="button"

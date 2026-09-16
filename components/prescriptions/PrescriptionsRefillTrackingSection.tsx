@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 /**
  * PrescriptionsRefillTrackingSection
@@ -31,14 +32,14 @@ const ACTIONS = [
     body: "Configure dose, refill, and medication-review reminders that fit your routine.",
     action: "Set reminder",
     icon: "bell",
-    href:"https://zoiko-meds-platform.vercel.app/dashboard"
+    href: appUrl("/dashboard")
   },
   {
     title: "Review details",
     body: "Check dosage, prescriber, and status before your refill window.",
     action: "Review details",
     icon: "eye",
-    href:"https://zoiko-meds-platform.vercel.app/dashboard"
+    href: appUrl("/dashboard")
   },
   {
     title: "Contact support",

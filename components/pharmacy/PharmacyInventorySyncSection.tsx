@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 /**
  * PharmacyInventorySyncSection
@@ -250,7 +251,7 @@ function TierCard({
       {/* CTA */}
       <button
         onClick={() =>
-          router.push("https://zoiko-meds-platform.vercel.app/login")
+          router.push(appUrl("/login"))
         }
         type="button"
         className={

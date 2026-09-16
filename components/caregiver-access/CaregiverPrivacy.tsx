@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { appUrl } from "@/lib/config";
 
 const privacyCards = [
   {
@@ -101,7 +102,7 @@ export default function CaregiverPrivacy() {
 
             <button
               onClick={() =>
-                router.push("https://zoiko-meds-platform.vercel.app/login")
+                router.push(appUrl("/login"))
               }
               className="mt-4 flex items-center gap-2 text-[15px] font-semibold text-[#00B7A8] transition hover:underline"
             >

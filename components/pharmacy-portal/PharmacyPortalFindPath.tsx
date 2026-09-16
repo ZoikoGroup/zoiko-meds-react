@@ -23,7 +23,7 @@ const PATHS = [
     description: "Approved pharmacy users who need portal access.",
     cta: "Sign In to Pharmacy Portal",
     variant: "solid",
-    link:"https://zoiko-meds-platform.vercel.app/login"
+    link: appUrl("/login")
   },
   {
     icon: "home",
