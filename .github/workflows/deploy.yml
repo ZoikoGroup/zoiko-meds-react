@@ -74,6 +74,31 @@ jobs:
             rm -f .next/lock
             npm run build
             pm2 restart zoikomeds
+
+            echo "Waiting for app to come back up..."
+            sleep 5
+
+            echo "=== Post-deploy smoke test: platform admin credential ==="
+            # This exact credential broke silently twice (once from a $-in-password
+            # dotenv-expand bug, once from a stale secret after a password rotation).
+            # Both failures were invisible until a real user hit a 503. Fail the
+            # deploy loudly instead of finding out from a support message.
+            LOGIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$NEXT_PUBLIC_API_URL/auth/login" \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"$PLATFORM_SERVICE_EMAIL\",\"password\":\"$PLATFORM_SERVICE_PASSWORD\"}")
+            if [ "$LOGIN_STATUS" != "200" ]; then
+              echo "::error::PLATFORM_SERVICE_EMAIL/PASSWORD login failed (HTTP $LOGIN_STATUS) after deploy. Pharmacy-claim membership verification will fail closed (503) for every claim until this is fixed. Check the GitHub Secret matches the account's current password, and that the value has no unescaped \$ characters."
+              exit 1
+            fi
+            echo "Platform admin credential OK (HTTP $LOGIN_STATUS)"
+
+            echo "=== Post-deploy smoke test: marketing site is actually serving ==="
+            HOME_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://zoikomeds.com")
+            if [ "$HOME_STATUS" != "200" ]; then
+              echo "::error::zoikomeds.com returned HTTP $HOME_STATUS after deploy/restart."
+              exit 1
+            fi
+            echo "Site is up (HTTP $HOME_STATUS)"
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
