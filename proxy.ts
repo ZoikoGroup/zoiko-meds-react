@@ -27,14 +27,16 @@ import type { NextRequest } from "next/server";
 //   4. Visitor from anywhere else on a normal path
 //        -> untouched
 //
-// Deliberately excluded (see matcher below), because rewriting/redirecting
-// these breaks real functionality rather than just changing a URL:
+// Deliberately excluded, via isExcludedPath() below (not the matcher --
+// see the comment there for why), because rewriting/redirecting these
+// breaks real functionality rather than just changing a URL:
 //   - /internal/*  -- server-side API routes this app calls from its own
 //     client-side fetches (search, scan, claim, etc.); the client expects
 //     the exact path it requested, not a redirect.
 //   - /api/*       -- same reasoning, for this app's own route handlers
 //     (contact form, briefing requests).
-//   - Next.js internals, static assets, and well-known files.
+//   - robots.txt / sitemap.xml, and (via the matcher) Next.js internals and
+//     static assets.
 //
 // Fail-safe by construction: if CF-IPCountry is ever missing (local dev,
 // a direct request that bypasses Cloudflare, a future infra change), the
@@ -45,9 +47,33 @@ import type { NextRequest } from "next/server";
 
 const IN_PREFIX = "/in";
 
+// Paths this proxy must never touch, checked explicitly here rather than
+// folded into the matcher's regex below. A (?:/|$) alternation in the
+// matcher string tested correctly against a plain JS RegExp locally, but
+// Next.js compiles matcher strings with its own logic that does not
+// reliably support the same regex features -- verified in production: it
+// let a real page (/api-access) get wrongly redirected. Plain string checks
+// here run as ordinary JS in the same runtime as the rest of this function,
+// so there is nothing left to guess about how they behave.
+function isExcludedPath(pathname: string): boolean {
+  return (
+    pathname === "/api" ||
+    pathname.startsWith("/api/") ||
+    pathname === "/internal" ||
+    pathname.startsWith("/internal/") ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml"
+  );
+}
+
 export function proxy(request: NextRequest) {
-  const country = request.headers.get("cf-ipcountry") ?? "";
   const { pathname } = request.nextUrl;
+
+  if (isExcludedPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  const country = request.headers.get("cf-ipcountry") ?? "";
 
   const isIndiaPath = pathname === IN_PREFIX || pathname.startsWith(`${IN_PREFIX}/`);
 
@@ -83,6 +109,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml|api(?:/|$)|internal(?:/|$)).*)",
+    // Only the standard, well-established exclusions here (Next's own
+    // documented pattern, unmodified) -- api/ and internal/ are excluded
+    // inside proxy() itself instead, see isExcludedPath above.
+    "/((?!_next/static|_next/image|favicon\\.ico).*)",
   ],
 };
