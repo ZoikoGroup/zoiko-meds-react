@@ -40,7 +40,7 @@ export function clientApiBase(): string {
 
 /** The authenticated frontend app (login, dashboards, portals). */
 export const APP_BASE_URL = (
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://zoiko-meds-platform.vercel.app"
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://app.zoikomeds.com"
 ).replace(/\/+$/, "");
 
 /** Build a URL into the authenticated app, e.g. appUrl("/login"). */
