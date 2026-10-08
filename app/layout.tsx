@@ -18,6 +18,9 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "ZoikoMeds — Intelligent Healthcare Platform",
   description: "ZoikoMeds connects patients, pharmacies, and enterprises through intelligent healthcare infrastructure.",
+  verification: {
+    google: "JK9Zkd6K7CJmyWSHWUvdd6DbjQyL0s-ow_KX3fkBFrc",
+  },
 };
 
 export default function RootLayout({
