@@ -29,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Pharmacy Portal", href: "/pharmacy-portal/", description: "Dashboard, requests & inventory signals" },
     { label: "Inventory Data Options", href: "/inventory-upload/", description: "PMS/API, SFTP/CSV, or manual upload" },
     { label: "Verification & Compliance", href: "/verification/", description: "Credential and license standards" },
+    { label: "Pricing", href: "/pricing", description: "Compare free and paid pharmacy plans." },
   ]},
   { label: "Enterprise", href: "/enterprise/", dropdown: [
     { label: "Hospital Systems", href: "/hospital-systems/", description: "Large-scale deployments" },
