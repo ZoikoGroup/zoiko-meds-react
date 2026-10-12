@@ -15,7 +15,7 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SMTP_FROM_ADDRESS,SMTP_FROM_NAME,APP_TIMEZONE,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY,PLATFORM_SERVICE_EMAIL,PLATFORM_SERVICE_PASSWORD
+          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SMTP_FROM_ADDRESS,SMTP_FROM_NAME,APP_TIMEZONE,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY,PLATFORM_SERVICE_EMAIL,PLATFORM_SERVICE_PASSWORD,GEMINI_API_KEY,GEMINI_PRESCRIPTION_MODELS
           script_stop: true
           command_timeout: 15m
           script: |
@@ -44,6 +44,8 @@ jobs:
             GOOGLE_PLACES_API_KEY=$GOOGLE_PLACES_API_KEY
             PLATFORM_SERVICE_EMAIL=$PLATFORM_SERVICE_EMAIL
             PLATFORM_SERVICE_PASSWORD=$PLATFORM_SERVICE_PASSWORD
+            GEMINI_API_KEY=$GEMINI_API_KEY
+            GEMINI_PRESCRIPTION_MODELS=$GEMINI_PRESCRIPTION_MODELS
             EOF
             # This file is recreated on every deploy, so an unset GitHub secret
             # silently becomes an empty value here. Name the empty ones (never
@@ -58,6 +60,9 @@ jobs:
               echo "GOOGLE_PLACES_API_KEY configured: yes"
             else
               echo "GOOGLE_PLACES_API_KEY configured: no"
+            fi
+            if [ -z "$GEMINI_API_KEY" ] || [ -z "$GEMINI_PRESCRIPTION_MODELS" ]; then
+              echo "WARNING: GEMINI_API_KEY/GEMINI_PRESCRIPTION_MODELS is empty in .env — Gemini prescription scanning will not work until the GitHub Secrets are set."
             fi
             if [ -z "$PLATFORM_SERVICE_EMAIL" ] || [ -z "$PLATFORM_SERVICE_PASSWORD" ]; then
               echo "WARNING: PLATFORM_SERVICE_EMAIL/PASSWORD is empty in .env — pharmacy-claim membership verification will fail closed (503) for every claim on a registered pharmacy."
@@ -128,3 +133,6 @@ jobs:
           # already-registered pharmacy fails closed with a 503.
           PLATFORM_SERVICE_EMAIL: ${{ secrets.PLATFORM_SERVICE_EMAIL }}
           PLATFORM_SERVICE_PASSWORD: ${{ secrets.PLATFORM_SERVICE_PASSWORD }}
+          # Gemini prescription scanning. Server-side only, never NEXT_PUBLIC_.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_PRESCRIPTION_MODELS: ${{ secrets.GEMINI_PRESCRIPTION_MODELS }}
