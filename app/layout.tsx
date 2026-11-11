@@ -7,6 +7,7 @@ import { Zoi } from "@/components/zoi";
 import ClientTimezone from "@/components/layout/ClientTimezone";
 import LanguageSuggestion from "@/components/language/LanguageSuggestion";
 import LocaleProvider from "@/components/language/LocaleProvider";
+import { BlackFridayPopup } from "@/components/black-friday";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -46,6 +47,8 @@ export default function RootLayout({
           <ClientTimezone />
           {/* Offers the language of the visitor's region once; never switches on its own. */}
           <LanguageSuggestion />
+          {/* Black Friday / Cyber Monday offer, once per session until 30 Nov 2026. */}
+          <BlackFridayPopup />
         </LocaleProvider>
       </body>
     </html>

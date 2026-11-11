@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
       { source: "/register", destination: appUrl("/register"), permanent: false },
       { source: "/create-account", destination: appUrl("/register"), permanent: false },
       { source: "/support", destination: "/contact", permanent: false },
+      { source: "/black-friday", destination: "/black-friday-landing-page", permanent: false },
     ];
   },
 };
