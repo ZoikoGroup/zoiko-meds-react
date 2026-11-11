@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { appUrl } from "@/lib/config";
 
 type DashboardState = {
   icon: React.ElementType;
@@ -41,7 +42,7 @@ const STATES: DashboardState[] = [
     description:
       "Analytics view loaded with confidence, trend, and network modules.",
     linkLabel: "Save view",
-    href: "https://zoiko-meds-platform.vercel.app/login",
+    href: appUrl("/login"),
   },
   {
     icon: TriangleAlert,

@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { BarChart2, Building2, Check, LucideIcon } from "lucide-react";
+import { appUrl } from "@/lib/config";
 
 interface Feature {
   title: string;
@@ -25,7 +26,7 @@ const CARDS_DATA: CardData[] = [
     icon: BarChart2,
     title: "Intelligence Pro",
     badge: "30-day evaluation · no card · no auto-conversion",
-    href: "https://zoiko-meds-platform.vercel.app/dashboard",
+    href: appUrl("/dashboard"),
     description:
       "A predictable per-location subscription for decision-support intelligence — demand visibility, unfulfilled-search insight, restock signals, and advanced routing. It never converts routing or dashboards into paid search ranking.",
     features: [

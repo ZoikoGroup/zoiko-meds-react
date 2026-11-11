@@ -6,9 +6,21 @@
 //   – Copy your logo.webp into: public/logo.webp
 //   – The <Image> tag below references /logo.webp
 
+"use client";
+
 import Link from "next/link";
+import { useTranslation } from "@/components/language/LocaleProvider";
+import type { MessageKey } from "@/lib/i18n/messages";
 
 export default function NotFound() {
+  const t = useTranslation();
+
+  const quickLinks: { key: MessageKey; href: string }[] = [
+    { key: "notFound.links.inventoryUpload", href: "/inventory-upload" },
+    { key: "notFound.links.pharmacyPortal", href: "#" },
+    { key: "notFound.links.support", href: "#" },
+  ];
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0D1B3E] px-6 py-16">
 
@@ -69,7 +81,7 @@ export default function NotFound() {
             className="inline-block rounded-full border px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]"
             style={{ borderColor: "#0FAA87", color: "#0FAA87", background: "rgba(15,170,135,0.08)" }}
           >
-            Page not found
+            {t("notFound.eyebrow")}
           </span>
         </div>
 
@@ -77,7 +89,7 @@ export default function NotFound() {
         <h1
           className="mt-5 max-w-md text-[1.45rem] font-bold leading-snug text-white animate-[zoikoFadeUp_0.6s_ease-out_0.25s_both] sm:text-[1.7rem]"
         >
-          This pharmacy path doesn&apos;t exist.
+          {t("notFound.title")}
         </h1>
 
         {/* Subtext */}
@@ -85,8 +97,7 @@ export default function NotFound() {
           className="mt-3 max-w-sm text-[14px] leading-relaxed animate-[zoikoFadeUp_0.6s_ease-out_0.3s_both]"
           style={{ color: "#8FA3C8" }}
         >
-          The page you&apos;re looking for may have moved, been removed, or the
-          URL may be incorrect. Let&apos;s get you back on track.
+          {t("notFound.description")}
         </p>
 
         {/* CTAs */}
@@ -99,7 +110,7 @@ export default function NotFound() {
             style={{ background: "#0FAA87" }}
           >
             <HomeIcon />
-            Back to home
+            {t("notFound.backHome")}
           </Link>
 
           <Link
@@ -107,7 +118,7 @@ export default function NotFound() {
             className="inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-[13.5px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/5 active:scale-[0.97]"
             style={{ borderColor: "rgba(255,255,255,0.2)" }}
           >
-            Pharmacy verification
+            {t("notFound.verification")}
           </Link>
         </div>
 
@@ -115,18 +126,14 @@ export default function NotFound() {
         <div
           className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 animate-[zoikoFadeUp_0.6s_ease-out_0.4s_both]"
         >
-          {[
-            { label: "Inventory upload", href: "/inventory-upload" },
-            { label: "Pharmacy portal", href: "#" },
-            { label: "Support", href: "#" },
-          ].map((link) => (
+          {quickLinks.map((link) => (
             <Link
-              key={link.label}
+              key={link.key}
               href={link.href}
               className="text-[12.5px] transition-colors hover:underline"
               style={{ color: "#5B7AA8" }}
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </div>
@@ -136,7 +143,7 @@ export default function NotFound() {
           className="mt-12 text-[11px] animate-[zoikoFadeUp_0.6s_ease-out_0.45s_both]"
           style={{ color: "#3B4F72" }}
         >
-          © {new Date().getFullYear()} ZoikoMeds. All rights reserved.
+          {t("notFound.copyright", { year: new Date().getFullYear() })}
         </p>
       </div>
 

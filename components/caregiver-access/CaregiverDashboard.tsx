@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { appUrl } from "@/lib/config";
 
 const IconPerson = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -216,7 +217,7 @@ export default function CaregiverDashboard() {
 
           <button
             onClick={() =>
-              router.push("https://zoiko-meds-platform.vercel.app/dashboard")
+              router.push(appUrl("/dashboard"))
             }
             className="w-full sm:w-auto self-start sm:self-auto rounded-xl cursor-pointer hover:bg-[#e2e8f897] flex items-center justify-center gap-2 border border-[#CDD7E3] bg-[#E2E8F8] px-6 py-3 transition-colors"
           >

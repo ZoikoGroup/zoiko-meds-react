@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { appUrl } from "@/lib/config";
 
 export default function CtaBannerSection() {
   const containerVariants = {
@@ -42,7 +43,7 @@ export default function CtaBannerSection() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
             <a
-              href="https://zoiko-meds-platform.vercel.app/dashboard"
+              href={appUrl("/dashboard")}
               className="bg-[#13A594] hover:bg-[#0f8779] text-white font-medium text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-colors duration-200 shadow-sm text-center min-w-[220px]"
             >
               Start 30-Day Pro Evaluation

@@ -1,7 +1,7 @@
 import {
   LayoutGrid, Star, ShieldCheck, Code2, Link2, Lock, BarChart3,
   User, FileText, Calendar, Search, Bell, Heart, Users, CheckCircle2, Activity,
-  Home, Globe, Radar, Navigation,
+  Home, Globe, Radar, Navigation, CreditCard,
 } from "lucide-react";
 import type { MegaMenuConfig } from "./MegaMenu";
 
@@ -83,6 +83,7 @@ export const pharmaciesMegaMenuConfig: MegaMenuConfig = {
     { title: "Pharmacy Portal", description: "Dashboard, requests & inventory signals.", href: "/pharmacy-portal/", icon: <LayoutGrid size={18} />, bg: "#EAF0FF", color: "#3B6EF6" },
     { title: "Inventory Data Options", description: "PMS/API, SFTP/CSV, or manual upload.", href: "/inventory-upload/", icon: <Code2 size={18} />, bg: "#FDF1DF", color: "#E0A030" },
     { title: "Verification & Compliance", description: "Credential and license standards.", href: "/verification/", icon: <ShieldCheck size={18} />, bg: "#F1EBFF", color: "#8B5CF6" },
+    { title: "Pricing", description: "Compare free and paid pharmacy plans.", href: "/pricing", icon: <CreditCard size={18} />, bg: "#E3F6EF", color: "#0FA980" },
   ],
   featured: {
     stats: [

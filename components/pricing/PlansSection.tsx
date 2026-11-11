@@ -13,6 +13,7 @@ import {
   Info,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { appUrl } from "@/lib/config";
 
 export default function PlansSection() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
@@ -255,7 +256,7 @@ export default function PlansSection() {
               </div>
 
               <div>
-                <button onClick={()=>router.push("https://zoiko-meds-platform.vercel.app/dashboard")} className="w-full cursor-pointer py-3 px-4 rounded-xl bg-[#13A594] text-white font-semibold text-[15px] hover:bg-[#0d8f72] transition-colors shadow-sm">
+                <button onClick={()=>router.push(appUrl("/dashboard"))} className="w-full cursor-pointer py-3 px-4 rounded-xl bg-[#13A594] text-white font-semibold text-[15px] hover:bg-[#0d8f72] transition-colors shadow-sm">
                   Start 30-Day Evaluation
                 </button>
                 <p className="text-[11px] text-[#8892A6] text-center mt-3">

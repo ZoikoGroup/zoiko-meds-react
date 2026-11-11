@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { appUrl } from "@/lib/config";
 
 const ACCENT = "#13A594";
 
@@ -31,7 +32,7 @@ const PATH_CARDS = [
     title: "Returning patient",
     description: "Jump to sign-in, your saved medicine dashboard, and alert review.",
     ctaLabel: "Sign In",
-    href: "https://zoiko-meds-platform.vercel.app/login",
+    href: appUrl("/login"),
     variant: "outline",
     icon: (
       <>

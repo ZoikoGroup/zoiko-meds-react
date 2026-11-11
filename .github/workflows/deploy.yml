@@ -15,7 +15,7 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SMTP_FROM_ADDRESS,SMTP_FROM_NAME,APP_TIMEZONE,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY
+          envs: SMTP_HOST,SMTP_PORT,SMTP_USE_SSL,SMTP_USER,SMTP_PASSWORD,SMTP_FROM_ADDRESS,SMTP_FROM_NAME,APP_TIMEZONE,SUPPORT_EMAIL,GROQ_API_KEY,GROQ_MODEL,NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_URL,LIVE_INVENTORY_API_URL,LIVE_INVENTORY_API_KEY,LIVE_INVENTORY_TIMEOUT_MS,DISABLE_LOCAL_FALLBACK,STRICT_LIVE_INVENTORY_ONLY,GOOGLE_PLACES_API_KEY,PLATFORM_SERVICE_EMAIL,PLATFORM_SERVICE_PASSWORD,GEMINI_API_KEY,GEMINI_PRESCRIPTION_MODELS
           script_stop: true
           command_timeout: 15m
           script: |
@@ -42,6 +42,10 @@ jobs:
             DISABLE_LOCAL_FALLBACK=$DISABLE_LOCAL_FALLBACK
             STRICT_LIVE_INVENTORY_ONLY=$STRICT_LIVE_INVENTORY_ONLY
             GOOGLE_PLACES_API_KEY=$GOOGLE_PLACES_API_KEY
+            PLATFORM_SERVICE_EMAIL=$PLATFORM_SERVICE_EMAIL
+            PLATFORM_SERVICE_PASSWORD=$PLATFORM_SERVICE_PASSWORD
+            GEMINI_API_KEY=$GEMINI_API_KEY
+            GEMINI_PRESCRIPTION_MODELS=$GEMINI_PRESCRIPTION_MODELS
             EOF
             # This file is recreated on every deploy, so an unset GitHub secret
             # silently becomes an empty value here. Name the empty ones (never
@@ -57,6 +61,12 @@ jobs:
             else
               echo "GOOGLE_PLACES_API_KEY configured: no"
             fi
+            if [ -z "$GEMINI_API_KEY" ] || [ -z "$GEMINI_PRESCRIPTION_MODELS" ]; then
+              echo "WARNING: GEMINI_API_KEY/GEMINI_PRESCRIPTION_MODELS is empty in .env — Gemini prescription scanning will not work until the GitHub Secrets are set."
+            fi
+            if [ -z "$PLATFORM_SERVICE_EMAIL" ] || [ -z "$PLATFORM_SERVICE_PASSWORD" ]; then
+              echo "WARNING: PLATFORM_SERVICE_EMAIL/PASSWORD is empty in .env — pharmacy-claim membership verification will fail closed (503) for every claim on a registered pharmacy."
+            fi
             npm install
             # Prescription OCR reads its language model from disk. The file is
             # normally committed under public/tessdata; fetch it once here so a
@@ -69,6 +79,31 @@ jobs:
             rm -f .next/lock
             npm run build
             pm2 restart zoikomeds
+
+            echo "Waiting for app to come back up..."
+            sleep 5
+
+            echo "=== Post-deploy smoke test: platform admin credential ==="
+            # This exact credential broke silently twice (once from a $-in-password
+            # dotenv-expand bug, once from a stale secret after a password rotation).
+            # Both failures were invisible until a real user hit a 503. Fail the
+            # deploy loudly instead of finding out from a support message.
+            LOGIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$NEXT_PUBLIC_API_URL/auth/login" \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"$PLATFORM_SERVICE_EMAIL\",\"password\":\"$PLATFORM_SERVICE_PASSWORD\"}")
+            if [ "$LOGIN_STATUS" != "200" ]; then
+              echo "::error::PLATFORM_SERVICE_EMAIL/PASSWORD login failed (HTTP $LOGIN_STATUS) after deploy. Pharmacy-claim membership verification will fail closed (503) for every claim until this is fixed. Check the GitHub Secret matches the account's current password, and that the value has no unescaped \$ characters."
+              exit 1
+            fi
+            echo "Platform admin credential OK (HTTP $LOGIN_STATUS)"
+
+            echo "=== Post-deploy smoke test: marketing site is actually serving ==="
+            HOME_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://zoikomeds.com")
+            if [ "$HOME_STATUS" != "200" ]; then
+              echo "::error::zoikomeds.com returned HTTP $HOME_STATUS after deploy/restart."
+              exit 1
+            fi
+            echo "Site is up (HTTP $HOME_STATUS)"
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -83,8 +118,8 @@ jobs:
           SUPPORT_EMAIL: ${{ secrets.SUPPORT_EMAIL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'llama-3.3-70b-versatile' }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://get.zoikomeds.com/api' }}
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://zoiko-meds-platform.vercel.app' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.zoikomeds.com/api' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://app.zoikomeds.com' }}
           LIVE_INVENTORY_API_URL: ${{ secrets.LIVE_INVENTORY_API_URL || 'https://api.zoikomeds.com/v1/live-inventory' }}
           LIVE_INVENTORY_API_KEY: ${{ secrets.LIVE_INVENTORY_API_KEY }}
           LIVE_INVENTORY_TIMEOUT_MS: ${{ secrets.LIVE_INVENTORY_TIMEOUT_MS || '3000' }}
@@ -93,3 +128,11 @@ jobs:
           # Without this, lib/geocoding.ts silently falls back to Nominatim,
           # which rate-limits requests from cloud IPs. Add the repo secret.
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          # Platform admin credential used to resolve pharmacy-claim membership
+          # (see lib/pharmacyMembership.ts). Without these, every claim on an
+          # already-registered pharmacy fails closed with a 503.
+          PLATFORM_SERVICE_EMAIL: ${{ secrets.PLATFORM_SERVICE_EMAIL }}
+          PLATFORM_SERVICE_PASSWORD: ${{ secrets.PLATFORM_SERVICE_PASSWORD }}
+          # Gemini prescription scanning. Server-side only, never NEXT_PUBLIC_.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_PRESCRIPTION_MODELS: ${{ secrets.GEMINI_PRESCRIPTION_MODELS }}
