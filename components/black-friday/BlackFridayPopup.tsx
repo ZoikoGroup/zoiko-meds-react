@@ -13,7 +13,7 @@ import { X, Sparkles, Check, ArrowRight } from "lucide-react";
  * on account pages, and stops appearing once the promotion has ended.
  */
 
-const PROMO_START = new Date("2026-11-27T00:00:00+05:30");
+const PROMO_START = new Date("2026-11-20T00:00:00+05:30");
 const PROMO_END = new Date("2026-12-01T00:00:00+05:30"); // end of Cyber Monday, 30 Nov (IST)
 const SEEN_KEY = "zm_bf2026_popup_seen";
 const OPEN_DELAY_MS = 1500;
@@ -258,7 +258,7 @@ export default function BlackFridayPopup() {
                     Black Friday
                   </span>
                   <span className="text-white text-[11px] sm:text-xs font-medium px-2.5">
-                    27 Nov – Cyber Monday 30 Nov 2026
+                    20 Nov – Cyber Monday 30 Nov 2026
                   </span>
                 </div>
 

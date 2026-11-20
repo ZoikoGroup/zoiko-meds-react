@@ -9,9 +9,9 @@ import {
 } from "@/components/black-friday";
 
 export const metadata: Metadata = {
-  title: "Black Friday & Cyber Monday Deals | ZoikoMeds",
+  title: "Black Friday Sale 2026 – Special Offers | ZoikoMeds",
   description:
-    "Better medication discovery starts with information. Explore eligible ZoikoMeds pharmacy-partner terms for independent pharmacies, pharmacy groups, chains and hospitals in India.",
+  "Explore ZoikoMeds Black Friday offers and special discounts. Visit our website to discover available deals and learn more about our healthcare platform."
 };
 
 export default function BlackFridayLandingPage() {

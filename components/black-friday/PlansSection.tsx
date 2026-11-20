@@ -43,7 +43,7 @@ export default function PlansSection() {
                 Monday
               </span>
               <span className="bg-[#00A99D] text-[#002f34] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-[2px] mt-2.5 inline-block">
-                27-30 NOV 2026
+                20-30 NOV 2026
               </span>
             </div>
 
