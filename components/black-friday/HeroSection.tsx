@@ -56,7 +56,7 @@ export default function HeroSection() {
                 BLACK FRIDAY
               </span>
               <span className="text-white text-xs sm:text-[13px] font-medium px-3 py-1 tracking-normal leading-tight">
-                27 Nov - Cyber Monday 30 Nov 2026
+                20 Nov - Cyber Monday 30 Nov 2026
               </span>
             </div>
 
@@ -109,7 +109,7 @@ export default function HeroSection() {
                   BF / CM
                 </span>
                 <span className="block text-sm sm:text-base font-black tracking-tight text-center leading-tight mt-0.5">
-                  27-30.11
+                  20-30.11
                 </span>
               </div>
 
